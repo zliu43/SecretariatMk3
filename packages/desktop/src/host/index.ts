@@ -77,7 +77,7 @@ import {
 import {
   HostMessageTypes,
   HostResponseTypes,
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   formatLogPrefix,
   formatZCodeHostProcessName,
   formatZodError,
@@ -185,7 +185,7 @@ const hostRemoteMediaRequestLimiter = {
   getState: () => ({ active: activeRemoteMediaRequests, limit: 4 }),
 };
 const remoteMediaRangePreviewEnabled =
-  process.env["ZCODE_REMOTE_MEDIA_RANGE_PREVIEW_ENABLED"] !== "0";
+  process.env["SECRETARIAT_REMOTE_MEDIA_RANGE_PREVIEW_ENABLED"] !== "0";
 
 type RemoteAssetDirs = Pick<
   ConnectOptions,
@@ -197,7 +197,7 @@ const hostNetworkCapture = createHostNetworkCapture(parentPort);
 
 // 进程检索体验优化：host 由 utilityProcess 拉起时外壳仍是 Electron Helper，
 // 这里根据 main 传入的窗口 label 补一层稳定的 zcode-* title，方便系统进程列表过滤。
-process.title = formatZCodeHostProcessName(process.env["ZCODE_PROCESS_LABEL"]);
+process.title = formatZCodeHostProcessName(process.env["SECRETARIAT_PROCESS_LABEL"]);
 
 type HostLogLevel = "info" | "warn" | "error";
 
@@ -559,7 +559,7 @@ async function dispatchOffPeakRun(request: OffPeakRunDispatchRequest): Promise<{
 }> {
   const zcodeTaskService = activeServices?.getOptional(IZCodeTaskService);
   if (!zcodeTaskService) {
-    throw new Error("ZCode task service is not initialized.");
+    throw new Error("Secretariat task service is not initialized.");
   }
   const runtime = await ensureOffPeakRuntime();
   if (!runtime) {
@@ -873,7 +873,7 @@ async function dispatchCronRun(request: CronRunDispatchRequest): Promise<{
   const targetServices = resolveAutomationTargetServices(request);
   const zcodeTaskService = targetServices.getOptional(IZCodeTaskService);
   if (!zcodeTaskService) {
-    throw new Error("ZCode task service is not initialized.");
+    throw new Error("Secretariat task service is not initialized.");
   }
   const modelSelectionService = targetServices.getOptional(IModelSelectionService);
   if (!modelSelectionService) {
@@ -1372,12 +1372,12 @@ function createReportingRemoteZCodeTaskService<T extends object>(
     const onDynamicTaskReady = Reflect.get(target, "onDynamicTaskReady");
     if (typeof onDynamicTaskReady !== "function") {
       workspaceTaskTracker.finish(taskId, meta);
-      throw new Error("remote ZCode task service does not expose onDynamicTaskReady");
+      throw new Error("remote Secretariat task service does not expose onDynamicTaskReady");
     }
     const subscribe = onDynamicTaskReady.call(target, taskId);
     if (typeof subscribe !== "function") {
       workspaceTaskTracker.finish(taskId, meta);
-      throw new Error("remote ZCode task ready event is not subscribable");
+      throw new Error("remote Secretariat task ready event is not subscribable");
     }
     workspaceProxyState.trackTaskReady(
       taskId,
@@ -1388,7 +1388,7 @@ function createReportingRemoteZCodeTaskService<T extends object>(
     return true;
   }
 
-  // remote workspace 的 ZCode Agent manager 跑在远端 server，desktop main 不能直接看到
+  // remote workspace 的 Secretariat Agent manager 跑在远端 server，desktop main 不能直接看到
   // `handles` 状态。sendPrompt Promise 只是远端 ACK，必须等待 task ready 才能允许回收 workspace。
   return new Proxy(service, {
     get(target, property, receiver) {
@@ -1531,12 +1531,12 @@ function warmUpZCodeAgent(
       if (!result.available) {
         if (result.reasonCode === "provider_not_ready") {
           logger.info(
-            `ZCode agent warmup waiting for provider/model (${reason}) workspace=${workspacePath}`,
+            `Secretariat agent warmup waiting for provider/model (${reason}) workspace=${workspacePath}`,
           );
           return;
         }
         logger.warn(
-          `ZCode agent warmup unavailable (${reason}) workspace=${workspacePath} reason=${result.reason ?? "unknown"}`,
+          `Secretariat agent warmup unavailable (${reason}) workspace=${workspacePath} reason=${result.reason ?? "unknown"}`,
         );
         return;
       }
@@ -1544,11 +1544,11 @@ function warmUpZCodeAgent(
       // presentation 只剩 mode 与 slash commands。预热不能为读取 presentation 额外创建
       // Agent App，否则其 MCP close 会占住协议通道并阻塞真正的 Session 初始化。
       logger.info(
-        `ZCode agent warmup ready (${reason}) workspace=${workspacePath} transport=${result.transportKind ?? "unknown"}`,
+        `Secretariat agent warmup ready (${reason}) workspace=${workspacePath} transport=${result.transportKind ?? "unknown"}`,
       );
     })
     .catch((error) => {
-      logger.warn(`ZCode agent warmup failed (${reason}) workspace=${workspacePath}:`, error);
+      logger.warn(`Secretariat agent warmup failed (${reason}) workspace=${workspacePath}:`, error);
     });
 }
 
@@ -2566,7 +2566,7 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
       parentPort.postMessage({
         type: HostResponseTypes.SessionMessageDeliverResult,
         result: {
-          error: "ZCode task service is not initialized.",
+          error: "Secretariat task service is not initialized.",
           messageId: msg.request.messageId,
           requestId: msg.request.requestId,
           sessionId: msg.request.fromSessionId,
@@ -2602,7 +2602,7 @@ parentPort.on("message", async (e: Electron.MessageEvent) => {
   if (msg.type === HostMessageTypes.SessionMessageDeliveryResult) {
     const zcodeTaskService = activeServices?.getOptional(IZCodeTaskService);
     if (!zcodeTaskService) {
-      logger.warn("session message delivery result received before ZCode task service initialized");
+      logger.warn("session message delivery result received before Secretariat task service initialized");
       return;
     }
     void zcodeTaskService.sendSessionMessageDeliveryResult(msg.result).catch((error) => {
@@ -3087,8 +3087,8 @@ async function setupRemoteConnection(
     remoteRuntimeNetwork,
     signal,
     // SSH/Docker 远端 server 由 host process 单独启动，不能依赖桌面 main 的环境继承。
-    // 这里显式透传编译期版本，避免漏导入后生成裸 ZCODE_VERSION 引用导致 SSH 初始化直接 ReferenceError。
-    appVersion: ZCODE_VERSION,
+    // 这里显式透传编译期版本，避免漏导入后生成裸 SECRETARIAT_VERSION 引用导致 SSH 初始化直接 ReferenceError。
+    appVersion: SECRETARIAT_VERSION,
     // 远端 zcode-server/agent 是独立进程，不能继承 host 里的测试/生产 endpoint 选择。
     // 这里只透传 server 侧白名单允许的公开环境变量，避免把 credential/token 带到远端机器。
     remoteRuntimeEnv: pickRemoteRuntimeEnv(process.env),

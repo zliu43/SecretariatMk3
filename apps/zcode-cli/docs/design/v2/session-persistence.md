@@ -42,7 +42,7 @@ Timeline 的展示 label 单独保留，不混入严格的 Selection 契约。
 
 第一版使用 SQLite。TypeScript 层用运行时 schema 校验 `data` JSON，数据库只展开必要索引字段。
 
-默认物理路径由 `storage.sessionDbPath` 控制，默认值为 `~/.zcode/cli/db/db.sqlite`。用户配置和 `ZCODE_SESSION_DB_PATH` 可以覆盖该路径；为兼容早期开发入口，`ZCODE_SESSION_DB` 也作为同义环境变量解析。bootstrap 负责解析 `~` 和相对路径，业务层不得依赖 SQLite 文件名或目录结构。
+默认物理路径由 `storage.sessionDbPath` 控制，默认值为 `~/.secretariat/cli/db/db.sqlite`。用户配置和 `SECRETARIAT_SESSION_DB_PATH` 可以覆盖该路径；为兼容早期开发入口，`SECRETARIAT_SESSION_DB` 也作为同义环境变量解析。bootstrap 负责解析 `~` 和相对路径，业务层不得依赖 SQLite 文件名或目录结构。
 
 不要把所有字段都拆成列。关键点是：
 
@@ -76,7 +76,7 @@ Timeline 的展示 label 单独保留，不混入严格的 Selection 契约。
 | `title_source` | text not null default `first_input` | 标题来源：`default`、`first_input`、`generated`、`custom`。AI generated 标题只能 CAS 覆盖非 custom 来源。 |
 | `title_message_id` | text null | 生成或设置标题所依据的 user message。 |
 | `time_title_updated` | integer null | 标题最近更新时间。 |
-| `version` | text not null | 创建 session 时的 ZCode CLI 版本；来源与根 `package.json` 注入的 `__CLI_VERSION__` 保持一致。 |
+| `version` | text not null | 创建 session 时的 Secretariat CLI 版本；来源与根 `package.json` 注入的 `__CLI_VERSION__` 保持一致。 |
 | `share_url` | text nullable | 分享后的 URL。 |
 | `summary_additions` | integer nullable | 当前 revert / diff summary 的新增行数。 |
 | `summary_deletions` | integer nullable | 当前 revert / diff summary 的删除行数。 |
@@ -243,7 +243,7 @@ order by id;
 
 #### Completed tool metadata
 
-`completed.output` 是模型可见结果，可能只是短确认文本；UI/ZCode app-server/debug 不能从它反向解析
+`completed.output` 是模型可见结果，可能只是短确认文本；UI/Secretariat app-server/debug 不能从它反向解析
 结构化信息。成功 tool part 的 `state.metadata` 使用版本化 JSON：
 
 ```ts
@@ -348,7 +348,7 @@ Entry shape：
 
 ## 表：`input_history`
 
-一行表示一次 server 已接受的用户输入。它不是 provider-visible message 历史，不参与模型上下文恢复；TUI、ZCode app-server 或未来 GUI 只能通过 server 能力召回它，不能直接读取数据库。
+一行表示一次 server 已接受的用户输入。它不是 provider-visible message 历史，不参与模型上下文恢复；TUI、Secretariat app-server 或未来 GUI 只能通过 server 能力召回它，不能直接读取数据库。
 
 总表最多保留最近 100 条，按 `time_created desc, id desc` 计算，不按 project 单独保留 100 条。
 
@@ -416,7 +416,7 @@ project 级权限规则。第一版只做 project scope，不做 session/global 
 
 对交互客户端还要额外约束：
 
-- TUI、ZCode app-server 或未来 GUI 在 `resume` 后，界面上的历史 `user / agent` transcript 也必须从同一份 `message + part` 重建，而不是只显示一条“session resumed”提示。
+- TUI、Secretariat app-server 或未来 GUI 在 `resume` 后，界面上的历史 `user / agent` transcript 也必须从同一份 `message + part` 重建，而不是只显示一条“session resumed”提示。
 - UI transcript 的恢复来源仍然是 `message + part`，`session_entry` 只能作为轻量 timeline / 索引缓存，不能成为唯一真相源。
 
 ### Resume v1 契约
@@ -558,7 +558,7 @@ fork 不需要复制复杂状态。
 - session 有 `time_compacting`：清掉并重新判断是否需要 compact。
 - session 有 `revert`：展示可 cleanup / unrevert 的状态。
 
-## ZCode 第一版接口
+## Secretariat 第一版接口
 
 持久化模块只暴露这些能力：
 
@@ -593,7 +593,7 @@ interface SessionStore {
 `core` 的 prompt loop 只通过 `SessionStore` port 表达持久化意图，不依赖 SQLite、文件路径、表结构或 adapter 内部实现。
 
 - 每个 runtime 实例首次执行 turn 时调用一次 `createSession`。session 的 `directory`/`path` 来自 runtime config 的 `workingDirectory`，未配置时才退回当前进程目录。
-- 本地 TUI 显式启用后，首次真实用户 turn 完成后 runtime 可以发起 session title sidecar 请求。headless `--prompt`、`--target` 和 ZCode app-server 默认不启用，避免脚本和协议场景多出后台模型调用。标题生成使用 `ModelRole.Lite`；未配置 `model.lite` 时解析到当前默认/main 模型。写回 `session.title` 时必须带 `expectedTitleSources`，避免迟到的 generated 标题覆盖用户 custom 标题。完整契约见 [`session-title-generation.md`](./session-title-generation.md)。
+- 本地 TUI 显式启用后，首次真实用户 turn 完成后 runtime 可以发起 session title sidecar 请求。headless `--prompt`、`--target` 和 Secretariat app-server 默认不启用，避免脚本和协议场景多出后台模型调用。标题生成使用 `ModelRole.Lite`；未配置 `model.lite` 时解析到当前默认/main 模型。写回 `session.title` 时必须带 `expectedTitleSources`，避免迟到的 generated 标题覆盖用户 custom 标题。完整契约见 [`session-title-generation.md`](./session-title-generation.md)。
 - 每个用户输入先保存一条 `user` message，再保存 text part；附件保存为 file part。message 和 part 使用同一个 `traceId`，便于和 event log、日志串起来。
 - 每次模型请求创建一条 `assistant` message，先保存未完成状态，再按响应保存 text/tool/step part，最后用同一个 message id 写回 `time.completed`、`finish` 和 token 统计。
 - 工具调用 part 以同一个 part id 依次写入 `pending`、`running`、`completed` 或 `error` 状态。这样 adapter 可以用 upsert 语义表达最终状态，也能从日志看到中间状态。

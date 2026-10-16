@@ -5,7 +5,7 @@
 Todo 工具把长任务计划变成 session 级一等状态，而不是只靠 assistant 文本里的 markdown 列表。它服务三个生产化目标：
 
 - 长任务可继续：resume 后仍能读取当前任务列表。
-- 进度可观察：TUI、ZCode app-server、日志和后续 session projection 可以从同一个状态源渲染计划。
+- 进度可观察：TUI、Secretariat app-server、日志和后续 session projection 可以从同一个状态源渲染计划。
 - 模型可约束：同一时间最多一个 `in_progress`，避免并行叙述和真实执行脱节。
 
 ## Tool 划分
@@ -83,7 +83,7 @@ type TodoItem = {
 字段取舍：
 
 - `content` + `status` 是计划条目的最小字段。
-- `priority` 与 ZCode v2 `session-persistence.md` 的 session `todo` 表一致。
+- `priority` 与 Secretariat v2 `session-persistence.md` 的 session `todo` 表一致。
 - 暂不引入进行中展示文案字段（`activeForm`），避免第一版存储 schema 和模型 schema 分叉；后续 UI 需要进行中展示文案时再作为 L2 扩展字段加入。
 
 ## 校验规则
@@ -123,7 +123,7 @@ SQLite adapter 继续使用 `session-persistence.md` 已定义的 `todo` 表。`
 - core 已在 `packages/core/src/tool/handlers/todo.ts` 落地 `TodoRead` / `TodoWrite` tool entry、session store port 调用、重复 `in_progress` 校验和公共 tool contract 声明。
 - storage adapter 已在 `packages/adapters/src/storage/session-store.ts` 落地 SQLite todo 替换写入和稳定顺序读取。
 - TUI 已按 `docs/design/v2/tui-todo-display.md` 从 `ToolCallResult` runtime event 投影 todo panel；TUI 不直接读 session store。
-- ZCode app-server 已在 bootstrap 层把成功的 `TodoRead` / `TodoWrite` 结果投影为结构化 `sessionUpdate: "plan"`，并在 `resumeSession` 和普通 `prompt` 前重放 persisted todo plan。
+- Secretariat app-server 已在 bootstrap 层把成功的 `TodoRead` / `TodoWrite` 结果投影为结构化 `sessionUpdate: "plan"`，并在 `resumeSession` 和普通 `prompt` 前重放 persisted todo plan。
 - resume 已从 `SessionStorePort.readTodos()` 读取 todo，注入不落库的 `<system-reminder>`，并在 `SessionResumed` payload 中携带 `resumedTodoCount`。
 - manual、auto 和 reactive compact 共用 `compactActiveConversation()`，在持久化 summary 前读取当前 todo 并把非空 todo 状态追加到 summary body。
 
@@ -142,9 +142,9 @@ TUI 投影：
 - TUI 不直接读取 session store；它只消费 runtime event 中已序列化的 `{ todos }` 输出。
 - 第一版把 todo panel 放在普通 input 下方，并保持高度有界。
 
-ZCode app-server 投影：
+Secretariat app-server 投影：
 
-- ZCode protocol client 的 `plan` 更新只接受结构化 `entries`，不能依赖通用 `tool_call_update.rawOutput` 自行解析 `TodoRead` / `TodoWrite` 的 JSON 字符串。
+- Secretariat protocol client 的 `plan` 更新只接受结构化 `entries`，不能依赖通用 `tool_call_update.rawOutput` 自行解析 `TodoRead` / `TodoWrite` 的 JSON 字符串。
 - bootstrap 层记录 `toolCallId -> toolName`，在成功的 `TodoRead` / `TodoWrite` tool result 后解析序列化输出，并额外发送完整的 `sessionUpdate: "plan"`：
 
 ```ts
@@ -158,10 +158,10 @@ ZCode app-server 投影：
 }
 ```
 
-- `tool_call_update` 仍正常发送，便于日志和通用 tool UI 保持完整；`plan` 是给 ZCode app-server todo/plan UI 的专用投影。
+- `tool_call_update` 仍正常发送，便于日志和通用 tool UI 保持完整；`plan` 是给 Secretariat app-server todo/plan UI 的专用投影。
 - 如果 tool result 被截断、JSON 非法或 schema 不匹配，则不发送 `plan`，避免把不完整状态投影为权威计划。
-- `loadSession` / `resumeSession` 成功恢复 session 后，如果 session store 内已有 todo，也发送一次 persisted `plan`，让 ZCode protocol client 在没有新 tool call 的情况下恢复计划面板。
-- 普通 `prompt` 开始执行前也会重新发送 persisted `plan`。ZCode protocol client 会在用户继续提问时先清空上一轮 plan UI，因此 agent 必须主动重放当前 session todo，避免第二条消息没有触发 TodoRead/TodoWrite 时面板消失。
+- `loadSession` / `resumeSession` 成功恢复 session 后，如果 session store 内已有 todo，也发送一次 persisted `plan`，让 Secretariat protocol client 在没有新 tool call 的情况下恢复计划面板。
+- 普通 `prompt` 开始执行前也会重新发送 persisted `plan`。Secretariat protocol client 会在用户继续提问时先清空上一轮 plan UI，因此 agent 必须主动重放当前 session todo，避免第二条消息没有触发 TodoRead/TodoWrite 时面板消失。
 
 模型上下文恢复：
 

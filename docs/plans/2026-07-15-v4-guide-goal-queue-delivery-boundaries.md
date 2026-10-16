@@ -6,7 +6,7 @@
 
 **Architecture:** CLI/runtime 继续拥有唯一 `CommandInbox` 与 conversation product facts。guide 是当前 turn 的 inline delivery，普通 queue 是未来 turn 的 promotion；两者共享输入身份和 FIFO admission，但不共享 drain trigger。desktop `continuous` 与 mobile `replayable` 只改变投递/恢复方式，不改变消费 guard。
 
-**Tech Stack:** TypeScript、ZCode V4 protocol、CLI core/runtime、bootstrap projection、React 19、Vitest、WDIO controlled-stream E2E。
+**Tech Stack:** TypeScript、Secretariat V4 protocol、CLI core/runtime、bootstrap projection、React 19、Vitest、WDIO controlled-stream E2E。
 
 ## Feature Summary
 

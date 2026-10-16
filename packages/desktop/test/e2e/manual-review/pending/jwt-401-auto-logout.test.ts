@@ -20,7 +20,7 @@ const OAUTH_CREDENTIAL_KEYS = [
   "zcodejwttoken",
 ] as const;
 
-describe("ZCode JWT 401 自动退出", () => {
+describe("Secretariat JWT 401 自动退出", () => {
   after(async () => {
     await browser.electron.restoreAllMocks();
     await clearAppData();

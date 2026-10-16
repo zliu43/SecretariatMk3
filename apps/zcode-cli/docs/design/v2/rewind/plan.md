@@ -1,6 +1,6 @@
 # Rewind Implementation Plan v2
 
-Status: initial runtime slice implemented; selector UI and ZCode app-server projection still
+Status: initial runtime slice implemented; selector UI and Secretariat app-server projection still
 planned.
 Date: 2026-05-11.
 
@@ -10,7 +10,7 @@ and `docs/design/v2/compact/README.md`.
 
 ## Goals
 
-ZCode rewind should let users return to a previous user-authored point without
+Secretariat rewind should let users return to a previous user-authored point without
 making compact, checkpoint, or resume state ambiguous.
 
 The product behavior is:
@@ -53,11 +53,11 @@ contracts rather than TUI-local state:
 - Non-interactive file rewind is standalone: resume a session, pass a user
   message UUID, restore files, and exit.
 
-ZCode implements this UX through session/runtime contracts instead of
-TUI-owned arrays. TUI and ZCode app-server should consume the same target
+Secretariat implements this UX through session/runtime contracts instead of
+TUI-owned arrays. TUI and Secretariat app-server should consume the same target
 evaluation results.
 
-## Current ZCode Baseline
+## Current Secretariat Baseline
 
 Already implemented:
 
@@ -93,7 +93,7 @@ Still missing for full conversation rewind UX:
 
 - Selectable user-message target summaries.
 - Rich persisted tombstone/revert metadata for hidden post-rewind messages.
-- TUI/ZCode app-server projection that can show conversation, workspace, both, fork, and
+- TUI/Secretariat app-server projection that can show conversation, workspace, both, fork, and
   unavailable modes.
 - Interactive input restoration after rewind.
 
@@ -170,7 +170,7 @@ export interface RewindTargetSummary {
 }
 ```
 
-The runtime should return these summaries to TUI/ZCode app-server instead of making clients
+The runtime should return these summaries to TUI/Secretariat app-server instead of making clients
 parse raw messages, compact parts, or checkpoint events.
 
 ### Conversation Rewind Event
@@ -293,7 +293,7 @@ Algorithm:
 9. Persist session rewind metadata so resume applies the same cut.
 
 The selected user prompt should be returned in the command result as
-`restoreInput` for TUI/ZCode protocol clients. Runtime should not directly mutate TUI input
+`restoreInput` for TUI/Secretariat protocol clients. Runtime should not directly mutate TUI input
 state.
 
 Tests:
@@ -363,7 +363,7 @@ TUI:
 - Keep `/rewind latest`, `/rewind <checkpointId>`, and `/fork <checkpointId>` as
   scriptable compatibility paths until message-id syntax is finalized.
 
-ZCode app-server:
+Secretariat app-server:
 - Add list/evaluate/apply methods or emit structured selection data through the
   existing app facade.
 - Do not require remote clients to infer active-chain legality from transcript
@@ -470,7 +470,7 @@ CLI/TUI:
 - Mode picker submits explicit command-shaped requests.
 - Disabled rows explain fork-required or unavailable status.
 
-ZCode app-server/bootstrap:
+Secretariat app-server/bootstrap:
 
 - App facade exposes target listing and structured apply results.
 - Remote clients get `restoreInput` instead of relying on terminal-only state.
@@ -484,7 +484,7 @@ ZCode app-server/bootstrap:
 5. Both mode with transactional ordering.
 6. Compact-covered fork proposal path.
 7. TUI message selector and mode picker.
-8. ZCode app-server projection and non-interactive file rewind.
+8. Secretariat app-server projection and non-interactive file rewind.
 
 Each step should be a separate feature-level commit with focused tests.
 

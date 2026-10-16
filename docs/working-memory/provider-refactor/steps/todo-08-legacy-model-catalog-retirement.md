@@ -11,7 +11,7 @@
 ## 1. 任务目标
 
 彻底删除旧 Model Catalog 作为模型事实、reasoning 配置和请求兼容策略的第二套系统。所有仍有意义的模型
-事实进入 ZCode Built-in / Personal Model Config Rules；历史输入只在明确 importer 边界转换；Provider API
+事实进入 Secretariat Built-in / Personal Model Config Rules；历史输入只在明确 importer 边界转换；Provider API
 请求兼容由 Effective Model Config 显式驱动，不能继续按具体 modelId 推断。
 
 本 Todo 同时收口旧 Catalog 退役过程中已经确认的三个衍生问题：
@@ -49,12 +49,12 @@ Built-in / Personal Model Config Rules
 Provider/Model 的正常运行事实只来自：
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
         -> Account Provider Config
         -> Personal Provider Config
         -> Effective Provider Config
 
-ZCode Built-in Model Config Rules
+Secretariat Built-in Model Config Rules
         + Personal Model Config Rules
         -> Effective Model Config Rules
 ```
@@ -148,7 +148,7 @@ requiresMfjsToolSchema = true
    `- 无法解析/改写 -> InvalidModelRequest，网络请求不得发出
 ```
 
-本字段在当前阶段只启用已经存在的本地 `$ref` 根 `$defs` 投影，不代表 ZCode 实现或验证完整 MFJS 方言。
+本字段在当前阶段只启用已经存在的本地 `$ref` 根 `$defs` 投影，不代表 Secretariat 实现或验证完整 MFJS 方言。
 本轮不处理 `oneOf`、`anyOf`、`pattern` 等其他 MFJS 规则，也不建立通用 Tool Schema dialect 系统。
 
 原始 `ModelToolContract.inputSchema` 始终保持不变，并继续作为工具参数校验与执行的权威。投影只存在于
@@ -189,7 +189,7 @@ Adapter Provider 请求装配边界。删除 `isKimiK3ModelId()` 和所有按具
 - 公共 `ModelRef`、Result/Event identity 和历史 provenance；
 - Telemetry、Status、Context、Observation 的整体设计；
 - Account Request Auth、runtime header refresh；
-- 严格逐叶对照旧 Catalog 与 ZCode Built-in Config 的迁移审计；
+- 严格逐叶对照旧 Catalog 与 Secretariat Built-in Config 的迁移审计；
 - 模型选择、Queue、恢复或 desktop/mobile realtime 语义。
 
 ## 5. 测试先行
@@ -198,7 +198,7 @@ Adapter Provider 请求装配边界。删除 `isKimiK3ModelId()` 和所有按具
 
 1. `requiresMfjsToolSchema` 支持 Rule 缺省、`true`、`false`、`null` 和 Personal 后置覆盖；
 2. Built-in 通用 Rule 提供 `false`，完整性校验拒绝最终缺失/null；
-3. ZCode Built-in Config 的目标 Provider/Model/API 组合解析为 `true`，非目标组合保持 `false`；
+3. Secretariat Built-in Config 的目标 Provider/Model/API 组合解析为 `true`，非目标组合保持 `false`；
 4. Config JSON round-trip 保留该字段；
 5. Registry/ModelFactory 不按 modelId 补齐或覆盖该字段。
 
@@ -233,7 +233,7 @@ Adapter Provider 请求装配边界。删除 `isKimiK3ModelId()` 和所有按具
 
 ### Step A：Config 契约与测试
 
-- 先增加 Model Config Overlay、完整性、ZCode Built-in Rule 和 JSON round-trip 失败测试；
+- 先增加 Model Config Overlay、完整性、Secretariat Built-in Rule 和 JSON round-trip 失败测试；
 - 增加 `requiresMfjsToolSchema` Schema/Config/Registry 字段；
 - 在 Built-in 通用 Rule 和目标精确 Rule 中声明值。
 

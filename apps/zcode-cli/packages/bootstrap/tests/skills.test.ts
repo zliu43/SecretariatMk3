@@ -7,7 +7,7 @@ import { inspectZCodeSkill, listZCodeSkills } from "../src/skills.js";
 describe("inspectZCodeSkill", () => {
   it("loads one discovered skill through the configured skill adapter", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-bootstrap-skill-"));
-    const skillDir = join(dir, ".zcode", "skills", "demo");
+    const skillDir = join(dir, ".secretariat", "skills", "demo");
 
     try {
       await mkdir(skillDir, { recursive: true });
@@ -66,7 +66,7 @@ describe("inspectZCodeSkill", () => {
 
     try {
       const outcome = await listZCodeSkills({
-        env: { ZCODE_STORAGE_DIR: join(dir, "storage") },
+        env: { SECRETARIAT_STORAGE_DIR: join(dir, "storage") },
         skipUserConfig: true,
         workingDirectory: dir,
       });
@@ -87,7 +87,7 @@ describe("inspectZCodeSkill", () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-bootstrap-document-skills-"));
 
     try {
-      const env = { ZCODE_STORAGE_DIR: join(dir, "storage") };
+      const env = { SECRETARIAT_STORAGE_DIR: join(dir, "storage") };
       const outcome = await listZCodeSkills({
         env,
         skipUserConfig: true,

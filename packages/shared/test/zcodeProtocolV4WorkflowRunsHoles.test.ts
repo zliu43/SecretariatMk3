@@ -129,7 +129,7 @@ describe("display 载荷：holes 与 fill", () => {
     const fill = {
       siteId: "hole#1",
       name: "决定分组",
-      draftPath: ".zcode/workflow-drafts/a.dwf.ts",
+      draftPath: ".secretariat/workflow-drafts/a.dwf.ts",
       line: 12,
     };
     expect(toolCallCreateWorkflowDisplaySchema.safeParse({ ...display, fill }).success).toBe(true);
@@ -191,7 +191,7 @@ describe("通知载荷：kind = hole", () => {
         name: "决定分组",
         type: "Plan",
         prompt: "p",
-        draftPath: "/w/.zcode/workflow-drafts/flaky.dwf.ts",
+        draftPath: "/w/.secretariat/workflow-drafts/flaky.dwf.ts",
         line: 12,
         before: "探索",
         after: "执行",

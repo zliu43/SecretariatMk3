@@ -134,8 +134,8 @@ Detached Operation（标题、Goal 校验、Workspace Generate）
   失败率。
 - 所有字符串 Attribute 在出口前有统一长度上限，避免异常对象、用户自定义 Provider/
   Model/Tool 名称造成单 Span 膨胀。
-- 宿主注入的 `ZCODE_TELEMETRY_USER_SUBJECT_ID` 只有符合受控 ID 约束时才可作为
-  `user_subject_id`；旧变量 `ZCODE_TELEMETRY_USER_ID_HASH` 已废弃并在子进程环境边界剔除。
+- 宿主注入的 `SECRETARIAT_TELEMETRY_USER_SUBJECT_ID` 只有符合受控 ID 约束时才可作为
+  `user_subject_id`；旧变量 `SECRETARIAT_TELEMETRY_USER_ID_HASH` 已废弃并在子进程环境边界剔除。
   当前 Desktop Host 以 SHA-256 生成稳定假名标识；它是关联键，不是匿名化承诺。
   `deviceMid` 也只接受有界、无空白和路径分隔符的标识符；不合法时降级为缺少设备关联。
 - 错误文本除清洗 URL、Header、邮箱、IP 和本地路径外，还必须识别常见裸凭据前缀以及
@@ -187,7 +187,7 @@ Detached Operation（标题、Goal 校验、Workspace Generate）
 | ---------------- | ------------------------------------- | ------------------------------------------ |
 | Repo Wiki        | `packages/services` 直接请求 Provider | P1 迁入 CLI ModelPort 或同一 Port          |
 | 模型连通性测试   | Host 发出真实小请求                   | 独立 `admin.model_probe`，不进入 Agent SLO |
-| `stream-animate` | 独立实验包                            | 不属于 ZCode Agent 生产 Trace              |
+| `stream-animate` | 独立实验包                            | 不属于 Secretariat Agent 生产 Trace              |
 
 P0 的完成口径是“CLI Agent 全部 LLM 流量”，不是“整个产品全部 LLM 流量”。
 
@@ -398,7 +398,7 @@ Resource 由 Backend 作为 OTel Resource 注入，不要求业务每次构造�
 
 业务用途和标准 OTel 用途分开：
 
-- `zcode.operation.name`：`context.compaction` 等 ZCode 业务用途。
+- `zcode.operation.name`：`context.compaction` 等 Secretariat 业务用途。
 - `gen_ai.operation.name`：`invoke_agent`、`execute_tool`、`chat`。
 - `zcode.execution.kind`：`turn|step|tool|sidecar|standalone_blocking|standalone`。
 - `zcode.actor.kind`：`main_agent|subagent|workflow_child|system|tool`。
@@ -509,7 +509,7 @@ Child Error 不自动污染 Turn；Turn 只以权威 Turn terminal 为准。
 
 ```ts
 interface SanitizedTelemetryError<TPhase extends string = string> {
-  code?: string; // ZCode 稳定低基数码
+  code?: string; // Secretariat 稳定低基数码
   type: string; // Exception/归一类型
   message?: string; // 脱敏、截断后的运维信息
   phase?: TPhase;
@@ -661,7 +661,7 @@ gen_ai.usage.reasoning.output_tokens
 server.address
 error.type / error.message
 
-ZCode 扩展：
+Secretariat 扩展：
 zcode.telemetry.schema_version
 zcode.span.type
 zcode.operation.name

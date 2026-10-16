@@ -2,7 +2,7 @@
 
 ## 背景
 
-ZCode 第一版模型调度只需要两个能力级别：
+Secretariat 第一版模型调度只需要两个能力级别：
 
 - `main`：主力模型，处理普通 agent loop、代码修改、复杂推理和默认工具调用。
 - `lite`：轻量模型，处理低风险、短上下文、结构化的小任务。
@@ -20,7 +20,7 @@ ZCode 第一版模型调度只需要两个能力级别：
 
 - 不做大型 model catalog。
 - 不做自动 main/lite 分类器。
-- 不新增 `ZCODE_MODEL_LITE` 环境变量。后续如确需环境变量，必须先补充用途、优先级、错误行为和测试覆盖。
+- 不新增 `SECRETARIAT_MODEL_LITE` 环境变量。后续如确需环境变量，必须先补充用途、优先级、错误行为和测试覆盖。
 - 不把 provider 兼容性分支散落到 core runtime。
 
 ## 配置契约
@@ -107,7 +107,7 @@ interface ModelRoleResolver {
 
 只在明确低风险场景接入：
 
-- 本地 TUI session title 生成；如果用户没有配置 `model.lite`，该请求必须解析到当前默认/main 模型，但 `modelRef.role` 仍记录为 `lite`。ZCode app-server 和 headless 默认不启用标题生成。
+- 本地 TUI session title 生成；如果用户没有配置 `model.lite`，该请求必须解析到当前默认/main 模型，但 `modelRef.role` 仍记录为 `lite`。Secretariat app-server 和 headless 默认不启用标题生成。
 - tool batch 短摘要。
 - hook prompt 的结构化判断。
 - away summary / idle summary。

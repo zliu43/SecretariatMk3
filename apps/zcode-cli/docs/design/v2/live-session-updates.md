@@ -2,9 +2,9 @@
 
 ## 文档定位
 
-本文定义 ZCode runtime 的实时会话更新通道，用于让 TUI、ZCode protocol client、未来的 debug panel 或远程 UI 在一次 turn 仍在执行时看到模型、工具、权限和取消进度。
+本文定义 Secretariat runtime 的实时会话更新通道，用于让 TUI、Secretariat protocol client、未来的 debug panel 或远程 UI 在一次 turn 仍在执行时看到模型、工具、权限和取消进度。
 
-本文是 v2 的实现前 spec。它不定义 ZCode Protocol SDK 绑定，也不改变 session event 作为事实来源的原则。
+本文是 v2 的实现前 spec。它不定义 Secretariat Protocol SDK 绑定，也不改变 session event 作为事实来源的原则。
 
 ## 背景
 
@@ -14,7 +14,7 @@
 2. runtime 执行模型请求、工具调用、结果回灌和后续模型请求。
 3. turn 结束后返回 `TurnResult`。
 
-这种形态适合 `--prompt` 和脚本调用，但不适合交互客户端。TUI 和 ZCode protocol client 需要在 turn 过程中实时响应：
+这种形态适合 `--prompt` 和脚本调用，但不适合交互客户端。TUI 和 Secretariat protocol client 需要在 turn 过程中实时响应：
 
 - 模型请求已经开始。
 - 工具调用已经出现，正在等待、运行、完成或失败。
@@ -27,14 +27,14 @@
 - 给 core 增加一个通用 live event sink。
 - 复用现有 `SessionEvent`，不引入第二套事实模型。
 - 让 TUI 可以在 turn 过程中渲染状态和工具进度。
-- 为 ZCode app-server `session/update` 和 `session/request_permission` 映射提供稳定输入。
+- 为 Secretariat app-server `session/update` 和 `session/request_permission` 映射提供稳定输入。
 - 保持 CLI 非交互路径仍可只等待最终 `TurnResult`。
 
 ## 非目标
 
-- 不在 core 中引入 ZCode app-server 类型或 SDK。
+- 不在 core 中引入 Secretariat app-server 类型或 SDK。
 - 不在本阶段实现 token 级 `streamText()`。
-- 不在本阶段实现 ZCode app-server。
+- 不在本阶段实现 Secretariat app-server。
 - 不在本阶段实现交互式 permission broker。
 - 不把实时更新作为持久化事实；事实仍然来自 event store。
 
@@ -49,13 +49,13 @@ runtime 内部状态变化必须先形成 `SessionEvent` 并写入 `SessionEvent
 不同消费者可以把同一个 `SessionEvent` 投影为不同视图：
 
 - TUI 投影为状态行、工具行和当前 agent message。
-- ZCode app-server 投影为 `session/update` notification 或 `session/request_permission` request。
+- Secretariat app-server 投影为 `session/update` notification 或 `session/request_permission` request。
 - debug panel 投影为 timeline、trace waterfall 或 token/cost 视图。
 
 subagent child session 的 tool lifecycle 是一个特殊 live projection：原始 child
 `tool_call_*` 事件先写入 child session event store，然后 runtime 可把带有
 `source: "subagent"` metadata 的镜像事件发到父 session live sink。镜像事件用于父
-TUI/ZCode app-server 的实时展示，不写入父 session event store，也不改变父 message history；
+TUI/Secretariat app-server 的实时展示，不写入父 session event store，也不改变父 message history；
 resume/debug 需要完整事实时应追溯 `childSessionId` 指向的 child event store。
 
 ### core 不知道消费者
@@ -68,7 +68,7 @@ interface SessionEventSink {
 }
 ```
 
-consumer-specific mapper 必须位于 TUI、ZCode app-server transport 或其他外层模块。
+consumer-specific mapper 必须位于 TUI、Secretariat app-server transport 或其他外层模块。
 
 ### sink 失败不能破坏事实写入
 
@@ -80,7 +80,7 @@ consumer-specific mapper 必须位于 TUI、ZCode app-server transport 或其他
 
 ### TUI projection
 
-| ZCode event | TUI update |
+| Secretariat event | TUI update |
 | --- | --- |
 | `session_resumed` | append resumed message/part counts |
 | `turn_started` | status: `Thinking...` |
@@ -180,13 +180,13 @@ than a command to repaint immediately for every token:
 Design rationale: a terminal renderer should throttle render commits around a
 shared frame interval and use screen diff/damage tracking instead of full clears
 for steady-state frames, and model stream chunking should be validated against a
-commit cadence. ZCode keeps the first implementation smaller by diffing rendered
+commit cadence. Secretariat keeps the first implementation smaller by diffing rendered
 terminal rows, but the same contract applies: bounded streaming commits and no
 steady-state full-screen erase.
 
-### ZCode app-server projection, future phase
+### Secretariat app-server projection, future phase
 
-| ZCode event | ZCode app-server behavior |
+| Secretariat event | Secretariat app-server behavior |
 | --- | --- |
 | `turn_started` | optional progress `session/update` |
 | `model_complete` | `session/update` with `agent_message_chunk` |
@@ -206,7 +206,7 @@ This keeps the runtime reusable:
 
 - `zcode --prompt` does not pass `onEvent`.
 - TUI passes `onEvent` and updates the screen.
-- ZCode app-server passes `onEvent` and maps events to JSON-RPC notifications.
+- Secretariat app-server passes `onEvent` and maps events to JSON-RPC notifications.
 
 ## Ordering
 

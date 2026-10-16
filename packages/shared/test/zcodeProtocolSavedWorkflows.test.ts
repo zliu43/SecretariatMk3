@@ -2,7 +2,7 @@
 // docs/dynamic-workflow/launch.md「Data path」）。
 import { describe, expect, it } from "vitest";
 import {
-  ZCODE_WORKFLOWS_RUNS_MAX_LIMIT,
+  SECRETARIAT_WORKFLOWS_RUNS_MAX_LIMIT,
   zcodeProtocolMethods,
   zcodeSavedWorkflowMetaSchema,
   zcodeSavedWorkflowScopeSchema,
@@ -18,7 +18,7 @@ import {
   zcodeWorkflowsRunsResultSchema,
   zcodeWorkflowsUpdateMetaParamsSchema,
   zcodeWorkflowsUpdateMetaResultSchema,
-  ZCODE_WORKFLOWS_FOR_RUN_MAX_CANDIDATES,
+  SECRETARIAT_WORKFLOWS_FOR_RUN_MAX_CANDIDATES,
   zcodeWorkflowsForRunParamsSchema,
   zcodeWorkflowsForRunResultSchema,
   zcodeWorkflowsSaveParamsSchema,
@@ -58,15 +58,15 @@ describe("zcode-protocol saved workflows", () => {
           name: "x",
           description: "d",
           scope: "global",
-          path: "/home/me/.zcode/workflows/x.dwf.ts",
+          path: "/home/me/.secretariat/workflows/x.dwf.ts",
           args: { branch: { type: "string", required: true } },
         },
       ],
-      invalid: [{ path: "/repo/.zcode/workflows/bad.dwf.ts", reason: "invalid_yaml" }],
-      dir: "/home/me/.zcode/workflows",
+      invalid: [{ path: "/repo/.secretariat/workflows/bad.dwf.ts", reason: "invalid_yaml" }],
+      dir: "/home/me/.secretariat/workflows",
     });
     expect(result.workflows[0]?.args?.branch?.required).toBe(true);
-    expect(result.dir).toBe("/home/me/.zcode/workflows");
+    expect(result.dir).toBe("/home/me/.secretariat/workflows");
     // dir 缺席即拒（GUI 的文件监听没有它就无处可 watch）。
     expect(() =>
       zcodeWorkflowsListResultSchema.parse({
@@ -79,7 +79,7 @@ describe("zcode-protocol saved workflows", () => {
       zcodeWorkflowsListResultSchema.parse({
         workflows: [{ name: "x", description: "d", scope: "project", path: "/p", script: "…" }],
         invalid: [],
-        dir: "/repo/.zcode/workflows",
+        dir: "/repo/.secretariat/workflows",
       }),
     ).toThrow();
   });
@@ -165,14 +165,14 @@ describe("zcode-protocol saved workflows", () => {
       zcodeWorkflowsRunsParamsSchema.parse({
         workspace,
         name: "x",
-        limit: ZCODE_WORKFLOWS_RUNS_MAX_LIMIT,
+        limit: SECRETARIAT_WORKFLOWS_RUNS_MAX_LIMIT,
       }).name,
     ).toBe("x");
     expect(() => zcodeWorkflowsRunsParamsSchema.parse({ workspace, limit: 0 })).toThrow();
     expect(() =>
       zcodeWorkflowsRunsParamsSchema.parse({
         workspace,
-        limit: ZCODE_WORKFLOWS_RUNS_MAX_LIMIT + 1,
+        limit: SECRETARIAT_WORKFLOWS_RUNS_MAX_LIMIT + 1,
       }),
     ).toThrow();
     expect(() => zcodeWorkflowsRunsParamsSchema.parse({ workspace, limit: 1.5 })).toThrow();
@@ -265,13 +265,13 @@ describe("zcode-protocol saved workflows", () => {
 
     const ok = zcodeWorkflowsMoveResultSchema.parse({
       ok: true,
-      from: "/home/me/.zcode/workflows/x.dwf.ts",
-      to: "/repo/.zcode/workflows/x.dwf.ts",
+      from: "/home/me/.secretariat/workflows/x.dwf.ts",
+      to: "/repo/.secretariat/workflows/x.dwf.ts",
     });
     expect(ok).toEqual({
       ok: true,
-      from: "/home/me/.zcode/workflows/x.dwf.ts",
-      to: "/repo/.zcode/workflows/x.dwf.ts",
+      from: "/home/me/.secretariat/workflows/x.dwf.ts",
+      to: "/repo/.secretariat/workflows/x.dwf.ts",
     });
     for (const reason of [
       "invalid_name",
@@ -346,12 +346,12 @@ describe("zcode-protocol saving a run", () => {
   });
 
   it("forRun：候选有上界；结果三个字段全可缺（全缺即「没保存、也不知道实参」）", () => {
-    const candidates = Array.from({ length: ZCODE_WORKFLOWS_FOR_RUN_MAX_CANDIDATES }, (_, i) => ({
+    const candidates = Array.from({ length: SECRETARIAT_WORKFLOWS_FOR_RUN_MAX_CANDIDATES }, (_, i) => ({
       name: `w${i}`,
     }));
     expect(
       zcodeWorkflowsForRunParamsSchema.parse({ workspace, runId: "r", candidates }).candidates,
-    ).toHaveLength(ZCODE_WORKFLOWS_FOR_RUN_MAX_CANDIDATES);
+    ).toHaveLength(SECRETARIAT_WORKFLOWS_FOR_RUN_MAX_CANDIDATES);
     expect(() =>
       zcodeWorkflowsForRunParamsSchema.parse({
         workspace,

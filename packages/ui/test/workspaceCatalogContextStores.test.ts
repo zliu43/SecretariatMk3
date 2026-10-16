@@ -9,7 +9,7 @@ function createAgent(workspacePath: string, suffix = "initial"): AgentSummary {
     name: `agent-${workspacePath.split("/").at(-1)}-${suffix}`,
     description: workspacePath,
     systemPrompt: suffix,
-    path: `${workspacePath}/.zcode/agents/${suffix}.md`,
+    path: `${workspacePath}/.secretariat/agents/${suffix}.md`,
     scope: "workspace",
     source: "workspace",
     enabled: true,

@@ -587,7 +587,7 @@ export class TaskIndexRepo {
     if (!isTasksStorageMigrated(path, this.db)) runTasksDatabaseMigrations(this.db);
     this.backfillOffPeakTaskMarkers();
     this.backfillOffPeakGroupMemberships();
-    // Bugfix: z-code-2 早期列表 task_id 是 wrapper id，真实 ZCode session id 在旧列
+    // Bugfix: z-code-2 早期列表 task_id 是 wrapper id，真实 Secretariat session id 在旧列
     // acp_session_id。直接运行时映射会让 read/send/subscribe 到处变成双 ID 兜底；
     // 初始化时把索引行迁到真实 session id，后续统一走新协议正常路径。
     this.migrateLegacyAcpTaskIds();
@@ -800,7 +800,7 @@ export class TaskIndexRepo {
       }
       db.exec("COMMIT");
       if (migrated > 0) {
-        logger.info(undefined, `已迁移 legacy ACP task_id 到 ZCode session id 数量=${migrated}`);
+        logger.info(undefined, `已迁移 legacy ACP task_id 到 Secretariat session id 数量=${migrated}`);
       }
     } catch (error) {
       db.exec("ROLLBACK");
@@ -1695,9 +1695,9 @@ export class TaskIndexRepo {
           target: Object.prototype.hasOwnProperty.call(params.meta, "target")
             ? params.meta.target
             : existingMeta?.target,
-          // Claude Code 导入升级成真实 ZCode session 后，protocol snapshot
+          // Claude Code 导入升级成真实 Secretariat session 后，protocol snapshot
           // 本身不知道迁移来源。同步运行态快照时保留已有 migrationSource，避免
-          // 列表过滤和后续切模型把导入任务重新当成普通 ZCode 任务。
+          // 列表过滤和后续切模型把导入任务重新当成普通 Secretariat 任务。
           migrationSource: params.meta.migrationSource ?? existingMeta?.migrationSource,
           // 同步运行态快照时保留已有 cron automation 身份：运行态 protocol snapshot 的 meta 不带 cron 标记，
           // 不用已存值兜底会在后续 sync 时把 cron 身份冲掉，导致 icon / 分组 / 关联查询失效。
@@ -2066,7 +2066,7 @@ export class TaskIndexRepo {
         FROM tasks
         WHERE (@workspace_key IS NULL OR workspace_key = @workspace_key)
           AND (@include_deleted = 1 OR deleted = 0)
-          -- Bugfix: ZCode Agent 列表只接受当前 glm provider；Claude Code 导入也属于非 glm 历史数据。
+          -- Bugfix: Secretariat Agent 列表只接受当前 glm provider；Claude Code 导入也属于非 glm 历史数据。
           AND (@provider IS NULL OR provider = @provider)
           AND (@pinned IS NULL OR pinned = @pinned)
           AND (@archived IS NULL OR archived = @archived)
@@ -2445,7 +2445,7 @@ export class TaskIndexRepo {
     ];
     const activeTaskArgs: Array<string | number> = includeAllWorkspaces ? [] : [...workspaceKeys];
     if (params.provider) {
-      // grouped 和 workspace 都是 ZCode Agent 任务列表入口，必须共享旧 provider
+      // grouped 和 workspace 都是 Secretariat Agent 任务列表入口，必须共享旧 provider
       // 残留过滤口径；否则历史第三方 provider 的索引行会只在 grouped 里冒出来。
       appendZCodeAgentIndexedProviderFilter(activeTaskWhere, activeTaskArgs, params.provider);
     }
@@ -2744,7 +2744,7 @@ export class TaskIndexRepo {
       }
       if (params.provider && row.provider !== params.provider) {
         // grouped 保存回包之前没有 provider 边界，旧第三方 provider 的排序残留会在保存后重新展示。
-        // 带 provider 的 ZCode Agent 视图只接受当前 glm task；旧 provider 引用作为不可见遗留数据跳过。
+        // 带 provider 的 Secretariat Agent 视图只接受当前 glm task；旧 provider 引用作为不可见遗留数据跳过。
         return null;
       }
       return key;

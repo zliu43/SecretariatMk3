@@ -370,7 +370,7 @@ setInterval(() => {}, 1000);
         version: 1,
         clientId: "test",
       } as never),
-    ).rejects.toThrow("ZCode agent stdio transport is closed");
+    ).rejects.toThrow("Secretariat agent stdio transport is closed");
     activeChildren.delete(child);
   });
 

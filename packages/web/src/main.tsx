@@ -305,7 +305,7 @@ function resolveWebRemoteAppReturnTo(params: URLSearchParams): string {
 }
 
 function renderWebAuthCallbackPage(): void {
-  document.title = "ZCode - Web Remote Control Sign In";
+  document.title = "Secretariat - Web Remote Control Sign In";
   const callbackState = parseOAuthState(
     new URLSearchParams(window.location.search).get("state") ?? "",
   );
@@ -330,7 +330,7 @@ async function renderConversationSharePage(): Promise<void> {
   document.documentElement.lang = routeLocale;
   // 分享页必须设置 title：否则浏览器标签只显示 index.html 的通用标题。
   // 会话标题要等 preview 加载完，先给一个语言正确的兜底。
-  document.title = routeLocale === "zh-CN" ? "ZCode 会话分享" : "ZCode Conversation Share";
+  document.title = routeLocale === "zh-CN" ? "Secretariat 会话分享" : "Secretariat Conversation Share";
   const shareCode = resolveConversationShareCodeFromPath(window.location.pathname);
   if (!shareCode) {
     root.render(
@@ -397,7 +397,7 @@ async function renderConversationSharePage(): Promise<void> {
 }
 
 function renderWebLoginPage(): void {
-  document.title = "ZCode - Web Remote Control Sign In";
+  document.title = "Secretariat - Web Remote Control Sign In";
   root.render(
     <WebLoginPage
       onLogin={() => {
@@ -412,7 +412,7 @@ function renderWebLoginPage(): void {
 }
 
 function renderWebLoggedInWaitingPage(user: UserInfo): void {
-  document.title = "ZCode - Web Remote Control";
+  document.title = "Secretariat - Web Remote Control";
   root.render(
     <WebLoggedInWaitingPage
       user={user}
@@ -543,7 +543,7 @@ async function requestWebRemoteControlWorkspaceBridge(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-ZCode-Mobile-Connection-Id": proxy.mobileConnectionId,
+        "X-Secretariat-Mobile-Connection-Id": proxy.mobileConnectionId,
       },
       body: JSON.stringify({
         workspaceKey,
@@ -583,7 +583,7 @@ async function updateWebRemoteControlMobileViewState(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-ZCode-Mobile-Connection-Id": proxy.mobileConnectionId,
+        "X-Secretariat-Mobile-Connection-Id": proxy.mobileConnectionId,
       },
       body: JSON.stringify({
         activeWorkspaceKey: workspaceKey,
@@ -1206,7 +1206,7 @@ export function createHomeOnlyWebRemoteControlServices(): RootServices {
       initialize: async (params: { workspacePath: string; workspaceIdentity?: string }) => ({
         available: false,
         workspaceKey: params.workspaceIdentity?.trim() || params.workspacePath,
-        reason: "ZCode agent service is not available before workspace bridge is connected.",
+        reason: "Secretariat agent service is not available before workspace bridge is connected.",
       }),
       disposeAll: () => {},
     }),
@@ -1217,7 +1217,7 @@ export function createHomeOnlyWebRemoteControlServices(): RootServices {
       }) => ({
         available: false,
         workspaceKey: params.workspaceIdentity?.trim() || params.workspacePath,
-        reason: "ZCode session service is not available before workspace bridge is connected.",
+        reason: "Secretariat session service is not available before workspace bridge is connected.",
       }),
     }),
     // 分享发布首期只属于 desktop local host；Web 首页和 /remote 不建立独立发布权威。
@@ -1456,7 +1456,7 @@ function WebRemoteControlLoadingScreen({
 }
 
 function renderWebRemoteControlLoading(state: WebRemoteControlTerminalTransportState): void {
-  document.title = "ZCode - Web Remote Control";
+  document.title = "Secretariat - Web Remote Control";
   root.render(<WebRemoteControlLoadingScreen state={state} />);
 }
 
@@ -2041,7 +2041,7 @@ async function bootstrapExternalRelayWebRemoteControl(params: URLSearchParams): 
   ) => {
     if (terminated || versionGuard.isBlocked()) return;
     ready = true;
-    document.title = "ZCode - Web Remote Control";
+    document.title = "Secretariat - Web Remote Control";
     root.render(
       <AppErrorBoundary key={bridge.bridgeSessionId}>
         <ZCodeIntlProvider
@@ -2115,7 +2115,7 @@ async function bootstrapExternalRelayWebRemoteControl(params: URLSearchParams): 
     currentWorkspaceKey = workspaceKey;
     currentTaskId = taskId;
     await updateMobileViewState(workspaceKey, taskId);
-    document.title = "ZCode - Web Remote Control";
+    document.title = "Secretariat - Web Remote Control";
     const initialResult = await listWorkspaces();
     if (terminated || versionGuard.isBlocked()) return;
     ready = true;
@@ -2286,7 +2286,7 @@ async function bootstrapWebRemoteControlByToken(params: URLSearchParams): Promis
   ) => {
     const initialWorkspaceIdentity =
       bridge.kind === "remote" ? bridge.workspaceIdentity : undefined;
-    document.title = "ZCode - Web Remote Control";
+    document.title = "Secretariat - Web Remote Control";
     root.render(
       <AppErrorBoundary key={bridge.bridgeSessionId}>
         <ZCodeIntlProvider
@@ -2481,7 +2481,7 @@ async function bootstrapWebApp() {
       onClose: () => {},
     });
     const platform = createWebPlatform();
-    document.title = "ZCode - Web + Server";
+    document.title = "Secretariat - Web + Server";
 
     root.render(
       <AppErrorBoundary>

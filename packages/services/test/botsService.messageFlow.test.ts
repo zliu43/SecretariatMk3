@@ -794,7 +794,7 @@ describe("botsService messageFlow", () => {
     service.disposeAll();
   });
 
-  it("syncs active task model, mode, and cli changes through ZCode Agent and broadcasts UI updates", async () => {
+  it("syncs active task model, mode, and cli changes through Secretariat Agent and broadcasts UI updates", async () => {
     const repo = f.createMemoryRepo(f.weixinConfig, {
       version: 3,
       bots: {
@@ -821,13 +821,13 @@ describe("botsService messageFlow", () => {
             value: "gpt-5.3",
             name: "GPT-5.3",
             modelProviderId: "glm",
-            modelProviderName: "ZCode Agent",
+            modelProviderName: "Secretariat Agent",
           },
           {
             value: "gpt-5.4",
             name: "GPT-5.4",
             modelProviderId: "glm",
-            modelProviderName: "ZCode Agent",
+            modelProviderName: "Secretariat Agent",
           },
         ],
       },
@@ -1144,7 +1144,7 @@ describe("botsService messageFlow", () => {
     service.disposeAll();
   });
 
-  it("renders /mode labels after normalizing legacy task provider to ZCode Agent", async () => {
+  it("renders /mode labels after normalizing legacy task provider to Secretariat Agent", async () => {
     const repo = f.createMemoryRepo(f.weixinConfig, {
       version: 3,
       bots: {
@@ -1212,7 +1212,7 @@ describe("botsService messageFlow", () => {
     service.disposeAll();
   });
 
-  it("loads /mode options from ZCode workspace state when active task has no mode option", async () => {
+  it("loads /mode options from Secretariat workspace state when active task has no mode option", async () => {
     const repo = f.createMemoryRepo(f.weixinConfig, {
       version: 3,
       bots: {
@@ -1361,7 +1361,7 @@ describe("botsService messageFlow", () => {
               value: "gpt-5.4",
               name: "GPT-5.4",
               modelProviderId: "glm",
-              modelProviderName: "ZCode Agent",
+              modelProviderName: "Secretariat Agent",
             },
           ],
         },
@@ -1624,7 +1624,7 @@ describe("botsService messageFlow", () => {
     service.disposeAll();
   });
 
-  it("creates an ZCode Agent task from a bound private message", async () => {
+  it("creates an Secretariat Agent task from a bound private message", async () => {
     const repo = f.createMemoryRepo(f.baseConfig);
     const legacyTaskService = f.createLegacyTaskService();
     const broadcastService = f.createBroadcastService();
@@ -3918,7 +3918,7 @@ describe("botsService messageFlow", () => {
   });
 
   it("creates a task from an attachment-only bot message with the default prompt", async () => {
-    vi.stubEnv("ZCODE_DATA_BASE_DIR", `/tmp/zcode-bot-attachments-${Date.now()}`);
+    vi.stubEnv("SECRETARIAT_DATA_BASE_DIR", `/tmp/zcode-bot-attachments-${Date.now()}`);
     const repo = f.createMemoryRepo(f.baseConfig);
     const legacyTaskService = f.createLegacyTaskService();
     const service = f.createBotsService({
@@ -3969,7 +3969,7 @@ describe("botsService messageFlow", () => {
   });
 
   it("adds unsupported bot files to the prompt as cached path context", async () => {
-    vi.stubEnv("ZCODE_DATA_BASE_DIR", `/tmp/zcode-bot-files-${Date.now()}`);
+    vi.stubEnv("SECRETARIAT_DATA_BASE_DIR", `/tmp/zcode-bot-files-${Date.now()}`);
     const repo = f.createMemoryRepo(f.baseConfig);
     const legacyTaskService = f.createLegacyTaskService();
     const service = f.createBotsService({
@@ -4202,7 +4202,7 @@ describe("botsService messageFlow", () => {
       actor,
     });
 
-    expect(helpReplies[0]?.text).toContain("ZCode 机器人命令");
+    expect(helpReplies[0]?.text).toContain("Secretariat 机器人命令");
     expect(statusReplies[0]?.text).toContain("状态: 远端未连接");
     expect(statusReplies[0]?.text).toContain("**/重连**");
     expect(legacyTaskService.listTasks).not.toHaveBeenCalled();
@@ -5007,7 +5007,7 @@ describe("botsService messageFlow", () => {
     service.disposeAll();
   });
 
-  it("skips stale unsupported draft mode when creating a ZCode Agent task", async () => {
+  it("skips stale unsupported draft mode when creating a Secretariat Agent task", async () => {
     const repo = f.createMemoryRepo(f.weixinConfig, {
       version: 3,
       bots: {

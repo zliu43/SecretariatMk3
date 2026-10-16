@@ -31,7 +31,7 @@
   用户完成认证（手机号验证码等）
         │
         ▼
-  BigModel 重定向 zcode://bigmodel-auth/callback?code=xxx&state=xxx
+  BigModel 重定向 secretariat://bigmodel-auth/callback?code=xxx&state=xxx
         │
         ▼
   Main Process 捕获 deep link（仅提取 URL）
@@ -110,7 +110,7 @@ app.on('open-url', (event, url) => {
 ```ts
 app.on('second-instance', (event, argv) => {
   // Windows/Linux: 协议 URL 通过命令行参数传入
-  const url = argv.find(arg => arg.startsWith('zcode://'))
+  const url = argv.find(arg => arg.startsWith('secretariat://'))
   if (url) handleDeepLink(url)
 
   // 聚焦已有窗口
@@ -126,7 +126,7 @@ app.on('second-instance', (event, argv) => {
 
 ```ts
 // app.whenReady() 内，窗口创建后检查
-const protocolUrl = process.argv.find(arg => arg.startsWith('zcode://'))
+const protocolUrl = process.argv.find(arg => arg.startsWith('secretariat://'))
 if (protocolUrl) handleDeepLink(protocolUrl)
 ```
 
@@ -136,7 +136,7 @@ if (protocolUrl) handleDeepLink(protocolUrl)
 let pendingDeepLinkUrl: string | null = null
 
 function handleDeepLink(url: string) {
-  if (!url.startsWith('zcode://bigmodel-auth/callback')) return
+  if (!url.startsWith('secretariat://bigmodel-auth/callback')) return
 
   const state = new URL(url).searchParams.get('state')
   if (!state) return
@@ -497,7 +497,7 @@ Root 组件启动时：
 
 ### 存储
 
-使用现有 `credentialService`（`~/.zcode/v2/credentials.json`）：
+使用现有 `credentialService`（`~/.secretariat/v2/credentials.json`）：
 
 | Key | 用途 |
 |---|---|
@@ -567,7 +567,7 @@ export const BIGMODEL_OAUTH_CONFIG = {
   tokenUrl: 'https://bigmodel.cn/api/oauth/token',      // 待确认
   userinfoUrl: 'https://bigmodel.cn/api/oauth/userinfo',  // 待确认，可选
   appId: 'zcode-bigmodel-app',                            // 待确认
-  redirectUri: 'zcode://bigmodel-auth/callback',
+  redirectUri: 'secretariat://bigmodel-auth/callback',
 }
 // Desktop 是 public client，不使用 clientSecret，通过 PKCE 保障安全
 ```

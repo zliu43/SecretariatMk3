@@ -924,7 +924,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: modelIODebugRegistry(),
       runtime,
     });
@@ -1008,7 +1008,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: registry(),
       runtime,
     });
@@ -1067,7 +1067,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       logger: capturingLogger(logs),
       registry: registry(),
       runtime,
@@ -1157,7 +1157,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: modelIODebugRegistry(),
       runtime,
     });
@@ -1248,7 +1248,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: registry(),
       runtime,
     });
@@ -1327,7 +1327,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: registry(),
       runtime,
     });
@@ -1395,7 +1395,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: registry(),
       runtime,
     });
@@ -1425,7 +1425,7 @@ describe("AiSdkModelAdapter", () => {
       })();
 
       await waitForTest(20);
-      abortController.abort(new Error("ZCode Protocol session stopped"));
+      abortController.abort(new Error("Secretariat Protocol session stopped"));
 
       await expect(
         Promise.race([drainStream, waitForTest(500).then(() => "timeout")]),
@@ -1452,7 +1452,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       registry: registry(),
       runtime,
     });
@@ -1531,7 +1531,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: registry(),
       runtime,
     });
@@ -1625,7 +1625,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       registry: registry(),
       runtime,
     });
@@ -1702,7 +1702,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       registry: registry(),
       runtime,
     });
@@ -1735,7 +1735,7 @@ describe("AiSdkModelAdapter", () => {
   });
 
   it("caps production model-io session files at 3 and evicts the oldest", async () => {
-    // 生产态(ZCODE_RUNTIME_ENV=production)写 rollout,需限量;这里用显式 debugDir 验证淘汰逻辑。
+    // 生产态(SECRETARIAT_RUNTIME_ENV=production)写 rollout,需限量;这里用显式 debugDir 验证淘汰逻辑。
     // 每个 session 一个文件,顺序写 5 个 session 后应只剩最新的 3 个。
     const debugDir = await mkdtemp(join(tmpdir(), "zcode-model-io-rollout-"));
     const runtime: AiSdkModelRuntime = {
@@ -1768,7 +1768,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       registry: registry(),
       runtime,
     });
@@ -1836,7 +1836,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       modelIoFullRetentionEnabled: true,
       registry: registry(),
       runtime,
@@ -1886,7 +1886,7 @@ describe("AiSdkModelAdapter", () => {
     }
   });
 
-  it("does not record model-io in test env (ZCODE_RUNTIME_ENV=test)", async () => {
+  it("does not record model-io in test env (SECRETARIAT_RUNTIME_ENV=test)", async () => {
     // 安全网:测试态不应产生磁盘副作用。
     const debugDir = await mkdtemp(join(tmpdir(), "zcode-model-io-testenv-"));
     const runtime: AiSdkModelRuntime = {
@@ -1909,7 +1909,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "test" },
+      env: { SECRETARIAT_RUNTIME_ENV: "test" },
       registry: registry(),
       runtime,
     });
@@ -2116,7 +2116,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       registry: providerRegistry("anthropic"),
       retry: { baseDelayMs: 0, jitter: false, maxAttempts: 1, maxDelayMs: 0 },
       runtime,
@@ -2590,7 +2590,7 @@ describe("AiSdkModelAdapter", () => {
     });
   });
 
-  it("uses ZCODE_MODEL_RETRY env defaults for retry budget and delay", async () => {
+  it("uses SECRETARIAT_MODEL_RETRY env defaults for retry budget and delay", async () => {
     const events: ModelNetworkStatusEvent[] = [];
     let attempts = 0;
     const runtime: AiSdkModelRuntime = {
@@ -2616,10 +2616,10 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       env: {
-        ZCODE_MODEL_RETRY_BACKOFF_FACTOR: "3",
-        ZCODE_MODEL_RETRY_BASE_DELAY_MS: "7",
-        ZCODE_MODEL_RETRY_MAX_DELAY_MS: "20",
-        ZCODE_MODEL_RETRY_MAX_RETRIES: "2",
+        SECRETARIAT_MODEL_RETRY_BACKOFF_FACTOR: "3",
+        SECRETARIAT_MODEL_RETRY_BASE_DELAY_MS: "7",
+        SECRETARIAT_MODEL_RETRY_MAX_DELAY_MS: "20",
+        SECRETARIAT_MODEL_RETRY_MAX_RETRIES: "2",
       },
       registry: registry(),
       retry: { jitter: false },
@@ -2652,7 +2652,7 @@ describe("AiSdkModelAdapter", () => {
     });
   });
 
-  it("lets explicit retry options override ZCODE_MODEL_RETRY env defaults", async () => {
+  it("lets explicit retry options override SECRETARIAT_MODEL_RETRY env defaults", async () => {
     const events: ModelNetworkStatusEvent[] = [];
     let attempts = 0;
     const runtime: AiSdkModelRuntime = {
@@ -2678,8 +2678,8 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       env: {
-        ZCODE_MODEL_RETRY_BASE_DELAY_MS: "100",
-        ZCODE_MODEL_RETRY_MAX_RETRIES: "9",
+        SECRETARIAT_MODEL_RETRY_BASE_DELAY_MS: "100",
+        SECRETARIAT_MODEL_RETRY_MAX_RETRIES: "9",
       },
       registry: registry(),
       retry: { baseDelayMs: 0, jitter: false, maxAttempts: 2, maxDelayMs: 0 },
@@ -2702,7 +2702,7 @@ describe("AiSdkModelAdapter", () => {
     expect(events[2]).toMatchObject({ delayMs: 0, maxAttempts: 2 });
   });
 
-  it("ignores invalid ZCODE_MODEL_RETRY env values", async () => {
+  it("ignores invalid SECRETARIAT_MODEL_RETRY env values", async () => {
     const events: ModelNetworkStatusEvent[] = [];
     let attempts = 0;
     const runtime: AiSdkModelRuntime = {
@@ -2729,10 +2729,10 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       env: {
-        ZCODE_MODEL_RETRY_BACKOFF_FACTOR: "0",
-        ZCODE_MODEL_RETRY_BASE_DELAY_MS: "-1",
-        ZCODE_MODEL_RETRY_MAX_DELAY_MS: "nope",
-        ZCODE_MODEL_RETRY_MAX_RETRIES: "-5",
+        SECRETARIAT_MODEL_RETRY_BACKOFF_FACTOR: "0",
+        SECRETARIAT_MODEL_RETRY_BASE_DELAY_MS: "-1",
+        SECRETARIAT_MODEL_RETRY_MAX_DELAY_MS: "nope",
+        SECRETARIAT_MODEL_RETRY_MAX_RETRIES: "-5",
       },
       registry: registry(),
       retry: { jitter: false },
@@ -3631,7 +3631,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "production" },
+      env: { SECRETARIAT_RUNTIME_ENV: "production" },
       registry: providerRegistry("anthropic"),
       retry: { baseDelayMs: 0, jitter: false, maxAttempts: 1, maxDelayMs: 0 },
       runtime,
@@ -5054,7 +5054,7 @@ describe("AiSdkModelAdapter", () => {
       };
       const adapter = new AiSdkModelAdapter({
         debugDir,
-        env: { ZCODE_RUNTIME_ENV: "development" },
+        env: { SECRETARIAT_RUNTIME_ENV: "development" },
         logger: capturingLogger(logs),
         registry: registry(),
         runtime,
@@ -6887,7 +6887,7 @@ describe("AiSdkModelAdapter", () => {
     };
     const adapter = new AiSdkModelAdapter({
       debugDir,
-      env: { ZCODE_RUNTIME_ENV: "development" },
+      env: { SECRETARIAT_RUNTIME_ENV: "development" },
       registry: registry(),
       runtime,
       streamIdleTimeoutMs: 60_000,

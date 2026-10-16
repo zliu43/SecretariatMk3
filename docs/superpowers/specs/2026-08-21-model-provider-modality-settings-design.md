@@ -28,7 +28,7 @@
 - 不在本设置功能中新增 Audio 附件发送、编码或 provider request 转换能力；Video 附件能力由独立的视频输入功能提供。
 - 不新增图片、音频或视频输出的渲染链路。
 - 不改变模型候选分组、当前模型选择、任务恢复和手机 replayable 语义。
-- 不让远端 workspace 的 `~/.zcode/v2` 成为模型设置权威源。
+- 不让远端 workspace 的 `~/.secretariat/v2` 成为模型设置权威源。
 - 不把 provider registry 或能力状态下沉到 relay、desktop main 或 renderer 队列。
 
 ## 当前事实与设计缺口
@@ -135,7 +135,7 @@ modalitiesConfigured?: boolean;
           | 保存 + 校验
           v
 本地 modelProviderService（唯一权威）
-  ~/.zcode/v2/config.json
+  ~/.secretariat/v2/config.json
   ├─ model.modalities.input/output
   └─ model.zcode.modalitiesConfigured
           |
@@ -195,7 +195,7 @@ provider-visible request 媒体保留或文本化
 - 模态变更与现有 ID、API format、context window、max output tokens 一次原子提交。
 - 编辑其他 metadata 时必须保留已有 input modalities 和显式来源；output 按已确认边界归一化为固定 Text。
 - Video 必须只映射到 `supportsVideo`；Audio/输出类型不得被错误映射到 `supportsImages` / `supportsPdf` / `supportsVideo`。
-- 不新增 ZCode Protocol 字段；当前协议已有 optional `supportsImages`、`supportsPdf`、`supportsVideo`。Audio 若要立即生效，必须先扩展协议 schema 和 runtime 能力，该要求不属于本 spec。
+- 不新增 Secretariat Protocol 字段；当前协议已有 optional `supportsImages`、`supportsPdf`、`supportsVideo`。Audio 若要立即生效，必须先扩展协议 schema 和 runtime 能力，该要求不属于本 spec。
 
 ## 必须保持的不变量
 

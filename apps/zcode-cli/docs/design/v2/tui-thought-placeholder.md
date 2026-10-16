@@ -3,7 +3,7 @@
 ## Context
 
 Core runtime already emits `model_streaming` events for provider reasoning:
-`reasoning_start`, `reasoning_delta`, and `reasoning_end`. ZCode app-server maps live
+`reasoning_start`, `reasoning_delta`, and `reasoning_end`. Secretariat app-server maps live
 `reasoning_delta` events to `agent_thought_chunk`, but the local TUI previously
 used reasoning events only as a status hint and did not show any transcript
 presence for thinking.

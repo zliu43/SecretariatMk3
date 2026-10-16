@@ -667,7 +667,7 @@ relay 自己维护结构化前缀，例如：
 2. 启动 web
    - `pnpm dev:web`
 3. 启动 desktop，并指向 relay
-   - `ZCODE_WEB_REMOTE_CONTROL_RELAY_URL=http://localhost:8787 pnpm dev:desktop`
+   - `SECRETARIAT_WEB_REMOTE_CONTROL_RELAY_URL=http://localhost:8787 pnpm dev:desktop`
 
 联调时还需要补一项环境约定：
 

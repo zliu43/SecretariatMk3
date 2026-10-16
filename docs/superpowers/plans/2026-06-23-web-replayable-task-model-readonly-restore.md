@@ -10,7 +10,7 @@
 
 **Architecture:** Add an explicit snapshot resume model policy that only the mobile replayable restore path uses. The UI requests a snapshot without task-index model backfill when the historical model is known unavailable, while the provider snapshot has not hydrated yet, or when the current task meta has not reached UI state yet, then skips the follow-up `resumeTask` for that read-only open.
 
-**Tech Stack:** TypeScript, React hooks, Vitest, ZCode task service adapter.
+**Tech Stack:** TypeScript, React hooks, Vitest, Secretariat task service adapter.
 
 ---
 

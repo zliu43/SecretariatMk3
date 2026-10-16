@@ -113,7 +113,7 @@
 现状：
 
 - AES-256-GCM 使用随机 IV，算法选择合理。
-- 如果未设置 `ZCODE_CREDENTIAL_SECRET`，密钥由 `platform + homedir + username` 推导。
+- 如果未设置 `SECRETARIAT_CREDENTIAL_SECRET`，密钥由 `platform + homedir + username` 推导。
 
 风险：
 

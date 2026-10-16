@@ -89,7 +89,7 @@ import {
 } from "./remoteProviderProvisioningService.js";
 
 const runtimePreferencesLogger = createServiceLogger("remote-runtime-preferences");
-const ZCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const SECRETARIAT_JWT_TOKEN_KEY = "zcodejwttoken";
 const conversationShareLog = createServiceLogger("conversation-share");
 
 function createUnsupportedRemoteConversationShareService(): IConversationShareService {
@@ -124,7 +124,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
   let fallbackTokenClient: ReturnType<typeof createAccountProjectTokenClient> | undefined;
   const localCredentialService = createCredentialService({
     onDidMutate: ({ key }) => {
-      if (key.startsWith("oauth:") || key === ZCODE_JWT_TOKEN_KEY) fallbackTokenClient?.clear();
+      if (key.startsWith("oauth:") || key === SECRETARIAT_JWT_TOKEN_KEY) fallbackTokenClient?.clear();
     },
   });
   const localAccountProviderCredentialStore = createAccountProviderCredentialStore({
@@ -243,7 +243,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
     apiClient: localApiClient,
     baseUrl: buildRuntimeZCodeApiUrl(process.env, "/api/v1"),
     tokenProvider: async () =>
-      (await localCredentialService.load(ZCODE_JWT_TOKEN_KEY))?.trim() || null,
+      (await localCredentialService.load(SECRETARIAT_JWT_TOKEN_KEY))?.trim() || null,
   });
   const conversationShareService = new ConversationShareService({
     zcodeAgentService: params.connectionServices.zcodeAgentService,
@@ -368,7 +368,7 @@ export function createRemoteWorkspaceServiceCollection(params: {
 
   // Web 手机远控进入 SSH task 时只连到 remote workspace host，
   // 没有桌面 renderer 那层 `baseServices + remoteServices` 合并。
-  // 因此这里为 remote workspace host 补齐本地全局 channel；文件、终端、ZCode Agent 仍来自远端，
+  // 因此这里为 remote workspace host 补齐本地全局 channel；文件、终端、Secretariat Agent 仍来自远端，
   // 设置、凭据、OAuth、模型供应商和 settings-sync 继续读写本机配置。
   const services = new ServiceCollection()
     .register(IFileService, params.connectionServices.fileService)
@@ -452,7 +452,7 @@ export function createServerRemoteWorkspaceServiceCollection(params: {
   sourceServices?: ServiceCollection;
 }): ServiceCollection {
   assertLegacyRemoteWorkspaceRpcContract(params.connectionServices);
-  // Server remote 连接的是一个已经运行的完整 ZCode server。
+  // Server remote 连接的是一个已经运行的完整 Secretariat server。
   // Host 只做 RPC 转接，不替 server 决定 workspace/runtime/model-provider 归属。
   const remoteProviderProvisioningService =
     createRemoteProviderProvisioningExecutorFromWorkspace(params);

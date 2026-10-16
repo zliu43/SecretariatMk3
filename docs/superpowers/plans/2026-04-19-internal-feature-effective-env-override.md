@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add runtime env overrides for internal-only feature gates so development builds can simulate production internet conditions without changing global `ZCODE_ENV` behavior.
+**Goal:** Add runtime env overrides for internal-only feature gates so development builds can simulate production internet conditions without changing global `SECRETARIAT_ENV` behavior.
 
-**Architecture:** Introduce a small shared runtime-override parser that computes the effective env/network only for internal-only feature gates. Reuse that parser from both the UI gate hook and the service-side ZAPI gate, while leaving all existing raw `ZCODE_ENV` consumers untouched.
+**Architecture:** Introduce a small shared runtime-override parser that computes the effective env/network only for internal-only feature gates. Reuse that parser from both the UI gate hook and the service-side ZAPI gate, while leaving all existing raw `SECRETARIAT_ENV` consumers untouched.
 
 **Tech Stack:** TypeScript, Vitest, shared/ui/services packages, pnpm, oxlint, tsc build mode
 
@@ -45,12 +45,12 @@ describe("internalOnlyFeatureRuntimeEnv", () => {
     });
   });
 
-  it("maps ZCODE_SIMULATE_PUBLIC_PROD to production internet", () => {
+  it("maps SECRETARIAT_SIMULATE_PUBLIC_PROD to production internet", () => {
     expect(
       resolveInternalOnlyFeatureGateState({
         rawEnv: "development",
         probedIsIntranet: true,
-        env: { ZCODE_SIMULATE_PUBLIC_PROD: "1" },
+        env: { SECRETARIAT_SIMULATE_PUBLIC_PROD: "1" },
       }),
     ).toEqual({
       env: "production",
@@ -65,9 +65,9 @@ describe("internalOnlyFeatureRuntimeEnv", () => {
         rawEnv: "development",
         probedIsIntranet: false,
         env: {
-          ZCODE_SIMULATE_PUBLIC_PROD: "true",
-          ZCODE_EFFECTIVE_ENV: "production",
-          ZCODE_NETWORK_ENV: "intranet",
+          SECRETARIAT_SIMULATE_PUBLIC_PROD: "true",
+          SECRETARIAT_EFFECTIVE_ENV: "production",
+          SECRETARIAT_NETWORK_ENV: "intranet",
         },
       }),
     ).toEqual({
@@ -83,7 +83,7 @@ describe("internalOnlyFeatureRuntimeEnv", () => {
         rawEnv: "development",
         probedIsIntranet: true,
         env: {
-          ZCODE_EFFECTIVE_ENV: "production",
+          SECRETARIAT_EFFECTIVE_ENV: "production",
         },
       }),
     ).toEqual({
@@ -149,8 +149,8 @@ function normalizeNetworkEnv(
 export function resolveInternalOnlyFeatureRuntimeOverrides(
   env: NodeJS.ProcessEnv = {},
 ): InternalOnlyFeatureRuntimeOverrides {
-  const explicitEffectiveEnv = normalizeEffectiveEnv(env.ZCODE_EFFECTIVE_ENV);
-  const explicitNetworkEnv = normalizeNetworkEnv(env.ZCODE_NETWORK_ENV);
+  const explicitEffectiveEnv = normalizeEffectiveEnv(env.SECRETARIAT_EFFECTIVE_ENV);
+  const explicitNetworkEnv = normalizeNetworkEnv(env.SECRETARIAT_NETWORK_ENV);
 
   if (explicitEffectiveEnv || explicitNetworkEnv) {
     return {
@@ -159,7 +159,7 @@ export function resolveInternalOnlyFeatureRuntimeOverrides(
     };
   }
 
-  if (isTruthyEnvFlag(env.ZCODE_SIMULATE_PUBLIC_PROD)) {
+  if (isTruthyEnvFlag(env.SECRETARIAT_SIMULATE_PUBLIC_PROD)) {
     return {
       effectiveEnv: "production",
       networkEnv: "internet",
@@ -267,14 +267,14 @@ Expected: PASS. This protects the existing pure gate behavior before the hook in
 import {
   INTERNAL_ONLY_FEATURE_INTRANET_PROBE_REQUEST,
   resolveInternalOnlyFeatureGateState,
-  ZCODE_ENV,
+  SECRETARIAT_ENV,
   shouldEnableInternalOnlyFeature,
 } from "@zcode/shared";
 import { useIntranetProbe } from "@/hooks/useSystemService.js";
 
 export function useInternalOnlyFeatureVisibility(): boolean {
   const gateState = resolveInternalOnlyFeatureGateState({
-    rawEnv: ZCODE_ENV,
+    rawEnv: SECRETARIAT_ENV,
     probedIsIntranet: false,
     env: typeof process !== "undefined" ? process.env : {},
   });
@@ -288,7 +288,7 @@ export function useInternalOnlyFeatureVisibility(): boolean {
   );
 
   const effectiveGateState = resolveInternalOnlyFeatureGateState({
-    rawEnv: ZCODE_ENV,
+    rawEnv: SECRETARIAT_ENV,
     probedIsIntranet: gateState.shouldProbe ? isIntranet : gateState.isIntranet,
     env: typeof process !== "undefined" ? process.env : {},
   });
@@ -347,7 +347,7 @@ it("simulate public prod maps to production internet for service-side gate", () 
     resolveInternalOnlyFeatureGateState({
       rawEnv: "development",
       probedIsIntranet: true,
-      env: { ZCODE_SIMULATE_PUBLIC_PROD: "1" },
+      env: { SECRETARIAT_SIMULATE_PUBLIC_PROD: "1" },
     }),
   ).toMatchObject({
     env: "production",
@@ -370,7 +370,7 @@ import {
   INTERNAL_ONLY_FEATURE_INTRANET_PROBE_REQUEST,
   resolveInternalOnlyFeatureGateState,
   shouldEnableInternalOnlyFeature,
-  ZCODE_ENV,
+  SECRETARIAT_ENV,
 } from "@zcode/shared";
 
 const isZapiAllowed = async (): Promise<boolean> => {
@@ -380,7 +380,7 @@ const isZapiAllowed = async (): Promise<boolean> => {
 
   internalOnlyFeatureVisibilityPromise = (async () => {
     const initialGateState = resolveInternalOnlyFeatureGateState({
-      rawEnv: ZCODE_ENV,
+      rawEnv: SECRETARIAT_ENV,
       probedIsIntranet: false,
       env: process.env,
     });
@@ -397,7 +397,7 @@ const isZapiAllowed = async (): Promise<boolean> => {
         INTERNAL_ONLY_FEATURE_INTRANET_PROBE_REQUEST,
       );
       const finalGateState = resolveInternalOnlyFeatureGateState({
-        rawEnv: ZCODE_ENV,
+        rawEnv: SECRETARIAT_ENV,
         probedIsIntranet: probeResult.isIntranet,
         env: process.env,
       });

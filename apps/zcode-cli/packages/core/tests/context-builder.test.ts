@@ -99,14 +99,14 @@ describe("ContextBuilder meta user context", () => {
       false,
       false,
     ]);
-    expect(result.systemMessages[0]?.content).toBe("You are ZCode, an interactive coding agent");
+    expect(result.systemMessages[0]?.content).toBe("You are Secretariat, an interactive coding agent");
     expect(result.systemMessages[0]?.content).not.toContain("# Agent Identity");
     expect(result.systemMessages[0]?.content).not.toContain("# Task Behavior");
 
     const stableBody = String(result.systemMessages[1]?.content ?? "");
-    expect(stableBody).toMatch(/^\n?You are an interactive ZCode agent/);
+    expect(stableBody).toMatch(/^\n?You are an interactive Secretariat agent/);
     expect(stableBody).not.toContain("# Agent Identity");
-    expect(stableBody).not.toContain("You are ZCode, an interactive coding agent");
+    expect(stableBody).not.toContain("You are Secretariat, an interactive coding agent");
     expect(stableBody).toContain("# Harness");
     expect(stableBody).not.toContain("# Session-specific guidance");
     expect(stableBody).not.toContain("# Environment");
@@ -172,7 +172,7 @@ describe("ContextBuilder meta user context", () => {
     expect(dynamicSystem.split(AUTONOMY_APPENDIX_PROMPT)).toHaveLength(2);
   });
 
-  it("injects the stable ZCode Desktop Context before dynamic behavior", () => {
+  it("injects the stable Secretariat Desktop Context before dynamic behavior", () => {
     const result = createContextBuilder({
       workingDirectory: "/workspace",
       presentationSurface: "zcode_desktop",
@@ -190,14 +190,14 @@ describe("ContextBuilder meta user context", () => {
     );
     expect(desktopSections).toHaveLength(1);
     expect(desktopSections[0]).toMatchObject({
-      name: "ZCode Desktop Context",
+      name: "Secretariat Desktop Context",
       source: "desktop_context",
       injectionTarget: "system",
       cacheHint: "stable",
     });
     expect(desktopSections[0]?.content).toBe(
       [
-        "# ZCode Desktop Context",
+        "# Secretariat Desktop Context",
         "",
         "### Interactive views",
         "- No visualization output directory is supplied; inline Gen UI is unavailable.",
@@ -229,8 +229,8 @@ describe("ContextBuilder meta user context", () => {
     expect(desktopIndex).toBeLessThan(dynamicBehaviorIndex);
 
     expect(result.systemMessages).toHaveLength(3);
-    expect(result.systemMessages[1]?.content).toContain("# ZCode Desktop Context");
-    expect(result.systemMessages[2]?.content).not.toContain("# ZCode Desktop Context");
+    expect(result.systemMessages[1]?.content).toContain("# Secretariat Desktop Context");
+    expect(result.systemMessages[2]?.content).not.toContain("# Secretariat Desktop Context");
   });
 
   it("does not inject the Desktop context for the default terminal surface", () => {
@@ -264,7 +264,7 @@ describe("ContextBuilder meta user context", () => {
       cliPrefixPrompt: "legacy override",
     } as any).build();
 
-    expect(result.systemMessages[0]?.content).toBe("You are ZCode, an interactive coding agent");
+    expect(result.systemMessages[0]?.content).toBe("You are Secretariat, an interactive coding agent");
   });
 
   it("covers default body safety, runtime, and tool-guidance semantic anchors", () => {
@@ -384,7 +384,7 @@ describe("ContextBuilder meta user context", () => {
     expect(result.metaUserAttachments.map((attachment) => attachment.source)).toEqual([
       "context_prefix",
     ]);
-    expect(result.systemMessages[0]?.content).toBe("You are ZCode, an interactive coding agent");
+    expect(result.systemMessages[0]?.content).toBe("You are Secretariat, an interactive coding agent");
     expect(result.systemMessages[0]?.content).not.toContain("# Agent Identity");
     expect(result.systemMessages[1]?.content).toBe("\nYou are concise for this task.");
     expect(result.systemMessages[1]?.content).not.toContain("# Task Behavior");
@@ -443,7 +443,7 @@ describe("ContextBuilder meta user context", () => {
           keepRecentToolResults: 3,
         },
       },
-      memoryRoot: "/workspace/.zcode/memory",
+      memoryRoot: "/workspace/.secretariat/memory",
       guidanceToolNames: ["AskUserQuestion", "Agent", "Skill", "TodoWrite", "Read", "Edit", "Bash"],
     }).build();
 
@@ -606,7 +606,7 @@ describe("ContextBuilder meta user context", () => {
         isGitRepository: true,
         gitBranch: "feature/alignment",
         gitMainBranch: "main",
-        gitUser: "ZCode Tester <tester@example.com>",
+        gitUser: "Secretariat Tester <tester@example.com>",
         gitStatus: "dirty",
         gitStatusLines: [" M package.json"],
         recentCommits: ["abc123 test commit"],
@@ -652,7 +652,7 @@ describe("ContextBuilder meta user context", () => {
     expect(dynamicSystem).toContain("This is the git status at the start of the conversation");
     expect(dynamicSystem).toContain("Current branch: feature/alignment");
     expect(dynamicSystem).toContain("Main branch (you will usually use this for PRs): main");
-    expect(dynamicSystem).toContain("Git user: ZCode Tester <tester@example.com>");
+    expect(dynamicSystem).toContain("Git user: Secretariat Tester <tester@example.com>");
     expect(dynamicSystem).toContain("Status:\n M package.json");
     expect(dynamicSystem).toContain("Recent commits:\nabc123 test commit");
   });
@@ -822,12 +822,12 @@ describe("ContextBuilder meta user context", () => {
     const stableBody = result.systemMessages[1]?.content ?? "";
     const dynamicSystem = result.systemMessages[2]?.content ?? "";
     const meta = metaAttachment(result, "context_prefix");
-    expect(cliPrefix).toBe("You are ZCode, an interactive coding agent");
+    expect(cliPrefix).toBe("You are Secretariat, an interactive coding agent");
     expect(cliPrefix).not.toContain("# Agent Identity");
     expect(cliPrefix).not.toContain("# Task Behavior");
     expect(stableBody).not.toContain("# Agent Identity");
-    expect(stableBody).toMatch(/^\n?You are an interactive ZCode agent/);
-    expect(stableBody).not.toContain("You are ZCode, an interactive coding agent");
+    expect(stableBody).toMatch(/^\n?You are an interactive Secretariat agent/);
+    expect(stableBody).not.toContain("You are Secretariat, an interactive coding agent");
     expect(stableBody).toContain("# Harness");
     expect(stableBody).not.toContain("# Session-specific guidance");
     expect(stableBody).not.toContain("# Environment");
@@ -903,7 +903,7 @@ describe("ContextBuilder meta user context", () => {
         sources: [
           {
             scope: "user",
-            filePath: "/Users/test/.zcode/AGENTS.md",
+            filePath: "/Users/test/.secretariat/AGENTS.md",
             fileName: "AGENTS.md",
             content: "default instructions",
             bytesRead: 20,
@@ -927,7 +927,7 @@ describe("ContextBuilder meta user context", () => {
     expect(meta).toContain("Codebase and user instructions are shown below.");
     expect(meta.match(/# agentsMd/gu)).toHaveLength(1);
     expect(meta).not.toContain("# claudeMd");
-    expect(meta).toContain("Contents of /Users/test/.zcode/AGENTS.md (user default instructions):");
+    expect(meta).toContain("Contents of /Users/test/.secretariat/AGENTS.md (user default instructions):");
     expect(meta).toContain("Contents of /workspace/AGENTS.md (workspace instructions):");
     expect(meta.indexOf("default instructions")).toBeLessThan(
       meta.indexOf("workspace instructions"),
@@ -1058,10 +1058,10 @@ describe("ContextBuilder meta user context", () => {
       "system",
     ]);
     expect(result.metaUserAttachments).toEqual([]);
-    expect(result.systemMessages[0]?.content).toBe("You are ZCode, an interactive coding agent");
+    expect(result.systemMessages[0]?.content).toBe("You are Secretariat, an interactive coding agent");
     expect(result.systemMessages[0]?.content).not.toContain("# Agent Identity");
     expect(result.systemMessages[1]?.content).not.toContain("# Agent Identity");
-    expect(result.systemMessages[1]?.content).toMatch(/^\n?You are an interactive ZCode agent/);
+    expect(result.systemMessages[1]?.content).toMatch(/^\n?You are an interactive Secretariat agent/);
     expect(result.systemMessages[1]?.content).toContain("# Harness");
     expect(result.systemMessages[1]?.content).not.toContain("# Session-specific guidance");
     expect(result.systemMessages[1]?.content).not.toContain("# Environment");
@@ -1131,9 +1131,9 @@ describe("ContextBuilder meta user context", () => {
           {
             name: "demo-skill",
             description: "Use this for demos",
-            path: "/workspace/.zcode/skills/demo/SKILL.md",
-            directory: "/workspace/.zcode/skills/demo",
-            rootPath: "/workspace/.zcode/skills",
+            path: "/workspace/.secretariat/skills/demo/SKILL.md",
+            directory: "/workspace/.secretariat/skills/demo",
+            rootPath: "/workspace/.secretariat/skills",
             scope: "project",
             source: "zcode",
             safeToAutoLoad: true,
@@ -1215,7 +1215,7 @@ describe("ContextBuilder meta user context", () => {
         isGitRepository: true,
         gitBranch: "main",
         gitMainBranch: "main",
-        gitUser: "ZCode Tester <tester@example.com>",
+        gitUser: "Secretariat Tester <tester@example.com>",
         gitStatus: "clean",
         gitStatusLines: [],
         recentCommits: ["abc123 test commit"],
@@ -1329,14 +1329,14 @@ describe("ContextBuilder meta user context", () => {
     expect(section?.content).not.toContain("Recent commits:\n(none)");
   });
 
-  it("renders the fixed ZCode CLI prefix and identity body without duplication", () => {
+  it("renders the fixed Secretariat CLI prefix and identity body without duplication", () => {
     const prefixSection = buildCliPrefixSection();
     const identitySection = buildIdentitySection();
 
-    expect(prefixSection.content).toBe("You are ZCode, an interactive coding agent");
-    expect(identitySection.content).toMatch(/^\n?You are an interactive ZCode agent/);
+    expect(prefixSection.content).toBe("You are Secretariat, an interactive coding agent");
+    expect(identitySection.content).toMatch(/^\n?You are an interactive Secretariat agent/);
     expect(identitySection.content).not.toContain("# Agent Identity");
-    expect(identitySection.content).not.toContain("You are ZCode, an interactive coding agent");
+    expect(identitySection.content).not.toContain("You are Secretariat, an interactive coding agent");
     expect(`${prefixSection.content}\n${identitySection.content}`).not.toContain("${");
     expect(`${prefixSection.content}\n${identitySection.content}`).not.toContain("an AI assistant");
   });
@@ -1344,7 +1344,7 @@ describe("ContextBuilder meta user context", () => {
   it("includes compact stable body boundaries", () => {
     const section = buildIdentitySection();
 
-    expect(section.content).toMatch(/^\n?You are an interactive ZCode agent/);
+    expect(section.content).toMatch(/^\n?You are an interactive Secretariat agent/);
     expect(section.content).not.toContain("# Agent Identity");
     expect(section.content).toContain("# Harness");
     expect(section.content).toContain("IMPORTANT:");
@@ -1376,9 +1376,9 @@ describe("ContextBuilder meta user context", () => {
           {
             name: "demo-skill",
             description: "Use this for demos",
-            path: "/workspace/.zcode/skills/demo/SKILL.md",
-            directory: "/workspace/.zcode/skills/demo",
-            rootPath: "/workspace/.zcode/skills",
+            path: "/workspace/.secretariat/skills/demo/SKILL.md",
+            directory: "/workspace/.secretariat/skills/demo",
+            rootPath: "/workspace/.secretariat/skills",
             scope: "project",
             source: "zcode",
             safeToAutoLoad: true,
@@ -1473,11 +1473,11 @@ describe("context builder — workflow actor identity", () => {
     expect(text).toContain("`submit_result`");
 
     // 交互式身份与面向用户对话的三段不在。
-    expect(text).not.toContain("interactive ZCode agent that helps users");
+    expect(text).not.toContain("interactive Secretariat agent that helps users");
     expect(text).not.toContain("# Communicating with the user");
     expect(text).not.toContain("For actions that are hard to reverse");
     expect(text).not.toContain("# Session-specific guidance");
-    expect(text).not.toContain("ZCode Desktop");
+    expect(text).not.toContain("Secretariat Desktop");
     // 后续段照常。
     expect(text).toContain("# Environment");
   });
@@ -1493,7 +1493,7 @@ describe("context builder — workflow actor identity", () => {
     );
     expect(text).not.toContain('named "');
     expect(text).toContain("# Working inside a workflow");
-    expect(text).not.toContain("interactive ZCode agent");
+    expect(text).not.toContain("interactive Secretariat agent");
   });
 
   // 产物（docs/dynamic-workflow/authoring.md「The system prompt」）：子代理仍然没有任何产物工具
@@ -1527,7 +1527,7 @@ describe("context builder — workflow actor identity", () => {
     ).toBe(true);
     expect(result.sections.map((section) => section.source)).not.toContain("cli_prefix");
     expect(result.systemMessages.map((m) => String(m.content)).join("\n")).not.toContain(
-      "You are ZCode, an interactive coding agent",
+      "You are Secretariat, an interactive coding agent",
     );
   });
 
@@ -1552,9 +1552,9 @@ describe("context builder — workflow actor identity", () => {
         {
           name: "demo-skill",
           description: "Demo skill",
-          path: "/workspace/.zcode/skills/demo/SKILL.md",
-          directory: "/workspace/.zcode/skills/demo",
-          rootPath: "/workspace/.zcode/skills",
+          path: "/workspace/.secretariat/skills/demo/SKILL.md",
+          directory: "/workspace/.secretariat/skills/demo",
+          rootPath: "/workspace/.secretariat/skills",
           scope: "project" as const,
           source: "zcode" as const,
           safeToAutoLoad: true,
@@ -1598,7 +1598,7 @@ describe("context builder — workflow actor identity", () => {
   it("leaves the interactive identity byte-identical after the shared-helper refactor", () => {
     const text = systemText({ workingDirectory: "/workspace", envInfo });
     expect(text).toContain(
-      "\nYou are an interactive ZCode agent that helps users with software engineering tasks.\n\nIMPORTANT: Assist with authorized security testing",
+      "\nYou are an interactive Secretariat agent that helps users with software engineering tasks.\n\nIMPORTANT: Assist with authorized security testing",
     );
     expect(text).toContain("\n\n# Harness\n- Text you output outside of tool use");
   });

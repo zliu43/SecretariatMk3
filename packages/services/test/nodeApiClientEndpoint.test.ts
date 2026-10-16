@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_ZCODE_ENDPOINT_ORIGIN } from "@zcode/shared";
 import { setDataBaseDir } from "../src/paths.js";
 import { createNodeApiClient } from "../src/providers/api/nodeApiClient.js";
-import { buildZCodeSourceHeaders, ZCODE_SOURCE_HEADERS } from "../src/providers/sourceHeaders.js";
+import { buildZCodeSourceHeaders, SECRETARIAT_SOURCE_HEADERS } from "../src/providers/sourceHeaders.js";
 
 describe("NodeApiClient endpoint rewriting", () => {
   const tempDirs: string[] = [];
@@ -48,13 +48,13 @@ describe("NodeApiClient endpoint rewriting", () => {
     await client.request("https://api.z.ai/v1/models");
 
     const zcodeHeaders = new Headers(fetchImpl.mock.calls[0]?.[1]?.headers);
-    expect(zcodeHeaders.get("User-Agent")).toMatch(/^ZCode\//);
-    expect(zcodeHeaders.get("X-Title")).toBe(ZCODE_SOURCE_HEADERS["X-Title"]);
+    expect(zcodeHeaders.get("User-Agent")).toMatch(/^Secretariat\//);
+    expect(zcodeHeaders.get("X-Title")).toBe(SECRETARIAT_SOURCE_HEADERS["X-Title"]);
     expect(zcodeHeaders.get("X-OpenRouter-Title")).toBeNull();
     expect(zcodeHeaders.get("X-OpenRouter-Categories")).toBeNull();
     expect(zcodeHeaders.get("HTTP-Referer")).toBe("https://zcode.z.ai");
     expect(zcodeHeaders.get("X-App-Version")).toBeNull();
-    expect(zcodeHeaders.get("X-ZCode-App-Version")).toBeTruthy();
+    expect(zcodeHeaders.get("X-Secretariat-App-Version")).toBeTruthy();
     expect(zcodeHeaders.get("X-Platform")).toBe(`${process.platform}-${process.arch}`);
     expect(zcodeHeaders.get("X-Release-Channel")).toBeTruthy();
     expect(zcodeHeaders.get("X-Client-Language")).toBeTruthy();
@@ -105,7 +105,7 @@ describe("NodeApiClient endpoint rewriting", () => {
     const dataBaseDir = mkdtempSync(join(tmpdir(), "zcode-device-mid-"));
     tempDirs.push(dataBaseDir);
     setDataBaseDir(dataBaseDir);
-    const configDir = join(dataBaseDir, ".zcode", "v2");
+    const configDir = join(dataBaseDir, ".secretariat", "v2");
     mkdirSync(configDir, { recursive: true });
     writeFileSync(
       join(configDir, "telemetry-state.json"),
@@ -134,7 +134,7 @@ describe("NodeApiClient endpoint rewriting", () => {
     const dataBaseDir = mkdtempSync(join(tmpdir(), "zcode-device-mid-invalid-"));
     tempDirs.push(dataBaseDir);
     setDataBaseDir(dataBaseDir);
-    const configDir = join(dataBaseDir, ".zcode", "v2");
+    const configDir = join(dataBaseDir, ".secretariat", "v2");
     mkdirSync(configDir, { recursive: true });
     if (content !== null) {
       writeFileSync(join(configDir, "telemetry-state.json"), content, "utf-8");
@@ -171,7 +171,7 @@ describe("NodeApiClient endpoint rewriting", () => {
       "X-Client-Timezone": "Asia/Shanghai",
       "X-Os-Category": "macos",
       "X-Os-Version": "Darwin 25.0.0",
-      "X-ZCode-App-Version": "2.14.0",
+      "X-Secretariat-App-Version": "2.14.0",
     });
   });
 });

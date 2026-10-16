@@ -7,7 +7,7 @@ import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createConfig } from "@zcode/adapters/config";
 import { DEFAULT_ENABLED_OFFICIAL_PLUGIN_IDS } from "@zcode/shared";
-import { ZCODE_PLUGIN_HOST_COMMAND } from "@zcode/contracts";
+import { SECRETARIAT_PLUGIN_HOST_COMMAND } from "@zcode/contracts";
 import type { Logger } from "@zcode/contracts";
 import { describe, expect, it, vi } from "vitest";
 import { resolveStartupPlugins } from "../src/app/startup-marks.js";
@@ -69,7 +69,7 @@ const BROWSER_USE_PLUGIN_ID = "browser-use@zcode-plugins-official";
 const DOCUMENTS_PLUGIN_ID = "documents@zcode-plugins-official";
 const RESTORE_LEGACY_SESSIONS_PLUGIN_ID = "restore-legacy-sessions@zcode-plugins-official";
 const SKILL_CREATOR_PLUGIN_ID = "skill-creator@zcode-plugins-official";
-const ZCODE_GUIDE_PLUGIN_ID = "zcode-guide@zcode-plugins-official";
+const SECRETARIAT_GUIDE_PLUGIN_ID = "zcode-guide@zcode-plugins-official";
 const OFFICIAL_COMPUTER_USE_PLUGIN_CACHE_PATH = join(
   "cache",
   "zcode-plugins-official",
@@ -139,7 +139,7 @@ const BUNDLED_ANDROID_PLUGIN_DIST_PATH = fileURLToPath(
   new URL("../../android-emulator-plugin/dist/mcp/server.js", import.meta.url),
 );
 
-describe("ZCode plugins", () => {
+describe("Secretariat plugins", () => {
   it("starts cached Claude icon migration without blocking overview callers", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-icon-migration-"));
     const pluginStorageRoot = join(root, "plugins");
@@ -611,7 +611,7 @@ describe("ZCode plugins", () => {
     }
   });
 
-  it("includes the merged ZCode official marketplace and Claude marketplace for empty storage", async () => {
+  it("includes the merged Secretariat official marketplace and Claude marketplace for empty storage", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-default-marketplace-"));
 
     try {
@@ -1721,8 +1721,8 @@ describe("ZCode plugins", () => {
           IOS_SIM_UI_BACKEND: "auto",
         },
       });
-      expect(server?.args).toContain(ZCODE_PLUGIN_HOST_COMMAND);
-      expect(server?.args?.at(-2)).toBe(ZCODE_PLUGIN_HOST_COMMAND);
+      expect(server?.args).toContain(SECRETARIAT_PLUGIN_HOST_COMMAND);
+      expect(server?.args?.at(-2)).toBe(SECRETARIAT_PLUGIN_HOST_COMMAND);
       expect(server?.args?.at(-1)).toContain(
         join(
           "cache",
@@ -1819,8 +1819,8 @@ describe("ZCode plugins", () => {
       ]) {
         expect(server?.env).not.toHaveProperty(unusedEnv);
       }
-      expect(server?.args).toContain(ZCODE_PLUGIN_HOST_COMMAND);
-      expect(server?.args?.at(-2)).toBe(ZCODE_PLUGIN_HOST_COMMAND);
+      expect(server?.args).toContain(SECRETARIAT_PLUGIN_HOST_COMMAND);
+      expect(server?.args?.at(-2)).toBe(SECRETARIAT_PLUGIN_HOST_COMMAND);
       expect(server?.args?.at(-1)).toContain(
         join(
           "cache",
@@ -1852,7 +1852,7 @@ describe("ZCode plugins", () => {
   it("persists sensitive plugin options in the selected User or Workspace config", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-plugin-options-"));
     const userConfigPath = join(root, "user-config.json");
-    const workspaceConfigPath = join(root, ".zcode", "config.json");
+    const workspaceConfigPath = join(root, ".secretariat", "config.json");
     const pluginStorageRoot = join(root, "plugins");
     const pluginRoot = join(root, "secret-plugin");
     const pluginId = "secret-plugin@inline";
@@ -1970,7 +1970,7 @@ describe("ZCode plugins", () => {
   it("writes Workspace enablement without mutating User config", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-plugin-scope-"));
     const userConfigPath = join(root, "user-config.json");
-    const workspaceConfigPath = join(root, ".zcode", "config.json");
+    const workspaceConfigPath = join(root, ".secretariat", "config.json");
     const pluginStorageRoot = join(root, "plugins");
     const pluginRoot = join(root, "workspace-plugin");
     const pluginId = "workspace-plugin@inline";
@@ -2020,8 +2020,8 @@ describe("ZCode plugins", () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-nested-plugin-scope-"));
     const repositoryRoot = join(root, "repository");
     const workspaceRoot = join(repositoryRoot, "packages", "app");
-    const repositoryConfigPath = join(repositoryRoot, ".zcode", "config.json");
-    const workspaceConfigPath = join(workspaceRoot, ".zcode", "config.json");
+    const repositoryConfigPath = join(repositoryRoot, ".secretariat", "config.json");
+    const workspaceConfigPath = join(workspaceRoot, ".secretariat", "config.json");
     const userConfigPath = join(root, "user-config.json");
     const pluginRoot = join(root, "workspace-plugin");
     const pluginId = "workspace-plugin@inline";
@@ -2077,7 +2077,7 @@ describe("ZCode plugins", () => {
   it("resets Workspace plugin keys so effective config inherits User", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-plugin-reset-"));
     const userConfigPath = join(root, "user-config.json");
-    const workspaceConfigPath = join(root, ".zcode", "config.json");
+    const workspaceConfigPath = join(root, ".secretariat", "config.json");
     const pluginId = "workspace-plugin@inline";
     try {
       await writeTestFile(
@@ -2130,7 +2130,7 @@ describe("ZCode plugins", () => {
     const marketplaceRoot = join(root, "user-marketplace");
     const pluginRoot = join(marketplaceRoot, "plugins", "workspace-demo");
     const userConfigPath = join(root, "user-config.json");
-    const workspaceConfigPath = join(root, ".zcode", "config.json");
+    const workspaceConfigPath = join(root, ".secretariat", "config.json");
     const marketplaceId = "workspace-market";
     const pluginName = "workspace-demo";
 
@@ -2285,7 +2285,7 @@ describe("ZCode plugins", () => {
     const marketplaceId = "workspace-market";
     try {
       await writeTestFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({
           plugins: {
             extraKnownMarketplaces: {
@@ -2413,7 +2413,7 @@ describe("ZCode plugins", () => {
     const pluginStorageRoot = join(root, "plugins");
     const originalSource = join(root, "original-marketplace");
     const workspaceSource = join(root, "workspace-marketplace");
-    const workspaceConfigPath = join(root, ".zcode", "config.json");
+    const workspaceConfigPath = join(root, ".secretariat", "config.json");
     const marketplaceId = "shared-market";
     try {
       await writeTestFile(
@@ -2511,7 +2511,7 @@ describe("ZCode plugins", () => {
         }),
       );
       await writeTestFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({
           plugins: {
             extraKnownMarketplaces: {

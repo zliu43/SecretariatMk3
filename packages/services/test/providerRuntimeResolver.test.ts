@@ -19,14 +19,14 @@ function restoreEnv(name: string, value: string | undefined): void {
 
 describe("providerRuntimeResolver glm workdir discovery", () => {
   const originalCwd = process.cwd();
-  const originalZCodeAgentWorkdir = process.env.ZCODE_AGENT_WORKDIR;
+  const originalZCodeAgentWorkdir = process.env.SECRETARIAT_AGENT_WORKDIR;
   const originalGlmBinaryPath = process.env.GLM_BINARY_PATH;
   const originalHome = process.env.HOME;
   const createdDirs: string[] = [];
 
   afterEach(() => {
     process.chdir(originalCwd);
-    restoreEnv("ZCODE_AGENT_WORKDIR", originalZCodeAgentWorkdir);
+    restoreEnv("SECRETARIAT_AGENT_WORKDIR", originalZCodeAgentWorkdir);
     restoreEnv("GLM_BINARY_PATH", originalGlmBinaryPath);
     restoreEnv("HOME", originalHome);
 
@@ -36,7 +36,7 @@ describe("providerRuntimeResolver glm workdir discovery", () => {
   });
 
   it("会在当前仓库旁边自动发现 zcode-cli 作为 glm 工作目录", () => {
-    delete process.env.ZCODE_AGENT_WORKDIR;
+    delete process.env.SECRETARIAT_AGENT_WORKDIR;
 
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-glm-workdir-"));
     createdDirs.push(sandboxRoot);
@@ -55,7 +55,7 @@ describe("providerRuntimeResolver glm workdir discovery", () => {
   });
 
   it("desktop dev cwd 在 packages/desktop 时仍会发现仓库相邻的 zcode-cli", () => {
-    delete process.env.ZCODE_AGENT_WORKDIR;
+    delete process.env.SECRETARIAT_AGENT_WORKDIR;
 
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-glm-desktop-cwd-"));
     createdDirs.push(sandboxRoot);
@@ -76,7 +76,7 @@ describe("providerRuntimeResolver glm workdir discovery", () => {
   });
 
   it("zcode-cli 源码入口会作为 glm dev binary 被发现", () => {
-    delete process.env.ZCODE_AGENT_WORKDIR;
+    delete process.env.SECRETARIAT_AGENT_WORKDIR;
 
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-glm-src-cli-"));
     createdDirs.push(sandboxRoot);
@@ -93,13 +93,13 @@ describe("providerRuntimeResolver glm workdir discovery", () => {
   });
 
   it("无源码仓库时会回退到准备好的 zcode-agent 二进制", () => {
-    delete process.env.ZCODE_AGENT_WORKDIR;
+    delete process.env.SECRETARIAT_AGENT_WORKDIR;
     delete process.env.GLM_BINARY_PATH;
 
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-glm-binary-"));
     createdDirs.push(sandboxRoot);
     // Keep the fallback test hermetic: a developer may already have a valid
-    // ~/.zcode/server/agents runtime, which intentionally outranks repository
+    // ~/.secretariat/server/agents runtime, which intentionally outranks repository
     // bundled resources in production.
     process.env.HOME = sandboxRoot;
 
@@ -117,14 +117,14 @@ describe("providerRuntimeResolver glm workdir discovery", () => {
     expect(realpathSync(findBinary("glm")!)).toBe(realpathSync(binaryPath));
   });
 
-  it("ZCODE_AGENT_WORKDIR 可显式指定 zcode-cli 源码入口", () => {
+  it("SECRETARIAT_AGENT_WORKDIR 可显式指定 zcode-cli 源码入口", () => {
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-agent-workdir-priority-"));
     createdDirs.push(sandboxRoot);
 
     const workdir = join(sandboxRoot, "zcode-cli");
     mkdirSync(join(workdir, "packages", "cli", "src"), { recursive: true });
     writeFileSync(join(workdir, "packages", "cli", "src", "main.ts"), "console.log('new');\n");
-    process.env.ZCODE_AGENT_WORKDIR = workdir;
+    process.env.SECRETARIAT_AGENT_WORKDIR = workdir;
 
     expect(realpathSync(findBinary("glm")!)).toBe(
       realpathSync(join(workdir, "packages", "cli", "src", "main.ts")),
@@ -144,7 +144,7 @@ describe("providerRuntimeResolver workspace config dir identity", () => {
     }
   });
 
-  it("GLM 配置目录由 ZCode Agent home 统一承载，不再按 workspaceIdentity 计算", () => {
+  it("GLM 配置目录由 Secretariat Agent home 统一承载，不再按 workspaceIdentity 计算", () => {
     const home = mkdtempSync(join(tmpdir(), "zcode-agent-resolver-home-"));
     createdDirs.push(home);
     process.env.HOME = home;
@@ -155,11 +155,11 @@ describe("providerRuntimeResolver workspace config dir identity", () => {
     const workspaceIdentity = "remote:ssh:localhost:2223:dev:/home/dev";
 
     expect(resolveProviderConfigDir("glm", workspacePath, workspaceIdentity)).toBe(
-      join(home, ".zcode", "cli"),
+      join(home, ".secretariat", "cli"),
     );
   });
 
-  it("本地 GLM 配置目录同样使用 ZCode Agent home", () => {
+  it("本地 GLM 配置目录同样使用 Secretariat Agent home", () => {
     const home = mkdtempSync(join(tmpdir(), "zcode-agent-resolver-home-"));
     createdDirs.push(home);
     process.env.HOME = home;
@@ -168,7 +168,7 @@ describe("providerRuntimeResolver workspace config dir identity", () => {
 
     const workspacePath = "/Users/demo/project";
 
-    expect(resolveProviderConfigDir("glm", workspacePath)).toBe(join(home, ".zcode", "cli"));
+    expect(resolveProviderConfigDir("glm", workspacePath)).toBe(join(home, ".secretariat", "cli"));
   });
 });
 
@@ -199,7 +199,7 @@ describe("providerRuntimeResolver clean env", () => {
     createdDirs.push(dataBaseDir);
     setDataBaseDir(dataBaseDir);
 
-    const env = buildCleanEnv("glm", join(dataBaseDir, ".zcode", "cli"));
+    const env = buildCleanEnv("glm", join(dataBaseDir, ".secretariat", "cli"));
 
     expect(env.HOME).toBe(dataBaseDir);
     if (process.platform === "win32") {

@@ -136,7 +136,7 @@ Pro 隔离目录：/Users/dev/zcode-todo93-e2e.88xgST。SPMC 第二轮 4/4 通�
 
 未覆盖：真实账号权益失效、实际手机远控、Windows UI；假账号/billing fixture 不消耗用户额度。C93-12 完整中英深浅/手机视觉仍需人工审阅，不以桌面通过冒充全端通过。
 
-最终复验（包含 Toast 长名称换行改动）：Pro run desktop-e2e-20260908-101239-586，4/4 通过。执行命令：ZCODE_E2E_MANUAL_REVIEW=1 ZCODE_E2E_SKIP_AGENT_BUILD=1 pnpm --filter @zcode/desktop exec wdio run wdio.conf.ts --spec ./test/e2e/start-plan-manual-claim-experience.test.ts。两次完整通过均保留真实点击与文件断言；不使用旧自动切换结果作为新规则证据。
+最终复验（包含 Toast 长名称换行改动）：Pro run desktop-e2e-20260908-101239-586，4/4 通过。执行命令：SECRETARIAT_E2E_MANUAL_REVIEW=1 SECRETARIAT_E2E_SKIP_AGENT_BUILD=1 pnpm --filter @zcode/desktop exec wdio run wdio.conf.ts --spec ./test/e2e/start-plan-manual-claim-experience.test.ts。两次完整通过均保留真实点击与文件断言；不使用旧自动切换结果作为新规则证据。
 
 ### 推送前补充审阅（2026-09-08）
 

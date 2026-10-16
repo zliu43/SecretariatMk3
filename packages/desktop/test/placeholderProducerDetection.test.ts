@@ -57,7 +57,7 @@ describe("Computer Use producer detection", () => {
     const desktopRoot = createWorkspace({ name: "@zcode/zcode-cua", zcodeCuaPlaceholder: true });
     expect(
       stageDevCuaPluginRuntime({
-        env: { ZCODE_CUA_DEV_MODE: "1" },
+        env: { SECRETARIAT_CUA_DEV_MODE: "1" },
         desktopPackageRoot: desktopRoot,
         pluginRoot: join(desktopRoot, "missing-plugin"),
       }),

@@ -2,8 +2,8 @@ import { wrapStartupReporterRequest } from "./startupTelemetryDelivery.js";
 import { randomUUID } from "node:crypto";
 import { basename } from "node:path";
 import armsRum from "@arms/rum-electron";
-import { ZCODE_AGENT_LIFECYCLE_LOG_MARKER } from "@zcode/shared/process-diagnostic";
-import { ZCODE_ARMS_RUM_ENDPOINT, ZCODE_VERSION, mapZCodeEnvToArmsRumEnv } from "@zcode/shared";
+import { SECRETARIAT_AGENT_LIFECYCLE_LOG_MARKER } from "@zcode/shared/process-diagnostic";
+import { SECRETARIAT_ARMS_RUM_ENDPOINT, SECRETARIAT_VERSION, mapZCodeEnvToArmsRumEnv } from "@zcode/shared";
 import { ARMS_BROWSER_COLLECTORS, parseArmsViewName } from "../shared/armsRumShared.js";
 import { redactArmsEventBatch } from "./armsEventRedaction.js";
 import { ensureDesktopDeviceMidSync } from "./desktopDeviceMid.js";
@@ -162,16 +162,16 @@ armsRum.client.useReporter = (reporter) => {
 };
 export const armsInitPromise = armsRum
   .init({
-    enable: ZCODE_ARMS_RUM_ENDPOINT !== "",
-    version: ZCODE_VERSION,
-    endpoint: ZCODE_ARMS_RUM_ENDPOINT,
+    enable: SECRETARIAT_ARMS_RUM_ENDPOINT !== "",
+    version: SECRETARIAT_VERSION,
+    endpoint: SECRETARIAT_ARMS_RUM_ENDPOINT,
     env: armsRumEnv,
     // Browser SDK 由 SDK 在 dom-ready 经 executeJavaScript 注入；勿再在 preload/renderer 手动 init，避免重复采集
     autoInject: true,
     browserCollectors: { ...ARMS_BROWSER_COLLECTORS },
     app: {
       name: runtimeApplicationName,
-      version: ZCODE_VERSION,
+      version: SECRETARIAT_VERSION,
       env: armsRumEnv,
       type: "electron",
       framework: "react",
@@ -214,7 +214,7 @@ export const armsInitPromise = armsRum
               event.type === "error" &&
               event.source === "console.error" &&
               typeof event.message === "string" &&
-              event.message.includes(ZCODE_AGENT_LIFECYCLE_LOG_MARKER)
+              event.message.includes(SECRETARIAT_AGENT_LIFECYCLE_LOG_MARKER)
             ),
         ),
         runtimeApplicationName,
@@ -249,7 +249,7 @@ export const armsInitPromise = armsRum
     },
   })
   .then(() => {
-    logger.info(`[arms] electron initialized env=${armsRumEnv} version=${ZCODE_VERSION}`);
+    logger.info(`[arms] electron initialized env=${armsRumEnv} version=${SECRETARIAT_VERSION}`);
   })
   .catch((error) => {
     logger.error("[arms] electron init failed:", error);

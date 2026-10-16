@@ -1,4 +1,4 @@
-# ZCode CLI Model 设计 v2
+# Secretariat CLI Model 设计 v2
 
 > **历史设计说明（2026-08-24）**：本文记录 Provider Refactor 之前的模型层设计，文中的
 > mutable AI SDK Registry、Model Catalog、`models.dev`、按 modelId 推导能力/思考档位和
@@ -10,7 +10,7 @@
 
 ## 文档定位
 
-本文是 ZCode v2 的模型层设计。`ModelRef`、provider-neutral request/result、
+本文是 Secretariat v2 的模型层设计。`ModelRef`、provider-neutral request/result、
 AI SDK registry/runner、model capability catalog 与 core runtime 接线已经进入
 `L2 Implemented Contract`；用户可配置的 gateway/custom provider、远端 catalog 同步和
 复杂 provider fallback 仍保持 `L1 Candidate Contract`。
@@ -24,18 +24,18 @@ AI SDK registry/runner、model capability catalog 与 core runtime 接线已经�
 
 ## 一、核心判断
 
-ZCode 不应该自己从零实现每家模型 API 的请求格式。
+Secretariat 不应该自己从零实现每家模型 API 的请求格式。
 
 模型层的主路径应是：
 
 ```text
-ZCode core intent
+Secretariat core intent
   -> adapters/model 将消息、工具、配置转换为 AI SDK 调用
   -> Vercel AI SDK provider / OpenAI-compatible provider
-  -> adapters/model 将 stream、tool call、usage、error 转回 ZCode event
+  -> adapters/model 将 stream、tool call、usage、error 转回 Secretariat event
 ```
 
-AI SDK 是 adapter 里的运行时依赖，不进入 core。core 只知道 ZCode 自己的消息、工具、权限、session event 和 trace。
+AI SDK 是 adapter 里的运行时依赖，不进入 core。core 只知道 Secretariat 自己的消息、工具、权限、session event 和 trace。
 
 默认 AI SDK provider transport 还可以按
 [`provider-endpoint-routing.md`](./provider-endpoint-routing.md) 的远端配置，在最终网络出口前重写明确的
@@ -46,7 +46,7 @@ provider endpoint。该能力不修改 provider 配置，也不进入 core/sessi
 - 不为每个 provider 重写 streaming、tool calling、structured output。
 - 第一版配置面只直接支持 `anthropic`、`openai`、`openai-compatible` 三种 provider kind。
 - 用户可声明的自定义 provider 第一版优先走 `openai-compatible`；AI SDK provider registry、`gateway` 和 custom factory 只用于受信内部扩展。
-- ZCode 只保留 coding agent 必须自己控制的部分：工具权限、session、compact、trace、artifact、跨平台 I/O。
+- Secretariat 只保留 coding agent 必须自己控制的部分：工具权限、session、compact、trace、artifact、跨平台 I/O。
 
 ---
 
@@ -63,7 +63,7 @@ provider endpoint。该能力不修改 provider 配置，也不进入 core/sessi
 - 所有 provider 差异集中在 `ProviderTransform`，例如消息清洗、tool call id、cache marker、reasoning 参数、unsupported media、providerOptions。
 - message history 记录产生消息的 `providerID` 和 `modelID`，切换模型后不复用旧 provider 的私有 metadata。
 
-ZCode 的做法：
+Secretariat 的做法：
 
 - 使用 `provider/model` 作为 CLI、配置和 session event 的统一模型引用。
 - 内部尽早解析成 `{ providerId, modelId }`。
@@ -81,7 +81,7 @@ AI SDK 的关键能力：
 - tool calling、structured output、reasoning、providerOptions 和 middleware 都有统一抽象。
 - Vercel AI Gateway 支持用 `<provider>/<model>` 形式的字符串指定 provider/model，并通过统一入口处理多 provider。
 
-ZCode 的做法：
+Secretariat 的做法：
 
 - adapter 里调用 `streamText` / `generateText`，而不是自己实现 provider wire protocol。
 - provider registry 用于组装可用模型；`gateway` 和 custom factory 只属于 adapter/bootstrap 的受信内部配置，不能通过用户文件配置声明。
@@ -218,7 +218,7 @@ models map 的 key 默认就是运行时 model id，会原样传给对应 AI SDK
 `openai-compatible` 会归一化为 `openaiCompatible`。
 当 `provider.*.models.*` 没有显式 `reasoning` metadata 时，配置派生的默认 reasoning
 必须按 provider kind 生成 provider options：模型 id 推导出的 GLM / DeepSeek 默认值不能先按
-OpenAI-compatible 套用再交给 Anthropic-compatible transport，否则 TUI/ZCode app-server 会显示 thinking
+OpenAI-compatible 套用再交给 Anthropic-compatible transport，否则 TUI/Secretariat app-server 会显示 thinking
 已开启，但最终 Anthropic-compatible 请求体不会包含 `thinking`。`kind: "anthropic"` 的
 GLM / 非 V4 DeepSeek 默认开关必须映射到 `providerOptions.anthropic.thinking.type`；
 `deepseek-v4*` 必须映射到 `providerOptions.anthropic.thinking.type = "enabled"` 和
@@ -227,26 +227,26 @@ GLM / 非 V4 DeepSeek 默认开关必须映射到 `providerOptions.anthropic.thi
 ### 3.1.1 DeepSeek V4 Pro 兼容
 
 DeepSeek V4 的 thinking 开关默认启用，用户只选择 reasoning effort。OpenAI-compatible
-接口把 thinking 开关和 reasoning effort 拆成两个参数：ZCode 配置/策略层通过
+接口把 thinking 开关和 reasoning effort 拆成两个参数：Secretariat 配置/策略层通过
 `providerOptions.openaiCompatible.thinking.type` 表达 thinking 扩展，adapter 将 canonical
 namespace 投影到 SDK 实际读取的 provider-name namespace，最终 HTTP body 顶层发送
 `thinking.type` 且不得包含字面量 `extra_body`；
 `reasoning_effort` 只接受 `high` / `max`。Anthropic-compatible
 接口最终请求同样只暴露 `high` / `max` 两档，通过 `output_config.effort` 控制强度；
-ZCode 传给 AI SDK 的输入字段是 `providerOptions.anthropic.effort`，由 SDK 映射到最终
+Secretariat 传给 AI SDK 的输入字段是 `providerOptions.anthropic.effort`，由 SDK 映射到最终
 `output_config.effort`。
-ZCode 对 `deepseek-v4*` 保持同一契约：
+Secretariat 对 `deepseek-v4*` 保持同一契约：
 
 - model default policy 声明 DeepSeek V4 的 canonical reasoning levels 为
   `high` / `max`，默认档位为 `max`。
-- OpenAI-compatible transport 下，每个 DeepSeek V4 reasoning level 都必须同时生成 ZCode
+- OpenAI-compatible transport 下，每个 DeepSeek V4 reasoning level 都必须同时生成 Secretariat
   canonical provider options：`providerOptions.openaiCompatible.reasoningEffort` 和
   `providerOptions.openaiCompatible.thinking.type = "enabled"`。两者由 SDK 分别映射为顶层
   `reasoning_effort` 和 `thinking.type`；最终请求不得包含字面量 `extra_body`。
-- Anthropic-compatible 注入 target 下，ZCode app-server 同样只展示 `high` / `max`，并输出
+- Anthropic-compatible 注入 target 下，Secretariat app-server 同样只展示 `high` / `max`，并输出
   `providerOptions.anthropic.effort = level` 与
   `providerOptions.anthropic.thinking.type = "enabled"`。
-- DeepSeek V4 的 model id 不能决定 transport。ZCode app-server 注入模型仍默认走 Anthropic-compatible；
+- DeepSeek V4 的 model id 不能决定 transport。Secretariat app-server 注入模型仍默认走 Anthropic-compatible；
   只有 client 显式传入 provider kind、配置 target，或命中独立的 GPT 前缀 OpenAI native
   路由策略时，才切到其它 transport。
 - 兼容旧 thought level 时，`low` / `medium` 归一化为 `high`，`xhigh` 归一化为 `max`；
@@ -269,7 +269,7 @@ ZCode 对 `deepseek-v4*` 保持同一契约：
   `thinking` + `tool_use` 时，下一次带 `tool_result` 的请求都必须回放同一条
   assistant message 里的 thinking block。
 - AI SDK Anthropic provider 只有在 reasoning part 携带 Anthropic reasoning metadata
-  时才会发送 `thinking` block；如果兼容后端没有返回 signature，ZCode 在 Anthropic
+  时才会发送 `thinking` block；如果兼容后端没有返回 signature，Secretariat 在 Anthropic
   transport 的 history transform 中必须补 `anthropic.signature = ""`，避免
   reasoning 被 AI SDK 以 `unsupported reasoning metadata` 静默丢弃。
 - DeepSeek V4 Anthropic-compatible 回放 assistant tool-call 历史时，如果运行时没有
@@ -292,7 +292,7 @@ ZCode 对 `deepseek-v4*` 保持同一契约：
 ### 3.1.2 MiMo reasoning_content 回放兼容
 
 MiMo 系列在 thinking mode 开启并存在 tool call 历史时，后续多轮请求必须完整回传
-assistant 历史里的 `reasoning_content`。ZCode 对任意 MiMo 模型保持和 DeepSeek V4
+assistant 历史里的 `reasoning_content`。Secretariat 对任意 MiMo 模型保持和 DeepSeek V4
 OpenAI-compatible 回放一致的契约：
 
 - Model transform 识别 provider id 为 `mimo`，或 model id 大小写不敏感地以 `mimo`
@@ -307,14 +307,14 @@ OpenAI-compatible 回放一致的契约：
 
 原则：
 
-- ZCode 自有环境变量继续使用 `ZCODE_` 前缀。
-- 如果没有加载到包含模型配置的 `~/.zcode/cli/config.json`、项目配置、session 配置或 CLI override，模型请求必须失败，错误码为 `model_config_missing`。
-- `modelCatalog.overrides` 和 `ZCODE_API_KEY` 都不能单独让模型变成可用；它们只提供能力元数据或密钥 fallback。
-- `ZCODE_MODEL` 是唯一能从环境变量声明当前可运行模型的入口。存在非空 `ZCODE_MODEL` 时，env scope 生成一个完整的 main model target，并按配置优先级覆盖 user/project `config.json` 中的 `model` 配置；这等价于本次进程忽略文件里的模型选择和 provider 连接。CLI/session override 仍高于 env。
-- env model target 默认使用 `anthropic` adapter。`ZCODE_MODEL` 可以是裸 model id，此时 provider id 默认为 `anthropic`；也可以是 `provider/model`，此时 provider id 取斜杠前缀，但 adapter kind 仍为 `anthropic`，用于 Anthropic-compatible gateway。`ZCODE_BASE_URL` 只在 `ZCODE_MODEL` 生效时作为该 target 的 base URL；单独设置 `ZCODE_BASE_URL` 不会让模型可用，也不改写文件配置。
-- 非空但无法解析的 `ZCODE_MODEL` 是配置错误，启动必须失败并保留原始 parse error cause；不能静默回落到文件模型配置。
-- env model target 不把 `ZCODE_API_KEY` 写进 runtime config。API key 继续在 model registry 边界按现有 fallback 解析：标准 provider key、provider 派生 key、最后 `ZCODE_API_KEY`。
-- API key 优先从 `model.apiKey` / `model.main.apiKey` / `model.lite.apiKey` 读取；配置未提供时，adapter 可以从环境变量 fallback，例如 provider 派生 key、标准 provider key 或 `ZCODE_API_KEY`。
+- Secretariat 自有环境变量继续使用 `SECRETARIAT_` 前缀。
+- 如果没有加载到包含模型配置的 `~/.secretariat/cli/config.json`、项目配置、session 配置或 CLI override，模型请求必须失败，错误码为 `model_config_missing`。
+- `modelCatalog.overrides` 和 `SECRETARIAT_API_KEY` 都不能单独让模型变成可用；它们只提供能力元数据或密钥 fallback。
+- `SECRETARIAT_MODEL` 是唯一能从环境变量声明当前可运行模型的入口。存在非空 `SECRETARIAT_MODEL` 时，env scope 生成一个完整的 main model target，并按配置优先级覆盖 user/project `config.json` 中的 `model` 配置；这等价于本次进程忽略文件里的模型选择和 provider 连接。CLI/session override 仍高于 env。
+- env model target 默认使用 `anthropic` adapter。`SECRETARIAT_MODEL` 可以是裸 model id，此时 provider id 默认为 `anthropic`；也可以是 `provider/model`，此时 provider id 取斜杠前缀，但 adapter kind 仍为 `anthropic`，用于 Anthropic-compatible gateway。`SECRETARIAT_BASE_URL` 只在 `SECRETARIAT_MODEL` 生效时作为该 target 的 base URL；单独设置 `SECRETARIAT_BASE_URL` 不会让模型可用，也不改写文件配置。
+- 非空但无法解析的 `SECRETARIAT_MODEL` 是配置错误，启动必须失败并保留原始 parse error cause；不能静默回落到文件模型配置。
+- env model target 不把 `SECRETARIAT_API_KEY` 写进 runtime config。API key 继续在 model registry 边界按现有 fallback 解析：标准 provider key、provider 派生 key、最后 `SECRETARIAT_API_KEY`。
+- API key 优先从 `model.apiKey` / `model.main.apiKey` / `model.lite.apiKey` 读取；配置未提供时，adapter 可以从环境变量 fallback，例如 provider 派生 key、标准 provider key 或 `SECRETARIAT_API_KEY`。
 - 不暴露 `apiKeyEnv` 作为用户配置字段。环境变量名是 adapter 内部兼容策略，不进入长期用户配置面。
 - `headers` 支持自定义 string map，原样传给 provider adapter，但日志、错误和 session event 必须经过敏感字段 redaction。
 - CLI 入口负责在运行时从当前工作目录向上查找最近的 `.env` 并加载到环境中；已存在的 shell 环境变量优先，不被 `.env` 覆盖。
@@ -350,22 +350,22 @@ OpenAI-compatible 回放一致的契约：
 职责：
 
 - 接收 core 的 provider-agnostic request intent。
-- 调用 transform，把 ZCode messages/tools 转成 AI SDK `ModelMessage` / `ToolSet`。
+- 调用 transform，把 Secretariat messages/tools 转成 AI SDK `ModelMessage` / `ToolSet`。
 - 调用 `streamText` 或 `generateText`。
-- 调用 AI SDK 时必须显式设置 `allowSystemInMessages: true`。ZCode 的 system message
+- 调用 AI SDK 时必须显式设置 `allowSystemInMessages: true`。Secretariat 的 system message
   由 core/context builder 统一构造和审计，属于本项目的正式上下文契约；不要让 AI SDK
   的通用安全提示直接写入用户可见 `stderr`，runner 层也不要用全局
-  `AI_SDK_LOG_WARNINGS` 或粗粒度 stderr 静默隐藏其他 provider 诊断。ZCode Protocol
+  `AI_SDK_LOG_WARNINGS` 或粗粒度 stderr 静默隐藏其他 provider 诊断。Secretariat Protocol
   stdio 入口可以安装专用 warning logger，把 AI SDK warning 写入结构化日志，避免普通文本
   污染 stdout 上的 NDJSON 协议帧。
-- 把 AI SDK stream 转回 ZCode model event。
-- 把 tool call 交给 ZCode ToolRuntime，而不是让工具绕过权限系统。
+- 把 AI SDK stream 转回 Secretariat model event。
+- 把 tool call 交给 Secretariat ToolRuntime，而不是让工具绕过权限系统。
 - 归一化 usage 和错误。
 - 在每次出站模型请求的 HTTP header 中传播当前 `TraceContext.traceId`，保证 provider、gateway、proxy 和本地日志可以用同一个 `traceId` 串联。
 
 原则：
 
-- 工具执行仍走 ZCode tool lifecycle：schema、permission、trace、adapter I/O、artifact。
+- 工具执行仍走 Secretariat tool lifecycle：schema、permission、trace、adapter I/O、artifact。
 - AI SDK 只负责模型侧 tool calling 协议和 streaming。
 - 有副作用的工具不依赖 AI SDK 的 approval 作为唯一安全边界。
 - header 注入发生在 adapter per-request 调用层，而不是 provider 静态配置层；同一个 provider factory 会被多个 session/turn 复用，不能把动态 `traceId` 固化在 provider config 中。
@@ -398,9 +398,9 @@ trace span 和结构化日志，不进入 provider-visible HTTP header。上述�
 
 职责：
 
-- ZCode message -> AI SDK message。
-- ZCode tool contract -> AI SDK tool。
-- ZCode artifact/attachment -> provider 支持的内容。
+- Secretariat message -> AI SDK message。
+- Secretariat tool contract -> AI SDK tool。
+- Secretariat artifact/attachment -> provider 支持的内容。
 - providerOptions 注入。
 - usage/error/event 归一化。
 
@@ -420,7 +420,7 @@ trace span 和结构化日志，不进入 provider-visible HTTP header。上述�
 
 ### 4.1 ModelRef
 
-ZCode session 内部保存结构化模型引用：
+Secretariat session 内部保存结构化模型引用：
 
 ```text
 providerId
@@ -434,7 +434,7 @@ variant?
 
 ### 4.2 ModelLevel 与 ModelRole
 
-ZCode 第一版只定义两个模型能力级别：
+Secretariat 第一版只定义两个模型能力级别：
 
 - `main`：主力模型，负责普通对话、代码修改、工具循环、复杂推理和默认子任务。
 - `lite`：轻量模型，负责标题、短摘要、hook 判断、轻量分类、低风险结构化小任务。
@@ -504,12 +504,12 @@ interface ModelConfig {
 
 ### 4.4 Model Catalog 与 Reasoning Level
 
-模型能力元数据不再来自 bundled `catalog.json` 或本地 `models-catalog.json`。有效 catalog 从空集合开始，由 `provider.*.models.*` 投影、`config.json` 的 `modelCatalog.overrides` 和 deterministic model default policy 共同组成。覆盖 key 使用 `provider/model`，按第一个 `/` 分割 provider 与 model，允许 model id 自身包含 `/`。catalog 不能提供默认可运行模型；ZCode app-server/TUI 只能把显式配置的模型作为当前 session 可选项，catalog 仅用于补充这些模型的能力、显示名和 reasoning level。
+模型能力元数据不再来自 bundled `catalog.json` 或本地 `models-catalog.json`。有效 catalog 从空集合开始，由 `provider.*.models.*` 投影、`config.json` 的 `modelCatalog.overrides` 和 deterministic model default policy 共同组成。覆盖 key 使用 `provider/model`，按第一个 `/` 分割 provider 与 model，允许 model id 自身包含 `/`。catalog 不能提供默认可运行模型；Secretariat app-server/TUI 只能把显式配置的模型作为当前 session 可选项，catalog 仅用于补充这些模型的能力、显示名和 reasoning level。
 
 Reasoning 能力同时保留两个层次：
 
 - `supportsReasoning`: 粗粒度开关，用于判断模型是否具备 reasoning/thinking 能力。
-- `reasoning.levels`: 可选等级列表，用于 ZCode app-server、TUI 或其它客户端展示选择项。
+- `reasoning.levels`: 可选等级列表，用于 Secretariat app-server、TUI 或其它客户端展示选择项。
 
 示例：
 
@@ -547,7 +547,7 @@ Reasoning 能力同时保留两个层次：
 
 ### 4.4.1 Model Default Policy
 
-ZCode 允许在 catalog 之外维护一层很薄的模型默认策略，用于处理“模型 id 已经能识别，
+Secretariat 允许在 catalog 之外维护一层很薄的模型默认策略，用于处理“模型 id 已经能识别，
 但用户没有在 `config.json` 写完整能力元数据”的场景。策略只补能力默认值，不让模型变成可用；
 可运行模型仍必须通过 `model` / `model.main` / `model.lite` 显式选择，并且 provider 必须可配置。
 
@@ -594,18 +594,18 @@ ZCode 允许在 catalog 之外维护一层很薄的模型默认策略，用于�
   `enabled` / `disabled` 两档开关。默认档位为 `enabled`。
 - 通过 `config.json` 的 `provider.*.models.*` 声明、但没有显式 reasoning metadata 的
   其他 `anthropic` 或 `openai-compatible` 模型，也默认使用 `enabled` / `disabled` 两档开关；
-  这样 TUI/CLI/ZCode app-server 对配置模型始终有可选 thought level。纯 catalog 查询不会为完全未知模型
+  这样 TUI/CLI/Secretariat app-server 对配置模型始终有可选 thought level。纯 catalog 查询不会为完全未知模型
   合成通用开关，避免扩大 catalog 查询语义。
 - OpenAI-compatible 开关 `enabled` 映射到 request provider option：
   `openaiCompatible.thinking.type = "enabled"`；`disabled` 同理映射为
   `"disabled"`。Anthropic-compatible 非 Claude 开关映射到 `anthropic.thinking.type`，
   不输出 Claude 专属 `anthropic.effort`。
-- GLM 默认策略不设置 `clear_thinking: false`。只有在 ZCode 能完整保存并回传
+- GLM 默认策略不设置 `clear_thinking: false`。只有在 Secretariat 能完整保存并回传
   assistant 历史里的 `reasoning_content` 后，才可以考虑暴露“保留式思考”策略。
 - 如果 model id 大小写不敏感地包含 `opus-4.7` 或 `opus-4-7`，默认 reasoning
   等级包含 `low`、`medium`、`high`、`xhigh`、`max`，默认档位仍为 `medium`。
   每个 level 的默认 Anthropic provider options 使用 `anthropic.effort = level` 和
-  `anthropic.thinking.type = "adaptive"`，因此 TUI、CLI 和 ZCode app-server 都能从 catalog/config
+  `anthropic.thinking.type = "adaptive"`，因此 TUI、CLI 和 Secretariat app-server 都能从 catalog/config
   共享同一份 Opus 4.7 thinking depth 兼容逻辑。
   该规则用于兼容用户配置里的 Claude Opus 4.7 及其
   短横线变体；只补 reasoning metadata 和 provider options，不改变 provider 连接或可运行模型选择。
@@ -660,7 +660,7 @@ user turn
   -> Model Transform 编译 messages/tools/providerOptions
   -> Model Runner 调 AI SDK streamText/generateText
   -> AI SDK 返回 text/tool/reasoning/usage/error stream
-  -> Model Runner 转为 ZCode session events
+  -> Model Runner 转为 Secretariat session events
   -> ToolRuntime 执行工具
   -> 下一轮继续
 ```
@@ -761,11 +761,11 @@ maxAttempts
 - `tls_error`
 - `unknown`
 
-AI SDK 默认内部 retry 不能满足可观测性要求，因为 UI 和日志看不到每次 retry 的原因。ZCode adapter 应将 SDK 内部 `maxRetries` 设为 `0`，在 adapter 边界实现自己的重试循环，并在每次失败、重试排队和最终失败时发布 `ModelNetworkStatusEvent`。默认重试只允许发生在尚未产生已提交输出的请求阶段；流式请求可以暂存并丢弃 `reasoning_delta`、`tool_input_delta` 等无副作用前奏事件后重试，但一旦 `text_delta`、`tool_call` 或 `finish` 已向上游产出，就不自动重放，避免重复内容或重复 tool call。后续如果启用模型 SSE 期间的提前 tool 执行，必须按 `streaming-tool-execution-and-recovery.md` 的 ledger 和 recovery anchor 语义重试；不能回退到 non-stream fallback，也不能从半截 assistant 文本续写来隐式恢复 tool 状态。
+AI SDK 默认内部 retry 不能满足可观测性要求，因为 UI 和日志看不到每次 retry 的原因。Secretariat adapter 应将 SDK 内部 `maxRetries` 设为 `0`，在 adapter 边界实现自己的重试循环，并在每次失败、重试排队和最终失败时发布 `ModelNetworkStatusEvent`。默认重试只允许发生在尚未产生已提交输出的请求阶段；流式请求可以暂存并丢弃 `reasoning_delta`、`tool_input_delta` 等无副作用前奏事件后重试，但一旦 `text_delta`、`tool_call` 或 `finish` 已向上游产出，就不自动重放，避免重复内容或重复 tool call。后续如果启用模型 SSE 期间的提前 tool 执行，必须按 `streaming-tool-execution-and-recovery.md` 的 ledger 和 recovery anchor 语义重试；不能回退到 non-stream fallback，也不能从半截 assistant 文本续写来隐式恢复 tool 状态。
 
-模型 SSE 是长连接，不应套用普通 HTTP 总请求超时。ZCode adapter 必须使用事件间隔 idle timeout：首请求默认 600000ms，可通过 `~/.zcode/cli/config.json` 的 `modelStream.idleTimeoutMs` 覆盖；从请求开始等待首个 stream event，并在每个 AI SDK stream chunk / SSE event 到达后重置计时；只要事件持续到达，即使总耗时超过初始 idle timeout 也允许继续。SSE idle timeout 在重试场景递增：每发生一次 adapter retry 或 core stream recovery retry，就在 adapter base timeout 上增加 30000ms，例如默认首请求 600s、第一次重试 630s、第二次重试 660s。超过 idle timeout 时，adapter 发布 `model_stream_stalled`，终止当前 provider 请求，将失败归一为 `stream_idle_timeout`，并按统一 retry budget 在尚未产生已提交输出时自动重试。该配置在模型 adapter 构造时读取，修改 `config.json` 后需要新建 agent/runtime 才能保证生效。
+模型 SSE 是长连接，不应套用普通 HTTP 总请求超时。Secretariat adapter 必须使用事件间隔 idle timeout：首请求默认 600000ms，可通过 `~/.secretariat/cli/config.json` 的 `modelStream.idleTimeoutMs` 覆盖；从请求开始等待首个 stream event，并在每个 AI SDK stream chunk / SSE event 到达后重置计时；只要事件持续到达，即使总耗时超过初始 idle timeout 也允许继续。SSE idle timeout 在重试场景递增：每发生一次 adapter retry 或 core stream recovery retry，就在 adapter base timeout 上增加 30000ms，例如默认首请求 600s、第一次重试 630s、第二次重试 660s。超过 idle timeout 时，adapter 发布 `model_stream_stalled`，终止当前 provider 请求，将失败归一为 `stream_idle_timeout`，并按统一 retry budget 在尚未产生已提交输出时自动重试。该配置在模型 adapter 构造时读取，修改 `config.json` 后需要新建 agent/runtime 才能保证生效。
 
-Retry 语义以用户可理解的“重试次数”为默认配置口径，默认 `maxRetries = 10`。运行时事件沿用 `maxAttempts` 字段表示总尝试次数，因此默认事件中 `maxAttempts = 11`，对应 1 次首请求和 10 次重试。实现不得把 `maxAttempts` 误当成重试次数；日志需要同时带上 `maxAttempts` 和派生的 `maxRetries`，方便排查等待和最终失败原因。TUI、ZCode app-server 等用户侧展示必须在投影层把 `attempt` / `maxAttempts` 转成 `retry` / `maxRetries`，默认第一次重试显示 `1/10`，而不是 `2/11` 之类的内部 attempt 口径。
+Retry 语义以用户可理解的“重试次数”为默认配置口径，默认 `maxRetries = 10`。运行时事件沿用 `maxAttempts` 字段表示总尝试次数，因此默认事件中 `maxAttempts = 11`，对应 1 次首请求和 10 次重试。实现不得把 `maxAttempts` 误当成重试次数；日志需要同时带上 `maxAttempts` 和派生的 `maxRetries`，方便排查等待和最终失败原因。TUI、Secretariat app-server 等用户侧展示必须在投影层把 `attempt` / `maxAttempts` 转成 `retry` / `maxRetries`，默认第一次重试显示 `1/10`，而不是 `2/11` 之类的内部 attempt 口径。
 
 退避策略默认使用指数退避加 jitter：`baseDelayMs = 2000`、`backoffFactor = 2`、普通退避上限 `maxDelayMs = 60000`。如果 provider 返回 `retry-after-ms` 或 `retry-after`，adapter 必须优先使用 provider 指示的等待时间；`retry-after-ms` 比 `retry-after` 精确，优先级更高。若 provider 同时返回 `x-should-retry: false`，adapter 必须忽略 provider `retry-after-ms` / `retry-after` 等待提示并回退到本地 retry 退避。为避免异常 header 造成不可控等待，只有 `0 <= delay <= 5min` 或者 delay 小于当前指数退避时间时才采用 provider header，否则回退到本地指数退避。`retry-after` 支持秒数和 HTTP date 两种格式。
 
@@ -773,7 +773,7 @@ Retry 语义以用户可理解的“重试次数”为默认配置口径，默�
 
 `insufficient_quota` 的终止语义不得依赖 `Retry-After` 是否存在或等待时长；`Retry-After` 只沿用既有解析与诊断用途，不参与业务码的 `retryable` 判断。Kimi 的 `engine_overloaded_error` / `rate_limit_reached_error` 与 Anthropic 的 `overloaded_error` / `rate_limit_error` 等瞬时容量与速率 code 必须继续可重试。
 
-模型 I/O 诊断轨迹按 session 落到 `~/.zcode/cli/{debug,rollout}/model-io-<sessionId>.jsonl`。这不是产品 timeline，也不进入 session 恢复链；它只用于调试真实 provider request/response。开发模式由 `ZCODE_RUNTIME_ENV=development` 判定，`NODE_ENV` 不参与 ZCode 运行时判定。默认使用 bounded 策略：生产态限制 session 文件数和单文件体积，开发态限制单文件体积，并对重复请求上下文使用 `full` / `delta` / `tail` 压缩。App Settings 的“完整保留模型 I/O”默认关闭；开启后从下一次模型 attempt 起不执行文件淘汰、单文件重置、消息压缩或生产字段裁剪。Header 与 request metadata 的凭据脱敏在两种模式下都必须保留，记录失败不能影响模型请求主路径。完整设置合同见 `docs/model-io-full-retention-setting.md`。
+模型 I/O 诊断轨迹按 session 落到 `~/.secretariat/cli/{debug,rollout}/model-io-<sessionId>.jsonl`。这不是产品 timeline，也不进入 session 恢复链；它只用于调试真实 provider request/response。开发模式由 `SECRETARIAT_RUNTIME_ENV=development` 判定，`NODE_ENV` 不参与 Secretariat 运行时判定。默认使用 bounded 策略：生产态限制 session 文件数和单文件体积，开发态限制单文件体积，并对重复请求上下文使用 `full` / `delta` / `tail` 压缩。App Settings 的“完整保留模型 I/O”默认关闭；开启后从下一次模型 attempt 起不执行文件淘汰、单文件重置、消息压缩或生产字段裁剪。Header 与 request metadata 的凭据脱敏在两种模式下都必须保留，记录失败不能影响模型请求主路径。完整设置合同见 `docs/model-io-full-retention-setting.md`。
 
 当 provider 返回 HTTP 200 但业务协议失败时，adapter 必须把它当作模型请求失败，而不是让 AI SDK 把空结果或 `finishReason: other` 继续向上游传播。兼容判断放在 provider HTTP fetch 边界：若 JSON 响应体包含 `success: false`，或 `code` / `error_code` 存在且不是 `0` / `"0"`，则抛出 provider business error。用户可见错误消息优先使用 `msg`，其次使用 `message`，再其次使用嵌套 `error.message`；没有安全消息时使用通用 provider 业务错误文案。该错误经过 Model Runner 归一为 `model_request_failed`，并保留原始 cause、业务 `statusCode` / provider code 的安全摘要，以及用于 retry 归因的 response headers。业务错误默认不自动重试，但当业务错误可以安全映射为 `HTTP 5xx` 时，应视作 provider server error，复用统一 retry budget；当 provider 业务错误的结构化 code 明确表示上游网络失败时，例如 BigModel 兼容层返回 `code=1234` 且用户可见 message 通常为“网络错误，错误id ...，请稍后重试”，或 provider 明确返回 `network_error` / `network_error_retryable`，应归一为 `network_error` 并复用统一 retry budget；BigModel 文档中表示临时账号访问异常、调用流程异常、并发/频率/平台流量限制或模型访问过载的 `1120` / `1230` / `1302` / `1303` / `1305` / `1312` 也复用统一 retry budget。4xx、权限、套餐、长期 quota reset 和其他未映射到 `5xx`、网络失败、限流或过载的业务错误仍保持非重试。诊断日志只能进入结构化日志摘要，包含 `requestId`、`traceId`、finish reason、usage、文本长度、tool call 数、stream chunk 计数和 provider body 的安全摘要，不记录完整 prompt、完整 headers 或大体积 response body。
 
@@ -791,8 +791,8 @@ Retry 语义以用户可理解的“重试次数”为默认配置口径，默�
 - `packages/contracts/src/events/session.events.ts`：模型事件可以携带结构化 `ModelRef`。
 - `packages/adapters/src/model/catalog.ts`、`catalog-source.ts`、`default-policy.ts`：从 `models.dev` capability catalog 开始，合并 `modelCatalog.overrides` 和 `provider.*.models.*` 投影；当注入 provider ID 无法直接匹配时可用 OpenRouter 作为事实能力锚点；并为 `-[1m]`、DeepSeek、GLM、Claude、OpenAI/GPT、Opus 4.7 等模型补默认 context window 与 reasoning provider options。catalog 只提供能力元数据，不让模型自动可运行。
 - `packages/adapters/src/model/registry.ts`：装配 `anthropic`、`openai`、`openai-compatible`，并支持 adapter 内部的 `gateway` 和 custom provider factory；文件配置 schema 仍拒绝 `gateway` / `custom`。
-- `packages/adapters/src/model/transform.ts`：ZCode message/tool contract 到 AI SDK `ModelMessage` / `ToolSet` 的转换。
-- `packages/adapters/src/model/runner.ts`：`generateText` / `streamText` 的 adapter 封装，负责禁用不可见 SDK retry、发布模型网络状态、输出 ZCode 自己的 text result 和 stream event。
+- `packages/adapters/src/model/transform.ts`：Secretariat message/tool contract 到 AI SDK `ModelMessage` / `ToolSet` 的转换。
+- `packages/adapters/src/model/runner.ts`：`generateText` / `streamText` 的 adapter 封装，负责禁用不可见 SDK retry、发布模型网络状态、输出 Secretariat 自己的 text result 和 stream event。
 - `packages/adapters/src/config/schema.ts`：文件配置只接受 `anthropic`、`openai`、`openai-compatible` provider kind，拒绝 `gateway`、`custom`、`npm`、`small_model`、`model.small` 和 inline target；同时把 `provider.*.models.*` 投影进 model catalog overrides。
 - `packages/bootstrap/src/model-config.ts`：把 runtime model config 装配成 AI SDK registry config，补 provider headers，按 provider/name 派生 API key fallback，保留 `model_config_missing` 错误边界。
 - `packages/core/src/runtime/methods/model.ts`、`turn-model-step.ts`：core runtime 已通过 `runModelTextRequest` 调用 model adapter，支持 streaming event、tool call、usage、reasoning block 持久化、trace/status sink、provider context usage 和 context-overflow reactive compact。
@@ -818,7 +818,7 @@ network/cache/parallel-tool/retry budget 全部提升为独立稳定 capability 
 4. 支持 `anthropic`、`openai`、`openai-compatible` 的配置装配，其他 kind 拒绝加载。
 5. 实现 `streamText` runner 和 stream event 归一化。
 6. 增加 `main/lite` role resolver；`lite` 未配置时解析到 `main`。
-7. 把现有 tool contract 转成 AI SDK tools，但执行回调仍进入 ZCode ToolRuntime。
+7. 把现有 tool contract 转成 AI SDK tools，但执行回调仍进入 Secretariat ToolRuntime。
 8. 为集中 transform 层补齐 provider 差异的单元测试。
 9. 再考虑远端 catalog、provider package 动态加载和复杂 providerOptions。
 
@@ -830,14 +830,14 @@ network/cache/parallel-tool/retry budget 全部提升为独立稳定 capability 
 
 - `provider/model` 解析，model id 内含 `/` 时仍正确。
 - `lite` 未配置时解析到 `main`。
-- `ZCODE_MODEL` + `ZCODE_BASE_URL` 生成 Anthropic adapter 的 env model target，并覆盖文件 model 配置。
-- 非法 `ZCODE_MODEL` 会产生配置错误，而不是回退到 `config.json`。
-- `ZCODE_MODEL` 不把 `ZCODE_API_KEY` 存入 runtime config，registry 仍能通过 `ZCODE_API_KEY` fallback 取得密钥。
+- `SECRETARIAT_MODEL` + `SECRETARIAT_BASE_URL` 生成 Anthropic adapter 的 env model target，并覆盖文件 model 配置。
+- 非法 `SECRETARIAT_MODEL` 会产生配置错误，而不是回退到 `config.json`。
+- `SECRETARIAT_MODEL` 不把 `SECRETARIAT_API_KEY` 存入 runtime config，registry 仍能通过 `SECRETARIAT_API_KEY` fallback 取得密钥。
 - schema 拒绝 `small_model`、`model.small` 和 inline model target。
 - provider 未配置、model 不存在、env key 缺失。
 - OpenAI-compatible provider baseURL 配置。
 - provider-qualified model id 内含 `/` 的解析，例如 `gateway/zai/glm-5`。
-- tool call 进入 ZCode ToolRuntime。
+- tool call 进入 Secretariat ToolRuntime。
 - 切换模型时不复用旧 provider metadata。
 - unsupported attachment 处理。
 - stream abort 和 provider error。
@@ -854,9 +854,9 @@ npm test
 
 ## 十、设计原则
 
-- AI SDK 是 provider API 抽象层，不是 ZCode core 类型系统。
+- AI SDK 是 provider API 抽象层，不是 Secretariat core 类型系统。
 - 统一采用 `provider/model` 引用加集中 transform 层的结构。
-- ZCode 自己只实现 agent 必须拥有的状态、权限、trace 和工具生命周期。
+- Secretariat 自己只实现 agent 必须拥有的状态、权限、trace 和工具生命周期。
 - P0 不做大型 model catalog，不做 provider 市场，不做复杂自动 fallback。
 - 任何 provider 特例都先进入 `Model Transform`，不要污染 agent loop。
 

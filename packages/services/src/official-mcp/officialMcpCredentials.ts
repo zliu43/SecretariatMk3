@@ -1,5 +1,5 @@
 /*
- * ZCode 官方 Server MCP 的凭证解析与身份头构造。
+ * Secretariat 官方 Server MCP 的凭证解析与身份头构造。
  *
  * 本文件与 Off-Peak 的 offPeakRuntimeModel.ts **逻辑等价但完全独立**：
  * 不复用其函数、不修改其行为。理由是两者的套餐门槛、Team 支持范围与凭证通道预期会独立演进，
@@ -28,7 +28,7 @@ import { createServiceLogger } from "#src/logger/serviceLogger.js";
 
 const log = createServiceLogger("official-mcp");
 
-const ZCODE_JWT_TOKEN_KEY = "zcodejwttoken";
+const SECRETARIAT_JWT_TOKEN_KEY = "zcodejwttoken";
 const ACTIVE_OAUTH_PROVIDER_KEY = "oauth:active_provider";
 
 /**
@@ -228,7 +228,7 @@ async function readIdentitySnapshot(
   const [registry, activeProviderValue, jwtValue] = await Promise.all([
     deps.modelSelectionService.getView(),
     deps.credentialService.load(ACTIVE_OAUTH_PROVIDER_KEY),
-    deps.credentialService.load(ZCODE_JWT_TOKEN_KEY),
+    deps.credentialService.load(SECRETARIAT_JWT_TOKEN_KEY),
   ]);
   const activeProvider = activeProviderValue?.trim();
   const jwt = jwtValue?.trim() ?? "";

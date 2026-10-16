@@ -13,7 +13,7 @@
 `builtinModelIds` 的差异报告。
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
         |
         | Endpoint + API Schema + builtinModelIds
         v

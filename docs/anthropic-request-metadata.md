@@ -3,7 +3,7 @@
 ## 状态
 
 - 本文是 zcode-cli Anthropic 模型请求 `metadata.user_id` 的事实规范。
-- 设备身份沿用 `{dataBaseDir}/.zcode/v2/telemetry-state.json` 的 `deviceMid`。
+- 设备身份沿用 `{dataBaseDir}/.secretariat/v2/telemetry-state.json` 的 `deviceMid`。
 - metadata 的拼装与注入只发生在 zcode-cli，不修改 Desktop、Host、Web 或 app-agent 协议。
 
 ## 请求契约
@@ -35,7 +35,7 @@ Desktop、远端 zcode-server 和 zcode-cli 拥有彼此独立的“确保 devic
 
 ```text
 Desktop ensure（同步） ─────────┐
-远端 server ensure（启动时异步）├─> {dataBaseDir}/.zcode/v2/telemetry-state.json.deviceMid
+远端 server ensure（启动时异步）├─> {dataBaseDir}/.secretariat/v2/telemetry-state.json.deviceMid
 CLI ensure（异步） ─────────────┘                          │
                                                   v
                                   zcode-cli Anthropic metadata.device_id
@@ -46,7 +46,7 @@ CLI ensure（异步） ─────────────┘               
 - CLI 使用与 Desktop/telemetry 相同的 `createUuid()` 格式，并保留 state 文件中的其他字段。
 - CLI 使用 `telemetry-state.lock` 协调并发读写，进程内按 state 文件缓存同一个 ensure promise。
 - 文件读写或锁异常不能阻断模型请求；此时返回并缓存当前进程生成的 UUID，下次进程启动再尝试持久化。
-- `ZCODE_DATA_BASE_DIR` 决定实际数据根目录；没有配置时回退到当前 Agent 环境的 home 目录。
+- `SECRETARIAT_DATA_BASE_DIR` 决定实际数据根目录；没有配置时回退到当前 Agent 环境的 home 目录。
 - model I/O debug 记录保留 metadata 结构，但将 `user_id` 整体替换为 `[REDACTED]`，不落盘设备身份。
 
 因此本地 Desktop 与其启动的 Agent 消费同一设备身份；远端 Agent 在远端数据目录拥有独立设备身份。

@@ -50,8 +50,8 @@ workflow names, descriptions, phases, and model hints before a run starts.
 
 Named user workflow scripts are stored by scope:
 
-- Project scope: `<workspace>/.zcode/workflows/<name>.workflow.js`
-- User scope: `~/.zcode/workflows/<name>.workflow.js`
+- Project scope: `<workspace>/.secretariat/workflows/<name>.workflow.js`
+- User scope: `~/.secretariat/workflows/<name>.workflow.js`
 - Built-in scope: packaged definitions that are loaded only from an allowlist
 
 The default for authored scripts is project scope because scripts usually depend on the current
@@ -61,8 +61,8 @@ templates that should be callable by name across projects.
 Lookup priority is:
 
 1. Explicit `scriptPath`
-2. Project `.zcode/workflows`
-3. User `~/.zcode/workflows`
+2. Project `.secretariat/workflows`
+3. User `~/.secretariat/workflows`
 4. Built-in allowlist
 
 Every run records the resolved script path, script hash, source scope, and validated meta in SQLite.
@@ -239,7 +239,7 @@ project with read-only tools, write the final script with file tools, and use th
 Default output path:
 
 ```text
-<workspace>/.zcode/workflows/<generated-name>.workflow.js
+<workspace>/.secretariat/workflows/<generated-name>.workflow.js
 ```
 
 Command rules:
@@ -247,7 +247,7 @@ Command rules:
 - The generated script must keep the `workflow.md` format and begin with `export const meta = {...}`.
 - The command prompt directs the agent to use project inspection tools before authoring when useful.
 - The default destination is project scope. `--user` changes the requested destination to
-  `~/.zcode/workflows`.
+  `~/.secretariat/workflows`.
 - `--name <name>` requests a concrete file/meta name; otherwise the agent chooses a concise
   kebab-case name from the task.
 - Existing files should not be overwritten unless `--overwrite` is present.
@@ -294,7 +294,7 @@ Input schema:
     },
     "name": {
       "type": "string",
-      "description": "Name of a predefined workflow resolved from built-ins, project .zcode/workflows, or user ~/.zcode/workflows."
+      "description": "Name of a predefined workflow resolved from built-ins, project .secretariat/workflows, or user ~/.secretariat/workflows."
     },
     "args": {
       "description": "Optional input value exposed to the script as the global `args`."

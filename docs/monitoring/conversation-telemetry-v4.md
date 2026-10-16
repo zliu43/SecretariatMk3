@@ -214,7 +214,7 @@ feedback 行为。旧事件与旧持久化记录缺少 attribution 时继续按�
 的模型和内置 provider 下未命中白名单的模型统一写为 `custom`，provider 或 model 缺失时写空字符串。
 白名单匹配与输出均使用规范化小写 ID，新增内置模型未进入白名单时必须默认降级为 `custom`，不得原样
 透传。禁止上传 base URL/完整 URL、header、token、请求或响应正文、prompt/tool 内容、stack、完整
-detail、requestId。ZCode 只上报事实归因，不上报 `owner` 或 `shouldAlert` 等监控策略结论。
+detail、requestId。Secretariat 只上报事实归因，不上报 `owner` 或 `shouldAlert` 等监控策略结论。
 
 `exceptionKind` 必须在 adapter 边界由 allowlist 规范，禁止把自定义 Error name 原样带入协议或 ARMS。
 `failure_reason=unknown` 不等于诊断字段缺失；Dashboard 分开统计 reason coverage 与

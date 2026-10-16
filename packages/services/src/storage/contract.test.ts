@@ -11,7 +11,7 @@ import { useStorageSection } from "./contract.example.js";
 function root(overrides: Partial<StorageRootUsage>): StorageRootUsage {
   return {
     id: "home",
-    path: "/home/u/.zcode",
+    path: "/home/u/.secretariat",
     volume: null,
     bytes: 0,
     fileCount: 0,
@@ -30,12 +30,12 @@ describe("storage contract", () => {
     const volume = { deviceId: "1", mountPoint: "/", totalBytes: 100, freeBytes: 10 };
     const groups = groupStorageRootsByVolume([
       root({ id: "home", bytes: 5, volume }),
-      root({ id: "dataBaseDir", path: "/data/.zcode", bytes: 7, volume }),
-      root({ id: "dataBaseDir", path: "/x/.zcode", bytes: 1 }),
+      root({ id: "dataBaseDir", path: "/data/.secretariat", bytes: 7, volume }),
+      root({ id: "dataBaseDir", path: "/x/.secretariat", bytes: 1 }),
     ]);
     expect(groups.map((group) => [group.key, group.bytes, group.roots.length])).toEqual([
       ["dev:1", 12, 2],
-      ["path:/x/.zcode", 1, 1],
+      ["path:/x/.secretariat", 1, 1],
     ]);
   });
 

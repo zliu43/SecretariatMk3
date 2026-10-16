@@ -1,6 +1,6 @@
-# OpenTelemetry 概念与 ZCode 取舍
+# OpenTelemetry 概念与 Secretariat 取舍
 
-> 本文说明 CLI Agent Trace 使用的 OpenTelemetry 概念、结构关系和 ZCode 建模约束。整体设计
+> 本文说明 CLI Agent Trace 使用的 OpenTelemetry 概念、结构关系和 Secretariat 建模约束。整体设计
 > 与接入方式见 [CLI Agent Telemetry 设计与开发规范](../cli-agent-telemetry.md)。
 
 ## 1. 总体模型
@@ -25,7 +25,7 @@ Resource
                       `-- Parent/Child 拓扑
 
 Context
-    进程内传播当前 Active Span 和 ZCode 私有关联快照
+    进程内传播当前 Active Span 和 Secretariat 私有关联快照
 
 Metric
     独立于单条 Trace 的跨请求聚合信号
@@ -90,7 +90,7 @@ version = Telemetry Schema Version
 Trace 是共享同一 `traceId` 的 Span 集合。它不是一个需要单独创建的对象：创建 Root Span 时
 产生 traceId，Child Span 继承它。
 
-ZCode 通常以一个主 Agent Turn 为一条 Trace。后台任务或 Workflow 有独立生命周期时创建另一条
+Secretariat 通常以一个主 Agent Turn 为一条 Trace。后台任务或 Workflow 有独立生命周期时创建另一条
 Trace，通过 Link 保留因果关系。
 
 ### 3.2 Span
@@ -104,7 +104,7 @@ spanContext
 parentSpanId（如果是 Child）
 ```
 
-Span Name 是稳定、低基数的节点类型，例如 `agent_step`、`model_attempt`。ZCode 不再额外维护一个
+Span Name 是稳定、低基数的节点类型，例如 `agent_step`、`model_attempt`。Secretariat 不再额外维护一个
 和 Span Name 重复的 `span_type` Attribute，也不把 Step Index 或 Model Name拼入 Span Name。
 
 `SpanKind.INTERNAL` 用于 Turn、Step、Tool、Command、Compaction、Call 等进程内工作；
@@ -145,7 +145,7 @@ scope.run(callback)
     `-- callback 结束后恢复调用者 Context
 ```
 
-ZCode 在同一个 OTel Context 中还保存 Runtime 私有的 `ActiveWriterContext`，用于传递不可变的
+Secretariat 在同一个 OTel Context 中还保存 Runtime 私有的 `ActiveWriterContext`，用于传递不可变的
 Execution Correlation、当前 Writer 和 Tool Call ID。业务代码不能访问私有 Context Key，也不
 应层层透传 Session/Turn/Provider 等字段。
 
@@ -198,7 +198,7 @@ zcode.link.relation = spawned_by | triggered_by | resumed_from
 
 ### 5.3 `AgentTelemetryCausation`
 
-ZCode 用一个严格类型保存延迟任务需要的因果引用：
+Secretariat 用一个严格类型保存延迟任务需要的因果引用：
 
 ```ts
 interface AgentTelemetryCausation {
@@ -276,7 +276,7 @@ model_attempt
 
 ### 6.3 Status 与业务 Outcome
 
-OTel Status 只有 `UNSET/OK/ERROR`，不足以表达业务结果。ZCode 使用 Span 专属 `outcome`：
+OTel Status 只有 `UNSET/OK/ERROR`，不足以表达业务结果。Secretariat 使用 Span 专属 `outcome`：
 
 | Outcome        | OTel Status | 含义                        |
 | -------------- | ----------- | --------------------------- |
@@ -296,7 +296,7 @@ OTel Status 只有 `UNSET/OK/ERROR`，不足以表达业务结果。ZCode 使用
 Trace 回答“哪一次为什么失败”，Metric 回答“总体失败率和 P95 是多少”。Metric Series 由
 Instrument 名和 Label 组合决定，高基数 Label 会造成成本与正确性问题。
 
-ZCode Writer 在事实确定时同时记录 Metric，不从导出的 Trace 离线猜测：
+Secretariat Writer 在事实确定时同时记录 Metric，不从导出的 Trace 离线猜测：
 
 ```text
 Writer Setter / Terminal Latch

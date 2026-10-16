@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make real window close, application quit, and update installation deterministically release all ZCode-owned Remote Hosts and WSL server/Agent processes without terminating the WSL distro.
+**Goal:** Make real window close, application quit, and update installation deterministically release all Secretariat-owned Remote Hosts and WSL server/Agent processes without terminating the WSL distro.
 
-**Architecture:** Desktop Main will use the remote session manager as the lifecycle authority and wait for all unique Local/Remote Hosts through one idempotent shutdown barrier. Host and remote stdio shutdown become bounded phase machines that always attempt Agent cleanup, while WSL tracks only the child processes it created. A strict owner registry provides safe cleanup for newly created, provably orphaned ZCode Agent processes.
+**Architecture:** Desktop Main will use the remote session manager as the lifecycle authority and wait for all unique Local/Remote Hosts through one idempotent shutdown barrier. Host and remote stdio shutdown become bounded phase machines that always attempt Agent cleanup, while WSL tracks only the child processes it created. A strict owner registry provides safe cleanup for newly created, provably orphaned Secretariat Agent processes.
 
 **Tech Stack:** TypeScript, Electron UtilityProcess, Node.js child_process/stdio, Vitest, Zustand-independent Desktop Main/Host services.
 
@@ -270,7 +270,7 @@ git commit -m "fix(remote): await WSL server process shutdown"
 
 **Interfaces:**
 - Produces: `RemoteAgentOwnerRegistry` with `registerAgent`, `unregisterAgent`, `reapDeadOwners`, and `dispose`.
-- Consumes: `ZCODE_REMOTE_OWNER_ID`, `ZCODE_REMOTE_OWNER_KIND`, and an owner registry root under `$HOME/.zcode/server/owners`.
+- Consumes: `SECRETARIAT_REMOTE_OWNER_ID`, `SECRETARIAT_REMOTE_OWNER_KIND`, and an owner registry root under `$HOME/.secretariat/server/owners`.
 
 - [ ] **Step 1: Write failing registry tests**
 
@@ -341,7 +341,7 @@ Expected: both commands exit 0.
 
 - [ ] **Step 4: Perform runtime WSL verification**
 
-Record before/after PID evidence for tray hide, real window close, app quit, and update preparation. Confirm ZCode Host/server/Agent exit while `wsl.exe -l -v` may continue showing the distro as Running.
+Record before/after PID evidence for tray hide, real window close, app quit, and update preparation. Confirm Secretariat Host/server/Agent exit while `wsl.exe -l -v` may continue showing the distro as Running.
 
 - [ ] **Step 5: Commit**
 

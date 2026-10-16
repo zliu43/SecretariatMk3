@@ -1,6 +1,6 @@
 # System Prompt Contract
 
-ZCode stable system prompt is the long-lived behavioral contract for the main
+Secretariat stable system prompt is the long-lived behavioral contract for the main
 coding agent. It should be provider-visible, cache-friendly, and specific enough
 to make repository work evidence-first without mirroring runtime tool schemas.
 
@@ -21,11 +21,11 @@ to make repository work evidence-first without mirroring runtime tool schemas.
 
 | Section              | Purpose                                                                                                                            |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Static Default Body  | ZCode role, authorized-security boundary, and compact harness guidance.                                                            |
+| Static Default Body  | Secretariat role, authorized-security boundary, and compact harness guidance.                                                            |
 | Dynamic Default Body | Coding/risk behavior guidance, session guidance, memory, environment, optional output style, context management, and git snapshot. |
 
 The provider-visible `system[0]` CLI prefix is exactly
-`You are ZCode, an interactive coding agent`. The provider-visible static
+`You are Secretariat, an interactive coding agent`. The provider-visible static
 default body is a compact `system[1]` block after that short CLI prefix. It
 intentionally does not render `# Agent Identity` or separate `Task Behavior`,
 `Risky Actions`, or `Communication Style` headings. The legacy `task_behavior`,
@@ -33,7 +33,7 @@ intentionally does not render `# Agent Identity` or separate `Task Behavior`,
 active context contract. The final provider body must follow this
 static/global-cache boundary:
 
-1. Short ZCode software-engineering-agent intro with no heading.
+1. Short Secretariat software-engineering-agent intro with no heading.
 2. Authorized security boundary.
 3. `# Harness` section for terminal markdown, permission denial handling,
    system-controlled mid-conversation updates and hook feedback, dedicated tool
@@ -48,7 +48,7 @@ risk/reporting paragraphs must not be emitted in `system[1]`.
 
 An active output style changes the static intro but does not remove `# Harness`,
 including when `keepCodingInstructions` is false. That field applies only to a
-separate doing-tasks coding-instructions block; ZCode does not currently emit
+separate doing-tasks coding-instructions block; Secretariat does not currently emit
 such a block.
 
 The provider-visible dynamic default body is `system[2]`. It always owns a
@@ -75,7 +75,7 @@ The output-style section is assembled exactly as
 `# Output Style: <name>\n<prompt>`, with no blank line between its heading and
 prompt body.
 
-Legacy ZCode `# Language`, `# Function Result Clearing`, and
+Legacy Secretariat `# Language`, `# Function Result Clearing`, and
 `# Summarize Tool Results` sections are not emitted in this dynamic block. The
 runtime may still compact or microcompact history, but that behavior is covered
 by runtime mechanics rather than provider-visible system sections.
@@ -121,7 +121,7 @@ provider-visible note is exactly:
 
 The stable prompt must include guidance equivalent to:
 
-- The agent is a ZCode interactive coding agent for software-engineering work.
+- The agent is a Secretariat interactive coding agent for software-engineering work.
 - The agent works in the current workspace and can inspect, edit, and validate
   code using the available tools.
 - User-facing text outside tool calls renders as GitHub-flavored Markdown in a
@@ -218,7 +218,7 @@ Required Explore prompt behavior:
   command; `Bash` is restricted to read-only operations.
 - Encourages parallel tool calls and absolute paths (cwd may reset between
   `Bash` calls).
-- ZCode-specific, kept on purpose: says exactly what is missing when evidence is
+- Secretariat-specific, kept on purpose: says exactly what is missing when evidence is
   incomplete, and explicitly forbids spawning another agent.
 
 ## Test Coverage
@@ -233,7 +233,7 @@ Required Explore prompt behavior:
   policy and the no-URL-fabrication rule.
 - Stable system prompt tells the agent not to retry a denied tool call
   unchanged.
-- Provider-visible static `system[1]` starts with the ZCode intro, uses compact
+- Provider-visible static `system[1]` starts with the Secretariat intro, uses compact
   `# Harness`, and does not render `# Agent Identity` or the old `# Task Behavior`,
   `# Risky Actions`, or `# Communication Style` headings; it ends at the final
   `# Harness` bullet.

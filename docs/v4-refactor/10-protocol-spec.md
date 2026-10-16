@@ -1,4 +1,4 @@
-# ZCode Protocol v4：字段级规范
+# Secretariat Protocol v4：字段级规范
 
 新增只读查询 `v4/conversation/backgroundBashOutput`：sessionId/workId 定位当前 runtime
 的后台 Bash，只返回 kind/workId/status/output/truncated/outputPath，其中 output 是固定最多

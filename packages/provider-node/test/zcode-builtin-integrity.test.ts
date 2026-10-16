@@ -15,7 +15,7 @@ import { NodeZCodeBuiltinProviderConfigSource } from "../src/index.js";
 
 // 发布验证必须指向最终上传的那份文件，而不是默认悄悄检查仓库源文件。
 const zcodeBuiltinProviderConfigFilePath =
-  process.env.ZCODE_BUILTIN_RELEASE_TEST_FILE?.trim() ||
+  process.env.SECRETARIAT_BUILTIN_RELEASE_TEST_FILE?.trim() ||
   fileURLToPath(new URL("../../../config/provider/zcode-builtin.json", import.meta.url));
 
 function reasoningPatch(map: string, reasoningLevel: string) {
@@ -25,7 +25,7 @@ function reasoningPatch(map: string, reasoningLevel: string) {
   );
 }
 
-describe("ZCode Built-in Provider Config 完整性", () => {
+describe("Secretariat Built-in Provider Config 完整性", () => {
   it.each(["anthropic-messages", "openai-chat-completions", "openai-responses"] as const)(
     "未知模型在 %s 下拥有完整两档兜底并可进入 Registry",
     async (apiType) => {

@@ -4,7 +4,7 @@
 >
 > 日期：2026-08-26
 >
-> 来源：ZCode Built-in Config 内容整理中已经确认的新增 Provider 范围；从 Todo 21 拆出，避免配置职责重构与新
+> 来源：Secretariat Built-in Config 内容整理中已经确认的新增 Provider 范围；从 Todo 21 拆出，避免配置职责重构与新
 > Provider/Access 接入互相阻塞
 >
 > 相关任务：[`21`](./todo-21-zcode-builtin-config-ownership-and-model-activation-order.md)
@@ -18,7 +18,7 @@
 收口 Provider/Model 配置职责、启用、排序、Settings 和 Access 归属；不因等待新的 Provider Adapter 或 Access Type
 而扩大实施关键路径。
 
-Built-in 只表示模板由 ZCode 内置维护，不表示使用 ZCode 账号。新增普通 Provider 由 Template Model 的 `enabled` 决定默认是否进入可选模型集合；不再使用 Provider 顶层 `enabled` 表达加入配置或执行资格：
+Built-in 只表示模板由 Secretariat 内置维护，不表示使用 Secretariat 账号。新增普通 Provider 由 Template Model 的 `enabled` 决定默认是否进入可选模型集合；不再使用 Provider 顶层 `enabled` 表达加入配置或执行资格：
 
 ```text
 Template Model Rule
@@ -56,7 +56,7 @@ Google 相关接入当前不支持，不在本 Todo 内顺手建立 Adapter 或 
 
 ## 2. 共同原则
 
-1. Provider 模板进入同一 ZCode Built-in Release，不恢复 Catalog、Preset 或远端第二事实源；
+1. Provider 模板进入同一 Secretariat Built-in Release，不恢复 Catalog、Preset 或远端第二事实源；
 2. Provider 身份、API、Endpoint 模板和 Access 属于 Built-in Provider Config；
 3. 模型 Properties、Option Specs、Reasoning Mapping 和必要请求编码事实属于 Built-in Model Config Rules；
 4. 普通 Provider 不按 Provider ID 或 Model ID 在 Adapter/Runtime 写 hardcode；

@@ -22,7 +22,7 @@ C:\Users\dev\.zcode\workspace\default\screenshot.png   518252 bytes
 C:/Users/dev.zcode/workspace/default/screenshot.png
 ```
 
-`\.zcode` 变成了 `.zcode` —— 少了一个反斜杠。
+`\.secretariat` 变成了 `.secretariat` —— 少了一个反斜杠。
 
 ## 根因
 
@@ -131,7 +131,7 @@ markdown 源文本
 
 ## 验收
 
-1. 新增单测覆盖：`\.zcode` 还原、image 节点、UNC 前导反斜杠塌陷、引用式 definition、
+1. 新增单测覆盖：`\.secretariat` 还原、image 节点、UNC 前导反斜杠塌陷、引用式 definition、
    无需还原时不动、非 Windows URL 不动、带 title 跳过、尖括号跳过、
    验证不通过（实体引用）时保持原值。
 2. `pnpm exec vitest run packages/ui/test/windowsFileLinkEscapeRemarkPlugin.test.ts` 通过，

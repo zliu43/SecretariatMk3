@@ -4,16 +4,16 @@
 
 - 状态：P0/P1 已实现；本次 hardening 已补齐 Core 父进程断连、更新指针清理和稳定 Server identity；Linux x64 已完成 SSH 实机验证
 - 阶段：统一多端远程架构 R2 / D4
-- 本阶段目标：交付可独立安装、可后台运行、与 UI 生命周期解耦的 ZCode Server CLI
+- 本阶段目标：交付可独立安装、可后台运行、与 UI 生命周期解耦的 Secretariat Server CLI
 - 本文定位：R2 的实现规格和边界；可执行测试补充见 [R2 lifecycle test plan](./r2-server-cli-and-daemon-test-plan.md)
 - R2 不切换 Desktop 的生产远程连接主链
 
 本文基于：
 
-- [ZCode 统一多端远程连接架构与产品方案（评审稿）](https://internal-docs.example.invalid/redacted)
+- [Secretariat 统一多端远程连接架构与产品方案（评审稿）](https://internal-docs.example.invalid/redacted)
 - [R1 窗口级单 Host 进程重构规格](./r1-single-window-host-refactor.md)
 - [Agent Electron/Node runtime 事实](../runtime-tools/agent-electron-node-runtime.md)
-- [ZCode Lite / Server 统一多端架构实施计划](./unified-zcode-lite-server-multi-server-plan.md)
+- [Secretariat Lite / Server 统一多端架构实施计划](./unified-zcode-lite-server-multi-server-plan.md)
 
 R2 交付：
 
@@ -46,12 +46,12 @@ R2 不交付：
 | Supervisor | 只拥有生命周期状态，不拥有 task/session/stream/queue/snapshot 业务状态 |
 | 监听地址 | 默认回环地址和动态端口；非回环监听必须启用鉴权 |
 | Web / WS | R2 实现并验证 Core 的 HTTP/WS ingress；具体远程 Transport 留给后续阶段 |
-| 数据目录 | 复用 `getZCodeDataRootDir()` 和 `ZCODE_DATA_BASE_DIR`；标准目录为 `<dataRoot>/server`。OS service 必须携带内部参数 `--server-root <absolute-path>`，不得依赖注册时 shell 的环境 |
+| 数据目录 | 复用 `getZCodeDataRootDir()` 和 `SECRETARIAT_DATA_BASE_DIR`；标准目录为 `<dataRoot>/server`。OS service 必须携带内部参数 `--server-root <absolute-path>`，不得依赖注册时 shell 的环境 |
 | Node runtime | 沿用现有远端资产流程的 Node `v22.16.0`；Server CLI 不依赖系统 Node 或 Electron Node |
 | 崩溃策略 | 5 次/5 分钟预算，退避 1、2、4、8、16 秒；超出后进入 `crash-loop-stopped` |
 | Task 恢复 | Core 崩溃或更新后，运行中的 Task 中断，不自动恢复或重放输入 |
 | stop | 停止当前实例，但保留自启动注册 |
-| uninstall | 停止实例、移除服务注册、删除 ZCode 自有数据；Workspace/Repo/用户文件不删除 |
+| uninstall | 停止实例、移除服务注册、删除 Secretariat 自有数据；Workspace/Repo/用户文件不删除 |
 | update | 默认从配置的 release catalog 在线下载并校验；无网络时可应用本地 pending；使用原子切换和失败回滚 |
 | 组件更新 | 以 Node、server、agent、official-plugins、native-search-tools 五个粗粒度组件做内容寻址缓存；完整 release 仍是原子运行单元 |
 | 平台服务注册 | 生成 descriptor 后调用当前用户的 launchctl / systemctl --user / schtasks；命令不可用时保留 descriptor 并返回可诊断错误；OS service 是 daemon 的唯一启动 owner，Supervisor 不重复注册服务 |
@@ -224,7 +224,7 @@ Supervisor ── SIGKILL/crash ──X IPC ──disconnect──> Core
 
 `/api/server-info.serverId` 使用 `install.json.installationId` 作为安装级稳定身份。只有直接调用
 Core HTTP 工厂且未提供 server root 的测试/嵌入场景才回退到 hostname；真实 Supervisor 启动的
-Core 必须通过 `ZCODE_SERVER_ROOT` 校验 ownership marker 后注入 installationId。
+Core 必须通过 `SECRETARIAT_SERVER_ROOT` 校验 ownership marker 后注入 installationId。
 
 现有 `packages/server` 中的 `/api/server-info`、`/api/rpc-host-capability`、`/ws`、`/ws/host` 等行为作为兼容性参考；新 Core 不直接导入旧入口，而是通过合同测试决定需要保留的边界。
 
@@ -326,19 +326,19 @@ staging 由 `packages/zcode-server-cli/src/packaging/stage.ts` 实现，
   `node_modules/.cache/zcode-server-cli/tools/<target>`（内网依赖源已配置时下载，未配置时解包仓库归档），
   不复用 mock-cdn 或 bundled-tools 目录（远端 macOS 固定为 rg13）；每个工具目录同时携带
   `THIRD-PARTY-NOTICES.txt` 与 `SOURCES.json`。运行时通过
-  `ZCODE_SERVER_RUNTIME_ROOT` 解析；`runtime/packages` 包含当前官方插件定义中需要 seed 的七个
+  `SECRETARIAT_SERVER_RUNTIME_ROOT` 解析；`runtime/packages` 包含当前官方插件定义中需要 seed 的七个
   plugin（browser-use、document-skills、skill-creator、zcode-guide、android-emulator、
   ios-simulator、restore-legacy-sessions）。
 
 Agent 接线约定：发行包内 Core 不在 monorepo、也没有 Electron runtime。Supervisor 每次启动 Core
 时必须根据该 Core 所属 release 的 `runtime/` 重新计算接线（`runtime/node zcode.cjs app-server
 --stdio`），不得由旧 `server-cli.js` 把自动推导结果永久写入全局 `process.env`。显式配置的
-`ZCODE_AGENT_SERVER_COMMAND` 仍永远优先；开发态没有 release runtime 时不注入。
+`SECRETARIAT_AGENT_SERVER_COMMAND` 仍永远优先；开发态没有 release runtime 时不注入。
 
 安装后的程序和数据分离：
 
 ```text
-~/.zcode/server/
+~/.secretariat/server/
 ├── releases/<version>-<target>-<sha12>/
 │   ├── runtime/
 │   ├── bin/
@@ -356,8 +356,8 @@ Agent 接线约定：发行包内 Core 不在 monorepo、也没有 Electron runt
 
 descriptor 不随 release archive 打包，而是在 `serve --daemon` 注册时由
 `platform/serviceManager.ts` 动态写入 `service/`。显式传入非标准 `--server-root` 时，Server CLI
-将该目录同时作为 `dataBaseDir`，因此 Agent/SQLite 等本地状态位于该 root 的 `.zcode/` 隔离目录；
-卸载仍只删除 ZCode allowlist，未知文件会保留并列入 `uninstalled.json.preservedPaths`。
+将该目录同时作为 `dataBaseDir`，因此 Agent/SQLite 等本地状态位于该 root 的 `.secretariat/` 隔离目录；
+卸载仍只删除 Secretariat allowlist，未知文件会保留并列入 `uninstalled.json.preservedPaths`。
 
 `current.json` 和 `pending.json` 只通过临时文件加 rename 更新。release 目录按 archive SHA 内容寻址
 且不可变：安装器只能把完整临时目录原子 promote 到尚不存在的 `releases/<releaseId>`；目标已存在
@@ -409,7 +409,7 @@ unit name、Windows task name 和 descriptor 文件名。兼容清理旧固定 s
 
 `--server-root` 是 service/fallback daemon 使用的内部全局参数，值必须是绝对路径。CLI 的 control
 endpoint、status、release、service descriptor 和 uninstall 均从该参数解析同一个 layout；Core/Agent
-同时获得对应的 `ZCODE_DATA_BASE_DIR`。因此自定义 data root 的 daemon 不得在默认 root 创建第二份
+同时获得对应的 `SECRETARIAT_DATA_BASE_DIR`。因此自定义 data root 的 daemon 不得在默认 root 创建第二份
 status、lock、Core 或 SQLite。
 
 组件增量组装先从旧 release 复制，再删除所有已变化或已移除组件声明的旧路径，之后解压新组件并
@@ -444,14 +444,14 @@ zcode uninstall
 | `restart` | 有界停止并重新启动；不自动恢复中断 Task |
 | `update` | 获取 catalog 中当前 target 的新 release（或使用已有 pending），校验并安装后应用；catalog 与 current archive 相同返回成功的 `up-to-date`，不得继续请求 apply；未配置 catalog 且没有 pending 时返回明确的 release source 错误；有运行 Task 时默认返回可操作的 guard 错误，不中断任务 |
 | `update --force` | 明确允许中断运行 Task 后应用 release |
-| `uninstall` | 检查运行 Task（有运行 Task 时拒绝并保持原状态），要求两次输入 `DELETE`，停止并移除服务，删除允许列表内的 ZCode 数据 |
+| `uninstall` | 检查运行 Task（有运行 Task 时拒绝并保持原状态），要求两次输入 `DELETE`，停止并移除服务，删除允许列表内的 Secretariat 数据 |
 
 `uninstall` 允许删除：
 
 - R2 程序 release；
 - Supervisor/Core 运行记录；
-- ZCode 配置、缓存、runtime 记录；
-- ZCode 自有状态数据库和日志。
+- Secretariat 配置、缓存、runtime 记录；
+- Secretariat 自有状态数据库和日志。
 
 `uninstall` 禁止删除：
 

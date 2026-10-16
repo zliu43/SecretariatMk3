@@ -92,7 +92,7 @@ async function renderTriggerWithEnv(
   },
 ) {
   vi.resetModules();
-  vi.doMock("@zcode/shared", () => ({ ZCODE_ENV: env }));
+  vi.doMock("@zcode/shared", () => ({ SECRETARIAT_ENV: env }));
 
   const { WorkspaceWebRemoteControlTrigger } =
     await import("../src/WorkspaceWebRemoteControlTrigger.js");

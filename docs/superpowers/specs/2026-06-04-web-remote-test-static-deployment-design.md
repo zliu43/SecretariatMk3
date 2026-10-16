@@ -33,7 +33,7 @@ v3:
 2. `/remote/__test__` 使用独立构建脚本、Dockerfile、nginx 配置、镜像名和 k8s deployment 文件。
 3. 发布脚本最后只修改 `zcode/frontend/deployment-remote-test.yaml`。
 4. 保持 `/remote` 和 `/remote/v3` 现有链路不变。
-5. 不修改 desktop 默认二维码 URL；测试入口通过 `ZCODE_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__` 指定。
+5. 不修改 desktop 默认二维码 URL；测试入口通过 `SECRETARIAT_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__` 指定。
 6. 不修改 relay 协议、shared-host attachment、task stream、snapshot、queue 或 replayable 恢复语义。
 
 ## 非目标
@@ -143,7 +143,7 @@ commit and push MR branch
 测试 `/remote/__test__` 时通过环境变量覆盖：
 
 ```bash
-ZCODE_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__ pnpm dev:desktop
+SECRETARIAT_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__ pnpm dev:desktop
 ```
 
 该方式保留线上默认行为，同时允许 test 部署独立回归。
@@ -201,7 +201,7 @@ bash scripts/test-web-remote-control-test-docker-build.sh
    `zcode/frontend/deployment-remote-test.yaml`，并在测试中断言脚本文本。
 3. test 资源路径被旧 `/remote` ingress 吞掉。缓解方式是在 k8s 仓库配置更具体的
    `/remote/__test__` 前缀。
-4. desktop 默认入口误切到 test。缓解方式是不改默认二维码 URL，只通过 `ZCODE_WEB_REMOTE_CONTROL_URL`
+4. desktop 默认入口误切到 test。缓解方式是不改默认二维码 URL，只通过 `SECRETARIAT_WEB_REMOTE_CONTROL_URL`
    做测试覆盖。
 5. Web 入口识别漏掉 test base。缓解方式是为 `resolveWebRemoteControlRoutePathFromBaseUrl()` 增加
    `/remote/__test__/` 单元测试。

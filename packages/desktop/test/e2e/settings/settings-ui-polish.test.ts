@@ -79,7 +79,7 @@ describe("设置页 UI polish E2E", () => {
     expect(
       await browser.execute(() => {
         const logo = document.querySelector<HTMLElement>(
-          '[data-testid="settings-page"] img[alt="ZCode"]',
+          '[data-testid="settings-page"] img[alt="Secretariat"]',
         );
         if (!logo) return null;
         const rect = logo.getBoundingClientRect();
@@ -1093,7 +1093,7 @@ describe("设置页 UI polish E2E", () => {
 
   it("MP-UI-05-remote: 远程 workspace 下也不显示配置同步入口", async function () {
     this.timeout(10 * 60_000);
-    if (!process.env.ZCODE_E2E_SSH_HOST?.trim()) {
+    if (!process.env.SECRETARIAT_E2E_SSH_HOST?.trim()) {
       this.skip();
       return;
     }

@@ -296,7 +296,7 @@ describe("official mcp credential resolver", () => {
     expect(headers["Bigmodel-Project"]).toBeUndefined();
   });
 
-  it("OMCP-023: sends only the ZCode JWT for a Start Plan connection", async () => {
+  it("OMCP-023: sends only the Secretariat JWT for a Start Plan connection", async () => {
     const outcome = await resolveOfficialMcpCredentials(
       createDeps({
         registry: createRegistry([
@@ -350,7 +350,7 @@ describe("official mcp credential resolver", () => {
     ).resolves.toEqual({ ok: false, reason: "official_auth_unavailable" });
   });
 
-  it("sends only the ZCode JWT when the selected coding plan connection is absent", async () => {
+  it("sends only the Secretariat JWT when the selected coding plan connection is absent", async () => {
     const outcome = await resolveOfficialMcpCredentials(
       createDeps({ registry: createRegistry([]) }),
     );
@@ -504,9 +504,9 @@ describe("official mcp credential resolver", () => {
   });
 
   it("OMCP-024: has no mock credential branch at all", async () => {
-    // Off-Peak 的 ZCODE_OFFPEAK_MOCK 占位凭证分支不得在官方 MCP 路径复现。
-    const previous = process.env["ZCODE_OFFPEAK_MOCK"];
-    process.env["ZCODE_OFFPEAK_MOCK"] = "1";
+    // Off-Peak 的 SECRETARIAT_OFFPEAK_MOCK 占位凭证分支不得在官方 MCP 路径复现。
+    const previous = process.env["SECRETARIAT_OFFPEAK_MOCK"];
+    process.env["SECRETARIAT_OFFPEAK_MOCK"] = "1";
     try {
       const outcome = await resolveOfficialMcpCredentials(createDeps({ jwt: "" }));
       expect(outcome).toEqual({ ok: false, reason: "official_auth_unavailable" });
@@ -516,8 +516,8 @@ describe("official mcp credential resolver", () => {
       expect(ok.snapshot.jwt).toBe(JWT);
       expect(ok.snapshot.codingPlanAuthorization).toBe(MAAS_JWT);
     } finally {
-      if (previous === undefined) delete process.env["ZCODE_OFFPEAK_MOCK"];
-      else process.env["ZCODE_OFFPEAK_MOCK"] = previous;
+      if (previous === undefined) delete process.env["SECRETARIAT_OFFPEAK_MOCK"];
+      else process.env["SECRETARIAT_OFFPEAK_MOCK"] = previous;
     }
   });
 

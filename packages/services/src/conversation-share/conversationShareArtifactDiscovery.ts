@@ -17,7 +17,7 @@ import type {
 } from "@zcode/shared/zcode-protocol-v4";
 import {
   PROTOCOL_V4_LIMITS,
-  ZCODE_ATTACHMENT_FAULT_CODES,
+  SECRETARIAT_ATTACHMENT_FAULT_CODES,
   readZCodeAttachmentFaultCode,
 } from "@zcode/shared/zcode-protocol-v4";
 
@@ -568,8 +568,8 @@ async function discoverInputAttachments(options: {
       } catch (error) {
         const faultCode = readZCodeAttachmentFaultCode(error);
         if (
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized ||
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareReadConnectionUntrusted
+          faultCode === SECRETARIAT_ATTACHMENT_FAULT_CODES.shareReadNotAuthorized ||
+          faultCode === SECRETARIAT_ATTACHMENT_FAULT_CODES.shareReadConnectionUntrusted
         ) {
           throw new ConversationShareServiceError(
             "artifact_protocol_not_ready",
@@ -578,8 +578,8 @@ async function discoverInputAttachments(options: {
           );
         }
         if (
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.previewTooLarge ||
-          faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge
+          faultCode === SECRETARIAT_ATTACHMENT_FAULT_CODES.previewTooLarge ||
+          faultCode === SECRETARIAT_ATTACHMENT_FAULT_CODES.shareStatTooLarge
         ) {
           // 容量超限是确定阻断，不能降级成「附件不可用」warning 后静默发布——
           // 那样接收者拿不到附件，分享者也看不出错误类别（见预检同名分类）。
@@ -616,8 +616,8 @@ async function discoverInputAttachments(options: {
           extension,
           mimeType,
           availability:
-            faultCode === ZCODE_ATTACHMENT_FAULT_CODES.shareStatNotFound ||
-            faultCode === ZCODE_ATTACHMENT_FAULT_CODES.statNotFile ||
+            faultCode === SECRETARIAT_ATTACHMENT_FAULT_CODES.shareStatNotFound ||
+            faultCode === SECRETARIAT_ATTACHMENT_FAULT_CODES.statNotFile ||
             (error instanceof ConversationShareServiceError &&
               error.diagnostics?.errno === "ENOENT")
               ? "not_found"

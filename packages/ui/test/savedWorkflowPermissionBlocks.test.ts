@@ -22,7 +22,7 @@ import { PermissionDialog } from "@/PermissionDialog.js";
 
 const SCRIPT =
   'const x = 1;\nconst r = await agent("a").ask<string>("检查 " + String(args.target));';
-const SAVED_PATH = "/workspace/.zcode/workflows/release-check.dwf.ts";
+const SAVED_PATH = "/workspace/.secretariat/workflows/release-check.dwf.ts";
 // CLI 侧的 ask reason 是协议诊断文案，两个确认窗都必须不展示它。
 const SAVE_CLI_REASON = "saveWorkflow.confirmation: user must confirm writing the workflow file";
 

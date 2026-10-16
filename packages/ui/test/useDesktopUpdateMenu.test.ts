@@ -7,7 +7,7 @@ import { getUpdateMenuLabelId, getUpdateMenuLabelValues } from "@/lib/desktopUpd
 
 vi.mock("@zcode/shared", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@zcode/shared")>()),
-  ZCODE_PRODUCT_FLAVOR: "production",
+  SECRETARIAT_PRODUCT_FLAVOR: "production",
 }));
 
 const mocks = vi.hoisted(() => ({

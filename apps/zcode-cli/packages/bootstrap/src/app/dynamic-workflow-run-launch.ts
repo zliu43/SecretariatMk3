@@ -13,7 +13,7 @@
 import { randomUUID } from "node:crypto";
 import {
   CoreErrorType,
-  ZCODE_DWF_CHILD_COMMAND,
+  SECRETARIAT_DWF_CHILD_COMMAND,
   type CreateSessionTaskLinkInput,
   type SessionId,
 } from "@zcode/contracts";
@@ -382,7 +382,7 @@ export function launchDynamicWorkflowRun(
     cwd,
     lowered: compiled.lowered,
     makeDriver,
-    // 入口文件写不进项目 `.zcode/` 时 harness 回落到 OS 临时目录并报一声——run 照常启动，
+    // 入口文件写不进项目 `.secretariat/` 时 harness 回落到 OS 临时目录并报一声——run 照常启动，
     // 但这条日志是排查「项目里为什么没有 workflow-runs 存档」的唯一线索。
     onWarning: (warning) => {
       deps.logger?.warn?.("Dynamic workflow entry file fell back to the OS temp dir", {
@@ -440,7 +440,7 @@ export function launchDynamicWorkflowRun(
 export function dynamicWorkflowChildSpawn(
   isSea: boolean = isSeaRuntime(),
 ): { argsPrefix: readonly string[] } | undefined {
-  return isSea ? { argsPrefix: [ZCODE_DWF_CHILD_COMMAND] } : undefined;
+  return isSea ? { argsPrefix: [SECRETARIAT_DWF_CHILD_COMMAND] } : undefined;
 }
 
 /** SEA 运行时探针（official-plugin-runtime.ts 私有同名 helper 的本地镜像，刻意不跨文件复用）。 */

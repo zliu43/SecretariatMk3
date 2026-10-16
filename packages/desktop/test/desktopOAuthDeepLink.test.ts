@@ -70,7 +70,7 @@ describe("desktopOAuthDeepLink workspace open routing", () => {
     const enCopy = resolveExternalWorkspaceOpenDialogCopy("en-US");
 
     expect(zhCopy.buttons).toEqual(["打开文件夹", "取消"]);
-    expect(zhCopy.title).toBe("打开外部 ZCode 链接？");
+    expect(zhCopy.title).toBe("打开外部 Secretariat 链接？");
     expect(zhCopy.detail("/tmp/project")).toContain("只打开你信任来源的文件夹");
     expect(enCopy.buttons).toEqual(["Open folder", "Cancel"]);
   });
@@ -172,7 +172,7 @@ describe("desktopOAuthDeepLink workspace open routing", () => {
       targetWindow,
       expect.objectContaining({
         buttons: ["打开文件夹", "取消"],
-        title: "打开外部 ZCode 链接？",
+        title: "打开外部 Secretariat 链接？",
       }),
     );
     expect(targetWindow.webContents.send).toHaveBeenCalledWith(
@@ -196,7 +196,7 @@ describe("desktopOAuthDeepLink workspace open routing", () => {
     expect(electronMocks.showMessageBoxSync).toHaveBeenCalledWith(
       expect.objectContaining({
         buttons: ["Open folder", "Cancel"],
-        title: "Open external ZCode link?",
+        title: "Open external Secretariat link?",
       }),
     );
     expect(logger.warn).toHaveBeenCalledWith(
@@ -344,27 +344,27 @@ describe("desktopOAuthDeepLink OAuth routing", () => {
       registerOAuthState(31, { state: "state-001", provider: "bigmodel" });
 
       expect(
-        handleDeepLink("zcode://oauth/callback?state=state-001&utm_source=google", logger),
+        handleDeepLink("secretariat://oauth/callback?state=state-001&utm_source=google", logger),
       ).toBe(true);
       expect(targetWindow.webContents.send).toHaveBeenCalledWith(
         PlatformChannels.OAuthCallback,
-        "zcode://oauth/callback?state=state-001&utm_source=google",
+        "secretariat://oauth/callback?state=state-001&utm_source=google",
       );
 
       targetWindow.webContents.send.mockClear();
 
       expect(
-        handleDeepLink("zcode://oauth/callback?authCode=auth-001&state=state-001", logger),
+        handleDeepLink("secretariat://oauth/callback?authCode=auth-001&state=state-001", logger),
       ).toBe(true);
       expect(targetWindow.webContents.send).toHaveBeenCalledWith(
         PlatformChannels.OAuthCallback,
-        "zcode://oauth/callback?authCode=auth-001&state=state-001",
+        "secretariat://oauth/callback?authCode=auth-001&state=state-001",
       );
 
       targetWindow.webContents.send.mockClear();
 
       expect(
-        handleDeepLink("zcode://oauth/callback?authCode=auth-002&state=state-001", logger),
+        handleDeepLink("secretariat://oauth/callback?authCode=auth-002&state=state-001", logger),
       ).toBe(false);
       expect(targetWindow.webContents.send).not.toHaveBeenCalled();
       expect(logger.warn).toHaveBeenLastCalledWith(
@@ -401,11 +401,11 @@ function createMockWindow(webContentsId: number) {
 }
 
 function buildWorkspaceOpenUrl(workspacePath: string): string {
-  return `zcode://workspace/open?path=${encodeURIComponent(workspacePath)}`;
+  return `secretariat://workspace/open?path=${encodeURIComponent(workspacePath)}`;
 }
 
 function buildShareImportUrl(shareCode: string): string {
-  return `zcode://share/import?code=${encodeURIComponent(shareCode)}`;
+  return `secretariat://share/import?code=${encodeURIComponent(shareCode)}`;
 }
 
 describe("desktopOAuthDeepLink share import routing", () => {

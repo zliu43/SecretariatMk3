@@ -2,7 +2,7 @@
 
 ## 背景
 
-`browser-use@zcode-plugins-official` 是 ZCode 官方插件。它的 manifest 仍只声明 `skills`，不扩展 plugin schema。
+`browser-use@zcode-plugins-official` 是 Secretariat 官方插件。它的 manifest 仍只声明 `skills`，不扩展 plugin schema。
 
 目标是让 browser-use 插件的启停状态控制模型可见的浏览器 guidance/bridge，同时说清楚无状态
 `node_repl` MCP frontend、browser client 与插件物理资产载体的关系：
@@ -16,7 +16,7 @@ browser-use package 是这些 runtime asset 的物理发布载体；`enabled ===
 
 ## 设计
 
-不允许任意插件通过 manifest 自声明高权限 runtime capability。ZCode core 只识别官方插件 id：
+不允许任意插件通过 manifest 自声明高权限 runtime capability。Secretariat core 只识别官方插件 id：
 
 ```text
 browser-use@zcode-plugins-official
@@ -81,7 +81,7 @@ MCP server 通过 `@zcode/contracts/tools/node-repl` 读取 JS 工具 schema，�
 
 ## 宿主与插件职责
 
-ZCode 在 MCP `2026-07-28` 后仍使用宿主 `node_repl` 工具 identity；官方 browser-use 插件携带
+Secretariat 在 MCP `2026-07-28` 后仍使用宿主 `node_repl` 工具 identity；官方 browser-use 插件携带
 frontend bundle、browser-client/docs/skills assets。协议桥和 desktop CDP 执行链路仍保留在宿主；
 禁用插件后没有 Browser Use skill/bridge，不创建另一套 `browser_use` 工具。
 
@@ -98,5 +98,5 @@ frontend bundle、browser-client/docs/skills assets。协议桥和 desktop CDP �
 - 纯 CLI 显式启用 headless 时，由 CLI adapter 注入真实 managed `cdp` BrowserControlPort；完成 Chromium
   handshake 后才可发现 backend。该路径继续使用官方 plugin 的 skill/client 和宿主 node_repl MCP，
   不能绕过成 `agent-browser` 或另一套模型工具。
-- ZCode app-server 不消费 CLI managed headless 参数；Desktop/Web Remote 继续使用 shared-host 注入的
+- Secretariat app-server 不消费 CLI managed headless 参数；Desktop/Web Remote 继续使用 shared-host 注入的
   BrowserControlPort，不能为手机或协议 session 另起 browser runtime。

@@ -6,7 +6,7 @@
 
 提供一个**随包内置、默认启用**的官方插件 `zcode-guide`，其技能集让 **agent 和用户**能够：
 
-1. 正确配置 ZCode 的五类扩展资源：MCP、commands、skills、hooks、plugins。
+1. 正确配置 Secretariat 的五类扩展资源：MCP、commands、skills、hooks、plugins。
 2. 当配置出问题时，**逐类**定位（localization）并**自修复**（self-repair）。
 
 最终目标：**仅凭该插件的技能，agent 就能自己诊断并修复配置问题**——不依赖外部文档，全部动作落到可执行的 `zcode` 子命令与明确的配置文件编辑上。
@@ -61,16 +61,16 @@ apps/zcode-cli/packages/zcode-guide-plugin/
 
 ## 关键事实（对齐源码，修正了旧文档）
 
-- **用户主配置是 `~/.zcode/cli/config.json`**（不是 `~/.zcode/config.json`）。项目配置 `<repo>/.zcode/config.json` 或 `<repo>/zcode.json`。
-- **MCP `.agents/mcp.json` 差异（CLI vs 客户端）**：`apps/zcode-cli` CLI 运行时不读 `.agents/mcp.json`；但**桌面客户端会读**（`packages/desktop/src/main/mcpUserDirectory/index.ts` 的 `AGENTS_MCP_DESCRIPTOR`），作为同 scope 的 fallback（该 scope 的 `.zcode` 无 MCP server 时才读，key 用顶层 `mcpServers`），并喂给运行会话。技能面向客户端，故按客户端行为书写。项目级 MCP 默认 **untrusted**，不自动连接，需 `/mcp connect`。MCP 覆盖顺序 `cli > env > user > project > system`（user 盖 project）。
+- **用户主配置是 `~/.secretariat/cli/config.json`**（不是 `~/.secretariat/config.json`）。项目配置 `<repo>/.secretariat/config.json` 或 `<repo>/zcode.json`。
+- **MCP `.agents/mcp.json` 差异（CLI vs 客户端）**：`apps/zcode-cli` CLI 运行时不读 `.agents/mcp.json`；但**桌面客户端会读**（`packages/desktop/src/main/mcpUserDirectory/index.ts` 的 `AGENTS_MCP_DESCRIPTOR`），作为同 scope 的 fallback（该 scope 的 `.secretariat` 无 MCP server 时才读，key 用顶层 `mcpServers`），并喂给运行会话。技能面向客户端，故按客户端行为书写。项目级 MCP 默认 **untrusted**，不自动连接，需 `/mcp connect`。MCP 覆盖顺序 `cli > env > user > project > system`（user 盖 project）。
 - **MCP 无 headless 子命令**：`/mcp`、`/mcp connect` 是 TUI 交互命令；无 `--json`。最接近的结构化视图是 `zcode plugins list --json`（仅列插件 MCP 名，无连接状态）。
-- **skills/commands 发现顺序**：explicit → user `.zcode` → user `.agents` → project `.zcode`（cwd 上溯到 git 根）→ project `.agents` → 已启用插件。skills 按**路径**为身份、load 时**首个同名先赢**；commands 按**规范化命令名**去重、**先到先赢**并把 loser 记为 `custom_command_duplicate_name`。
+- **skills/commands 发现顺序**：explicit → user `.secretariat` → user `.agents` → project `.secretariat`（cwd 上溯到 git 根）→ project `.agents` → 已启用插件。skills 按**路径**为身份、load 时**首个同名先赢**；commands 按**规范化命令名**去重、**先到先赢**并把 loser 记为 `custom_command_duplicate_name`。
 - **嵌套命令名用 `:` 连接**：`review/code.md` → `/review:code`（不是 `/review/code`）。命令名正则 `^[a-z0-9][a-z0-9_:-]{0,63}$`。
 - **诊断默认隐藏**：`zcode commands|skills|plugins list` 人类模式需加 `--verbose` 才打印 diagnostics；`--json` 恒包含。
 - **hooks 信任门已移除**（commit bfde6ff44）：`canRunPluginHooks` 现恒 `true`，三方插件 hook **也会执行**。旧“仅官方执行/三方仅诊断”说法已过时；`marketplace.ts` 仍残留一条误导性 `plugin_unsupported_component` 警告。配置文件 hooks 需显式 `hooks.enabled=true`；有任一插件 hook 时运行器被强制启用。
 - **hooks 事件名**（精确 7 个）：`SessionStart`、`UserPromptSubmit`、`PreToolUse`、`PermissionRequest`、`PostToolUse`、`PostToolUseFailure`、`Stop`。`matcher` 是**大小写敏感正则**，对工具事件匹配工具名（含别名 `Task→Agent`、`Write|Edit→ApplyPatch`）。`command` 的 `timeout` 单位为**秒**，`process` 的 `timeoutMs` 为**毫秒**；`async` 字段目前是运行时 no-op。
-- **git 代理只认 `ZCODE_HTTP_PROXY`**（不认裸 `http_proxy`）——marketplace clone 失败时先查这个。
-- 停用/禁用状态持久化在 `~/.zcode/cli/config.json` 的 `plugins.enabledPlugins[id]`；内置“卸载”写 `plugins.suppressedBuiltins`；按路径禁用 skill/command 用 `skill["/abs/SKILL.md"].enable=false`。
+- **git 代理只认 `SECRETARIAT_HTTP_PROXY`**（不认裸 `http_proxy`）——marketplace clone 失败时先查这个。
+- 停用/禁用状态持久化在 `~/.secretariat/cli/config.json` 的 `plugins.enabledPlugins[id]`；内置“卸载”写 `plugins.suppressedBuiltins`；按路径禁用 skill/command 用 `skill["/abs/SKILL.md"].enable=false`。
 
 ## 验收
 

@@ -18,7 +18,7 @@ CLI 命令解析 ── JSONL control contract ──> Supervisor
 - Supervisor 测试使用可控 fake Core process，并补真实 `fork()` spawn error 进程测试，验证 ready、heartbeat、shutdown-ack、异常退出、重启退避、回滚和 crash-loop 熔断；并发生命周期写操作只能有一个 owner，SIGKILL 后无终态进入 `stop-failed` 且不得释放锁或启动替代 Core，旧 child/generation 的消息不得污染当前状态。
 - Core HTTP/WS 合同测试验证回环动态端口、`/api/server-info`、Web replayable `/ws`、capability-gated desktop continuous `/ws/host`，并检查 `clientMode` 不串线。
 - 平台测试不调用真实系统服务管理器：检查 macOS launchd、Linux systemd user、Windows Task Scheduler descriptor 的稳定字段和命令参数。
-- update/uninstall 测试只允许删除带有效 `install.json` ownership 的 server root 内 ZCode allowlist，明确保留 root 内未知文件、workspace、git repo 和其他用户文件；无 ownership 时必须拒绝。
+- update/uninstall 测试只允许删除带有效 `install.json` ownership 的 server root 内 Secretariat allowlist，明确保留 root 内未知文件、workspace、git repo 和其他用户文件；无 ownership 时必须拒绝。
 
 ## 用例映射
 

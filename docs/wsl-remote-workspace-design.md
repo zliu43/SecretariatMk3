@@ -2,7 +2,7 @@
 
 ## 背景
 
-当前 ZCode 支持 SSH 和 Docker 远程连接。本文档记录 WSL（Windows Subsystem for Linux）支持的实现方案。
+当前 Secretariat 支持 SSH 和 Docker 远程连接。本文档记录 WSL（Windows Subsystem for Linux）支持的实现方案。
 
 ## 实现状态
 
@@ -24,7 +24,7 @@
 | 连接方式 | TCP 网络协议，ssh2 库 | 本地子进程，wsl.exe |
 | 认证 | 密码/私钥/SSH Agent | Windows 用户身份（无需认证） |
 | 文件系统 | SFTP / exec pipe | Windows 路径映射 `\\wsl$\Distro` |
-| 部署路径 | 远程 `~/.zcode/server` | WSL 路径 `/home/user/.zcode/server` |
+| 部署路径 | 远程 `~/.secretariat/server` | WSL 路径 `/home/user/.secretariat/server` |
 
 ## 当前释放生命周期
 
@@ -52,7 +52,7 @@ attachment 断开都不直接销毁 Host。
 ```
 
 释放过程禁止调用 `wsl --terminate` 或 `wsl --shutdown`。WSL distro 可能仍显示 Running，这是发行版级
-运行状态，不代表 ZCode 的 Host、`wsl.exe` 或远端 `zcode-server` 仍被持有。任何 fallback 只能作用于
+运行状态，不代表 Secretariat 的 Host、`wsl.exe` 或远端 `zcode-server` 仍被持有。任何 fallback 只能作用于
 当前 backend 明确 spawn 的子进程，不能按进程名扫描或终止用户在同一 distro 中的其他任务。
 
 Main 的 Remote Host 集合包含 WSL/SSH shared Host、Docker/Server dedicated Host 和 Bot remote runtime。
@@ -216,7 +216,7 @@ export function createRemoteBackend(options: RemoteConnectOptions): IRemoteBacke
 ### 1. WSL 路径转换
 
 WSL 有两种访问方式：
-- WSL 内部路径：`/home/user/.zcode`
+- WSL 内部路径：`/home/user/.secretariat`
 - Windows 访问 WSL：`\\wsl$\Ubuntu\home\user\.zcode`
 
 但为了保持与 SSH 的一致性，建议使用 WSL 内部路径。
@@ -232,10 +232,10 @@ WSL 有两种访问方式：
 与 SSH 完全相同：
 ```bash
 # SSH
-ssh user@host "ZCODE_SERVER_RUNTIME_ROOT=~/.zcode/server ~/.zcode/server/node ..."
+ssh user@host "SECRETARIAT_SERVER_RUNTIME_ROOT=~/.secretariat/server ~/.secretariat/server/node ..."
 
 # WSL
-wsl.exe --exec bash -c "ZCODE_SERVER_RUNTIME_ROOT=~/.zcode/server ~/.zcode/server/node ..."
+wsl.exe --exec bash -c "SECRETARIAT_SERVER_RUNTIME_ROOT=~/.secretariat/server ~/.secretariat/server/node ..."
 ```
 
 ### 4. 检测可用 WSL 分发版

@@ -15,14 +15,14 @@ import {
 } from "../src/auth/index.js";
 
 const TEST_ENV = {
-  ZCODE_CREDENTIAL_SECRET: "test-secret",
+  SECRETARIAT_CREDENTIAL_SECRET: "test-secret",
 };
 
 afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe("shared ZCode credentials", () => {
+describe("shared Secretariat credentials", () => {
   it("stores ZAI login credentials with z-code compatible encrypted keys", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-auth-"));
 
@@ -43,7 +43,7 @@ describe("shared ZCode credentials", () => {
       });
 
       const raw = JSON.parse(await readFile(store.filePath, "utf-8")) as Record<string, string>;
-      expect(store.filePath).toBe(join(dir, ".zcode", "v2", "credentials.json"));
+      expect(store.filePath).toBe(join(dir, ".secretariat", "v2", "credentials.json"));
       expect(raw[SHARED_ZCODE_CREDENTIAL_KEYS.zaiAccessToken]?.startsWith("enc:v1:")).toBe(true);
       expect(await store.load(SHARED_ZCODE_CREDENTIAL_KEYS.activeProvider)).toBe("zai");
       expect(await store.load(SHARED_ZCODE_CREDENTIAL_KEYS.zaiAccessToken)).toBe(
@@ -63,7 +63,7 @@ describe("shared ZCode credentials", () => {
 
   it("reads legacy plaintext credential values", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-auth-"));
-    const credentialsDir = join(dir, ".zcode", "v2");
+    const credentialsDir = join(dir, ".secretariat", "v2");
     const credentialsPath = join(credentialsDir, "credentials.json");
 
     try {
@@ -192,11 +192,11 @@ describe("shared ZCode credentials", () => {
 
       await Promise.all(
         Array.from({ length: 8 }, () =>
-          expect(store.load("safe-key")).rejects.toThrow("Shared ZCode credentials are corrupt"),
+          expect(store.load("safe-key")).rejects.toThrow("Shared Secretariat credentials are corrupt"),
         ),
       );
       await expect(store.save("safe-key", "safe-value")).rejects.toThrow(
-        "Shared ZCode credentials are corrupt",
+        "Shared Secretariat credentials are corrupt",
       );
       await expect(readFile(credentialsPath, "utf-8")).resolves.toBe("{not-json");
       const backups = (await readdir(dir)).filter((file) =>
@@ -549,8 +549,8 @@ describe("Coding Plan API key resolver", () => {
     });
   });
 
-  it("uses bigmodel.cn for BigModel API key resolution when ZCODE_ENV=test", async () => {
-    vi.stubEnv("ZCODE_ENV", "test");
+  it("uses bigmodel.cn for BigModel API key resolution when SECRETARIAT_ENV=test", async () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
     const httpClient = new FakeHttpClient([
       customerInfoResponse(),
       jsonResponse({
@@ -618,8 +618,8 @@ describe("BigModel OAuth client", () => {
     );
   });
 
-  it("uses bigmodel.cn for authorize URL when ZCODE_ENV=test", () => {
-    vi.stubEnv("ZCODE_ENV", "test");
+  it("uses bigmodel.cn for authorize URL when SECRETARIAT_ENV=test", () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
     const httpClient = new FakeHttpClient([]);
     const client = createBigmodelOAuthClient({
       appSecret: "test-secret",
@@ -634,8 +634,8 @@ describe("BigModel OAuth client", () => {
     expect(authorizeUrl).toContain("https://bigmodel.cn/login?");
   });
 
-  it("uses bigmodel.cn for token exchange when ZCODE_ENV=test", async () => {
-    vi.stubEnv("ZCODE_ENV", "test");
+  it("uses bigmodel.cn for token exchange when SECRETARIAT_ENV=test", async () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
     const httpClient = new FakeHttpClient([
       jsonResponse({
         data: {

@@ -2,7 +2,7 @@
 
 ## 背景
 
-Kimi K3 已进入 Moonshot 官方模型列表。首发时官方 API 文档只开放 `max`，因此 ZCode 最初把它建模为单一固定档位；最新 Kimi Code 模型文档已经开放 `low` / `high` / `max` 三档，旧策略会让用户无法选择新档位。
+Kimi K3 已进入 Moonshot 官方模型列表。首发时官方 API 文档只开放 `max`，因此 Secretariat 最初把它建模为单一固定档位；最新 Kimi Code 模型文档已经开放 `low` / `high` / `max` 三档，旧策略会让用户无法选择新档位。
 
 2026-07-28 产品模型名调整：
 
@@ -17,7 +17,7 @@ Kimi K3 已进入 Moonshot 官方模型列表。首发时官方 API 文档只开
 - `k3` 与 `kimi-k3` 都使用 `1,048,576` tokens 上下文；
 - `k3-256k` 的上下文窗口固定为 `262,144` tokens，其余能力与 `kimi-k3` 一致；
 - 默认输出上限为 `131,072` tokens；
-- K3 支持 `"low"` / `"high"` / `"max"` 三档；ZCode 保持既有 `"max"` 默认值；
+- K3 支持 `"low"` / `"high"` / `"max"` 三档；Secretariat 保持既有 `"max"` 默认值；
 - 未知 effort 会返回 HTTP 400；`none` 会关闭 K3 路由并降级到其他模型，因此不作为 K3 档位暴露；
 - K3 不能沿用 K2.x 的 `thinking` 开关参数。
 - Kimi Code 的 OpenAI-compatible 与 Anthropic-compatible endpoint 都支持 K3 三档。
@@ -124,7 +124,7 @@ provider wire: $defs={zcode_ref_0: ...}, $ref="#/$defs/zcode_ref_0"
 | --------------------------- | ----------------------- | ---------------------------------------- | ----------------------- | ---------------------- | ----------------------- | ----------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------- |
 | 对话模型选择                | V4 composer             | provider registry / model option builder | session 或 draft config | App provider config    | registry 中存在且未禁用 | `switchModelConfig` 或 draft config | Agent runtime / workspace default                        | desktop continuous 与 web remote shared host 共用 registry | 自动化、Subagent、Repo Wiki 草稿 |
 | 自动化、Subagent、Repo Wiki | 各自模型选择器          | 同一 provider registry                   | 各入口本地草稿          | 各入口既有继承规则     | registry 中存在且未禁用 | 各自 service                        | automation record / agent Markdown / generation settings | 不新增平台分支                                             | 当前对话模型                     |
-| 供应商设置                  | Model Provider settings | model provider service                   | provider 编辑草稿       | China LLM catalog      | catalog schema          | provider save                       | `~/.zcode/v2/config.json`                                | 远程 workspace 仍由既有 registry sync                      | session/task 业务状态            |
+| 供应商设置                  | Model Provider settings | model provider service                   | provider 编辑草稿       | China LLM catalog      | catalog schema          | provider save                       | `~/.secretariat/v2/config.json`                                | 远程 workspace 仍由既有 registry sync                      | session/task 业务状态            |
 
 ### Shared And Divergent Behavior
 

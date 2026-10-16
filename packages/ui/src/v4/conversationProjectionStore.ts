@@ -48,7 +48,7 @@ export const ACCEPTED_INPUT_PROJECTION_GRACE_MS = 2_000;
 const ACCEPTED_INPUT_COMMAND_TYPES = new Set(["sendText"]);
 
 /** 退避耗尽时展示给用户的 lastError（无底层 error 对象可引用的换代路径）。 */
-const RUNTIME_RECYCLED_ERROR = "ZCode agent runtime 已被回收，重连未成功";
+const RUNTIME_RECYCLED_ERROR = "Secretariat agent runtime 已被回收，重连未成功";
 
 function monotonicNow(): number {
   return typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -70,10 +70,10 @@ function isRuntimeRecycleError(error: unknown): boolean {
   return (
     // 冷订阅可能亲自拉起新 runtime；restart 令在途 ACK 失效后仍须有界重订，不能停在 error。
     message.includes("fault.subscription.runtimeRestarted") ||
-    message.includes("ZCode agent transport closed") ||
-    message.includes("ZCode Protocol client disposed") ||
-    message.includes("ZCode Protocol client is disposed") ||
-    message.includes("ZCode Agent runtime is not running")
+    message.includes("Secretariat agent transport closed") ||
+    message.includes("Secretariat Protocol client disposed") ||
+    message.includes("Secretariat Protocol client is disposed") ||
+    message.includes("Secretariat Agent runtime is not running")
   );
 }
 

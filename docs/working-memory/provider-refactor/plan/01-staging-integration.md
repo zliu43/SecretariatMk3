@@ -26,7 +26,7 @@
 合并后必须继续满足：
 
 1. Host 到 Worker 只同步 Account Provider Config，不恢复完整 Local Provider Registry 同步。
-2. Provider/Model 静态事实只来自 ZCode Built-in Config、Account Provider Config、Personal Provider Config、Built-in Model Config Rules 和 Personal Model Config Rules。
+2. Provider/Model 静态事实只来自 Secretariat Built-in Config、Account Provider Config、Personal Provider Config、Built-in Model Config Rules 和 Personal Model Config Rules。
 3. Core 只通过 ModelFactory/Model 执行模型，不恢复 Model Connection Port、ModelRef、AI SDK 执行 Registry 或 Runtime capability map。
 4. 不按具体 modelId 或 Provider 类型在生产代码中推断 reasoning、输入输出格式或其他模型静态能力。
 5. staging 的产品行为、协议演进和 telemetry 应保留，但不得以恢复已退役 Provider 依赖为代价。

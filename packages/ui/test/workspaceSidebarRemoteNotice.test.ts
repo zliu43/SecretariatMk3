@@ -134,7 +134,7 @@ vi.mock("@/i18n/IntlProvider.js", () => ({
           "workspaceSidebar.sshConnectionHost": "Host",
           "workspaceSidebar.sshConnectionPath": "Path",
           "workspaceSidebar.unavailableLocalDirectory":
-            "工作区目录不存在或无法访问，当前仅可查看历史记录。恢复该目录后重启 ZCode 即可继续使用。",
+            "工作区目录不存在或无法访问，当前仅可查看历史记录。恢复该目录后重启 Secretariat 即可继续使用。",
           "settings.skills.remoteSync.open": "同步 Skill",
           "settings.mcp.remoteSync.open": "同步 MCP",
           "taskList.newThread": "新建任务",
@@ -362,7 +362,7 @@ describe("WorkspaceSidebarItem remote notice", () => {
     expect(html).toContain('data-icon="circle-alert"');
     expect(html).toContain("size-3.5 text-destructive");
     expect(html).toContain(
-      "工作区目录不存在或无法访问，当前仅可查看历史记录。恢复该目录后重启 ZCode 即可继续使用。",
+      "工作区目录不存在或无法访问，当前仅可查看历史记录。恢复该目录后重启 Secretariat 即可继续使用。",
     );
     expect(html).toContain('data-icon="list-tree"');
     expect(html).toContain('disabled=""');

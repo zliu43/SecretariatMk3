@@ -46,7 +46,7 @@ console.error(prefix, message, context/Error)
 
 ## 依赖补丁安装约束
 
-仓库使用 `node-linker=hoisted`，当前 ZCode 补丁固定基于 `@arms/rum-electron@0.0.3`。修改补丁时
+仓库使用 `node-linker=hoisted`，当前 Secretariat 补丁固定基于 `@arms/rum-electron@0.0.3`。修改补丁时
 必须从该版本的原始 `dist/index.mjs` 一次性重新生成完整 unified diff，禁止直接向现有 patch
 追加 hunk；否则后续 hunk 的目标行号和目标 blob hash 会与完整结果不一致，pnpm 10 第二次
 `pnpm install` 会对已 patch 文件再次应用补丁并报 `ERR_PNPM_PATCH_FAILED`。补丁变更后必须校验
@@ -56,8 +56,8 @@ patch 头的目标 blob 与安装产物一致，并验证同一工作区连续�
 
 | 项                         | 位置 / 值                                                                                                            |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Endpoint                   | `ZCODE_ARMS_RUM_ENDPOINT`（`packages/shared/src/env.ts`）                                                            |
-| 上报环境                   | `mapZCodeEnvToArmsRumEnv(runtimeEnv)`：本地开发运行态始终为 `local`；非本地运行态仅 `ZCODE_ENV=production` 为 `prod` |
+| Endpoint                   | `SECRETARIAT_ARMS_RUM_ENDPOINT`（`packages/shared/src/env.ts`）                                                            |
+| 上报环境                   | `mapZCodeEnvToArmsRumEnv(runtimeEnv)`：本地开发运行态始终为 `local`；非本地运行态仅 `SECRETARIAT_ENV=production` 为 `prod` |
 | `sessionConfig.sampleRate` | `1`（100% 会话采样）                                                                                                 |
 | `autoInject`               | `true`（SDK 在 `dom-ready` 注入 Browser SDK；勿再 preload/renderer 手动 init）                                       |
 | `browserCollectors`        | `perf/webvitals/exception/whiteScreen/api/staticResource/click/longTask: true`（见 `ARMS_BROWSER_COLLECTORS`）       |
@@ -65,7 +65,7 @@ patch 头的目标 blob 与安装产物一致，并验证同一工作区连续�
 | `parseViewName`            | `file://` 取 html 文件名；http dev-server 取 pathname                                                                |
 | `tracing`                  | `arms_env=prod` 时 `enable: true`、`sample: 0.1`（0.1%）；`arms_env=local` 时 `sample: 1`                            |
 
-无 `ZCODE_ARMS_*` 环境变量。
+无 `SECRETARIAT_ARMS_*` 环境变量。
 
 ## longTask 归因摘要
 
@@ -91,7 +91,7 @@ URL。`appARMSBootstrap.beforeReport` 是这些事件离开本机前的唯一收
 ### `click`
 
 Browser SDK 的 `name` 形如 `click on <type-><tag>: <innerText 前 20 字符>...`，
-`snapshots` 为 `{id,name,className,href,src}` 的 JSON。ZCode 的可点击文本包含会话标题、
+`snapshots` 为 `{id,name,className,href,src}` 的 JSON。Secretariat 的可点击文本包含会话标题、
 工作区目录名、文件名、消息正文和账号邮箱，因此：
 
 - `name` 只保留 `click on <type-><tag>`，截掉 `: ` 之后的元素文本。

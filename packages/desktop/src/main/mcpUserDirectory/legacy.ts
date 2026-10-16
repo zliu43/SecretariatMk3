@@ -206,10 +206,10 @@ function buildLegacyCommonMcpStorageCandidates(request?: MigrateLegacyCommonMcpR
 
   candidates.push(
     join(localAppData, "ai.z.work", "EBWebView", "Default", "Local Storage", "leveldb"),
-    join(appData, "ZCode", "Local Storage", "leveldb"),
-    join(appData, "ZCode", "Partitions", "zcode-embedded-browser", "Local Storage", "leveldb"),
-    join(appData, "ZCode Dev", "Local Storage", "leveldb"),
-    join(appData, "ZCode Dev", "Partitions", "zcode-embedded-browser", "Local Storage", "leveldb"),
+    join(appData, "Secretariat", "Local Storage", "leveldb"),
+    join(appData, "Secretariat", "Partitions", "zcode-embedded-browser", "Local Storage", "leveldb"),
+    join(appData, "Secretariat Dev", "Local Storage", "leveldb"),
+    join(appData, "Secretariat Dev", "Partitions", "zcode-embedded-browser", "Local Storage", "leveldb"),
   );
 
   return Array.from(new Set(candidates));

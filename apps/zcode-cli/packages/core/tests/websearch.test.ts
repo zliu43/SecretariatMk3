@@ -301,7 +301,7 @@ describe("provider-visible WebSearch wrapper", () => {
       },
     );
 
-    await runtime.executeTurn("Search current ZCode info");
+    await runtime.executeTurn("Search current Secretariat info");
 
     const innerRequest = requests.find(
       ({ observation }) =>
@@ -444,7 +444,7 @@ describe("provider-visible WebSearch wrapper", () => {
       },
     );
 
-    await runtime.executeTurn("Search current ZCode info");
+    await runtime.executeTurn("Search current Secretariat info");
 
     const innerRequest = requests.find(
       ({ observation }) =>

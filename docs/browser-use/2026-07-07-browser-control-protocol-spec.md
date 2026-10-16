@@ -2,7 +2,7 @@
 
 > 状态：已实现。
 > 上位：`2026-07-07-browser-use-cdp-node-repl-spec.md`。
-> 范围：定义跨 agent/协议/main 三处同源的 `BrowserCommand` 契约、agent 侧 `BrowserControlPort` 端口、以及 ZCode Protocol 的 `interaction/browserExecute` 方法。纯契约层，不含实现（broker/桥/CDP 在 T4/T5）。
+> 范围：定义跨 agent/协议/main 三处同源的 `BrowserCommand` 契约、agent 侧 `BrowserControlPort` 端口、以及 Secretariat Protocol 的 `interaction/browserExecute` 方法。纯契约层，不含实现（broker/桥/CDP 在 T4/T5）。
 
 ## 1. 关键事实：@zcode/shared 单一来源
 

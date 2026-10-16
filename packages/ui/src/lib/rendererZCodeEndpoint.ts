@@ -1,6 +1,6 @@
 import {
   buildRuntimeZCodeEndpointUrls,
-  ZCODE_ENV,
+  SECRETARIAT_ENV,
   type RuntimeZCodeEndpointEnv,
 } from "@zcode/shared";
 
@@ -18,11 +18,11 @@ export function createRendererZCodeEndpointEnv(
   env: RendererImportMetaEnv = readRendererImportMetaEnv(),
 ): RuntimeZCodeEndpointEnv {
   return {
-    ZCODE_ENV,
-    // UI 侧的 zcode-plan 占位 provider 以前只看 ZCODE_ENV，
+    SECRETARIAT_ENV,
+    // UI 侧的 zcode-plan 占位 provider 以前只看 SECRETARIAT_ENV，
     // 没有消费 Vite 注入的 base url，导致自定义测试域名时 renderer 和 host/service 可能不一致。
-    ZCODE_BASE_URL: env.VITE_ZCODE_BASE_URL,
-    ZCODE_ENDPOINT_ORIGIN: env.VITE_ZCODE_ENDPOINT_ORIGIN,
+    SECRETARIAT_BASE_URL: env.VITE_ZCODE_BASE_URL,
+    SECRETARIAT_ENDPOINT_ORIGIN: env.VITE_ZCODE_ENDPOINT_ORIGIN,
   };
 }
 

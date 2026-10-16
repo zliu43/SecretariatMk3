@@ -77,11 +77,11 @@ TUI 落地规划见 [AskUserQuestion TUI 规划](../tui-ask-user-question.md)。
 - `isConcurrencySafe: true`
 - `requiresUserInteraction: true`
 
-ZCode 应把 `requiresUserInteraction` 作为调度层一等能力：非交互 session、远程 channel 或后台 agent 不能直接卡住等待 TUI。
+Secretariat 应把 `requiresUserInteraction` 作为调度层一等能力：非交互 session、远程 channel 或后台 agent 不能直接卡住等待 TUI。
 
 ## Prompt 约束
 
-ZCode 为 `AskUserQuestion` 提供完整的 tool prompt 语义，而不是只给模型一行
+Secretariat 为 `AskUserQuestion` 提供完整的 tool prompt 语义，而不是只给模型一行
 短描述。provider-visible tool description 应由短 `description` 加 `modelInstructions`
 组成，投影后至少表达：
 
@@ -103,7 +103,7 @@ ZCode 为 `AskUserQuestion` 提供完整的 tool prompt 语义，而不是只给
 - 不应用它问计划是否可以执行，计划审批应该走专用 plan approval 工具。
 - 不要在用户还看不到计划时引用「这个计划」。
 
-ZCode 应把 plan approval 和 clarification 分开，避免 AskUserQuestion 被滥用成通用确认按钮。
+Secretariat 应把 plan approval 和 clarification 分开，避免 AskUserQuestion 被滥用成通用确认按钮。
 
 ## Preview 约束
 
@@ -147,7 +147,7 @@ HTML / doctype / comment 形态时，runtime schema 要求它必须是 HTML frag
 - 用户拒绝时需要产生明确的 rejected projection。
 - 当远程 channel 模式启用且用户不在 TUI 时禁用该 tool，防止无人响应导致会话挂起。
 
-ZCode 应将它实现为 `UserInteractionPort`：
+Secretariat 应将它实现为 `UserInteractionPort`：
 
 - 支持 TUI、SDK、远程 channel 三种交互承载。
 - pending prompt 必须是 session 状态，可恢复、可取消、可审计。
@@ -169,7 +169,7 @@ ZCode 应将它实现为 `UserInteractionPort`：
 
 这些应区分为 schema error、preview validation error、interaction unavailable、user rejected、prompt cancelled。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 `AskUserQuestion` 是 NL-to-code 过程里的「需求澄清」接口。它不应该只是一个权限弹窗：
 
@@ -192,7 +192,7 @@ ZCode 应将它实现为 `UserInteractionPort`：
   工具执行；当前仍通过 permission broker 的 `modify` result 回填答案。
 - TUI 层已支持单选、多选、自动 Other 自定义文本、拒绝、取消、纯文本 preview、
   preview annotation 回填、多问题 review tab 和 composer draft 保留。
-- ZCode app-server 层已通过 `zcode.dev/elicitation/create` 扩展承载 `AskUserQuestion`，并把
+- Secretariat app-server 层已通过 `zcode.dev/elicitation/create` 扩展承载 `AskUserQuestion`，并把
   elicitation response 转成 `modifiedInput.answers` / `annotations`。
 - tool handler 只接受权限组件已经回填 `answers` 字段的输入；字段缺失时返回结构化可恢复
   tool execution failure。`answers` 可以是完整、部分或空对象，未回答问题不伪造偏好。

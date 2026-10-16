@@ -52,7 +52,7 @@ interface WSLBackendOptions {
 
 ```typescript
 // Linux 路径 → Windows UNC 路径
-// ~/.zcode/server/node → \\wsl$\Ubuntu\home\user\.zcode\server\node
+// ~/.secretariat/server/node → \\wsl$\Ubuntu\home\user\.zcode\server\node
 function wslToWindowsPath(linuxPath: string, distro: string): string
 ```
 
@@ -211,7 +211,7 @@ async function setupWSLConnection(
 async function createWSLWindow(options: WSLConnectOptions) {
   // 与 createRemoteWindow 结构相同
   // 区别：
-  // 1. 窗口标题: `ZCode - WSL (${options.distro ?? "default"})`
+  // 1. 窗口标题: `Secretariat - WSL (${options.distro ?? "default"})`
   // 2. 发送 InitWSL 消息而非 InitRemote
   // 3. remoteAssets 解析逻辑相同
 }

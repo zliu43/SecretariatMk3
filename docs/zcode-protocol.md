@@ -1,6 +1,6 @@
-# ZCode Protocol（当前事实）
+# Secretariat Protocol（当前事实）
 
-ZCode Protocol 是 App、Host Process 与 `zcode-cli` 之间唯一的 Agent 协议。当前聊天主链路使用 V4 conversation topic、权威 projection 与 command inbox；`packages/shared/src/zcode-protocol/index.ts` 中仍保留的旧 session schema 只服务尚未删除的兼容调用，不是新增功能入口。
+Secretariat Protocol 是 App、Host Process 与 `zcode-cli` 之间唯一的 Agent 协议。当前聊天主链路使用 V4 conversation topic、权威 projection 与 command inbox；`packages/shared/src/zcode-protocol/index.ts` 中仍保留的旧 session schema 只服务尚未删除的兼容调用，不是新增功能入口。
 
 ## 核心约束
 

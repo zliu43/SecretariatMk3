@@ -4,7 +4,7 @@ import type { AppSettings } from "./protocol.js";
 import { REMOTE_ASSET_INSTALL_MODES } from "./remoteAssetInstallMode.js";
 import { isKnownRemoteResourcePackageId } from "./remoteResourcePackages.js";
 import { wslUserSchema } from "./wslUserValidation.js";
-import { ZCODE_ENABLED_AGENT_PROVIDERS } from "./zcode-agent-policy.js";
+import { SECRETARIAT_ENABLED_AGENT_PROVIDERS } from "./zcode-agent-policy.js";
 import { DYNAMIC_WORKFLOW_MODES } from "./dynamic-workflow-feature.js";
 import { normalizeZCodeEndpointOrigin } from "./zcodeEndpoint.js";
 import {
@@ -60,9 +60,9 @@ export const integratedTerminalShellSelectionSchema = z.discriminatedUnion("mode
   }),
 ]);
 const enabledBuiltinAgentCliProvidersSchema = z
-  // 兼容旧 settings：历史列表可能残留三方 CLI provider，解析后统一归一为 ZCode Agent。
+  // 兼容旧 settings：历史列表可能残留三方 CLI provider，解析后统一归一为 Secretariat Agent。
   .array(z.enum(["claude", "opencode", "gemini", "codex", "glm"]))
-  .transform(() => [...ZCODE_ENABLED_AGENT_PROVIDERS]);
+  .transform(() => [...SECRETARIAT_ENABLED_AGENT_PROVIDERS]);
 const providerFamilyDomainSchema = z.enum(["zai", "bigmodel"]);
 
 export const postUpdateReleaseNotesPayloadSchema = z.object({
@@ -292,12 +292,12 @@ function migrateLegacyBuiltinAgentCliProviders(value: unknown): unknown {
     enabledBuiltinAgentCliProviders?: unknown;
   };
 
-  // Bugfix: 单 ZCode Agent 迁移后，旧 setting.json 可能还保存已移除的第三方 CLI provider
+  // Bugfix: 单 Secretariat Agent 迁移后，旧 setting.json 可能还保存已移除的第三方 CLI provider
   // 的启用状态。若这些值继续进入 UI / bot 的 provider 选项，会和 server 侧唯一 glm 状态打架。
-  // 这里在 schema 入口统一归一到 ZCode Agent，让核心 provider 状态只有一个事实源。
+  // 这里在 schema 入口统一归一到 Secretariat Agent，让核心 provider 状态只有一个事实源。
   return {
     ...raw,
-    enabledBuiltinAgentCliProviders: [...ZCODE_ENABLED_AGENT_PROVIDERS],
+    enabledBuiltinAgentCliProviders: [...SECRETARIAT_ENABLED_AGENT_PROVIDERS],
   };
 }
 
@@ -500,7 +500,7 @@ const appSettingsObjectSchema = z.object({
   modelIoFullRetentionEnabled: z.boolean().default(false),
   dynamicWorkflowMode: dynamicWorkflowModeSettingSchema,
   enabledBuiltinAgentCliProviders: enabledBuiltinAgentCliProvidersSchema.default([
-    ...ZCODE_ENABLED_AGENT_PROVIDERS,
+    ...SECRETARIAT_ENABLED_AGENT_PROVIDERS,
   ]),
   startPlanRecommendationDismissed: z.boolean().default(false),
   providerFamilyConnectionSelections: providerFamilyConnectionSelectionSettingsSchema.default({}),

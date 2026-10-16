@@ -436,10 +436,10 @@ describe("TaskListItem hover action rendering", () => {
           onTogglePinTask: vi.fn(),
           task: {
             ...createTask(),
-            workspacePath: "/Users/demo/.zcode/workspace/default",
+            workspacePath: "/Users/demo/.secretariat/workspace/default",
           },
           variant: "default",
-          workspacePath: "/Users/demo/.zcode/workspace/default",
+          workspacePath: "/Users/demo/.secretariat/workspace/default",
         }),
       );
     });

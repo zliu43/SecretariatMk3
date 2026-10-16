@@ -136,7 +136,7 @@ export const BIGMODEL_OAUTH_CONFIG = {
   userinfoUrl: "https://bigmodel.cn/api/oauth/userinfo",
   /** 待确认：应用 ID */
   appId: "zcode-bigmodel-app",
-  redirectUri: "zcode://bigmodel-auth/callback",
+  redirectUri: "secretariat://bigmodel-auth/callback",
 } as const;
 ```
 
@@ -261,7 +261,7 @@ export interface IOAuthService {
 
   /**
    * 处理 OAuth 回调：校验 state，用 code + code_verifier 换 token，存凭据
-   * @param url - 完整的 deep link URL (zcode://bigmodel-auth/callback?code=xxx&state=xxx)
+   * @param url - 完整的 deep link URL (secretariat://bigmodel-auth/callback?code=xxx&state=xxx)
    */
   handleCallback(url: string): Promise<UserInfo>;
 
@@ -777,7 +777,7 @@ git commit -m "feat(desktop): update preload bridge and globals.d.ts for OAuth; 
 // Custom Protocol 注册 + 单实例锁
 // ============================================================================
 
-// 注册 zcode:// 协议（必须在 ready 之前）
+// 注册 secretariat:// 协议（必须在 ready 之前）
 app.setAsDefaultProtocolClient("zcode");
 
 // macOS: deep link 通过 open-url 事件传递（必须在 ready 之前注册）
@@ -794,7 +794,7 @@ if (!gotTheLock) {
 
 // Windows/Linux: 第二个实例启动时，deep link 通过命令行参数传入
 app.on("second-instance", (_event, argv) => {
-  const url = argv.find((arg) => arg.startsWith("zcode://"));
+  const url = argv.find((arg) => arg.startsWith("secretariat://"));
   if (url) handleDeepLink(url);
 
   // 聚焦已有窗口
@@ -821,7 +821,7 @@ const oauthStateToWindow = new Map<string, number>();
 let pendingDeepLinkUrl: string | null = null;
 
 function handleDeepLink(url: string) {
-  if (!url.startsWith("zcode://bigmodel-auth/callback")) return;
+  if (!url.startsWith("secretariat://bigmodel-auth/callback")) return;
 
   let state: string | null = null;
   try {
@@ -910,7 +910,7 @@ function handleDeepLink(url: string) {
   createWindow();
 
   // Windows/Linux 冷启动：检查 process.argv 中的 deep link
-  const protocolUrl = process.argv.find((arg) => arg.startsWith("zcode://"));
+  const protocolUrl = process.argv.find((arg) => arg.startsWith("secretariat://"));
   if (protocolUrl) handleDeepLink(protocolUrl);
 ```
 

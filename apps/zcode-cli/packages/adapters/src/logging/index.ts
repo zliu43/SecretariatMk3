@@ -7,7 +7,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import type { LogContext, LogEntry, Logger, LoggerFactory, LogRedactor } from "@zcode/contracts";
 import { LogLevel, LogLevelName } from "@zcode/contracts";
-import { ZCODE_RUNTIME_ENV_KEY, normalizeZCodeRuntimeEnv } from "@zcode/shared";
+import { SECRETARIAT_RUNTIME_ENV_KEY, normalizeZCodeRuntimeEnv } from "@zcode/shared";
 import {
   formatLocalLogDate,
   scheduleLogRetentionCleanup as scheduleRetentionCleanup,
@@ -170,11 +170,11 @@ export class NodeFileLogger implements Logger {
 export function createNodeLoggerFactory(options: NodeLoggerFactoryOptions = {}): NodeLoggerFactory {
   let currentLevel = options.minLevel ?? getDefaultMinLevel(options.env);
   let retentionCleanupScheduled = false;
-  const logDir = options.logDir ?? options.env?.ZCODE_LOG_DIR ?? getDefaultLogDir();
+  const logDir = options.logDir ?? options.env?.SECRETARIAT_LOG_DIR ?? getDefaultLogDir();
   const consoleStream =
     typeof options.console === "object"
       ? options.console.stream
-      : options.console === true || options.env?.ZCODE_LOG_CONSOLE === "1"
+      : options.console === true || options.env?.SECRETARIAT_LOG_CONSOLE === "1"
         ? process.stderr
         : undefined;
   const redactor = options.redactor ?? new DefaultLogRedactor();
@@ -220,7 +220,7 @@ export function createNodeLoggerFactory(options: NodeLoggerFactoryOptions = {}):
 }
 
 export function getDefaultLogDir(): string {
-  return join(homedir(), ".zcode", "cli", "log");
+  return join(homedir(), ".secretariat", "cli", "log");
 }
 
 function getDefaultMinLevel(env: NodeJS.ProcessEnv | undefined): LogLevel {
@@ -228,7 +228,7 @@ function getDefaultMinLevel(env: NodeJS.ProcessEnv | undefined): LogLevel {
 }
 
 function isDevelopmentMode(env: NodeJS.ProcessEnv): boolean {
-  const runtimeEnv = normalizeZCodeRuntimeEnv(env[ZCODE_RUNTIME_ENV_KEY]);
+  const runtimeEnv = normalizeZCodeRuntimeEnv(env[SECRETARIAT_RUNTIME_ENV_KEY]);
   if (runtimeEnv === "development") return true;
   if (runtimeEnv === "production" || runtimeEnv === "test") return false;
 

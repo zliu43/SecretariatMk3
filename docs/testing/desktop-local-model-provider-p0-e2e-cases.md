@@ -1199,7 +1199,7 @@ queue、fork、重启、remote、主题或 locale 叉乘；I64 只跑 desktop lo
 
 用户在桌面端本地默认 workspace 中新增一个 case-local custom OpenRouter provider，模型 ID 固定为
 `nvidia/nemotron-3-ultra-550b-a55b:free`，随后从聊天工具栏按 provider 身份选择该模型并首次发送普通
-文本。`:` 是模型 ID 的一部分；只有 `$` 才能表达 ZCode configOptions variant 分隔语义。
+文本。`:` 是模型 ID 的一部分；只有 `$` 才能表达 Secretariat configOptions variant 分隔语义。
 
 ### 验证条目
 

@@ -1114,7 +1114,7 @@ Expected: exit non-zero with module-not-found for `scripts/windows-pointer-live-
 The script must:
 
 1. exit `2` unless `process.platform === "win32"`;
-2. exit `2` unless `ZCODE_CUA_WINDOWS_POINTER_LIVE === "1"`;
+2. exit `2` unless `SECRETARIAT_CUA_WINDOWS_POINTER_LIVE === "1"`;
 3. create a cryptographically random named pipe and bearer token;
 4. spawn `dist/windows-helper.js` with
    `--socket <pipe> --parent-pid <current pid>` and the token only in the
@@ -1160,9 +1160,9 @@ process.stdout.write(`${JSON.stringify(summary)}\n`);
 Run:
 
 ```powershell
-$env:ZCODE_CUA_WINDOWS_POINTER_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE='1'
 pnpm smoke:windows:pointer
-Remove-Item Env:ZCODE_CUA_WINDOWS_POINTER_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE
 ```
 
 Expected: exit `0`; JSON has `moveAccepted`, `observedWithinTolerance`,
@@ -1220,9 +1220,9 @@ Run:
 
 ```powershell
 cd C:\Users\dev\z-code
-$env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
+$env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
 pnpm exec vitest run packages/services/test/windowsCuaDevHelper.integration.test.ts
-Remove-Item Env:ZCODE_CUA_DEV_ROOT
+Remove-Item Env:SECRETARIAT_CUA_DEV_ROOT
 ```
 
 Expected: the real child, named pipe, health, `broker_info`, official plugin
@@ -1234,9 +1234,9 @@ Run:
 
 ```powershell
 cd C:\Users\dev\zcode-cua
-$env:ZCODE_CUA_WINDOWS_POINTER_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE='1'
 pnpm smoke:windows:pointer
-Remove-Item Env:ZCODE_CUA_WINDOWS_POINTER_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE
 ```
 
 Expected: JSON reports scoped move, zero-scroll dispatch, cursor restore,
@@ -1255,7 +1255,7 @@ pnpm build
 
 Expected: every command exits `0`.
 
-- [ ] **Step 5: Run focused ZCode CUA gates**
+- [ ] **Step 5: Run focused Secretariat CUA gates**
 
 Run:
 
@@ -1293,9 +1293,9 @@ In `docs/cua/windows-source-development.md`, add:
 cd C:\Users\dev\zcode-cua
 pnpm rebuild:native
 pnpm build
-$env:ZCODE_CUA_WINDOWS_POINTER_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE='1'
 pnpm smoke:windows:pointer
-Remove-Item Env:ZCODE_CUA_WINDOWS_POINTER_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE
 ```
 
 Document:

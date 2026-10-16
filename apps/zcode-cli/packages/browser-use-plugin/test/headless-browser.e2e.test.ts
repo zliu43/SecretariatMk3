@@ -18,7 +18,7 @@ import {
 } from "../../bootstrap/src/app/node-repl-browser-broker.js";
 import type { NodeReplMcpRuntime } from "@zcode/node-repl-host";
 
-const required = process.env.ZCODE_HEADLESS_BROWSER_E2E_REQUIRED === "1";
+const required = process.env.SECRETARIAT_HEADLESS_BROWSER_E2E_REQUIRED === "1";
 const executablePath = discoverBrowserExecutable();
 const realBrowserTest = executablePath || required ? it : it.skip;
 
@@ -68,7 +68,7 @@ realBrowserTest(
     });
     await broker.ready;
 
-    setEnv("ZCODE_PLUGIN_ROOT", pluginRoot);
+    setEnv("SECRETARIAT_PLUGIN_ROOT", pluginRoot);
     setEnv(NODE_REPL_BROWSER_BROKER_SOCKET_ENV, broker.socketPath);
     setEnv(NODE_REPL_BROWSER_BROKER_TOKEN_ENV, broker.token);
     setEnv("DISPLAY", undefined);
@@ -89,7 +89,7 @@ realBrowserTest(
           "if (globalThis.agent?.browsers == null) {",
           "  const { join } = await import('node:path');",
           "  const { pathToFileURL } = await import('node:url');",
-          "  const root = process.env.ZCODE_PLUGIN_ROOT;",
+          "  const root = process.env.SECRETARIAT_PLUGIN_ROOT;",
           "  if (!root) throw new Error('missing browser plugin root');",
           "  const clientUrl = pathToFileURL(join(root, 'scripts', 'browser-client.mjs')).href;",
           "  const { setupBrowserRuntime } = await import(clientUrl);",
@@ -110,7 +110,7 @@ realBrowserTest(
         code: [
           "const { join } = await import('node:path');",
           "const { pathToFileURL } = await import('node:url');",
-          "const root = process.env.ZCODE_PLUGIN_ROOT;",
+          "const root = process.env.SECRETARIAT_PLUGIN_ROOT;",
           "if (!root) throw new Error('missing browser plugin root');",
           "const clientUrl = pathToFileURL(join(root, 'scripts', 'browser-client.mjs')).href;",
           "const { setupBrowserRuntime } = await import(clientUrl);",
@@ -121,7 +121,7 @@ realBrowserTest(
           "await tab.setViewportSize({ width: 375, height: 667 });",
           "const before = await tab.playwright.domSnapshot();",
           "const nameInput = tab.playwright.getByLabel('Name');",
-          "await nameInput.fill('ZCode');",
+          "await nameInput.fill('Secretariat');",
           "await tab.playwright.getByRole('button', { name: 'Submit' }).click();",
           "({",
           "  beforeHasForm: before.includes('Name') && before.includes('Submit'),",
@@ -139,8 +139,8 @@ realBrowserTest(
     const output = textContent(interaction);
     expect(interaction.isError).not.toBe(true);
     expect(output).toContain('"beforeHasForm": true');
-    expect(output).toContain('"inputValue": "ZCode"');
-    expect(output).toContain('"status": "Submitted ZCode"');
+    expect(output).toContain('"inputValue": "Secretariat"');
+    expect(output).toContain('"status": "Submitted Secretariat"');
     expect(output).toMatch(/"viewport":\s*\{\s*"width": 375,\s*"height": 667/u);
     expect(output).toMatch(/"actualViewport":\s*\{\s*"width": 375,\s*"height": 667/u);
     expect(output).toMatch(/"tabs":\s*\[[\s\S]*"viewport":\s*\{\s*"width": 375,\s*"height": 667/u);
@@ -164,7 +164,7 @@ function discoverBrowserExecutable(): string | undefined {
   try {
     const resolved = resolveInstalledBrowserExecutable(
       { chromium },
-      { executablePath: process.env.ZCODE_HEADLESS_BROWSER_E2E_EXECUTABLE },
+      { executablePath: process.env.SECRETARIAT_HEADLESS_BROWSER_E2E_EXECUTABLE },
     );
     if (process.platform !== "win32") accessSync(resolved, constants.X_OK);
     return resolved;

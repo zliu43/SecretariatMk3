@@ -21,7 +21,7 @@
 
 1. **范围 = 全量对齐**，含 Phase 1（CLI provider 凭据解析）+ Phase 4b（连接方式切换）。
    不做这层，coding-plan 列表「点了不换」、选任意别的 provider 的模型都是摆设。
-2. **「记住上次选择」= 恢复老版全局语义**：ZCode-Agent 模型跨 workspace 全局记住，
+2. **「记住上次选择」= 恢复老版全局语义**：Secretariat-Agent 模型跨 workspace 全局记住，
    custom provider per-workspace；含 legacy 键迁移。
 3. **实施隔离**：在独立 worktree `z-code-m6-model`（分支 `m6-model-selection`，
    基于 feature/v4-vertical-slice 52fb19e61）改+提交+测，主目录另有并发 session，回头 cherry-pick/merge。
@@ -31,7 +31,7 @@
 ### A. 记住上次选择（持久化）— 真缺口
 | 能力 | 老版来源 | v4 现状 |
 |---|---|---|
-| last-model 持久化（全局键 `zcode-last-agent-model`，ZCode-Agent `__global__`、custom per-workspace） | `lib/zcodeModelPreference.ts:15,50,230,289` | ✗ 仅 workspace-default（per-workspace）`useDraftConfigControl.ts:221` |
+| last-model 持久化（全局键 `zcode-last-agent-model`，Secretariat-Agent `__global__`、custom per-workspace） | `lib/zcodeModelPreference.ts:15,50,230,289` | ✗ 仅 workspace-default（per-workspace）`useDraftConfigControl.ts:221` |
 | legacy 键迁移（workspace-scoped / path-only → global） | `zcodeModelPreference.ts:246-286` | ✗ |
 | thought-level 持久化 + GLM-5.2 default-max | `zcodeModelPreference.ts:16,327,505-553,571` | ✗ |
 | 启动作种子 + 对目录再校验 | `chat-input-toolbar/modelSelection.ts:609-660` | 部分：草稿回落 workspace-default `V4ComposerToolbar.tsx:146-150`，无全局种子/再校验 |
@@ -146,5 +146,5 @@ snapshot model identity 不变 -> setThoughtLevel(用户显式值) -> 成功发�
 - [~] **Phase 5 — polish**：manage-models、运行中锁已完成；模型触发器 identity/显示同源修复已完成，其他 polish 待收尾。
 
 ### 遗留/待跟踪
-- Phase 3 已覆盖：草稿选择/会话中途切→写全局；新草稿→种子回放（跨 workspace）。**e2e 待补**（切 workspace 后 ZCode-Agent 模型仍是上次全局选择），先补 case catalog + coverage matrix。
+- Phase 3 已覆盖：草稿选择/会话中途切→写全局；新草稿→种子回放（跨 workspace）。**e2e 待补**（切 workspace 后 Secretariat-Agent 模型仍是上次全局选择），先补 case catalog + coverage matrix。
 - Phase 4a 的 team-plan 豁免依赖 `useSettings` 的 `modelProviderFamilySelectedKeys`（存活配置面）；连接方式切换本身归 Phase 4b。

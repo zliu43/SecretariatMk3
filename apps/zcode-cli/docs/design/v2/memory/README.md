@@ -1,12 +1,12 @@
-# ZCode Memory 设计 v4
+# Secretariat Memory 设计 v4
 
 ## 1. 文档定位
 
-本文定义 ZCode CLI Memory 的目标行为，验收对象是 Anthropic Messages 请求（含
+本文定义 Secretariat CLI Memory 的目标行为，验收对象是 Anthropic Messages 请求（含
 `mid-conversation-system-2026-04-07` 分支）最终 provider request 中的 Memory 内容。
 
 Project Memory retrieval 有 `default-index` 与 `semantic-recall` 两种互斥行为，分支边界共三处：
-Main pointer、AutoMem index 过滤、Selector 启动。ZCode 保留两种互斥行为，并以 Core 内部唯一常量
+Main pointer、AutoMem index 过滤、Selector 启动。Secretariat 保留两种互斥行为，并以 Core 内部唯一常量
 `PROJECT_MEMORY_SEMANTIC_RECALL_ENABLED=false` 选择当前默认分支；不暴露用户配置、runtime
 preference、协议字段或测试 setter。
 
@@ -297,7 +297,7 @@ session ID，它不由模型生成：Foreground、Extraction、Dream 和 Custom 
 AGENTS instructions 共用现有 request user context 注入链路。非空索引在最终 Messages
 request 的首条 user message 中使用以下 provider-visible 结构；`<MEMORY_ROOT>` 是唯一
 允许归一化的动态值。渲染判定：只要该 request
-user context 中存在任意非空 instruction source，最前方就渲染一次 ZCode 命名的
+user context 中存在任意非空 instruction source，最前方就渲染一次 Secretariat 命名的
 `# agentsMd`。因此非空 `MEMORY.md` 本身也会产生该标题，不要求同时存在 AGENTS.md：
 
 ```text
@@ -410,7 +410,7 @@ cache-control 和以下 structured output：
 }
 ```
 
-ZCode 本轮没有 knowledge-index producer；可选字段仅保持 provider contract，返回值不产生额外
+Secretariat 本轮没有 knowledge-index producer；可选字段仅保持 provider contract，返回值不产生额外
 能力。每次真实 provider attempt 前刷新 runtime headers。error、abort、非 text、无效 JSON 或
 schema 不匹配均产生空选择；不重试，不加 Memory-local timeout，不做关键词 fallback。
 
@@ -439,7 +439,7 @@ Selector 结果处理顺序固定：
 在最终 surviving memories 被注入 `relevant_memory` 前，同一消费边界将其写入现有
 `readFileState`：`content` 使用实际注入内容（包含截断 suffix），`timestamp/mtimeMs` 使用
 manifest mtime，`offset` 为 `undefined`，仅截断内容设置 `limit=实际保留行数`，并保持
-`isPartialView=false`。ZCode 同时携带现有 Write/Edit freshness 所需的 `sizeBytes` 与可用的
+`isPartialView=false`。Secretariat 同时携带现有 Write/Edit freshness 所需的 `sizeBytes` 与可用的
 `revisionId`；不伪造 Read tool event、`sourceTool` 或额外 attachment。prefetch 阶段和被最终
 过滤掉的候选不得写入 read-state。
 
@@ -555,7 +555,7 @@ running 非空 ------------------------> 覆盖 latest pending
 
 只有一个 running slot 和一个 latest-pending slot；不建立 FIFO、job table 或持久任务恢复。
 successful Main turn 的调度边界立即冻结同一逻辑快照：provider entries 用于后台模型请求，
-durable messages 用于 eligibility、message count 和 cursor。由于 ZCode provider entries 不携带
+durable messages 用于 eligibility、message count 和 cursor。由于 Secretariat provider entries 不携带
 durable UUID，调度时立即发起 messages 与当时 branch metadata 的读取，并用现有 active-branch
 selector 形成 durable 表示；再按 successful-turn boundary 截断。scheduler 只接收该已启动的
 snapshot promise，不保存未来才读取 SessionStore 的 factory。
@@ -598,7 +598,7 @@ tool calls 仍执行，但不再发起第 6 次模型请求。每次 provider at
 
 prompt 的 no-op 响应逐字为 `Nothing to save.`。scheduler 不解析该文本来推导额外状态。
 
-ZCode 关闭单个 session 后 app-server 仍继续承载其他 session，session close 不等于进程退出，
+Secretariat 关闭单个 session 后 app-server 仍继续承载其他 session，session close 不等于进程退出，
 不能只在进程即将退出时 drain Extraction。因此 session close 必须先终止该 runtime 的 Extraction 生命周期，再释放 session 资源：
 
 ```text
@@ -630,7 +630,7 @@ bounded drain 等待取消收口
 ### 7.1 触发
 
 - 当前产品链路不自动触发 Dream，成功 Main turn 只调度 Extraction。builtin command registry
-  没有 `/dream`，ZCode CLI、Desktop、mobile 和 shared protocol 也不新增命令入口。
+  没有 `/dream`，Secretariat CLI、Desktop、mobile 和 shared protocol 也不新增命令入口。
 - Dream handler、lock、prompt、受限执行和 `memory_update` 保留，等待产品侧确定 project
   transcript 隔离形态后再接入触发点；本轮不增加临时入口或替代命令。
 - handler 内保留 gate 语义：每 10 分钟最多扫描一次；距上次成功 Dream 至少
@@ -642,7 +642,7 @@ bounded drain 等待取消收口
 project session 归属由 SessionStore 的 workspace identity 判断。model-io writer 与 Dream 使用
 同一个从 `storage.dir` 派生的 `modelIoDir`（development 为 `debug`，其他环境为 `rollout`）；
 Dream 只引用已选 durable sessions 对应的现有 transcript/model-io，不建设第二套 transcript DB，
-也不 fallback 扫描固定的 `~/.zcode/cli/debug|rollout`。当前 `modelIoDir` 仍是 ZCode 产品级目录，
+也不 fallback 扫描固定的 `~/.secretariat/cli/debug|rollout`。当前 `modelIoDir` 仍是 Secretariat 产品级目录，
 因此在 project transcript 隔离方案确定前不得把 handler 接回自动 turn 链路。
 
 ### 7.2 Lock 与运行
@@ -708,11 +708,11 @@ Memory 字段；profile 的其他字段继续有效。
 agent key 只用不带 Unicode flag 的 `/[^a-zA-Z0-9_-]/g` 将每个不匹配的 UTF-16 code unit
 替换为 `-`，不做额外 slug 规则；空结果为 `unknown`。scope 路径：
 
-| scope     | ZCode root                                           |
+| scope     | Secretariat root                                           |
 | --------- | ---------------------------------------------------- |
 | `user`    | `<storage.dir>/agent-memory/<agent-key>/`            |
-| `project` | `<workspace>/.zcode/agent-memory/<agent-key>/`       |
-| `local`   | `<workspace>/.zcode/agent-memory-local/<agent-key>/` |
+| `project` | `<workspace>/.secretariat/agent-memory/<agent-key>/`       |
+| `local`   | `<workspace>/.secretariat/agent-memory-local/<agent-key>/` |
 
 project/local root 在 child 实际启动时按该次 workspace 解析，不能固定为 app 启动 cwd。
 Main Agent Memory、Recall、Extraction 和 Dream 不共享这些目录。
@@ -757,7 +757,7 @@ generator、最终 wire、Runtime 组合和跨进程链路。
 endpoint 捕获最终 HTTP body。Main/selector 另保留一次真实网络 trace。任何一层的文本、role、
 顺序、cache-control、MCS beta、schema 或工具投影漂移都会使测试失败。
 
-Memory 域内部源码、类型、fixture helper 和测试名使用 ZCode 语义命名，不能以外部产品名或
+Memory 域内部源码、类型、fixture helper 和测试名使用 Secretariat 语义命名，不能以外部产品名或
 具体模型名命名。provider adapter 测试和 provider-visible 契约 fixture 可以使用真实的 provider
 与 model 值，但不得据此命名 Memory 内部类型、变量、函数或 helper。模型 port 的最小扩展为：
 
@@ -789,7 +789,7 @@ selector 的精确 schema 和文本边界；普通 generate 与 stream request �
 - 当前模型描述行与基线模型描述行不同。
 - 缺少 `Assistant knowledge cutoff is January 2026.`。
 
-ZCode 当前没有的工具也属于明确的 tool-inventory 差异；不得为了让 golden 相同而新增 Read 或
+Secretariat 当前没有的工具也属于明确的 tool-inventory 差异；不得为了让 golden 相同而新增 Read 或
 其他工具。除这些明确差异和动态值之外，Memory provider-visible 内容必须一致。
 
 ## 10. 验收

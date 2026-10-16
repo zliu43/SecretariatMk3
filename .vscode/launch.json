@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ZCode Desktop: Main",
+      "name": "Secretariat Desktop: Main",
       "type": "pwa-node",
       "request": "attach",
       "port": 9231,
@@ -23,7 +23,7 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "ZCode Desktop: Main (with host inspect)",
+      "name": "Secretariat Desktop: Main (with host inspect)",
       "type": "pwa-node",
       "request": "attach",
       "port": 9231,
@@ -42,7 +42,7 @@
       ]
     },
     {
-      "name": "ZCode Desktop: Renderer",
+      "name": "Secretariat Desktop: Renderer",
       "type": "pwa-chrome",
       "request": "attach",
       "port": 9229,
@@ -50,7 +50,7 @@
       "timeout": 30000
     },
     {
-      "name": "ZCode Desktop: Host",
+      "name": "Secretariat Desktop: Host",
       "type": "pwa-node",
       "request": "attach",
       "port": 9230,
@@ -70,19 +70,19 @@
   ],
   "compounds": [
     {
-      "name": "ZCode Desktop: F5",
+      "name": "Secretariat Desktop: F5",
       "configurations": [
-        "ZCode Desktop: Main",
-        "ZCode Desktop: Renderer"
+        "Secretariat Desktop: Main",
+        "Secretariat Desktop: Renderer"
       ],
       "stopAll": true
     },
     {
-      "name": "ZCode Desktop: F5 (with host inspect)",
+      "name": "Secretariat Desktop: F5 (with host inspect)",
       "configurations": [
-        "ZCode Desktop: Main (with host inspect)",
-        "ZCode Desktop: Renderer",
-        "ZCode Desktop: Host"
+        "Secretariat Desktop: Main (with host inspect)",
+        "Secretariat Desktop: Renderer",
+        "Secretariat Desktop: Host"
       ],
       "stopAll": true
     }

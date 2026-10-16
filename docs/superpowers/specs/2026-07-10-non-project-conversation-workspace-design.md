@@ -2,15 +2,15 @@
 
 ## 目标
 
-新用户不再必须先选择项目，也不再自动创建 `~/ZCodeProject`。应用在内部使用一个稳定的 conversation backing workspace：
+新用户不再必须先选择项目，也不再自动创建 `~/SecretariatProject`。应用在内部使用一个稳定的 conversation backing workspace：
 
 ```text
-workspacePath = <dataBaseDir>/.zcode/workspace/default
+workspacePath = <dataBaseDir>/.secretariat/workspace/default
 workspacePurpose = conversation
 selectedProject = null
 ```
 
-默认 `dataBaseDir` 为用户 home，因此默认路径是 `~/.zcode/workspace/default`。该目录提供 Agent、session、terminal 和文件工具需要的真实 cwd，但不作为项目展示给用户。所有非项目对话共享这一目录；本期不实现每条对话独立目录及对应的 Agent 回收、目录注册和 GC。
+默认 `dataBaseDir` 为用户 home，因此默认路径是 `~/.secretariat/workspace/default`。该目录提供 Agent、session、terminal 和文件工具需要的真实 cwd，但不作为项目展示给用户。所有非项目对话共享这一目录；本期不实现每条对话独立目录及对应的 Agent 回收、目录注册和 GC。
 
 ## 状态与边界
 
@@ -20,7 +20,7 @@ selectedProject = null
 workspaceKey = workspaceIdentity?.trim() || workspacePath
 ```
 
-本地 conversation workspace 不合成 `workspaceIdentity`，也不修改 App/Agent 的 ZCode Protocol。purpose 需要存在于 app-owned 的 workspace session、tab、task meta、task-index 和 Web remote workspace 描述中，以便恢复、查询和展示使用相同事实。
+本地 conversation workspace 不合成 `workspaceIdentity`，也不修改 App/Agent 的 Secretariat Protocol。purpose 需要存在于 app-owned 的 workspace session、tab、task meta、task-index 和 Web remote workspace 描述中，以便恢复、查询和展示使用相同事实。
 
 本地桌面启动时先幂等确保 conversation backing directory，供非项目对话和任意失效历史 workspace 的
 Agent spawn cwd fallback 共用；有真实项目时只创建目录，不激活为当前 workspace。随后分为两条路径：

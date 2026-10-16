@@ -16,7 +16,7 @@
 - 官方 CUA `get_app_state` 的模型可见 input schema 必须包含必填 `title`：长度为
   1–120 个字符，使用用户当前语言，描述本次读取的目的，而不是复述
   `get_app_state`、CUA 或 MCP 等实现名。
-- `title` 是 ZCode 的展示元数据，不属于上游 `zcode-cua` runtime 参数。Core MCP bridge
+- `title` 是 Secretariat 的展示元数据，不属于上游 `zcode-cua` runtime 参数。Core MCP bridge
   在调用 `McpPort.callTool` 前必须移除它，避免破坏上游严格 schema。
 - Conversation 工具卡优先展示 `input.title`。旧会话或历史 provider 调用没有 title 时，继续
   回退到「读取 {app} 应用界面」或「读取应用界面」。
@@ -55,7 +55,7 @@ Model tool contract -----> model emits { title, app_ref, ... }
 
 | Concern      | Shared                                  | Deliberately different                                                          | Why it matters                               |
 | ------------ | --------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------- |
-| 模型标题     | 与 `node_repl` 一样由模型给出短标题     | CUA title 由 Core 叠加到外部 MCP descriptor；`node_repl` 在自身 contract 中定义 | 外部 CUA server 不应被迫识别 ZCode UI 元数据 |
+| 模型标题     | 与 `node_repl` 一样由模型给出短标题     | CUA title 由 Core 叠加到外部 MCP descriptor；`node_repl` 在自身 contract 中定义 | 外部 CUA server 不应被迫识别 Secretariat UI 元数据 |
 | UI fallback  | 新旧会话都走同一个 CUA renderer         | 新调用优先模型标题；旧调用保留本地化固定文案                                    | 历史任务必须继续可渲染                       |
 | runtime 参数 | 原有 `app_ref`、`detail` 等参数原样传递 | 仅 `title` 在 dispatch 前移除                                                   | 不能改变观察语义或上游兼容性                 |
 

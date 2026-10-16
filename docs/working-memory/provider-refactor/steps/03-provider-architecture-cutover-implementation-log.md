@@ -78,7 +78,7 @@ Bootstrap 的 Registry `setModel`、reasoning level 修改和冷恢复统一调�
 
 ## 14. Protocol Session Entry 解析为 Selection
 
-ZCode Protocol 的 `session/create` 仍接受 wire 层结构化 model DTO，但进入 App Runtime 前直接转换为 `ModelSelection`，reasoning variant 写入 `options.reasoningLevel`，不再构造初始 `ModelRef`。Workspace generate text 仍是独立模型任务，暂时保留自己的旧输入，后续按独立任务迁移切片处理。
+Secretariat Protocol 的 `session/create` 仍接受 wire 层结构化 model DTO，但进入 App Runtime 前直接转换为 `ModelSelection`，reasoning variant 写入 `options.reasoningLevel`，不再构造初始 `ModelRef`。Workspace generate text 仍是独立模型任务，暂时保留自己的旧输入，后续按独立任务迁移切片处理。
 
 新增协议入口测试确认 Runtime 收到完整 Selection 且配置中不存在 `modelRef`；目标测试 1 项通过。
 

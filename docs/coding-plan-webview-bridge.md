@@ -1,6 +1,6 @@
 # Coding Plan WebView Bridge
 
-官网 `/coding-plan` 页面只允许 ZCode App WebView 内嵌访问，App 打开时必须携带 `embedded=app`，并通过 WebView 注入当前 provider 的购买凭据。
+官网 `/coding-plan` 页面只允许 Secretariat App WebView 内嵌访问，App 打开时必须携带 `embedded=app`，并通过 WebView 注入当前 provider 的购买凭据。
 
 同步链路：
 

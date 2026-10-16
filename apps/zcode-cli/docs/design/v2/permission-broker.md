@@ -28,7 +28,7 @@ v2 将 `PermissionService` 和 `PermissionBroker` 明确拆开：
 - Tool executor：`packages/core/src/tool/executor.ts` 在 `ask` 时发布 `permission_requested`，等待 broker 或 `PermissionRequest` hook，发布 `permission_resolved`，支持 `allow` 执行、`modify` 替换完整 input、`deny` 结构化失败、`escalate` 失败，以及 `permissionUpdates` 写入 project permission ruleset。
 - Runtime/TUI：`packages/core/src/runtime/agent-runtime.ts` 把 broker 注入 executor；`packages/tui/src/app-permission.ts` 使用队列式 approval UI，支持 `Allow once`、`Always allow in this project`、`Deny`，并为 `AskUserQuestion` 复用同一 broker 通道展示澄清问题。`packages/cli/src/tui-command.ts` 必须在 `submitPrompt` 和 `sendInput` 两条路径都把当前 TUI `requestPermission` 回调挂到 broker 上，避免忙时输入、resume 后 continuation 或排队输入启动新 turn 时审批 UI 丢失。
 - TUI 渲染：普通 approval prompt 优先展示 tool input 中的 `description` 作为用户可读说明；命令类 input 预览只展示 `command` 值，不展示完整 JSON，也不在面板中展示 risk/mode 策略元数据。说明和命令预览必须按当前面板宽度 word wrap，并按渲染行数扩展面板高度，避免窄终端中权限文本覆盖决策选项或帮助行。
-- ZCode app-server：`apps/zcode-cli/packages/bootstrap/src/zcode-protocol-entrypoint.ts` 注入 ZCode app-server broker，普通 tool 通过 ZCode app-server `requestPermission` 转成 `Allow once`、`Always allow in this project` 或 `Deny`；project allow 会返回 `permissionUpdates` 交给 core 写入当前 project ruleset；`AskUserQuestion` 当前走 `zcode.dev` elicitation 扩展请求。
+- Secretariat app-server：`apps/zcode-cli/packages/bootstrap/src/zcode-protocol-entrypoint.ts` 注入 Secretariat app-server broker，普通 tool 通过 Secretariat app-server `requestPermission` 转成 `Allow once`、`Always allow in this project` 或 `Deny`；project allow 会返回 `permissionUpdates` 交给 core 写入当前 project ruleset；`AskUserQuestion` 当前走 `zcode.dev` elicitation 扩展请求。
 
 已有测试覆盖：
 
@@ -39,7 +39,7 @@ v2 将 `PermissionService` 和 `PermissionBroker` 明确拆开：
 - `packages/cli/tests/cli.unit.test.ts`：TUI `submitPrompt` 和 `sendInput` 都会把 approval request 接入 runtime permission broker，防止 approval handler 丢失后 fail-closed。
 - `packages/tui/tests/tui.unit.test.ts`：TUI approval UI、project allow update、Esc/关闭/取消等交互路径。
 
-剩余边界：session/global 级 permission ruleset 仍不在第一版范围内；ZCode app-server 和 TUI 当前都只暴露 project 级 remember allow，不暴露 reject always；更细粒度的 Bash/WebFetch 规则建议仍应由后续 tool policy 提供。
+剩余边界：session/global 级 permission ruleset 仍不在第一版范围内；Secretariat app-server 和 TUI 当前都只暴露 project 级 remember allow，不暴露 reject always；更细粒度的 Bash/WebFetch 规则建议仍应由后续 tool policy 提供。
 
 ## 运行时流程
 

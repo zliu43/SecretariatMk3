@@ -270,7 +270,7 @@ export function evaluateRewindTarget()                     // → core/runtime/h
 #### 2.4.1 模块定位
 
 - **应该承担的职责**: 组装 core + adapters，提供应用级 API，编排启动流程
-- **当前实际职责**: 上述 + ZCode Protocol server + 自定义命令系统 + 工作流脚本运行器 + 模型选择 + 插件管理 + 会话管理
+- **当前实际职责**: 上述 + Secretariat Protocol server + 自定义命令系统 + 工作流脚本运行器 + 模型选择 + 插件管理 + 会话管理
 - **偏差与后果**: script-workflow 相关代码占 11 个文件（~3000行），属于独立子系统
 
 #### 2.4.2 问题清单

@@ -14,7 +14,7 @@
 - **影响范围**：3.8.1 全量、SSH/WSL/Docker 通用；连接死于 provider 同步窗口即毒化该 workspaceKey，向导/侧栏重连/历史入口全部挂死，仅重启 app 可解。隔离论证：手机 `web-remote-replayable` 的 bridge session 不注入 disposer（store 改动对其 no-op）；`remote.ts` 重连走 `replaceSocket` 不触发 dispose（重放语义不变）；不触碰 `@zcode/protocol` 与持久化格式。
 - **推荐修复**（最小完整变更，两点缺一不可，详见 §4）：
   1. **A1** `ChannelClient.dispose(reason?)` reject 全部挂起的 Promise 请求（5 处生产 dispose 调用点已逐一审计，全部是连接终结路径）；
-  2. **A2** renderer 侧补上传输终结出口：`messageport.ts` 新 helper 返回 `{services, dispose}`，`RemoteWorkspaceSession` 增可选 `dispose`，store 在 unregister/换代替换时调用，desktop 注册时注入并复用错误码 `ZCODE_REMOTE_WORKSPACE_DISCONNECTED`。
+  2. **A2** renderer 侧补上传输终结出口：`messageport.ts` 新 helper 返回 `{services, dispose}`，`RemoteWorkspaceSession` 增可选 `dispose`，store 在 unregister/换代替换时调用，desktop 注册时注入并复用错误码 `SECRETARIAT_REMOTE_WORKSPACE_DISCONNECTED`。
   - 已否决：加超时（掩盖症状、与慢链路冲突、违背"不堆兜底"准则）；仅清 in-flight map（当次流程仍挂死）；仅修 host 侧（回包路径与 attachment 同时断的竞态会漏掉 renderer 挂起）。
 - **为什么风险最低**：在不变量的所有权边界（RPC 客户端）修复，上层 sync/向导/重连的既有 catch 路径原样接管（它们本就为 rejection 设计）；`call()` 在 disposed 后本就 reject，A1 只是让 in-flight 与之一致，无 API 语义分叉；dispose 可选注入使 web/手机端零变化；无协议、无持久化、无 UI 变更；单 commit 可整体回滚。
 - **验证与剩余风险**：回归测试复刻 09:57→10:01 中毒场景（修复前必须失败），邻域单测 + 门禁 + E2E 候选见 §5；剩余风险（teardown 期 rejection 可见化、服务端早退未闭合）见 §6。
@@ -33,7 +33,7 @@
 09:57:43.914  bind workspace context (/home/demo)
 09:57:43.937  getProviderRegistrySnapshot OK
 09:57:44.03   updateProviderRegistry 发出 ──► 远端已收到并开始处理
-                （[remote pid 561744] "为只读会话控制面启动 ZCode agent"、
+                （[remote pid 561744] "为只读会话控制面启动 Secretariat agent"、
                  "开始请求 workspace/updateProviderRegistry"、agent started）
 09:57:44.499  ✗ 连接关闭（stream.onClose 路径 = 远端 zcode-server 进程退出，
               无 backend-disconnect 详情）──► 回包永不可达
@@ -69,7 +69,7 @@
 
 ### 2.4 未知（客户端侧无法闭合）
 
-远端 zcode-server 在启动后 ~1 秒退出的原因（历史记录同型："远程连接已断开 exitCode=0"）。需要远端机器 `~/.zcode/server` 日志或系统日志定性；这是触发器，不是根因。
+远端 zcode-server 在启动后 ~1 秒退出的原因（历史记录同型："远程连接已断开 exitCode=0"）。需要远端机器 `~/.secretariat/server` 日志或系统日志定性；这是触发器，不是根因。
 
 ## 3. 根因分层
 
@@ -120,7 +120,7 @@
 
 - `packages/client/src/messageport.ts`：新增导出 `createMessagePortServiceConnection(port): { services: IServiceAccessor; dispose(reason?: Error): void }`，dispose = `client.dispose(reason)` + `protocol.disconnect()`。保留 `connectViaMessagePort` 供窗口生命周期的 base services 使用（不释放，非目标）。
 - `packages/ui/src/store/remoteWorkspaceSessionStore.ts`：`RemoteWorkspaceSession` 增加可选 `dispose?: (reason?: Error) => void`；`unregisterSession` 与 `registerSession`（同 sessionId 替换且对象不同——即换代）时调用**被移除条目**的 dispose。依赖注入，store 不接触传输实现。
-- `packages/desktop/src/renderer/src/main.tsx` `registerRemoteWorkspaceServicePort`：改用新 helper 并把 disposer 注入注册；reject reason 携带既有规范错误码 `ZCODE_REMOTE_WORKSPACE_DISCONNECTED`（`packages/ui/src/lib/remoteWorkspaceServiceError.ts:1-2`；`channelClient.ts:84-97` 的 `code` 透传路径已存在），与"断连代理"对后续调用的报错保持同码。
+- `packages/desktop/src/renderer/src/main.tsx` `registerRemoteWorkspaceServicePort`：改用新 helper 并把 disposer 注入注册；reject reason 携带既有规范错误码 `SECRETARIAT_REMOTE_WORKSPACE_DISCONNECTED`（`packages/ui/src/lib/remoteWorkspaceServiceError.ts:1-2`；`channelClient.ts:84-97` 的 `code` 透传路径已存在），与"断连代理"对后续调用的报错保持同码。
 
 ### 4.3 修复前后时序
 
@@ -166,5 +166,5 @@
 ## 6. 剩余风险
 
 - dispose-reject 会让原先"静默悬置"的路径（窗口/host 销毁时的 in-flight 调用）转为可见 rejection，最坏情况是 teardown 期间多几条 warn 日志；调用点已逐一审计均为终结路径。
-- 未传 reason 的 dispose 调用点报通用错误而非 `ZCODE_REMOTE_WORKSPACE_DISCONNECTED`——不影响 settle 语义，仅文案一致性。
+- 未传 reason 的 dispose 调用点报通用错误而非 `SECRETARIAT_REMOTE_WORKSPACE_DISCONNECTED`——不影响 settle 语义，仅文案一致性。
 - 服务端早退根因未闭合（需远端 artifacts），修复只保证客户端 fail-closed。

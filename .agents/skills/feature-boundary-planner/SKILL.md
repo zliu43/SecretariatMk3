@@ -1,11 +1,11 @@
 ---
 name: feature-boundary-planner
-description: Use when the agent needs to discover the blast radius of a ZCode feature or behavior change, answer "if I change X what other features or UI surfaces should I inspect?", map shared UI components, option builders, state owners, protocol commands, persistence and tests with codegraph, clarify product boundaries, prune state combinations, and prepare specs, case catalogs, coverage matrices, or E2E handoffs before implementation.
+description: Use when the agent needs to discover the blast radius of a Secretariat feature or behavior change, answer "if I change X what other features or UI surfaces should I inspect?", map shared UI components, option builders, state owners, protocol commands, persistence and tests with codegraph, clarify product boundaries, prune state combinations, and prepare specs, case catalogs, coverage matrices, or E2E handoffs before implementation.
 ---
 
 # Feature Boundary Planner
 
-Use this skill from the ZCode repository root before implementation when a request needs feature-impact discovery, product-boundary clarification, coverage planning, or an E2E handoff.
+Use this skill from the Secretariat repository root before implementation when a request needs feature-impact discovery, product-boundary clarification, coverage planning, or an E2E handoff.
 
 Treat impact discovery and boundary planning as two connected jobs:
 

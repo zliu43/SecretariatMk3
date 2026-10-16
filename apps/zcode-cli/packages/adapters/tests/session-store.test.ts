@@ -379,7 +379,7 @@ describe("SQLite session store", () => {
   });
 
   it("defaults the session database under the db directory", () => {
-    expect(getDefaultSessionDbPath()).toBe(join(homedir(), ".zcode", "cli", "db", "db.sqlite"));
+    expect(getDefaultSessionDbPath()).toBe(join(homedir(), ".secretariat", "cli", "db", "db.sqlite"));
   });
 
   it("keeps the existing in-memory session store path working", () => {
@@ -871,7 +871,7 @@ describe("SQLite session store", () => {
         name: "test-workflow",
         scope: "project",
         scriptHash: "hash-script",
-        scriptPath: join(tempRoot, ".zcode", "workflows", "test.workflow.js"),
+        scriptPath: join(tempRoot, ".secretariat", "workflows", "test.workflow.js"),
         source: "user",
       });
       expect(definition.scope).toBe("project");

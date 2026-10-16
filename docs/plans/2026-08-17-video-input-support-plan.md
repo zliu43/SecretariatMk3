@@ -149,7 +149,7 @@ CLI authorizes row/entity/ref            │                 ├─ loadedmetada
         ▼                                │
 persisted user FilePart                  │
         ├─ durable artifact exists
-        │      ├─ Desktop local -> .zcode video-cache path ─┐
+        │      ├─ Desktop local -> .secretariat video-cache path ─┐
         │      └─ remote/web or path unavailable -> chunked artifact read
         └─ no artifact
                ├─ Desktop local_ref -> authorized local path ─┤
@@ -169,7 +169,7 @@ persisted user FilePart                  │
   row/index 均可通过授权。新消息尚未形成持久 message 锚点，或旧历史没有 durable artifact 时，
   才读取已授权的原 ref。单次 read 失败只在当前 Dialog 展示错误，关闭后仍可再次打开并重试。
 - V4 upload 与 image preview read 仍以 20MiB 为总量上限。Desktop local sent-video 先请求
-  authorized local source：artifact 对应 `.zcode` 派生路径优先，其次才是没有 artifact 的
+  authorized local source：artifact 对应 `.secretariat` 派生路径优先，其次才是没有 artifact 的
   `metadata_only/local_ref`；本地播放器不做 full read，所以不受 `VIDEO_INPUT_MAX_BYTES = 30MiB`
   限制，也不为超限 local-ref 再复制一份文件。artifact 存在但派生路径不可用时只能从 artifact
   走原有 512KiB 分片，不能退回原始路径。
@@ -192,7 +192,7 @@ persisted user FilePart                  │
 | 决策                   | 结论                                                                                     | 依据                                                              |
 | ---------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | 内容形态               | 一期仅 base64（dataUrl）                                                                 | 用户决策；与现有 image 管线同构；无上传基础设施依赖             |
-| video 上限             | ZCode 全局固定 30MiB，不进入模型 catalog/session 能力                                    | 与 image 一致：模型只声明是否支持该模态，产品策略统一约束输入大小 |
+| video 上限             | Secretariat 全局固定 30MiB，不进入模型 catalog/session 能力                                    | 与 image 一致：模型只声明是否支持该模态，产品策略统一约束输入大小 |
 | Web/mobile 传输        | 沿用 V4 既有 20MiB 附件上限                                                              | 大视频传输方案暂不处理，不扩张 chunk/staging 资源边界             |
 | wire 覆盖              | openai `video_url` + anthropic `video` block 双格式，转换层对 apiFormat 通用，不特化端点 | 用户决策                                                          |
 | 模态互斥               | 一期不处理（GLM 明确"不支持同时理解文件、视频和图像"），混合附件网关报错透传             | 用户决策                                                          |

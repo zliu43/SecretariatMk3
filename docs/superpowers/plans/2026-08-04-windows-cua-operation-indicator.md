@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在 Windows 本机 Computer Use turn 首次开始真实桌面工具后，显示不抢焦点、鼠标穿透且不会进入截图的顶部“ZCode 正在操作电脑”提示，并在 turn/Host/runtime 终态可靠隐藏。
+**Goal:** 在 Windows 本机 Computer Use turn 首次开始真实桌面工具后，显示不抢焦点、鼠标穿透且不会进入截图的顶部“Secretariat 正在操作电脑”提示，并在 turn/Host/runtime 终态可靠隐藏。
 
 **Architecture:** `ZCodeAgentService` 在协议校验、seq 归一化和 live 去重之后把事件交给纯状态机 `CuaOperationTurnTracker`；仅 desktop-local Windows Host 把状态跃迁通过严格 Host→Main 消息上报。Desktop Main 按 `UtilityProcess source + workspaceKey + sessionId + turnId` 聚合活跃键，并以独立透明 `BrowserWindow` 投影 UI；状态不进入 Renderer、task snapshot、broadcast 或 mobile replayable 链路。
 

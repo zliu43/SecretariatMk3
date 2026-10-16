@@ -4,8 +4,8 @@ import {
   modelMessageContentToText,
   resolveMcpToolVisibility,
   SessionEventType,
-  ZCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY,
-  ZCODE_MCP_ERROR_PRESENTATION_META_KEY,
+  SECRETARIAT_MCP_ERROR_PRESENTATION_MESSAGE_ONLY,
+  SECRETARIAT_MCP_ERROR_PRESENTATION_META_KEY,
   type JsonSchema,
   type McpPort,
   type McpToolCallResult,
@@ -18,7 +18,7 @@ import {
   type SessionEvent,
   type ToolCallProgressPayload,
 } from "@zcode/contracts";
-import { ZCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME as ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME } from "@zcode/shared";
+import { SECRETARIAT_CUA_OFFICIAL_MCP_NAMESPACE_NAME as SECRETARIAT_CUA_OFFICIAL_MCP_SERVER_NAME } from "@zcode/shared";
 import { OFFICIAL_CUA_FRAME_MODEL_CONTENT_PROTECTION } from "@zcode/zcode-cua/frame-contract";
 import { randomUUID } from "node:crypto";
 import type { ToolRegistry } from "../tool/registry.js";
@@ -54,8 +54,8 @@ const CUA_USER_TITLE_SCHEMA = {
   description:
     "Required short user-facing title in the user's language that describes why the app interface is being read without implementation terms such as CUA, MCP, or get_app_state",
 } satisfies JsonSchema;
-const ZCODE_CUA_CANONICAL_MODEL_PREFIX = "mcp__computer-use__";
-const ZCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX = "mcp__computer_use__";
+const SECRETARIAT_CUA_CANONICAL_MODEL_PREFIX = "mcp__computer-use__";
+const SECRETARIAT_CUA_PROVIDER_SPELLING_ALIAS_PREFIX = "mcp__computer_use__";
 
 export interface RegisterMcpToolsOptions {
   allowedTools?: readonly string[];
@@ -109,12 +109,12 @@ function toRegisteredMcpToolName(
 ): string {
   if (
     officialCuaAuthorityVerified &&
-    descriptor.serverName === ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME
+    descriptor.serverName === SECRETARIAT_CUA_OFFICIAL_MCP_SERVER_NAME
   ) {
     // adapter 会把官方插件 serverName 命名空间化，descriptor.name 因而是
     // mcp__plugin_zcode-cua_computer-use__*；直接沿用它会让 provider 约定的 computer-use
     // 工具永远不存在。可信门成立后仅投影模型可见名称，handler 仍用 descriptor 的原路由。
-    return `${ZCODE_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
+    return `${SECRETARIAT_CUA_CANONICAL_MODEL_PREFIX}${toModelVisibleMcpNamePart(descriptor.toolName)}`;
   }
   return toMcpToolName(descriptor);
 }
@@ -328,14 +328,14 @@ function officialCuaProviderSpellingAliases(
 ): readonly string[] | undefined {
   if (
     !officialCuaAuthorityVerified ||
-    descriptor.serverName !== ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
-    !name.startsWith(ZCODE_CUA_CANONICAL_MODEL_PREFIX)
+    descriptor.serverName !== SECRETARIAT_CUA_OFFICIAL_MCP_SERVER_NAME ||
+    !name.startsWith(SECRETARIAT_CUA_CANONICAL_MODEL_PREFIX)
   ) {
     return undefined;
   }
-  const toolName = name.slice(ZCODE_CUA_CANONICAL_MODEL_PREFIX.length);
+  const toolName = name.slice(SECRETARIAT_CUA_CANONICAL_MODEL_PREFIX.length);
   return toolName.length > 0
-    ? [`${ZCODE_CUA_PROVIDER_SPELLING_ALIAS_PREFIX}${toolName}`]
+    ? [`${SECRETARIAT_CUA_PROVIDER_SPELLING_ALIAS_PREFIX}${toolName}`]
     : undefined;
 }
 
@@ -395,7 +395,7 @@ function createModelFacingMcpInputSchema(
     ? schema.required.filter((value): value is string => typeof value === "string")
     : [];
 
-  // 原因：title 是 ZCode 给用户看的意图摘要，不属于上游 zcode-cua 参数。只在模型 contract
+  // 原因：title 是 Secretariat 给用户看的意图摘要，不属于上游 zcode-cua 参数。只在模型 contract
   // 叠加必填字段，runtime dispatch 再剥离，既让模型稳定生成可读标题，也保持上游严格 schema 兼容。
   return {
     ...schema,
@@ -416,7 +416,7 @@ function isZCodeCuaGetAppState(
 
   const serverName = descriptor.serverName.trim().toLowerCase().replace(/_/g, "-");
   return (
-    descriptor.serverName === ZCODE_CUA_OFFICIAL_MCP_SERVER_NAME ||
+    descriptor.serverName === SECRETARIAT_CUA_OFFICIAL_MCP_SERVER_NAME ||
     serverName === "zcode-cua" ||
     serverName === "computer-use" ||
     (serverName.includes("zcode-cua") && serverName.includes("computer-use"))
@@ -450,9 +450,9 @@ export function formatMcpToolResult(output: unknown): ModelMessageContent {
   if (!output.isError) return content;
   // 展示策略由 MCP result 显式声明；通用 bridge 不应识别具体 server，
   // 也不应通过解析错误字符串来猜测哪些内容属于堆栈。
-  const errorPresentation = output._meta?.[ZCODE_MCP_ERROR_PRESENTATION_META_KEY];
+  const errorPresentation = output._meta?.[SECRETARIAT_MCP_ERROR_PRESENTATION_META_KEY];
   return typeof errorPresentation === "string" &&
-    errorPresentation === ZCODE_MCP_ERROR_PRESENTATION_MESSAGE_ONLY
+    errorPresentation === SECRETARIAT_MCP_ERROR_PRESENTATION_MESSAGE_ONLY
     ? content
     : `MCP tool returned an error:\n${modelMessageContentToText(content)}`;
 }

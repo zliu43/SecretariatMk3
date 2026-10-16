@@ -1,6 +1,6 @@
 # Compact E2E
 
-This harness runs real ZCode compact paths through the provider adapter, runtime, session events, and Docker-local request capture.
+This harness runs real Secretariat compact paths through the provider adapter, runtime, session events, and Docker-local request capture.
 
 Default cases:
 
@@ -23,7 +23,7 @@ From the repository root:
 
 ```bash
 pnpm build
-ZCODE_API_KEY=sk-... node e2e/compact-microcompact/run.mjs
+SECRETARIAT_API_KEY=sk-... node e2e/compact-microcompact/run.mjs
 ```
 
 Run only local scripted cases, with no API key:
@@ -65,7 +65,7 @@ pnpm --filter zcode-cli exec tsx ../../apps/zcode-cli/e2e/compact-microcompact/r
 Run one case:
 
 ```bash
-ZCODE_API_KEY=sk-... node e2e/compact-microcompact/run.mjs --case=microcompact
+SECRETARIAT_API_KEY=sk-... node e2e/compact-microcompact/run.mjs --case=microcompact
 ```
 
 Dry-run setup:
@@ -78,7 +78,7 @@ node e2e/compact-microcompact/run.mjs --dry-run
 
 ```bash
 docker build -f e2e/compact-microcompact/Dockerfile -t zcode-compact-microcompact .
-docker run --rm -e ZCODE_API_KEY zcode-compact-microcompact
+docker run --rm -e SECRETARIAT_API_KEY zcode-compact-microcompact
 ```
 
 Run only the local scripted background Bash case in Docker, with no API key:
@@ -104,7 +104,7 @@ This writes:
 - `capture.json`: index of per-case provider capture files.
 - `events.json`: index of per-case runtime event files.
 - `cases/<case>/capture.json`: OpenAI-compatible request/response capture.
-- `cases/<case>/events.json`: ZCode runtime/session events.
+- `cases/<case>/events.json`: Secretariat runtime/session events.
 - `cases/<case>/result.json`: focused case result.
 
 The Dockerfile defaults to `node:24.14-alpine`. To use a local mirror or already cached Node image:

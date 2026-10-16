@@ -155,7 +155,7 @@ Electron version、target triplet 和所有文件 digest。
 ### 5.2 Runtime resolver
 
 `windowsCuaDevRuntime.ts` 使用同一个 producer contract/manifest schema 校验开发目录和
-产品资源。产品运行时只信任 app `resources/tools/cua-helper`；`ZCODE_CUA_DEV_ROOT` 只作为
+产品资源。产品运行时只信任 app `resources/tools/cua-helper`；`SECRETARIAT_CUA_DEV_ROOT` 只作为
 显式本地开发覆盖，不扫描相邻目录、不下载资源。
 
 ### 5.3 Clean checkout

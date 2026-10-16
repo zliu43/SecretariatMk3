@@ -1,4 +1,4 @@
-# ZCode Plan 源码附加说明
+# Secretariat Plan 源码附加说明
 
 ## 来源
 

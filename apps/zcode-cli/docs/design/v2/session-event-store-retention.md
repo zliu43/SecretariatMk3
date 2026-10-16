@@ -4,7 +4,7 @@
 
 ## 问题
 
-每个 ZCode Protocol session record 持有一个进程内 `InMemorySessionEventStore`。它承担两件事：
+每个 Secretariat Protocol session record 持有一个进程内 `InMemorySessionEventStore`。它承担两件事：
 为每条 `SessionEvent` 分配 `sequenceNumber`（live / replay / snapshot 的唯一顺序事实源），以及给
 legacy 回放、V4 冷恢复、rewind / fork / checkpoint 提供事件读取。
 

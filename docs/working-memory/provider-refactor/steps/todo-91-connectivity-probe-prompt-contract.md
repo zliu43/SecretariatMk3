@@ -13,7 +13,7 @@
 连接测试统一使用以下固定消息，保留精确文本、大小写、标点、角色与顺序：
 
 ```yaml
-system: You are ZCode connectivity probe.
+system: You are Secretariat connectivity probe.
 user: hi
 ```
 

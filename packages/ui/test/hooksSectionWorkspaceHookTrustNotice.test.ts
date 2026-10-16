@@ -130,7 +130,7 @@ function workspaceHook(): Hook {
     location: {
       source: "zcode",
       scope: "user",
-      directoryPath: "/workspace-a/.zcode",
+      directoryPath: "/workspace-a/.secretariat",
       projectPath: "/workspace-a",
     },
     workspaceHook: {
@@ -138,7 +138,7 @@ function workspaceHook(): Hook {
       declarationEnabled: true,
       runtimeHooksEnabled: true,
       configuredEnabled: true,
-      sourcePath: "/workspace-a/.zcode/config.json",
+      sourcePath: "/workspace-a/.secretariat/config.json",
       reviewItemId: "review-pending",
       workspaceIdentity: "/workspace-a",
       bundleDigest: "a".repeat(64),

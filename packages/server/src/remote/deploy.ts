@@ -1,7 +1,7 @@
 /* eslint-disable max-lines -- 远端部署入口集中编排 server/node/agent/tool 资源，拆分需单独整理边界。 */
 import { join } from "node:path";
 import {
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   formatLogPrefix,
   normalizeRemoteResourcePackageSelection,
   type RemoteAssetInstallMode,
@@ -127,7 +127,7 @@ export async function deployServer(
   const getRemoteManifestRef = (): Promise<RemoteManifestRef> => {
     remoteManifestPromise ??= fetchRemoteDownloadManifest(
       {
-        version: ZCODE_VERSION,
+        version: SECRETARIAT_VERSION,
         platformArch,
         remoteCdnBaseUrl: options?.remoteCdnBaseUrl,
         remoteCdnBaseUrls: options?.remoteCdnBaseUrls,
@@ -221,7 +221,7 @@ export async function deployServer(
     {
       ...assetDeployOptions,
       platformArch,
-      version: ZCODE_VERSION,
+      version: SECRETARIAT_VERSION,
       assetInstallMode: options?.assetInstallMode,
     },
     { log, logWarn },
@@ -267,7 +267,7 @@ export async function deployServer(
       await markRemoteAssetComponentRefreshPending(backend, {
         componentId: "glm",
         platformArch,
-        appVersion: ZCODE_VERSION,
+        appVersion: SECRETARIAT_VERSION,
       });
     }
 
@@ -370,7 +370,7 @@ export async function deployServer(
 
     log("all uploads complete");
 
-    // 部署 ZCode Agent runtime 到远程，历史资源包选择已在入口统一忽略。
+    // 部署 Secretariat Agent runtime 到远程，历史资源包选择已在入口统一忽略。
     await deployZCodeAgentRuntime(
       backend,
       env,
@@ -513,11 +513,11 @@ async function checkServerDeployDecision(
       `${quotePosixPathArg(nodePath)} ${quotePosixPathArg(serverPath)} --version`,
     );
     const version = (await collectStdout(stream)).trim();
-    log("remote version:", JSON.stringify(version), "local:", ZCODE_VERSION);
-    if (version !== ZCODE_VERSION) {
+    log("remote version:", JSON.stringify(version), "local:", SECRETARIAT_VERSION);
+    if (version !== SECRETARIAT_VERSION) {
       return {
         shouldDeploy: true,
-        reason: `remote server version mismatch remote=${version} expected=${ZCODE_VERSION}`,
+        reason: `remote server version mismatch remote=${version} expected=${SECRETARIAT_VERSION}`,
         appVersionChanged: true,
       };
     }
@@ -620,7 +620,7 @@ function resolveMockCdnReleaseDir(mockCdnDir?: string): string | null {
     return null;
   }
 
-  return join(mockCdnDir, "releases", ZCODE_VERSION);
+  return join(mockCdnDir, "releases", SECRETARIAT_VERSION);
 }
 
 async function resolveReleaseDir(
@@ -669,7 +669,7 @@ async function resolveReleaseDir(
       remoteCdnBaseUrl: options?.remoteCdnBaseUrl,
       remoteCdnBaseUrls: options?.remoteCdnBaseUrls,
       remoteCacheDir: options?.remoteCacheDir,
-      version: ZCODE_VERSION,
+      version: SECRETARIAT_VERSION,
       platformArch,
       componentIds,
       manifestRef,

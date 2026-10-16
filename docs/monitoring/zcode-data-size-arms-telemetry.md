@@ -1,14 +1,14 @@
-# ZCode 数据目录占用 ARMS 上报
+# Secretariat 数据目录占用 ARMS 上报
 
 ## 结论
 
-Desktop 每台设备最多每 24 小时采集并上报一次本地 ZCode 数据根目录
-`getZCodeDataRootDir()` 的逻辑字节数。采集优先等待系统空闲、ZCode 无运行任务且窗口在
+Desktop 每台设备最多每 24 小时采集并上报一次本地 Secretariat 数据根目录
+`getZCodeDataRootDir()` 的逻辑字节数。采集优先等待系统空闲、Secretariat 无运行任务且窗口在
 后台的低干扰窗口；实际目录遍历在 Worker 线程执行，Electron main 只负责调度和最终
 ARMS `sendCustom`。
 
 旧 `perf_resource_disk_space` 统计的是 Electron `userData` 与安装目录，不等价于用户的
-ZCode 数据目录。本功能使用独立事件 `perf_resource_zcode_data_size`，避免新旧口径混合；
+Secretariat 数据目录。本功能使用独立事件 `perf_resource_zcode_data_size`，避免新旧口径混合；
 新版本不再从通用资源窗口发送旧事件。
 
 ```text
@@ -45,7 +45,7 @@ Worker scans getZCodeDataRootDir()
                                          confirm lastReportedAt
 ```
 
-等待低干扰窗口满 6 小时后只放宽系统输入空闲与窗口后台要求，仍禁止与 ZCode 运行任务
+等待低干扰窗口满 6 小时后只放宽系统输入空闲与窗口后台要求，仍禁止与 Secretariat 运行任务
 并发。这样避免一直活跃的设备永久缺样，同时不与模型生成、命令、自动化
 争抢磁盘。
 
@@ -89,9 +89,9 @@ workspace/session/task id、远端目标或凭据。
   稳定 jitter；启动恢复时必须先计算包含 jitter 的实际到期点，不能在基础 24 小时到期
   后改走 startup jitter。所有设备不能固定在同一钟点。
 - 到期但不满足低干扰条件时每 5 分钟检查一次。
-- 低干扰等待满 6 小时后，仅要 ZCode 无运行任务即可采集。
+- 低干扰等待满 6 小时后，仅要 Secretariat 无运行任务即可采集。
 - 扫描期间低干扰条件失效则终止 Worker，30 分钟后重试；6 小时 fallback 扫描仅在
-  新 ZCode 任务开始时终止。Worker 返回后以及 reservation 写入后都必须在发送前同步
+  新 Secretariat 任务开始时终止。Worker 返回后以及 reservation 写入后都必须在发送前同步
   复查 eligibility，关闭 activity poll 之间的竞态窗口。
 - 扫描或 Worker 失败不发送 0 值，不更新成功状态，6 小时后重试。
 - `complete` 和 `partial` 都是成功送达的样本并更新 `lastReportedAt`；看板精确统计必须
@@ -99,7 +99,7 @@ workspace/session/task id、远端目标或凭据。
 - App 退出时清除 timer 并终止 Worker，不等待扫描完成。
 
 调度状态持久化在 Electron `userData` 下的专用状态文件中，不复用
-`~/.zcode/v2/telemetry-state.json`，避免与 `/report` telemetry state 的进程锁和写入语义
+`~/.secretariat/v2/telemetry-state.json`，避免与 `/report` telemetry state 的进程锁和写入语义
 发生竞争，也避免状态文件改变被测目录大小。
 
 ## 扫描保护
@@ -120,12 +120,12 @@ process 同步遍历；上限只作为 Worker 的资源保护，不能伪装成�
 
 | Field            | Value                                                                    |
 | ---------------- | ------------------------------------------------------------------------ |
-| Developer intent | 低干扰、低频上报本地 ZCode 数据目录占用                                  |
+| Developer intent | 低干扰、低频上报本地 Secretariat 数据目录占用                                  |
 | Capability       | `capability.zcode-data-size-telemetry` / `capability.data-observability` |
 | Change layer     | `commit-effect` + `persistence`                                          |
 | Operating mode   | planning                                                                 |
 | Primary seeds    | `getZCodeDataRootDir`、目录扫描 Worker、空闲调度器、ARMS reporter        |
-| Out of scope     | UI、远端机器 `~/.zcode`、磁盘剩余空间、目录清理、conversation delivery   |
+| Out of scope     | UI、远端机器 `~/.secretariat`、磁盘剩余空间、目录清理、conversation delivery   |
 
 ### UI Surface Matrix
 
@@ -151,7 +151,7 @@ process 同步遍历；上限只作为 Worker 的资源保护，不能伪装成�
 | must-inspect   | Desktop main            | reports-through             | ARMS RUM                   | complete/partial result     | 单一凭据与设备维度 owner     | code/test         |
 | should-inspect | Host runtime task count | gates                       | scheduler                  | Agent running               | 不与用户任务争抢磁盘         | code/test         |
 | invariant-only | data-size event         | must-remain-isolated-from   | conversation/task realtime | all modes                   | 不进入 continuous/replayable | architecture/spec |
-| invariant-only | local data root         | must-not-inspect            | remote `~/.zcode`          | SSH/WSL/Docker/server       | 不触碰远端用户文件           | spec              |
+| invariant-only | local data root         | must-not-inspect            | remote `~/.secretariat`          | SSH/WSL/Docker/server       | 不触碰远端用户文件           | spec              |
 
 ### State Owners And Commit Sinks
 
@@ -170,7 +170,7 @@ process 同步遍历；上限只作为 Worker 的资源保护，不能伪装成�
 | no synchronous directory traversal in main | desktop all platforms    | scanner runs in Worker   | unit/build       |
 | no user path/name in payload               | default/custom data root | exact payload test       | unit             |
 | at most one successful report per 24h      | restart/long-running app | persisted scheduler test | unit             |
-| running ZCode task always blocks scan      | normal/fallback window   | state-machine test       | unit             |
+| running Secretariat task always blocks scan      | normal/fallback window   | state-machine test       | unit             |
 | partial is distinguishable from complete   | limit/error cases        | scanner + payload test   | unit             |
 | remote/mobile delivery unchanged           | local/remote/mobile      | no protocol/schema edits | static invariant |
 

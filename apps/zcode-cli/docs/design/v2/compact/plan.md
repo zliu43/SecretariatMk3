@@ -1,8 +1,8 @@
-# ZCode CLI Compact 实施规划 v2
+# Secretariat CLI Compact 实施规划 v2
 
 ## 文档定位
 
-本文是 `docs/design/v2/compact/README.md` 的实施规划。compact 语义以 README 为准，实施形态遵循 ZCode 的分层、事件存储和跨平台约束。
+本文是 `docs/design/v2/compact/README.md` 的实施规划。compact 语义以 README 为准，实施形态遵循 Secretariat 的分层、事件存储和跨平台约束。
 
 相关文档：
 
@@ -15,7 +15,7 @@
 
 ### 固定顺序
 
-ZCode 第一版采用固定的 post-compact 顺序：
+Secretariat 第一版采用固定的 post-compact 顺序：
 
 ```text
 compact boundary
@@ -57,9 +57,9 @@ Compact 成功的唯一可信标志是写入 boundary，而不是“拿到了 su
 
 如果 boundary 或 preserved segment relink 损坏，恢复时宁可保守加载完整历史并打告警，也不要静默丢历史。
 
-## 和 ZCode 分层的映射
+## 和 Secretariat 分层的映射
 
-| 职责 | ZCode 位置 | 说明 |
+| 职责 | Secretariat 位置 | 说明 |
 | --- | --- | --- |
 | `/compact` 命令入口 | `packages/cli` / `packages/tui` | `/compact [instructions]` 命令入口，只解析用户意图。 |
 | compact 状态机 | `packages/core/src/compact` | compact 状态机和业务编排。 |
@@ -146,7 +146,7 @@ Core 不直接读写文件、不读 `process.env`、不直接调用 provider SDK
 
 目标：每轮 provider 请求前自动判断是否需要 compact。
 
-当前第二阶段先在 core runtime 内实现 policy 和熔断，不直接读取环境变量。CLI/bootstrap 后续负责把 `ZCODE_` 环境变量和用户配置解析成 `AgentRuntimeConfig.compact`。Auto compact 失败不应让当前用户 turn 失败；它只增加连续失败计数，达到 `maxConsecutiveFailures` 后跳过后续自动尝试，直到一次成功 compact 重置计数。
+当前第二阶段先在 core runtime 内实现 policy 和熔断，不直接读取环境变量。CLI/bootstrap 后续负责把 `SECRETARIAT_` 环境变量和用户配置解析成 `AgentRuntimeConfig.compact`。Auto compact 失败不应让当前用户 turn 失败；它只增加连续失败计数，达到 `maxConsecutiveFailures` 后跳过后续自动尝试，直到一次成功 compact 重置计数。
 
 策略：
 
@@ -344,11 +344,11 @@ active context 的裁剪、summary 生成、boundary 持久化和 resume/replay 
 
 持久化轨迹：
 
-- compact lifecycle 必须额外写入一条 synthetic timeline message。它不是 provider-visible summary，也不是 tool call；它只服务 transcript、TUI、ZCode app-server replay 和恢复诊断。
+- compact lifecycle 必须额外写入一条 synthetic timeline message。它不是 provider-visible summary，也不是 tool call；它只服务 transcript、TUI、Secretariat app-server replay 和恢复诊断。
 - timeline message 使用 `compaction` part，但 `timelineStatus` 表示 `started` / `completed` / `failed` / `interrupted`，只有带 `compactBoundary` 的 compaction part 才能作为 active-chain 截断边界。
 - compact 开始先写 timeline message + `compact_started` event；summary 和 boundary 写成功后，再把同一条 timeline message 更新为 `completed` 并写 `compact_completed` event。
 - 进程在 summary 请求中被中断时，下一次 `resumeFromStore()` 扫描到没有 terminal 状态的 timeline part，应把它标记为 `interrupted`。如果已经存在同 operation 的 boundary，则恢复成 `completed`。
-- ZCode app-server 不新增主路径通知。bootstrap 把 compact lifecycle 投影成 `agent_message_chunk + messageId + _meta["zcode.timeline"]`，client 识别 meta 后渲染为 separator；泛 ZCode protocol client 显示 fallback 文本。
+- Secretariat app-server 不新增主路径通知。bootstrap 把 compact lifecycle 投影成 `agent_message_chunk + messageId + _meta["zcode.timeline"]`，client 识别 meta 后渲染为 separator；泛 Secretariat protocol client 显示 fallback 文本。
 
 指标：
 
@@ -426,4 +426,4 @@ active context 的裁剪、summary 生成、boundary 持久化和 resume/replay 
 - Compact 的 provider 请求、hook、session write 都要继承同一个 traceId。
 - Compact 不能在低层吞错；只有 auto compact 可把失败降级为“本轮继续，记录 consecutive failure”。
 - Core 不能直接依赖文件系统、provider SDK、`process.env` 或 shell。
-- 所有配置和环境变量必须使用 `ZCODE_` 前缀。
+- 所有配置和环境变量必须使用 `SECRETARIAT_` 前缀。

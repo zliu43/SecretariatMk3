@@ -10,11 +10,11 @@
 
 **Architecture:** 在 adapter 中新增独立的 Responses JSON fetch 兼容器，并只组合到 `providerKind === "openai"` 的显式 `provider.responses` factory。兼容器只补两个已证实缺失字段；共享 business-error fetch、Chat Completions、Anthropic、Gateway 和 retry 生命周期保持不变。
 
-**Tech Stack:** TypeScript、Vitest、AI SDK `@ai-sdk/openai`、Node HTTP fake server、ZCode compact E2E harness。
+**Tech Stack:** TypeScript、Vitest、AI SDK `@ai-sdk/openai`、Node HTTP fake server、Secretariat compact E2E harness。
 
 ## Global Constraints
 
-- 协议判据只使用 ZCode `providerKind === "openai"` 与 AI SDK `provider.responses` factory，不检查 URL、method、模型名、provider 名或 baseURL。
+- 协议判据只使用 Secretariat `providerKind === "openai"` 与 AI SDK `provider.responses` factory，不检查 URL、method、模型名、provider 名或 baseURL。
 - 只补 `message.id === undefined` 和 `output_text.annotations === undefined`；其他 schema 问题不在本次范围内。
 - 缺失 message ID 使用 Node `node:crypto.randomUUID()` 生成为 `msg_<UUIDv4>`；不新增 UUID 依赖或 collision resolver。
 - 不修改 compact 的非流式调用，不做 stream fallback，不增加请求、重试、model-io、遥测或协议事件。

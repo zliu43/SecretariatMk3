@@ -26,7 +26,7 @@
 
 ### 官方市场单一身份与合并合同
 
-`zcode-plugins-official` 是 ZCode 官方市场唯一 id。内置插件和 CDN 插件不是两个市场，
+`zcode-plugins-official` 是 Secretariat 官方市场唯一 id。内置插件和 CDN 插件不是两个市场，
 而是同一市场的两个目录分片；不得再注册、展示或生成 `zcode-plugins` 市场及
 `<name>@zcode-plugins` 插件 id。
 
@@ -44,7 +44,7 @@ CDN 目录分片 ─────┘                    └─ 所有插件 id: <
 | 刷新语义 | 刷新官方市场只替换 CDN 分片，再与当前应用内置分片重新合并 | CDN 刷新不得删除或改写内置插件缓存             |
 | 同名冲突 | CDN 市场条目优先，忽略内置分片中的同名目录条目            | 仅改变合并目录选择，不删除或改写应用内置缓存   |
 | 更新来源 | 内置分片随应用版本更新；CDN 分片由市场刷新更新            | 不把内置插件二进制改成 CDN 热更新              |
-| UI       | 市场源管理只显示一个可刷新的 ZCode 官方市场               | 不显示独立的内置 source 行或 CDN source 行     |
+| UI       | 市场源管理只显示一个可刷新的 Secretariat 官方市场               | 不显示独立的内置 source 行或 CDN source 行     |
 
 状态所有权与持久化：
 
@@ -158,7 +158,7 @@ flowchart TD
 
 ### 2. 标题区
 
-- Display 级大标题「插件」+ 副标题一句（ZCode 措辞，i18n 双语；实施时定稿文案）。
+- Display 级大标题「插件」+ 副标题一句（Secretariat 措辞，i18n 双语；实施时定稿文案）。
 
 ### 3. 搜索框
 
@@ -285,7 +285,7 @@ flowchart TD
 ### Claude 官方市场图标补齐
 
 `claude-plugins-official` 的上游目录不保证为每个插件提供 `icon`。刷新该市场时，Agent
-可以从 ZCode CDN 的
+可以从 Secretariat CDN 的
 `https://cdn-zcode.z.ai/zcode/official-plugin/assets/icon-sources.json` 获取可选图标映射，
 并按插件 `name` 为缺失 `icon` 的目录条目补齐：
 
@@ -454,7 +454,7 @@ sequenceDiagram
 - [ ] 顶栏：刷新触发全市场 update；齿轮打开市场源管理（更新/校验/删除）；New 直接打开「添加市场源」，github/git/URL/本地路径与拖放全可用。
 - [ ] 目录自动刷新：进入商店页自动刷新官方市场且只刷官方市场；10 分钟内重进不再刷新；刷新失败或在飞时重进不重复发起；手动刷新不受节流影响（PLM-LC-018/019）。
 - [ ] 已卸载内置插件出现在公开分段并可恢复安装。
-- [ ] 目录自动刷新：只刷新过期的 ZCode 官方目录；十分钟内重进、失败后重进不重复发起；手动刷新绕过节流（PLM-LC-018/019）。
+- [ ] 目录自动刷新：只刷新过期的 Secretariat 官方目录；十分钟内重进、失败后重进不重复发起；手动刷新绕过节流（PLM-LC-018/019）。
 
 详情页：
 

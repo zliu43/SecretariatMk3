@@ -70,8 +70,8 @@ Go 模板创建 ─────┐
 
 ### 4. 请求头与配置交付
 
-- 复用公共 `User-Agent: ZCode/<版本>`、版本头及原生会话头；验证实际请求，不伪装其他客户端。
-  官方已说明 Go 识别 ZCode 原生会话头，`x-opencode-session` 不是本轮必需新增项。
+- 复用公共 `User-Agent: Secretariat/<版本>`、版本头及原生会话头；验证实际请求，不伪装其他客户端。
+  官方已说明 Go 识别 Secretariat 原生会话头，`x-opencode-session` 不是本轮必需新增项。
 - 普通 API Key 鉴权，不进入智谱 Sig，不增加 OAuth／套餐账号／额度查询体系。
 - 只编辑生产 Built-in，通过 `pnpm provider:config:sync-test` 同步生成测试配置；
   Go URL 两个环境相同。按既有规则更新 revision，验证最终配置含模板与站点规则。

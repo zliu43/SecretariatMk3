@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 ZCode Plan mode 的 `ExitPlanMode(plan)` 设计改造成 plan-file 设计：计划正文写入 plan file，确保 compact / resume / pending approval replay 后仍能从 plan file 恢复完整计划。
+**Goal:** 将 Secretariat Plan mode 的 `ExitPlanMode(plan)` 设计改造成 plan-file 设计：计划正文写入 plan file，确保 compact / resume / pending approval replay 后仍能从 plan file 恢复完整计划。
 
 **Architecture:** 以 provider-visible tool schema、tool prompt、runtime injected input、tool output、plan-file reminder 组成的 plan-file 合同为唯一目标。模型只看到 `ExitPlanMode({ allowedPrompts? })`；runtime 在 permission/hook/handler 之前从当前 plan file 注入 `{ plan, planFilePath }`；审批通过后的 tool output 使用 `{ plan, isAgent, filePath, hasTaskTool?, planWasEdited?, awaitingLeaderApproval?, requestId? }` shape。Plan file 本身是计划正文的事实来源，session event 只记录 plan file path/status 以支持 compact、resume 和 snapshot。
 
-**Tech Stack:** TypeScript, Zod, Vitest, `@zcode/contracts`, ZCode core runtime/tool executor, session events/reducer, provider-visible prompt trajectory, desktop continuous and web-remote replayable session projection.
+**Tech Stack:** TypeScript, Zod, Vitest, `@zcode/contracts`, Secretariat core runtime/tool executor, session events/reducer, provider-visible prompt trajectory, desktop continuous and web-remote replayable session projection.
 
 ## Global Constraints
 
@@ -15,7 +15,7 @@
 - 不保留新的 provider-visible legacy `plan` 参数兼容路径。新的 provider-visible `ExitPlanMode.inputSchema` 只能包含 `allowedPrompts?`，不能包含 `plan`、`planFilePath`、`filePath`。
 - Runtime 可以有 internal injected input schema：`allowedPrompts?` + `plan?` + `planFilePath?`。该 schema 只用于 normalize / permission / hooks / handler，不能泄漏到 `registry.toContracts()`。
 - Output schema 字段固定为：`plan`, `isAgent`, `filePath`, `hasTaskTool?`, `planWasEdited?`, `awaitingLeaderApproval?`, `requestId?`。不要新增 `planFilePath` output 字段。
-- Plan file path 使用 workspace root 下的 `.claude/plans/plan-session-id.md` 命名模式。实际实现用 `plan-<sanitized session id>.md` 和数字后缀保证唯一；这是本仓库已有的 plan artifact 位置。不要改成 `.zcode/plans`、artifact store、session sqlite、docs/superpowers/plans 或临时目录。
+- Plan file path 使用 workspace root 下的 `.claude/plans/plan-session-id.md` 命名模式。实际实现用 `plan-<sanitized session id>.md` 和数字后缀保证唯一；这是本仓库已有的 plan artifact 位置。不要改成 `.secretariat/plans`、artifact store、session sqlite、docs/superpowers/plans 或临时目录。
 - Plan file 写入只允许当前 reserved plan file。Plan mode 仍禁止普通非只读修改；只对 `Write` / `Edit` 的 exact current plan file path 放行。不要允许 Bash redirect、ApplyPatch、任意 workspace write、任意 `.claude` 写入。
 - `EnterPlanMode` 只 reserve plan file path，不预创建文件。这样模型可用 `Write` 创建该文件，且不会触发已有文件未 Read 的 Write stale guard。
 - `ExitPlanMode` 不能在 handler 里才读 plan file，因为 permission、hooks、pending approval UI 都发生在 handler 之前。必须在 PreToolUse hook 之前完成 runtime input enrichment，让 PreToolUse、PermissionRequest、broker、pending snapshot、PostToolUse 都看到 injected input。
@@ -32,8 +32,8 @@
 
 ## Explicit Skip List
 
-- 不实现 team lead / teammate mailbox / agent swarm approval：`awaitingLeaderApproval` 和 `requestId` 只保留在 output schema，普通 ZCode main-agent flow 不设置。
-- 不实现 agent 身份分支：普通 ZCode `ExitPlanMode` 输出 `isAgent: false`。
+- 不实现 team lead / teammate mailbox / agent swarm approval：`awaitingLeaderApproval` 和 `requestId` 只保留在 output schema，普通 Secretariat main-agent flow 不设置。
+- 不实现 agent 身份分支：普通 Secretariat `ExitPlanMode` 输出 `isAgent: false`。
 - 不实现 `Ctrl+G` plan editor UI；只实现文件已存在时用户可通过外部编辑器修改，runtime 以 disk content 为准。
 - 不实现 plan file 内容摘要、截断版 approved snapshot 或 artifact fallback。传给模型的 tool result 仍受现有 result budget 控制，但 plan file 本身不被截断写入。
 - 不改变 `ExitPlanMode` 审批边界：仍遵守 `docs/plan-mode-approval-boundary.md` 的用户确认、拒绝停轮、拒绝反馈继续修订语义。
@@ -140,7 +140,7 @@ Create `docs/plan-mode-plan-file.md` with this content:
 
 ## Target
 
-ZCode Plan mode keeps the plan body in a reserved plan file; `ExitPlanMode` reads the plan from disk instead of taking it as a tool parameter.
+Secretariat Plan mode keeps the plan body in a reserved plan file; `ExitPlanMode` reads the plan from disk instead of taking it as a tool parameter.
 
 ## Tool Contract
 
@@ -151,7 +151,7 @@ ZCode Plan mode keeps the plan body in a reserved plan file; `ExitPlanMode` read
 - `plan_file_reference` re-injects the plan file path and complete plan contents after compact/resume.
 - `plan_mode_exit` tells the model that edits/tools are allowed and includes the plan file path when a plan exists.
 
-## ZCode Contract
+## Secretariat Contract
 
 - `EnterPlanMode` reserves a unique plan file path under the workspace root, using the `.claude/plans/plan-session-id.md` naming pattern.
 - `EnterPlanMode` does not create the file.
@@ -202,7 +202,7 @@ Expected: commit succeeds.
 Replace the old first-version scope with:
 
 ```markdown
-ZCode 当前版本采用 plan-file 语义：计划正文写入 workspace root 下的 `.claude/plans/plan-session-id.md`，`ExitPlanMode` 的 provider-visible 输入只包含 `allowedPrompts?`，runtime 在 permission / hook / handler 前从 plan file 注入 `plan` 与 `planFilePath`。
+Secretariat 当前版本采用 plan-file 语义：计划正文写入 workspace root 下的 `.claude/plans/plan-session-id.md`，`ExitPlanMode` 的 provider-visible 输入只包含 `allowedPrompts?`，runtime 在 permission / hook / handler 前从 plan file 注入 `plan` 与 `planFilePath`。
 ```
 
 In the `ExitPlanMode` section, make the input/output bullets:
@@ -247,7 +247,7 @@ Add this paragraph under `## 语义`:
 Run:
 
 ```bash
-rg -n 'DOES take the plan content|required plan parameter|计划正文通过 `ExitPlanMode.plan` 直接传入|不做 `ExitPlanMode` V2|保留 ZCode 当前 `ExitPlanMode\\(plan\\)`|工具必须通过 `plan` 参数' apps/zcode-cli/docs docs
+rg -n 'DOES take the plan content|required plan parameter|计划正文通过 `ExitPlanMode.plan` 直接传入|不做 `ExitPlanMode` V2|保留 Secretariat 当前 `ExitPlanMode\\(plan\\)`|工具必须通过 `plan` 参数' apps/zcode-cli/docs docs
 ```
 
 Expected: no hits except historical completed-plan files under `apps/zcode-cli/docs/plan/trajectory/completed/` if those files are explicitly describing old completed work. Do not edit completed historical plans.

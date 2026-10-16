@@ -1,4 +1,4 @@
-# ZCode Lite / Server 统一多端架构实施计划
+# Secretariat Lite / Server 统一多端架构实施计划
 
 ## 状态
 
@@ -35,23 +35,23 @@
 
 ## 一、目标
 
-同一套 ZCode Server 能力支持以下入口：
+同一套 Secretariat Server 能力支持以下入口：
 
 1. Desktop UI 管理本机和多个远端 Server。
-2. Browser Web 通过一台 ZCode Lite 管理该机和多个远端 Server。
-3. 一台 ZCode Lite 可以连接另一台 ZCode Lite。
+2. Browser Web 通过一台 Secretariat Lite 管理该机和多个远端 Server。
+3. 一台 Secretariat Lite 可以连接另一台 Secretariat Lite。
 4. 手机 Remote Controller 附着到已有 Desktop 或 Lite 控制端，复用它的多 Server 视图。
 5. SSH、WSL、Docker、Direct URL 只影响连接建立方式，不改变上层 RPC、资源、Session 和任务语义。
-6. 每台机器的同一 OS 用户、同一数据根目录最多运行一个逻辑 ZCode Server。
+6. 每台机器的同一 OS 用户、同一数据根目录最多运行一个逻辑 Secretariat Server。
 7. 每个 Workspace 最多运行一个 Agent CLI；一个 Server 可以同时管理多个 Workspace Agent。
 
 ## 二、明确不做
 
-- 不引入中心化的 `ZCode Hub` 服务。
+- 不引入中心化的 `Secretariat Hub` 服务。
 - 不让一个 Session 跨越多个 Server。
 - 不自动同步不同控制端保存的 Server 连接列表。
 - 不让手机独立建立 SSH/WSL/Docker 连接或启动 Agent。
-- 不做多用户、角色或细粒度授权；完成鉴权的客户端拥有该 OS 用户范围内的完整 ZCode 权限。
+- 不做多用户、角色或细粒度授权；完成鉴权的客户端拥有该 OS 用户范围内的完整 Secretariat 权限。
 - 不追踪 Workspace 路径移动或重命名；路径变化按新 Workspace 处理。
 - 首期不处理 OS 重启后的自动启动与错过任务补跑；Server 启动后持续运行，直到用户手动关闭。
 - 不同步 Provider 展示顺序、OAuth 登录态、当前连接选择或 UI 最近模型。
@@ -59,12 +59,12 @@
 
 ## 三、统一概念
 
-### 3.1 ZCode Lite
+### 3.1 Secretariat Lite
 
-ZCode Lite 是可安装产品，不等同于某一个 UI。它包含：
+Secretariat Lite 是可安装产品，不等同于某一个 UI。它包含：
 
 ```text
-ZCode Lite
+Secretariat Lite
 ├─ Stable Launcher
 │  ├─ 监听、鉴权和稳定 Bootstrap Protocol
 │  ├─ 版本协商、运行时缓存、安装和进程锁
@@ -85,9 +85,9 @@ ZCode Lite
 
 TUI 只是 Lite 的本机 UI 能力。它直接附着本机 Server，不承担跨远端 UI 或传输职责。
 
-### 3.2 ZCode Server
+### 3.2 Secretariat Server
 
-ZCode Server 是 `Launcher + 当前 Server Core + 数据目录` 组成的逻辑实例。
+Secretariat Server 是 `Launcher + 当前 Server Core + 数据目录` 组成的逻辑实例。
 
 - 多个 Server runtime 版本可以同时安装在磁盘。
 - 同一用户、同一数据目录同一时间只能有一个 Server Core 运行。
@@ -312,7 +312,7 @@ Direct URL
   -> 同一设备 Token 语义
 ```
 
-鉴权后的客户端拥有该 OS 用户下 ZCode Server 的完整权限。首期不增加 RBAC。
+鉴权后的客户端拥有该 OS 用户下 Secretariat Server 的完整权限。首期不增加 RBAC。
 
 ## 八、状态权威
 

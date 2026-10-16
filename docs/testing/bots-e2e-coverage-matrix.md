@@ -91,7 +91,7 @@ Changed-file formatting and `git diff --check` passed.
 Live verification resumed on 2026-09-08 after the Mac was unlocked. The existing
 `pnpm dev:desktop` process completed startup (Electron PID 17515, local Host 17711;
 development log `/tmp/zcode-topic-dev.log`). Computer Use operated Ryan Bot in the
-real `ZCode 群聊验证` group (`oc_da0fa1e9e7e9f852894c8d6aaca1c044`).
+real `Secretariat 群聊验证` group (`oc_da0fa1e9e7e9f852894c8d6aaca1c044`).
 
 - `/history on` returned the native opt-in confirmation. An ordinary root message
   and an ordinary topic reply created no task before the first explicit bot mention.
@@ -143,7 +143,7 @@ This is an environment failure, not a passing gate or a confirmed implementation
 regression. After disk space recovered to 12 GiB, the complete
 `pnpm verify:pre-push` rerun passed (`/tmp/topic-evidence-prepush-retry.log`).
 
-The real private group `ZCode 专用话题验证`
+The real private group `Secretariat 专用话题验证`
 (`oc_6596fb27f96a81b6ee5c34cc09be6089`) was created through the native API with
 `chat_mode: topic`, Ryan Bot and the bound user as its only participants. Computer
 Use confirmed the native topic-group page and its create-topic entry.
@@ -207,7 +207,7 @@ BOT-E2E-SR87 位于 `bots/manual-review/pending/bot-effective-selection.test.ts`
 
 - `feishu-streaming-card-lifecycle.json` 是 case-local synthetic stream fixture。
 - 其余 5 个用例分别使用 `fixtures/bots/` 下同语义命名的 case-local synthetic metadata；所有 fixture 都声明 `syntheticReason` 与 timing 分类。
-- 分类为 `synthetic`，原因：外部 provider replay 只能提供模型 SSE，不能稳定控制 Bot 消费 task event 的逐步观察窗口；该夹具明确生成确定性的 ZCode stream events。
+- 分类为 `synthetic`，原因：外部 provider replay 只能提供模型 SSE，不能稳定控制 Bot 消费 task event 的逐步观察窗口；该夹具明确生成确定性的 Secretariat stream events。
 - Mock Feishu API 必须记录请求而不是只返回成功，以请求次数、URL、method、reaction id 和 Card JSON 作为证据。
 - `bot-automation-result-delivery` 记录 mock Feishu 请求，并用受控 task stream 证明 scheduler 监听早于 prompt 派发；不允许用固定 sleep 代替事件闸门。Weixin `/sendmessage` 由 `packages/services/test/botsService.messageFlow.test.ts` 的共享 watcher/provider service integration test 覆盖，不虚报为 Desktop E2E。
 - 用例已通过人工 review 并移出 `manual-review/pending/`；Bot 域当前没有独立 Docker preset，默认 Desktop WDIO 是正式执行入口。
@@ -411,7 +411,7 @@ The isolated Desktop run
 lint, and 30 group service tests passed.
 
 Native Computer Use verified the normal `pnpm dev:desktop` and real Ryan Bot
-in ZCode 群聊验证: after a new draft, `@Ryan Bot Reply only REPLYBODYOK. Do not
+in Secretariat 群聊验证: after a new draft, `@Ryan Bot Reply only REPLYBODYOK. Do not
 use tools.` produced a native quoted reply whose body is exactly `REPLYBODYOK`.
 The saved delivery is `sent` and retains the incoming message ID. Existing
 messages remain unchanged. The first request after restarting the dev Host
@@ -433,7 +433,7 @@ Root typecheck and lint passed. The real bot can list message reactions (HTTP
 
 GR-05 live macOS evidence: normal `pnpm dev:desktop` was restarted, then native
 Computer Use sent `@Ryan Bot` a read-only `sleep 45` request and a second queued
-request in ZCode 群聊验证. The first displayed OnIt; the second displayed
+request in Secretariat 群聊验证. The first displayed OnIt; the second displayed
 OneSecond and a single-row waiting/cancel card. Clicking Cancel succeeded,
 replaced the card with its cancellation confirmation and removed the second
 input's reaction. The first completed with `REACTIONDONE`; its only reaction
@@ -458,7 +458,7 @@ cases. Root typecheck, lint and pre-push passed. Desktop GR-02/04 passed in
 `desktop-e2e-20260907123427883-p5094-a2e438fea8ec6398`, including persisted stopped
 status from the real CLI.
 
-Live normal-dev verification used native Computer Use in ZCode 群聊验证 with
+Live normal-dev verification used native Computer Use in Secretariat 群聊验证 with
 Ryan Bot: a `sleep 45` request (`QCARDFIRST`) followed by a queued `sleep 15`
 request (`QCARDSECOND`). The second request was allowed to execute normally.
 Its original card changed from waiting with Cancel to running without Cancel,
@@ -620,13 +620,13 @@ worker heap exhaustion; both files passed in isolation (79 tests). The full
 
 - `pnpm dev:desktop` 实际运行时，12:37 的主聊天单独 @ 收到原生事件，但发送补充需求提示失败，飞书返回 `99991663`。代码原先忽略 `expire` 并固定缓存 90 分钟。
 - 改为按接口剩余有效期缓存；飞书／Lark provider 定时回归先失败、修复后通过，provider 共 79 项通过。真实接口本次返回 `expire=4187` 秒，小于旧实现固定的 5400 秒。
-- 重启开发版本后，Computer Use 在 `ZCode 群聊验证` 发送原生单独 @，消息 `om_x100b66cd6c1c20a4c026ae6aa5b7893`，原生回复 `om_x100b66cd6c2e3938c1c10da2d404a76`，客户端显示“请补充需求，或回复要处理的消息并 @我。”
+- 重启开发版本后，Computer Use 在 `Secretariat 群聊验证` 发送原生单独 @，消息 `om_x100b66cd6c1c20a4c026ae6aa5b7893`，原生回复 `om_x100b66cd6c2e3938c1c10da2d404a76`，客户端显示“请补充需求，或回复要处理的消息并 @我。”
 - 原生 API 消息 ID 对照当前群持久化输入，该消息没有 admission 记录；未新建或排入任务。之前失败的消息 `om_x100b66cd5f92d8acc322408850c60f9` 也没有自动补执行。
 - 本次真实验证确认重启后提示投递恢复；完整有效期跨越由受控时钟测试覆盖，未在真实租户等待令牌自然过期。未将该验证宣称为 Agent 历史附件读取、手机、Lark 或其他操作系统通过。
 
 ### 2026-09-08 13:18 原生历史附件回查验证（未通过）
 
-运行 `pnpm dev:desktop`，在真实专用群「ZCode 专用话题验证」的 CEDAR 话题使用原生 @Ryan Bot 发起纯文字请求。消息 `om_x100b66cde75330b0c3e499c124d58c0` 被 CLI 接收并显示 OnIt；模型选择了正确的历史文件消息 `om_x100b66ccd1ebe0a8c22a536e7f67b07`，但 `ReadSessionContext(sessionId=current, strategy=topic, attachment=...)` 被 executor 的 JSON Schema 校验错误拒绝（oneOf 同时匹配两个分支）。模型随后查询本机会话目录，不能作为附件读取成功证据。已补 executor 边界失败测试，再改为单字符串模式；12 条工具测试通过。
+运行 `pnpm dev:desktop`，在真实专用群「Secretariat 专用话题验证」的 CEDAR 话题使用原生 @Ryan Bot 发起纯文字请求。消息 `om_x100b66cde75330b0c3e499c124d58c0` 被 CLI 接收并显示 OnIt；模型选择了正确的历史文件消息 `om_x100b66ccd1ebe0a8c22a536e7f67b07`，但 `ReadSessionContext(sessionId=current, strategy=topic, attachment=...)` 被 executor 的 JSON Schema 校验错误拒绝（oneOf 同时匹配两个分支）。模型随后查询本机会话目录，不能作为附件读取成功证据。已补 executor 边界失败测试，再改为单字符串模式；12 条工具测试通过。
 
 13:11 的另一条测试消息意外带入剪贴板图片，触发真实 Bot 附件 admission 的 `fault.attachment.connectionUntrusted`，未被 CLI 接收。13:17 已在原生界面撤回该测试消息并确认撤回状态。该入口现补接既有可信 connection scope，91 条 task adapter 测试通过；修复后的真实富文本上传仍待重测。
 
@@ -662,7 +662,7 @@ Vitest 服务执行入口通过（2 条），未运行 WDIO，不记为 Desktop 
 ### 2026-09-08 13:57 原生工具调用触发协议关闭
 
 用户手动重测后，CEDAR 任务真实记录出现 ReadSessionContext，strategy=topic、sessionId=current、
-附件消息 `om_x100b66ccd1ebe0a8c22a536e7f67b07` 均正确，但结果为 `ZCode Protocol client connection closed`。
+附件消息 `om_x100b66ccd1ebe0a8c22a536e7f67b07` 均正确，但结果为 `Secretariat Protocol client connection closed`。
 Host 同时记录该工作区 CLI 协议关闭及 SIGTERM（protocol-close）。附件 port 直接发送 Core trace，
 包含严格协议 trace 不接受的 sessionId／turnId／attributes。新增完整协议帧测试先失败，复用
 既有 protocolTraceFromTraceContext 后 3 条 bootstrap port 测试通过（含读取及取消）。

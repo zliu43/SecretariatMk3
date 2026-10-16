@@ -21,7 +21,7 @@ describe("redactTelemetryText", () => {
 
   it("覆盖 /home、/root 与 macOS 临时目录", () => {
     const redacted = redactTelemetryText(
-      "read /home/bob/.zcode failed; tmp /var/folders/xy/zz/T/zcode-123 missing",
+      "read /home/bob/.secretariat failed; tmp /var/folders/xy/zz/T/zcode-123 missing",
     );
     expect(redacted).not.toContain("bob");
     expect(redacted).not.toContain("/var/folders");
@@ -132,7 +132,7 @@ describe("resolveTelemetryProviderScope", () => {
     });
   });
 
-  it("旧报表身份 builtin:* 是 ZCode 固定 ID，判为内置并原样保留", () => {
+  it("旧报表身份 builtin:* 是 Secretariat 固定 ID，判为内置并原样保留", () => {
     // supervisor 投影 /report detail 时会把 account:* 映射成这些旧身份，plan_ttft / perf_ui_* 复用同一份 detail。
     for (const legacyId of [
       "builtin:zai",

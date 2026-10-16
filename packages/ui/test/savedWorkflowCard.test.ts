@@ -29,7 +29,7 @@ function entry(overrides: Partial<ZCodeSavedWorkflowEntry> = {}): ZCodeSavedWork
     name: "release-check",
     description: "跑测试、比对 changelog、准备发布说明。",
     scope: "project",
-    path: "/repo/.zcode/workflows/release-check.dwf.ts",
+    path: "/repo/.secretariat/workflows/release-check.dwf.ts",
     ...overrides,
   };
 }

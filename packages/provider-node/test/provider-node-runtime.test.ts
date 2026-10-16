@@ -21,8 +21,8 @@ import {
   encodeProviderConfigFile,
   resolveZCodeBuiltinCachePaths,
   resolveNodeProviderRuntimePaths,
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
 } from "../src/index.js";
 
 const temporaryDirectories: string[] = [];
@@ -237,17 +237,17 @@ describe("@zcode/provider-node", () => {
     ]);
   });
 
-  it("只在 ZCode Built-in 与 Personal 路径同时存在时启用进程 Registry", () => {
+  it("只在 Secretariat Built-in 与 Personal 路径同时存在时启用进程 Registry", () => {
     expect(resolveNodeProviderRuntimePaths({})).toBeNull();
     expect(() =>
       resolveNodeProviderRuntimePaths({
-        [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: "/zcodeBuiltin.json",
+        [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: "/zcodeBuiltin.json",
       }),
     ).toThrow("必须同时提供");
     expect(
       resolveNodeProviderRuntimePaths({
-        [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: " /zcodeBuiltin.json ",
-        [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: " /personal.json ",
+        [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: " /zcodeBuiltin.json ",
+        [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: " /personal.json ",
       }),
     ).toEqual({
       zcodeBuiltinFilePath: "/zcodeBuiltin.json",
@@ -259,12 +259,12 @@ describe("@zcode/provider-node", () => {
         personalFilePath: "/personal.json",
       }),
     ).toEqual({
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: "/zcodeBuiltin.json",
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: "/personal.json",
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: "/zcodeBuiltin.json",
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: "/personal.json",
     });
   });
 
-  it("ZCode Built-in Source 每次读取当前版本化文件，revision 随内容改变", async () => {
+  it("Secretariat Built-in Source 每次读取当前版本化文件，revision 随内容改变", async () => {
     const root = await temporaryDirectory();
     const filePath = join(root, "zcodeBuiltin.json");
     await writeZCodeBuiltin(filePath, "model-a");
@@ -283,7 +283,7 @@ describe("@zcode/provider-node", () => {
     source.dispose();
   });
 
-  it("ZCode Built-in Source 只为新的 content revision 发布一次变化", async () => {
+  it("Secretariat Built-in Source 只为新的 content revision 发布一次变化", async () => {
     const root = await temporaryDirectory();
     const filePath = join(root, "zcodeBuiltin.json");
     await writeZCodeBuiltin(filePath, "model-a");

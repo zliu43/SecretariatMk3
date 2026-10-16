@@ -1,6 +1,6 @@
 import type { ZCodeConfigOption, ZCodeProvider, ZCodeTaskMode } from "@zcode/shared";
 
-const ZCODE_TASK_MODE_VALUES: readonly ZCodeTaskMode[] = [
+const SECRETARIAT_TASK_MODE_VALUES: readonly ZCodeTaskMode[] = [
   "default",
   "yolo",
   "guarded",
@@ -14,13 +14,13 @@ const ZCODE_TASK_MODE_VALUES: readonly ZCodeTaskMode[] = [
   "build",
 ];
 
-const ZCODE_TASK_MODE_SET = new Set<string>(ZCODE_TASK_MODE_VALUES);
+const SECRETARIAT_TASK_MODE_SET = new Set<string>(SECRETARIAT_TASK_MODE_VALUES);
 
 function normalizeZCodeModeForTaskCreation(
   modeId: string,
   _provider?: ZCodeProvider,
 ): ZCodeTaskMode | undefined {
-  if (ZCODE_TASK_MODE_SET.has(modeId)) {
+  if (SECRETARIAT_TASK_MODE_SET.has(modeId)) {
     return modeId as ZCodeTaskMode;
   }
 
@@ -70,7 +70,7 @@ function stringifyUnknownValue(value: unknown): string {
   return String(value);
 }
 
-// Bugfix: ZCode Agent 调用失败时不一定抛 Error，某些实现会直接抛普通对象。
+// Bugfix: Secretariat Agent 调用失败时不一定抛 Error，某些实现会直接抛普通对象。
 // 直接 String(err) 只会得到 [object Object]，用户提示和日志都会丢掉真实错误信息。
 export function getErrorMessage(err: unknown): string {
   if (err instanceof Error) {
@@ -101,6 +101,6 @@ export function readCurrentZCodeMode(
   }
 
   // Bugfix: 之前只白名单了本地 ZCodeTaskMode，导致 provider 原生模式
-  // 在首发建 session 时被丢弃。这里先归一化，避免 UI 已选模式和真实 ZCode Agent session 模式不一致。
+  // 在首发建 session 时被丢弃。这里先归一化，避免 UI 已选模式和真实 Secretariat Agent session 模式不一致。
   return normalizeZCodeModeForTaskCreation(currentValue, provider);
 }

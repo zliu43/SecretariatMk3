@@ -35,7 +35,7 @@ const SCRIPT = [
 ].join("\n");
 
 let cwd = "";
-// 每个用例一份隔离的 HOME：全局档落在 `<HOME>/.zcode/workflows/`，core 恒取 `os.homedir()`
+// 每个用例一份隔离的 HOME：全局档落在 `<HOME>/.secretariat/workflows/`，core 恒取 `os.homedir()`
 // （posix 上即 `$HOME`）。不隔离的话 list/get/move 的全局变体会读到真实家目录、结果非确定。
 let home = "";
 let prevHome: string | undefined;
@@ -53,11 +53,11 @@ function contextWith(sessionStore?: unknown): ZCodeProtocolAgentServerContext {
 }
 
 function projectDir() {
-  return join(cwd, ".zcode", "workflows");
+  return join(cwd, ".secretariat", "workflows");
 }
 
 function globalDir() {
-  return join(home, ".zcode", "workflows");
+  return join(home, ".secretariat", "workflows");
 }
 
 async function seedWorkflow(name: string, meta: Parameters<typeof serializeSavedWorkflow>[0]) {
@@ -117,9 +117,9 @@ describe("workflows/* protocol methods", () => {
       whenToUse: "要发版时",
       args: { target: { type: "string", required: true } },
     });
-    await writeFile(join(cwd, ".zcode", "workflows", "broken.dwf.ts"), "const x = 1;\n", "utf8");
+    await writeFile(join(cwd, ".secretariat", "workflows", "broken.dwf.ts"), "const x = 1;\n", "utf8");
     await writeFile(
-      join(cwd, ".zcode", "workflows", "legacy.workflow.js"),
+      join(cwd, ".secretariat", "workflows", "legacy.workflow.js"),
       "export const meta = {};\n",
     );
 
@@ -134,18 +134,18 @@ describe("workflows/* protocol methods", () => {
       description: "发布前检查",
       whenToUse: "要发版时",
       scope: "project",
-      path: join(cwd, ".zcode", "workflows", "release-check.dwf.ts"),
+      path: join(cwd, ".secretariat", "workflows", "release-check.dwf.ts"),
     });
     expect(JSON.stringify(result)).not.toContain("reviewer.ask");
     expect(result.invalid).toHaveLength(1);
-    expect(result.invalid[0]?.path).toBe(join(cwd, ".zcode", "workflows", "broken.dwf.ts"));
+    expect(result.invalid[0]?.path).toBe(join(cwd, ".secretariat", "workflows", "broken.dwf.ts"));
     expect(result.invalid[0]?.reason).toContain("missing_frontmatter");
   });
 
   it("get：命中回 meta + 脚本本体；invalid_name / not_found / parse_error 各自可分辨", async () => {
     await seedWorkflow("release-check", { description: "发布前检查" });
     await writeFile(
-      join(cwd, ".zcode", "workflows", "broken.dwf.ts"),
+      join(cwd, ".secretariat", "workflows", "broken.dwf.ts"),
       "/* zcode-workflow\nx: [\n*/\n",
     );
 
@@ -226,12 +226,12 @@ describe("workflows/* protocol methods", () => {
         meta: { description: "x" },
       }),
     ).toEqual({ ok: false, reason: "not_found" });
-    await expect(readFile(join(cwd, ".zcode", "workflows", "ghost.dwf.ts"))).rejects.toThrow();
+    await expect(readFile(join(cwd, ".secretariat", "workflows", "ghost.dwf.ts"))).rejects.toThrow();
   });
 
   it("delete：删后 list 不再列出；not_found；非法名字在触盘前拒绝；不删同名 .workflow.js", async () => {
     const path = await seedWorkflow("release-check", { description: "发布前检查" });
-    const legacyPath = join(cwd, ".zcode", "workflows", "release-check.workflow.js");
+    const legacyPath = join(cwd, ".secretariat", "workflows", "release-check.workflow.js");
     await writeFile(legacyPath, "export const meta = {};\n");
 
     const deleted = await deleteSavedWorkflowOp(contextWith(), {
@@ -430,7 +430,7 @@ describe("workflows/* protocol methods", () => {
 });
 
 // 全局作用域（docs/dynamic-workflow/launch.md）：五个方法的定向 `scope` 变体 + workflows/move。
-// 全局档落在隔离的 `<HOME>/.zcode/workflows/`（见顶部 beforeEach）；同名的项目档不受牵连。
+// 全局档落在隔离的 `<HOME>/.secretariat/workflows/`（见顶部 beforeEach）；同名的项目档不受牵连。
 describe("workflows/* 全局作用域与 workflows/move", () => {
   it("list：项目变体只列项目档 + dir=项目根（即使目录不存在）；全局变体只列全局档 + dir=全局根", async () => {
     // 项目根不存在也回 dir（GUI 靠它 watch）。

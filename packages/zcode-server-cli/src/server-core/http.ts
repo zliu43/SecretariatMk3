@@ -23,8 +23,8 @@ import { createServiceLogger, type TopicResourcePeers } from "@zcode/services/no
 import {
   SERVER_REMOTE_PROTOCOL_VERSION,
   TOPIC_RESOURCE_RELAY_CHANNEL,
-  ZCODE_RPC_HOST_CAPABILITY_HEADER,
-  ZCODE_VERSION,
+  SECRETARIAT_RPC_HOST_CAPABILITY_HEADER,
+  SECRETARIAT_VERSION,
   type ServerRemoteInfo,
 } from "@zcode/shared";
 import { createHostCapabilityStore, type HostCapabilityStore } from "./hostCapability.js";
@@ -143,7 +143,7 @@ export async function createCoreHttpServer(
   }
   const info: ServerRemoteInfo = {
     serverId: options.serverId ?? hostname() ?? "zcode-server",
-    version: ZCODE_VERSION,
+    version: SECRETARIAT_VERSION,
     protocolVersion: SERVER_REMOTE_PROTOCOL_VERSION,
     authRequired: false,
     workspaces: [],
@@ -166,7 +166,7 @@ export async function createCoreHttpServer(
     })),
   );
   app.use("/ws/host", async (context, next) => {
-    const capability = context.req.header(ZCODE_RPC_HOST_CAPABILITY_HEADER);
+    const capability = context.req.header(SECRETARIAT_RPC_HOST_CAPABILITY_HEADER);
     if (!capabilities.consume(capability)) {
       return context.json({ error: "Invalid or expired host capability" }, 401);
     }

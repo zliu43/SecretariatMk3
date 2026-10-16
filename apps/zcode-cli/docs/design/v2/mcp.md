@@ -61,7 +61,7 @@ Plugin-provided MCP servers are specified by
 `mcp.servers` config shape before runtime startup. Manual user/project MCP
 servers win on server-name collisions. Plugin server configs may use Claude
 Code's `.mcp.json` wrapper shape and may omit `type` when a `command` is
-present; ZCode infers `stdio` in that case.
+present; Secretariat infers `stdio` in that case.
 
 `features.mcp` defaults to `true`, but no server is connected unless `mcp.servers` is configured. Individual servers may set `enabled: false`.
 
@@ -84,11 +84,11 @@ MCP 协议版本协商必须服从 server 的连接预算：
 - 本地 MCP 用 command array，不通过 shell 字符串；远程 MCP 用 URL / headers / OAuth。
 - MCP 工具最终以 server name 为前缀进入 tool pool，并可通过 tool allow/deny pattern 控制。
 
-ZCode 采用“config 先合并，MCP 后连接”的大方向，但 project MCP 有额外安全边界：project config 可能是仓库内容，不能让进入目录本身就静默启动本地进程或发起网络连接。
+Secretariat 采用“config 先合并，MCP 后连接”的大方向，但 project MCP 有额外安全边界：project config 可能是仓库内容，不能让进入目录本身就静默启动本地进程或发起网络连接。
 
 ### Desired Behavior
 
-ZCode CLI/TUI/headless prompt 应自动读取 project-level config，使仓库可以声明自己的 MCP servers。典型形态：
+Secretariat CLI/TUI/headless prompt 应自动读取 project-level config，使仓库可以声明自己的 MCP servers。典型形态：
 
 ```json
 {
@@ -114,7 +114,7 @@ ZCode CLI/TUI/headless prompt 应自动读取 project-level config，使仓库�
 
 The first shipped slice should keep the existing global config path unchanged:
 
-- user config: `~/.zcode/cli/config.json`
+- user config: `~/.secretariat/cli/config.json`
 - explicit project config path: existing `projectConfigPath` option, mostly for tests/embedding
 
 Add automatic project discovery for local CLI/TUI/headless sessions:
@@ -127,19 +127,19 @@ Add automatic project discovery for local CLI/TUI/headless sessions:
 Candidate project files, per directory, in increasing precedence:
 
 1. `<dir>/zcode.json`
-2. `<dir>/.zcode/config.json`
+2. `<dir>/.secretariat/config.json`
 
-JSONC support is desirable because users expect comments in config files, but ZCode's current config adapter is JSON-only. Treat `zcode.jsonc` / `.zcode/config.jsonc` as Phase 2 unless the same implementation slice adds a JSONC parser and schema diagnostics.
+JSONC support is desirable because users expect comments in config files, but Secretariat's current config adapter is JSON-only. Treat `zcode.jsonc` / `.secretariat/config.jsonc` as Phase 2 unless the same implementation slice adds a JSONC parser and schema diagnostics.
 
 ### Merge Precedence
 
 Effective config order should be:
 
 1. system defaults
-2. user config `~/.zcode/cli/config.json`
+2. user config `~/.secretariat/cli/config.json`
 3. discovered project config files, root-to-cwd
 4. explicit project config path, if provided by embedding/tests
-5. `ZCODE_*` environment config
+5. `SECRETARIAT_*` environment config
 6. CLI/session/runtime overrides
 
 This preserves the current rule that env and CLI/session overrides win. It also means project config can override user config for normal preference fields.
@@ -148,7 +148,7 @@ Security-sensitive project MCP behavior needs stricter handling than a plain dee
 
 - If `features.mcp` is disabled by env or CLI/session override, project config cannot re-enable it.
 - Project-origin MCP servers must carry source metadata internally: config path, scope, and config base directory.
-- Relative `cwd` for project-origin MCP servers resolves relative to the project config base directory, not the shell's current directory. For `<dir>/zcode.json`, base is `<dir>`; for `<dir>/.zcode/config.json`, base is `<dir>`.
+- Relative `cwd` for project-origin MCP servers resolves relative to the project config base directory, not the shell's current directory. For `<dir>/zcode.json`, base is `<dir>`; for `<dir>/.secretariat/config.json`, base is `<dir>`.
 - Same-name `mcp.servers` entries deep-merge by source order. A project can disable an inherited server with `enabled: false` when the full server type is known. A later slice may add tombstones such as `"server": false` or `{ "enabled": false }` without repeating `type`.
 
 ### Trust And Side Effects
@@ -166,15 +166,15 @@ P0 policy:
 
 This trust gate is separate from normal MCP tool-call permission. Tool calls still go through `mcp` permission even after a server is connected.
 
-### ZCode App-Server Boundary
+### Secretariat App-Server Boundary
 
-ZCode app-server sessions are protocol-controlled and already accept `mcpServers` during session setup. Keep the current ZCode app-server rule:
+Secretariat app-server sessions are protocol-controlled and already accept `mcpServers` during session setup. Keep the current Secretariat app-server rule:
 
-- ZCode app-server `mcpServers` is the complete server set for that ZCode app-server session.
-- ZCode app-server should not implicitly merge local user/project MCP config unless a future ZCode app-server option explicitly requests it.
-- Empty ZCode app-server `mcpServers` means no MCP servers for that session.
+- Secretariat app-server `mcpServers` is the complete server set for that Secretariat app-server session.
+- Secretariat app-server should not implicitly merge local user/project MCP config unless a future Secretariat app-server option explicitly requests it.
+- Empty Secretariat app-server `mcpServers` means no MCP servers for that session.
 
-This prevents a generic ZCode protocol client from accidentally enabling repository-local MCP servers.
+This prevents a generic Secretariat protocol client from accidentally enabling repository-local MCP servers.
 
 ### Implementation Plan
 
@@ -198,23 +198,23 @@ This prevents a generic ZCode protocol client from accidentally enabling reposit
    - Keep untrusted project servers out of model tool schemas.
    - Log skipped project MCP servers with trace/project/source metadata.
 
-5. CLI/TUI/ZCode app-server surfaces
+5. CLI/TUI/Secretariat app-server surfaces
    - TUI permission prompt for project MCP trust.
    - Headless output should explain why project MCP servers were skipped.
-   - ZCode app-server keeps session-supplied MCP behavior unchanged.
+   - Secretariat app-server keeps session-supplied MCP behavior unchanged.
 
 ### Tests
 
 Minimum coverage for the first implementation slice:
 
-- Config discovery loads `zcode.json` and `.zcode/config.json` from cwd upward to worktree root, root-to-cwd.
+- Config discovery loads `zcode.json` and `.secretariat/config.json` from cwd upward to worktree root, root-to-cwd.
 - Project config does not scan above the worktree root.
 - Project `mcp.servers` merges with user config by server key and later project config wins.
 - Relative MCP `cwd` in project config resolves against the config base directory.
 - Env/CLI/session `features.mcp: false` prevents project config from enabling MCP.
 - Untrusted project MCP servers are listed but not connected or exposed to the model.
 - Later trust slice: trusted project MCP servers connect and register tools normally.
-- ZCode app-server session `mcpServers` remains a complete override and does not merge project config.
+- Secretariat app-server session `mcpServers` remains a complete override and does not merge project config.
 - Later diagnostics slice: invalid project config reports diagnostics with source path and does not silently drop unrelated config.
 
 ## Tool Contract

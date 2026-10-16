@@ -8,11 +8,11 @@
 > Full CLI lint/test still have unrelated pre-existing failures documented in the final
 > implementation report.
 
-**Goal:** 把 ZCode WebSearch 从主请求 direct provider-native `web_search` 切换为 client tool + internal side request 形态：外层暴露普通 `WebSearch` client tool，handler 内部发起只包含 provider-native `web_search` 的 model request，并把结果作为普通 tool result 回灌给主模型。
+**Goal:** 把 Secretariat WebSearch 从主请求 direct provider-native `web_search` 切换为 client tool + internal side request 形态：外层暴露普通 `WebSearch` client tool，handler 内部发起只包含 provider-native `web_search` 的 model request，并把结果作为普通 tool result 回灌给主模型。
 
 **Architecture:** 主模型请求只看到 `WebSearch` function tool；`web_search` 只在 `WebSearch` handler 的内部 side request 中出现。Runtime registry、permission、scheduler、hooks、tool parts、history 和 nested usage 都按普通 client-side tool 路径处理 WebSearch；adapter 的 provider-native helper 映射继续保留，但只服务内部 request。
 
-**Tech Stack:** TypeScript, Zod, Vercel AI SDK tool helpers, Vitest, prompt-trajectory, ZCode core runtime/tool registry/adapter contracts.
+**Tech Stack:** TypeScript, Zod, Vercel AI SDK tool helpers, Vitest, prompt-trajectory, Secretariat core runtime/tool registry/adapter contracts.
 
 ---
 
@@ -111,8 +111,8 @@ Replace `13-websearch.md` with a spec whose top-level conclusion states:
 ## 结论
 
 `WebSearch` 是主模型可见的普通 client-side tool。模型调用 `WebSearch`
-后，ZCode 在 tool handler 内部发起一个只包含 provider-native `web_search`
-的 model request。内部 request 返回后，ZCode 把 links/sources 格式化为
+后，Secretariat 在 tool handler 内部发起一个只包含 provider-native `web_search`
+的 model request。内部 request 返回后，Secretariat 把 links/sources 格式化为
 普通 tool result，回灌给主模型继续生成最终答案。
 
 主模型请求不得直接暴露 provider-native `web_search`。
@@ -247,7 +247,7 @@ it("runs an internal provider-native web_search request from the WebSearch handl
     } as never,
   });
 
-  await runtime.executeTurn("Search current ZCode info");
+  await runtime.executeTurn("Search current Secretariat info");
 
   const innerRequest = requests.find((request) => request.metadata?.querySource === "web_search_tool");
   expect(innerRequest).toBeDefined();
@@ -911,7 +911,7 @@ Create `apps/zcode-cli/tools/prompt-trajectory/testcases/websearch-client-tool/f
   "description": "WebSearch should be exposed as a public function tool in outer requests; provider-native web_search should only appear in the internal web_search_tool request.",
   "turns": [
     {
-      "user": "Search the web for current ZCode WebSearch behavior and cite sources."
+      "user": "Search the web for current Secretariat WebSearch behavior and cite sources."
     }
   ],
   "runtime": {

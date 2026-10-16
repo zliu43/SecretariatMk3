@@ -84,29 +84,29 @@ start() 再次调用 ──▶ 复用同一条 promise ──▶ 不重复落日
 
 ### 3.3 标准 dev 启动补上 Windows 侧的 runtime 根
 
-`scripts/dev-desktop-env.mjs` 一直为 macOS 注入 `ZCODE_CUA_BUNDLED_HELPER_APP_PATH`
+`scripts/dev-desktop-env.mjs` 一直为 macOS 注入 `SECRETARIAT_CUA_BUNDLED_HELPER_APP_PATH`
 （绑定本 checkout 构建出的 Helper.app），Windows 什么都不注入。于是 host 落到产品分支去读
 `process.resourcesPath`——dev 下那是 `node_modules/electron/dist/resources`，实测只有
 `default_app.asar`：
 
 ```
-                     ┌ macOS：ZCODE_CUA_BUNDLED_HELPER_APP_PATH → checkout 内 Helper.app  OK
+                     ┌ macOS：SECRETARIAT_CUA_BUNDLED_HELPER_APP_PATH → checkout 内 Helper.app  OK
 pnpm dev:desktop ────┤
                      └ Windows：无注入 → resourcesPath = electron/dist/resources
                                         → 无 tools/cua-helper → invalid-runtime-manifest  FAIL
 ```
 
 结果标准 dev 启动的 Windows computer use 恒不可用，只能靠开发者自己记得设
-`ZCODE_CUA_DEV_ROOT`（`docs/cua/windows-source-development.md` 有写，但那是 source 开发手册，
+`SECRETARIAT_CUA_DEV_ROOT`（`docs/cua/windows-source-development.md` 有写，但那是 source 开发手册，
 不是每次跑 dev 的人都会读）。
 
-新增 `scripts/dev-desktop-cua-env.mjs`，缺省把 `ZCODE_CUA_DEV_ROOT` 绑到
+新增 `scripts/dev-desktop-cua-env.mjs`，缺省把 `SECRETARIAT_CUA_DEV_ROOT` 绑到
 `<repo>/node_modules/@zcode/zcode-cua`，即 catalog pin 指向的那一版、与产品 staging 同源。
 边界：
 
 - 开发者显式设置时**永远**尊重其取值（指向自己的 producer checkout 的场景不变）；
   纯空白与 runtime 侧一致地视为未配置。
-- 只补 dev 启动脚本的缺省，不动 runtime 侧「只认 `ZCODE_CUA_DEV_ROOT`、不搜索相邻目录、
+- 只补 dev 启动脚本的缺省，不动 runtime 侧「只认 `SECRETARIAT_CUA_DEV_ROOT`、不搜索相邻目录、
   不回退安装包资源」的既有边界。
 - 依赖仓库 `.npmrc` 的 `node-linker=hoisted` 让该路径是物理目录。换 isolated linker 时它是
   symlink，解析按 `development-root-not-found` fail closed，并由 3.1 的日志说明原因。

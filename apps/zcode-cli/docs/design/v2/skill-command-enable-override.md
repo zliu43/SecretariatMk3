@@ -12,10 +12,10 @@ key 为对应 `.md` 文件的绝对路径（skill 用 `SKILL.md`，命令用命�
 ```json
 {
   "skill": {
-    "/Users/me/.zcode/skills/demo/SKILL.md": { "enable": false }
+    "/Users/me/.secretariat/skills/demo/SKILL.md": { "enable": false }
   },
   "command": {
-    "/Users/me/.zcode/commands/demo.md": { "enable": false }
+    "/Users/me/.secretariat/commands/demo.md": { "enable": false }
   }
 }
 ```
@@ -24,7 +24,7 @@ key 为对应 `.md` 文件的绝对路径（skill 用 `SKILL.md`，命令用命�
 
 - 只有显式 `"enable": false` 的条目被过滤。
 - **未列出的条目默认可用**（`enable` 缺省视为 true）。
-- 走统一 config 管道，任意 scope（user `~/.zcode/cli/config.json`、project `.zcode/config.json` 等）
+- 走统一 config 管道，任意 scope（user `~/.secretariat/cli/config.json`、project `.secretariat/config.json` 等）
   都可写；多 scope 按路径 key 合并，高优先级覆盖低优先级。
 
 ## 实现链路

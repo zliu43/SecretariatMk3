@@ -16,7 +16,7 @@
 这些能力当前已经存在或不属于本轮修复，不放进 P0：
 
 - 重新实现 `Agent` tool 或 Claude Code 兼容的 `Task` alias。
-- 重新实现 profile loader、用户/项目 `.zcode/agents` Markdown 加载、插件 agent 加载。
+- 重新实现 profile loader、用户/项目 `.secretariat/agents` Markdown 加载、插件 agent 加载。
 - 把 `Explore` 设为默认 agent。当前省略 `subagent_type` 时默认 `general-purpose`；`Explore` 只是 specialized built-in。
 - 重新实现 `general-purpose` / `Explore` built-in profile、child runtime 创建、artifact 写入、`SendMessage`。
 - teammate、swarm、workflow、worktree isolation、model-facing `TaskCreate` / `TaskList` / `TaskUpdate`。
@@ -33,7 +33,7 @@ P1 再考虑：
 
 - `apps/zcode-cli/packages/core/src/tool/handlers/agent.ts` 中 `parsed.subagent_type ?? AgentType.GeneralPurpose`，省略时默认 `general-purpose`。
 - `apps/zcode-cli/packages/core/src/subagent/profile.ts` 中 `DEFAULT_SUBAGENT_TYPE = GENERAL_PURPOSE_AGENT_TYPE`，`normalizeAgentProfiles()` 先注册 built-in `general-purpose`，再注册 built-in `Explore`，最后覆盖用户/项目/插件 profile。
-- `apps/zcode-cli/packages/bootstrap/src/subagents.ts` 已加载用户级 `~/.zcode/agents`、项目级 `.zcode/agents`、插件 `agents/*.md`，并保留 `general-purpose` / `Explore` reserved name。
+- `apps/zcode-cli/packages/bootstrap/src/subagents.ts` 已加载用户级 `~/.secretariat/agents`、项目级 `.secretariat/agents`、插件 `agents/*.md`，并保留 `general-purpose` / `Explore` reserved name。
 - `apps/zcode-cli/packages/contracts/src/tools/agent.ts` 已有 `run_in_background`，输出包含 `completed` 和 `async_launched` 两种状态。
 
 ### Subagent runner

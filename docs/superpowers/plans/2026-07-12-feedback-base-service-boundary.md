@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Update the spec before implementation; the approved design is `docs/superpowers/specs/2026-07-12-feedback-base-service-boundary-design.md`.
-- Do not modify the `ZCODE_REMOTE_WORKSPACE_DISCONNECTED` proxy or allow remote workspace calls to fall back to local file/task services.
+- Do not modify the `SECRETARIAT_REMOTE_WORKSPACE_DISCONNECTED` proxy or allow remote workspace calls to fall back to local file/task services.
 - Preserve desktop `desktop-continuous` and mobile `web-remote-replayable` boundaries.
 - Keep Web remote feedback unsupported; pass through the feedback service already supplied by the Web root accessor.
 - Preserve macOS, Windows, Linux, light/dark themes, and internationalization behavior; this change introduces no visual or copy changes.

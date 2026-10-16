@@ -408,14 +408,14 @@ describe("session persistence", () => {
     const configPath = join(tempRoot, "config.json");
     const enabledSkillPath = join(
       tempRoot,
-      ".zcode",
+      ".secretariat",
       "skills",
       "enabled-runtime-skill",
       "SKILL.md",
     );
     const disabledSkillPath = join(
       tempRoot,
-      ".zcode",
+      ".secretariat",
       "skills",
       "disabled-runtime-skill",
       "SKILL.md",
@@ -459,7 +459,7 @@ describe("session persistence", () => {
       app = await createZCodeApp({
         env: {
           HOME: tempRoot,
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           async generateText(request: { messages: Array<{ content: unknown; role: string }> }) {
@@ -688,7 +688,7 @@ describe("session persistence", () => {
     try {
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           async generateText() {
@@ -771,7 +771,7 @@ describe("session persistence", () => {
     try {
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         eventStore,
         modelExecutor: {
@@ -829,7 +829,7 @@ describe("session persistence", () => {
     try {
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         eventStore,
         modelExecutor: {
@@ -961,7 +961,7 @@ describe("session persistence", () => {
         env: {
           PATH: shellDir,
           SHELL: join(shellDir, "fish"),
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           async generateText() {
@@ -1014,7 +1014,7 @@ describe("session persistence", () => {
     try {
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         eventStore,
         modelExecutor: {
@@ -1095,7 +1095,7 @@ describe("session persistence", () => {
     try {
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           async generateText() {
@@ -1176,7 +1176,7 @@ describe("session persistence", () => {
           options: { reasoningLevel: "high" },
         },
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           setModelIoFullRetentionEnabled() {},
@@ -1268,7 +1268,7 @@ describe("session persistence", () => {
         env: {
           PATH: shellDir,
           SHELL: join(shellDir, "fish"),
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           setModelIoFullRetentionEnabled() {},
@@ -1357,7 +1357,7 @@ describe("session persistence", () => {
       await workflowStore.writeSnapshot(snapshot);
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           setModelIoFullRetentionEnabled() {},
@@ -1401,7 +1401,7 @@ describe("session persistence", () => {
       const latest = await resolveLatestSession({
         directory: tempRoot,
         env: {
-          ZCODE_SESSION_DB_PATH: dbPath,
+          SECRETARIAT_SESSION_DB_PATH: dbPath,
         },
       });
 
@@ -1432,7 +1432,7 @@ describe("session persistence", () => {
       await expect(
         createZCodeApp({
           env: {
-            ZCODE_SESSION_DB_PATH: dbPath,
+            SECRETARIAT_SESSION_DB_PATH: dbPath,
           },
           runtimeConfig: {
             workingDirectory: tempRoot,
@@ -1445,7 +1445,7 @@ describe("session persistence", () => {
     }
   });
 
-  it("blocks ZCode Protocol startup on database migration before protocol connection", async () => {
+  it("blocks Secretariat Protocol startup on database migration before protocol connection", async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-protocol-migration-gate-"));
     const dbPath = join(tempRoot, "session.sqlite");
     const db = new DatabaseSync(dbPath);
@@ -1468,7 +1468,7 @@ describe("session persistence", () => {
         runZCodeProtocolAgent({
           env: {
             ...providerEnv,
-            ZCODE_SESSION_DB_PATH: dbPath,
+            SECRETARIAT_SESSION_DB_PATH: dbPath,
           },
           input: createNeverEndingReadable(),
           output,
@@ -1480,7 +1480,7 @@ describe("session persistence", () => {
     }
   });
 
-  it("schedules log retention cleanup after ZCode Protocol startup completes", async () => {
+  it("schedules log retention cleanup after Secretariat Protocol startup completes", async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-protocol-log-retention-"));
     const dbPath = join(tempRoot, "session.sqlite");
     const output = createMemoryWritable();
@@ -1491,9 +1491,9 @@ describe("session persistence", () => {
       await runZCodeProtocolAgent({
         env: {
           ...providerEnv,
-          ZCODE_LOG_DIR: join(tempRoot, "log"),
-          ZCODE_SESSION_DB_PATH: dbPath,
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_LOG_DIR: join(tempRoot, "log"),
+          SECRETARIAT_SESSION_DB_PATH: dbPath,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         input,
         output,
@@ -1515,7 +1515,7 @@ describe("session persistence", () => {
     }
   });
 
-  it("routes AI SDK warnings away from ZCode Protocol stdout", async () => {
+  it("routes AI SDK warnings away from Secretariat Protocol stdout", async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-protocol-ai-sdk-warning-"));
     const dbPath = join(tempRoot, "session.sqlite");
     const logDir = join(tempRoot, "log");
@@ -1527,9 +1527,9 @@ describe("session persistence", () => {
       await runZCodeProtocolAgent({
         env: {
           ...providerEnv,
-          ZCODE_LOG_DIR: logDir,
-          ZCODE_SESSION_DB_PATH: dbPath,
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_LOG_DIR: logDir,
+          SECRETARIAT_SESSION_DB_PATH: dbPath,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         input: createClosableReadable(),
         output,
@@ -1569,7 +1569,7 @@ describe("session persistence", () => {
 
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         modelExecutor: {
           async generateText(request: { messages: Array<{ role: string; content: string }> }) {
@@ -1658,7 +1658,7 @@ describe("session persistence", () => {
     try {
       const app = await createZCodeApp({
         env: {
-          ZCODE_STORAGE_DIR: tempRoot,
+          SECRETARIAT_STORAGE_DIR: tempRoot,
         },
         eventStore,
         executionPort,
@@ -2301,7 +2301,7 @@ describe("session persistence", () => {
 
     try {
       const firstApp = await createZCodeApp({
-        env: { ZCODE_STORAGE_DIR: tempRoot },
+        env: { SECRETARIAT_STORAGE_DIR: tempRoot },
         modelExecutor: createWriteModelExecutor(firstFile, "hello") as never,
         runtimeConfig: {
           mode: "yolo",
@@ -2316,7 +2316,7 @@ describe("session persistence", () => {
       expect(await readFile(firstFile, "utf8")).toBe("hello");
 
       const resumedApp = await createZCodeApp({
-        env: { ZCODE_STORAGE_DIR: tempRoot },
+        env: { SECRETARIAT_STORAGE_DIR: tempRoot },
         modelExecutor: createWriteModelExecutor(secondFile, "world") as never,
         resume: true,
         runtimeConfig: {
@@ -2411,7 +2411,7 @@ describe("session persistence", () => {
         "user",
       ]);
       expect(capturedMessages.map((message) => message.content)).toEqual([
-        expect.stringContaining("You are ZCode"),
+        expect.stringContaining("You are Secretariat"),
         // 修复原因：resume 使用现行 static # Harness + dynamic # Environment prompt 布局。
         expect.stringContaining("# Harness"),
         expect.stringContaining("# Environment"),
@@ -2500,7 +2500,7 @@ describe("session persistence", () => {
         SessionEventType.SessionResumed,
       ]);
       expect(capturedMessages.map((message) => message.content)).toEqual([
-        expect.stringContaining("You are ZCode"),
+        expect.stringContaining("You are Secretariat"),
         expect.stringContaining("# Harness"),
         expect.stringContaining("# Communicating with the user"),
         expect.stringContaining("The following skills are available"),
@@ -2739,7 +2739,7 @@ describe("session persistence", () => {
       isGitRepository: true,
       gitBranch: "feature/original",
       gitMainBranch: "main",
-      gitUser: "ZCode Tester <tester@example.com>",
+      gitUser: "Secretariat Tester <tester@example.com>",
       gitStatus: "dirty",
       gitStatusLines: [" M first.ts"],
       recentCommits: ["abc123 first commit"],

@@ -8,11 +8,11 @@ BG25 的产品时序没有异常。失败发生在 child Bash tool result 之前
 
 ## 路径合同
 
-`.e2e-home` 继续作为整个测试进程的隔离 HOME；case 临时文件统一放在 Agent 实际执行 workspace `ZCodeProject` 下的 `.zcode-e2e/<case>`。运行时日志已经确认 child 的 `workingDirectory` 指向这里，而不是 conversation backing workspace：
+`.e2e-home` 继续作为整个测试进程的隔离 HOME；case 临时文件统一放在 Agent 实际执行 workspace `SecretariatProject` 下的 `.zcode-e2e/<case>`。运行时日志已经确认 child 的 `workingDirectory` 指向这里，而不是 conversation backing workspace：
 
 ```text
 .e2e-home/
-└── ZCodeProject/                    Agent workspace cwd
+└── SecretariatProject/                    Agent workspace cwd
     └── .zcode-e2e/
         ├── shared/
         └── <case>/                  case-owned runtime files

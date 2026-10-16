@@ -272,7 +272,7 @@ GET banner -> Schema -> Service 资源授权 -> Controller -> MarketingBanner
 
 `style:null` 回归：修改前1条测试失败，修改后14条相关单测通过；使用 null 样式 fixture 的 macOS App E2E 3条通过（run `desktop-e2e-20260910104035687-p56768-d8445a96ab6405e9`）。类型/E2E类型/架构检查通过，Lint 0错误、46条已有警告；未新增其他平台实机验证。
 
-GET /api/v1/marketing/touch 返回 data.server_time、language、deliveries；每条按 resource_position 使用 banner 或 popup 字段，不使用 content 包装。POST /api/v1/marketing/touch/action 只发送 campaign_id、action_type(confirm/cancel)。两接口携带 X-Device-Mid、X-Client-Language、X-ZCode-App-Version 和可选 Authorization。
+GET /api/v1/marketing/touch 返回 data.server_time、language、deliveries；每条按 resource_position 使用 banner 或 popup 字段，不使用 content 包装。POST /api/v1/marketing/touch/action 只发送 campaign_id、action_type(confirm/cancel)。两接口携带 X-Device-Mid、X-Client-Language、X-Secretariat-App-Version 和可选 Authorization。
 
 Banner 为左下角图片或 ZIP 展示位。buttons 最多一个 close、一个非 close；close 复用右上角 X，常规动作绑定整图，无 banner.action。未知 layout/action、多个常规动作、image/bundle 以外的 Banner 独立拒绝，不影响另一资源位。Popup Hero 可空；支持 image/video/bundle，服务端暂无 lottie。文本使用 plaintext/html/markdown 的既有渲染能力（Banner 按钮空 format 按 plaintext；markdown 暂按原文），忽略远端 style。按钮文字提取安全纯文本用于标签。
 
@@ -318,7 +318,7 @@ ready -> login -> verifying -> submitting -> success-preparing -> result
 
 ## 轮询与展示
 
-环境频率恢复：正式构建且 `ZCODE_ENV=production` 时正常轮询间隔10分钟；test或开发构建30秒。移除随机 jitter，保留失败退避和事件立即刷新。旧 ManualClaimPlanBanner/ResultDialog 及其专属辅助逻辑和测试删除；输入框正在使用的模型选择引导、共用失败文案、Hero HTML/ZIP 与测试 fixture 保留。
+环境频率恢复：正式构建且 `SECRETARIAT_ENV=production` 时正常轮询间隔10分钟；test或开发构建30秒。移除随机 jitter，保留失败退避和事件立即刷新。旧 ManualClaimPlanBanner/ResultDialog 及其专属辅助逻辑和测试删除；输入框正在使用的模型选择引导、共用失败文案、Hero HTML/ZIP 与测试 fixture 保留。
 
 ```text
 query完成 -> production build + production env ? 600s : 30s -> 下一次query
@@ -412,7 +412,7 @@ App -> Marketing Touch GET -> URL/hash 授权 -> ZIP prepare/release -> Dialog
 
 # 推送回归修复约束（2026-09-11）
 
-全量门禁在 Node 24/macOS threads 池出现原生 SIGSEGV 时，可使用 `ZCODE_TEST_POOL=forks` 切换普通用例为两进程隔离模式；不改变测试集合、断言和原有串行隔离组，默认仍为 threads。此次崩溃进程 PID 88256，系统报告 node-2026-09-11-200243.ips，尚不能据此定位具体 V8/原生模块缺陷。
+全量门禁在 Node 24/macOS threads 池出现原生 SIGSEGV 时，可使用 `SECRETARIAT_TEST_POOL=forks` 切换普通用例为两进程隔离模式；不改变测试集合、断言和原有串行隔离组，默认仍为 threads。此次崩溃进程 PID 88256，系统报告 node-2026-09-11-200243.ips，尚不能据此定位具体 V8/原生模块缺陷。
 
 营销接入不得删除或回退既有非营销翻译；保留当前营销新增文案。测试服务器仅在显式启用 marketingTouch 时挂载营销 fixture，旧套餐测试不承担营销 release 握手。Root 隔离测试在 Provider 边界替换营销业务子树，避免依赖不完整和首轮模块导入超时；营销业务继续由专属单测和 App E2E 覆盖，不修改生产选择逻辑。
 

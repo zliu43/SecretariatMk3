@@ -1,8 +1,8 @@
-# ZCode CLI Tool 设计 v2
+# Secretariat CLI Tool 设计 v2
 
 ## 文档定位
 
-本目录记录 ZCode v2 的 tool 契约和实现核对清单。当前公共 tool contract 已从早期 `L1 Candidate Contract` 推进到运行时消费阶段：字段、行为、权限边界和失败路径仍以本文为设计基准，但已存在稳定的共享 TypeScript 契约、内置 tool 声明、registry 投影和 executor/scheduler 消费闭环。
+本目录记录 Secretariat v2 的 tool 契约和实现核对清单。当前公共 tool contract 已从早期 `L1 Candidate Contract` 推进到运行时消费阶段：字段、行为、权限边界和失败路径仍以本文为设计基准，但已存在稳定的共享 TypeScript 契约、内置 tool 声明、registry 投影和 executor/scheduler 消费闭环。
 
 文档顺序按当前优先级排列：
 
@@ -45,7 +45,7 @@ UI 细节不属于 tool 契约；tool 层需要有稳定 schema、权限元信�
 
 ## 统一生命周期
 
-ZCode v2 tool runtime 应按以下顺序调度：
+Secretariat v2 tool runtime 应按以下顺序调度：
 
 1. `parseInput`：用 runtime schema 校验并标准化输入。
 2. `backfillObservableInput`：仅对观测、hook、权限判断可见的输入补齐派生字段，不能修改发给模型的原始输入。
@@ -70,7 +70,7 @@ provider-visible `<tool_use_error>`，不得按 tool name 分支或解析英文 
 
 ## 公共契约要求
 
-每个 ZCode tool 都必须声明：
+每个 Secretariat tool 都必须声明：
 
 - `inputSchema`：运行时可校验，跨 LLM、SDK、MCP、session 存储边界时不得只依赖 TypeScript 类型。
 - `outputSchema`：描述成功结果的结构。失败路径使用稳定错误类型，不混进普通字符串。
@@ -101,14 +101,14 @@ provider-visible `<tool_use_error>`，不得按 tool name 分支或解析英文 
 
 当前实现已落地 L0/L1：公共契约类型和内置 tool 的声明完整性。后续新增 tool 不允许只注册 `handler` 和 `inputSchema`，必须同时补齐下面三类声明：
 
-这里的“声明”不是一整段发给模型的提示文本，而是一份结构化契约。provider adapter 只把模型需要的部分投影出去，例如 `name`、`description`、`capability`、`inputSchema`、`outputSchema`；`permission`、`resultBudget`、`timeout`、`cancellation`、`trace` 主要由 ZCode runtime、executor、permission、scheduler、artifact/storage 和观测链路消费。
+这里的“声明”不是一整段发给模型的提示文本，而是一份结构化契约。provider adapter 只把模型需要的部分投影出去，例如 `name`、`description`、`capability`、`inputSchema`、`outputSchema`；`permission`、`resultBudget`、`timeout`、`cancellation`、`trace` 主要由 Secretariat runtime、executor、permission、scheduler、artifact/storage 和观测链路消费。
 
 1. 模型可见投影：
    - `name`
    - `description`
    - `capability`
    - `inputSchema`
-   - `outputSchema`（即使当前 provider 不消费，也必须在 ZCode 契约中存在）
+   - `outputSchema`（即使当前 provider 不消费，也必须在 Secretariat 契约中存在）
 
 2. runtime 可消费声明：
    - `runtimeInputSchema`
@@ -191,7 +191,7 @@ L3 已经补齐两个运行时闭环：
 | TodoRead | `TodoRead` | 主智能体 | session todo 状态读取 | 是 | 是 | 100000 chars |
 | TodoWrite | `TodoWrite` | 主智能体 | session todo 状态替换 | 是，session-only | 否 | 100000 chars |
 
-## ZCode 的实现取向
+## Secretariat 的实现取向
 
 这些文档只定义 tool 层的语义，不要求一次实现全部能力。落地时优先实现稳定契约和测试：
 
@@ -205,4 +205,4 @@ L3 已经补齐两个运行时闭环：
 - WebSearch 当前采用 client tool wrapper：主请求只暴露普通 `WebSearch` client tool，handler 内部再发起只包含 provider-native `web_search` 的模型请求；adapter 只负责内部 native helper 映射，不恢复 HTML 抓取。
 - AskUserQuestion 先实现非阻塞会话状态、可恢复 pending prompt 和 SDK/TUI 统一输出。
 - Subagent 先实现 agent definition registry、tool pool resolver、隔离执行上下文、background task、transcript/resume 和 trace 传播，再考虑 fork、worktree、remote 与 teammate。
-- Todo 已实现 session store 持久化、工具契约、TUI/ZCode app-server 计划投影、resume 上下文注入和 compact summary 附带 todo 状态；后续改动应保持这些投影只消费 runtime/session event，不直接读取 storage。
+- Todo 已实现 session store 持久化、工具契约、TUI/Secretariat app-server 计划投影、resume 上下文注入和 compact summary 附带 todo 状态；后续改动应保持这些投影只消费 runtime/session event，不直接读取 storage。

@@ -13,7 +13,7 @@ tool catalog cache 当成资源回收机制。
 
 ## 背景
 
-ZCode 当前已经在 session/runtime 创建时提前调度 MCP 初始化，但首个 provider request 之前仍会执行：
+Secretariat 当前已经在 session/runtime 创建时提前调度 MCP 初始化，但首个 provider request 之前仍会执行：
 
 ```text
 startMcpStartup()
@@ -40,20 +40,20 @@ live tool execution
 
 ## 设计取舍
 
-| 能力                            | 语义                                                                                         | ZCode 规划                                     |
+| 能力                            | 语义                                                                                         | Secretariat 规划                                     |
 | ------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | process-scoped tool catalog LRU | 32 entries、30 分钟 TTL；只在 startup pending 时读                                           | Phase 1/2 采用                                 |
 | transport identity              | stdio command/args/env/cwd/environment/client capability；HTTP 因 auth identity 不稳定而跳过 | 采用，并补 workspace identity 边界             |
 | payload sanitization            | publish 前移除 connection instructions 和 tool annotations                                   | 采用；cache 不参与权限                         |
 | concurrent publish              | entry-local generation，较旧 fetch 不能覆盖较新 snapshot                                     | 采用                                           |
 | cold miss                       | tool listing 等 live client；不会为了快而静默隐藏 MCP                                        | 采用 aggregate complete-hit                    |
-| live execution                  | 调用前等待当前 client，并从 live inventory 重新查 tool/visibility/annotations 后再审批       | 采用，并适配 ZCode 的 schema validation 顺序   |
+| live execution                  | 调用前等待当前 client，并从 live inventory 重新查 tool/visibility/annotations 后再审批       | 采用，并适配 Secretariat 的 schema validation 顺序   |
 | lifecycle                       | per-server startup future、startup cancellation、manager shutdown 和 stdio cleanup           | 保留现有 session ownership 并补回归            |
 | status / auth / elicitation     | per-server startup update、auth state、ready wait、elicitation routing                       | 不由 catalog 接管                              |
 | connector 专用 cache            | 失败后长期使用 cache、后台 reconnect、hard refresh，语义不同于普通 MCP                       | 不泛化到普通 MCP                               |
-| required server                 | 把部分 server 标为 required，未就绪时阻塞                                                    | ZCode 当前无对应产品语义，本功能不顺带引入     |
+| required server                 | 把部分 server 标为 required，未就绪时阻塞                                                    | Secretariat 当前无对应产品语义，本功能不顺带引入     |
 | resources / templates           | 继续从 live client 查询，不走普通 tool catalog cache                                         | 不纳入本功能                                   |
-| `tools/list_changed`            | 普通 catalog cache 当前没有完整动态 invalidation                                             | ZCode Phase 3 可在识别 notification 后标 dirty |
+| `tools/list_changed`            | 普通 catalog cache 当前没有完整动态 invalidation                                             | Secretariat Phase 3 可在识别 notification 后标 dirty |
 
 核心取舍是只做“startup advertisement 快路径”，不引入 connector 专用的长期 stale
 fallback，也不把 cache 发展成第二套 MCP runtime。
@@ -133,7 +133,7 @@ MCP tools、下一轮再出现”的更激进策略，避免用户明确要求�
 ## 总体架构
 
 ```text
-ZCode Protocol / Agent process
+Secretariat Protocol / Agent process
 │
 ├─ McpToolCatalogPort                        process scoped
 │    ├─ stdio identity A -> sanitized tools
@@ -438,7 +438,7 @@ headers 或 server name 共享可能把不同账号、OAuth token 或权限范�
 - snapshot：`tools + publishedAt`
 - entry：`nextFetchGeneration + lastAcceptedGeneration`
 
-除 entry 数量约束外，ZCode 额外增加 byte budget，避免少量异常大 schema 反向制造新的内存
+除 entry 数量约束外，Secretariat 额外增加 byte budget，避免少量异常大 schema 反向制造新的内存
 问题。成功取得但超过单 entry 上限的 catalog 标记为 `oversize` 并清除该 identity 的旧 snapshot，后续
 走 cold path；不能因为“新值放不下”继续广告旧值。
 

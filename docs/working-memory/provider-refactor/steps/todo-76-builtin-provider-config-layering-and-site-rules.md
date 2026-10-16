@@ -46,7 +46,7 @@ Model ID
 
 ### Built-in Provider Instance Model overlay
 
-表示 ZCode Builtin Config 为某个确定 `providerId + modelId` 提供的精确模型覆盖。
+表示 Secretariat Builtin Config 为某个确定 `providerId + modelId` 提供的精确模型覆盖。
 
 ### Personal Provider Instance Model overlay
 
@@ -96,7 +96,7 @@ Research 文档只记录证据。
 | `reasoningLevel.map` | Model + API Schema | 可以 | 无可靠映射则不可用 |
 | `maxOutputTokens.map` | API Schema | 可以 | 无可靠映射则不可用 |
 | `support_pdf` | Model | 可以 | 不声明支持 |
-| `supportsToolCall` | Model/API | 可以 | 不能关闭 ZCode 必需能力 |
+| `supportsToolCall` | Model/API | 可以 | 不能关闭 Secretariat 必需能力 |
 | `supportsJsonSchemaOutput` | Model/API | 可以 | 未确认不声明支持 |
 | 搜索/系统消息能力 | API 基线 | 可以 | 未确认不声明支持 |
 

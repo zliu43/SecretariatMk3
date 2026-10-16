@@ -439,7 +439,7 @@ describe("useGlobalTaskList remote shard tasks-index 行 + sessions-index detail
       sessions: [],
     });
     const macIdentity = "remote:ssh:mac:/Users/dev";
-    const macProjectIdentity = "remote:ssh:mac:/Users/dev/ZCodeProject";
+    const macProjectIdentity = "remote:ssh:mac:/Users/dev/SecretariatProject";
     const mac = createEndpointServices({
       workspaceId: "ws-mac",
       sessions: [],
@@ -491,7 +491,7 @@ describe("useGlobalTaskList remote shard tasks-index 行 + sessions-index detail
     };
     const macProjectScope: WorkspaceSessionsIndexScope = {
       endpointKey: "remote-mac",
-      workspacePath: "/Users/dev/ZCodeProject",
+      workspacePath: "/Users/dev/SecretariatProject",
       workspaceIdentity: macProjectIdentity,
       agentService: mac.services.zcodeAgentService,
     };

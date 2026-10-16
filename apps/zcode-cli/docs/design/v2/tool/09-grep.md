@@ -15,7 +15,7 @@ adapter 默认使用打包的 ripgrep WASM，并在 WASM 不可用时降级到 J
 embedded branch 不暴露 direct `Grep` tool。input schema 不添加 `minLength`、`minimum`、
 `integer` 等额外限制。
 
-当前 ZCode 不按 model 动态切换 `Grep` description，所有模型使用同一份短文案。
+当前 Secretariat 不按 model 动态切换 `Grep` description，所有模型使用同一份短文案。
 
 `Grep` 原本按 Explore-only 内置工具设计。当前默认采用
 embedded search 分支，主智能体和 `Explore` child runtime 都不暴露 direct `Grep`；
@@ -83,7 +83,7 @@ embedded search 分支，主智能体和 `Explore` child runtime 都不暴露 di
 
 Node adapter 默认使用随包发布的 ripgrep WASM 能力执行内容搜索。WASM ripgrep 是基础设施层细节：它不暴露给 core，不要求用户系统安装 `rg`，也不通过 shell 执行外部命令。adapter 必须保留受控 JS fallback，用于 WASM 初始化失败、打包环境不支持 WASI 或测试注入；fallback 的行为应尽量保持与 ripgrep 输出契约一致。
 
-第一版不新增 `ZCODE_` 环境变量开关。普通 npm 包和 SEA 打包都必须把 ripgrep WASM 运行时代码纳入发布产物，详见 `docs/design/v2/tool/11-ripgrep-wasm-packaging.md`。
+第一版不新增 `SECRETARIAT_` 环境变量开关。普通 npm 包和 SEA 打包都必须把 ripgrep WASM 运行时代码纳入发布产物，详见 `docs/design/v2/tool/11-ripgrep-wasm-packaging.md`。
 
 ## 结果预算
 

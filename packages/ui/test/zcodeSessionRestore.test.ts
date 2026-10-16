@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  SECRETARIAT_PROTOCOL_NAME,
+  SECRETARIAT_PROTOCOL_VERSION,
   type ZCodeMessageWithParts,
   type ZCodeSessionStateSnapshot,
   type ZCodeTaskSnapshot,
@@ -25,8 +25,8 @@ function createSnapshot(params: {
 } = {}): ZCodeSessionStateSnapshot {
   return {
     protocol: {
-      name: ZCODE_PROTOCOL_NAME,
-      version: ZCODE_PROTOCOL_VERSION,
+      name: SECRETARIAT_PROTOCOL_NAME,
+      version: SECRETARIAT_PROTOCOL_VERSION,
     },
     session: {
       sessionId: "sess_1",
@@ -186,7 +186,7 @@ describe("readDesktopContinuousSessionRestoreSnapshot", () => {
     const legacySnapshot = createLegacyTaskSnapshot();
     const unavailableModelError = Object.assign(
       new Error("历史任务使用的模型已不可用，请选择当前可用模型后继续。"),
-      { code: "ZCODE_RUNTIME_MODEL_UNAVAILABLE" },
+      { code: "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE" },
     );
     const zcodeSessionService = {
       resumeSession: vi.fn(async () => {
@@ -211,7 +211,7 @@ describe("readDesktopContinuousSessionRestoreSnapshot", () => {
     expect(result.usedLegacySnapshot).toBe(true);
     expect(result.resumedSessionSnapshot).toBeUndefined();
     expect(result.restoreWarning).toMatchObject({
-      code: "ZCODE_RUNTIME_MODEL_UNAVAILABLE",
+      code: "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE",
       message: "历史任务使用的模型已不可用，请选择当前可用模型后继续。",
       taskId: "sess_1",
     });

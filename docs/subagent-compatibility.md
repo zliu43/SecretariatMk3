@@ -10,13 +10,13 @@
 
 ## 背景
 
-ZCode 的子智能体调度工具名是 `Agent`，Claude Code 插件生态里的子智能体调度工具名是 `Task`。Superpowers 等 `.claude-plugin` 的 skill 文档会直接要求模型调用 `Task`；如果只在 `SessionStart` 追加一段提示词映射，模型、hook matcher、后台任务恢复和 UI 投影仍会各自有一套不一致的解释。
+Secretariat 的子智能体调度工具名是 `Agent`，Claude Code 插件生态里的子智能体调度工具名是 `Task`。Superpowers 等 `.claude-plugin` 的 skill 文档会直接要求模型调用 `Task`；如果只在 `SessionStart` 追加一段提示词映射，模型、hook matcher、后台任务恢复和 UI 投影仍会各自有一套不一致的解释。
 
-因此 ZCode 的兼容目标是把 `Task` 作为结构化 runtime 别名接入，而不是对单个插件做文本补丁。面向 first-party 模型的 provider-visible `tools[]` 仍只暴露 canonical `Agent`；`Task` 只用于历史调用、hook matcher 和内部兼容。
+因此 Secretariat 的兼容目标是把 `Task` 作为结构化 runtime 别名接入，而不是对单个插件做文本补丁。面向 first-party 模型的 provider-visible `tools[]` 仍只暴露 canonical `Agent`；`Task` 只用于历史调用、hook matcher 和内部兼容。
 
 ## 兼容原则
 
-- `Agent` 是 ZCode canonical subagent 工具。
+- `Agent` 是 Secretariat canonical subagent 工具。
 - `Task` 是 Claude Code 兼容 runtime alias，底层委托 `Agent` 的 handler，但默认不进入 provider-visible `tools[]`。
 - 两者共享输入/输出 schema、权限能力、结果预算、timeout、cancellation 和 trace 策略。
 - 兼容层不能改变实际工具调用轨迹：模型调用 `Agent` 时 hook input 仍是 `Agent`，模型调用 `Task` 时 hook input 仍是 `Task`。
@@ -55,7 +55,7 @@ ZCode 的子智能体调度工具名是 `Agent`，Claude Code 插件生态里的
 
 ## Hook Matcher 兼容
 
-Claude Code 插件 hook 可能写 `matcher: "Task"`，而 ZCode 原生调用可能仍是 `Agent`。ZCode hook runner 支持一个实际 `matchValue` 加一组兼容 `matchValues`：
+Claude Code 插件 hook 可能写 `matcher: "Task"`，而 Secretariat 原生调用可能仍是 `Agent`。Secretariat hook runner 支持一个实际 `matchValue` 加一组兼容 `matchValues`：
 
 - `Agent` 调用匹配 `Agent` 和 `Task` matcher。
 - `Task` 调用匹配 `Task` 和 `Agent` matcher。
@@ -86,7 +86,7 @@ Claude Code 插件 hook 可能写 `matcher: "Task"`，而 ZCode 原生调用可�
 
 ## UI 与历史数据
 
-App/UI 层需要同时识别现役 `Task` 和历史 ZCode Agent 投影：
+App/UI 层需要同时识别现役 `Task` 和历史 Secretariat Agent 投影：
 
 - `packages/shared/src/tool-identity.ts` 将 `Task` 归为 `agent` family。
 - 服务层和 UI 消息归一在解析 agent activity result 时接受 `Task`。

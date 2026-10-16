@@ -24,7 +24,7 @@ function makeCwd(): string {
   return dir;
 }
 
-/** 一个隔离的家目录，供全局档用例注入——绝不碰开发机真实的 `~/.zcode/workflows`。 */
+/** 一个隔离的家目录，供全局档用例注入——绝不碰开发机真实的 `~/.secretariat/workflows`。 */
 function makeHome(): string {
   const dir = mkdtempSync(join(tmpdir(), "dwf-home-"));
   created.push(dir);
@@ -162,7 +162,7 @@ describe("saved workflow store", () => {
 
     expect(written.overwritten).toBe(false);
     expect(written.scope).toBe("project");
-    expect(written.path).toBe(join(cwd, ".zcode/workflows/pr-review.dwf.ts"));
+    expect(written.path).toBe(join(cwd, ".secretariat/workflows/pr-review.dwf.ts"));
 
     const resolved = resolveSavedWorkflow({ cwd, name: "pr-review" });
     expect(resolved.ok).toBe(true);
@@ -253,7 +253,7 @@ describe("saved workflow store", () => {
       description: "first",
       args: { a: { type: "number" } },
       scope: "project",
-      path: join(cwd, ".zcode/workflows/alpha.dwf.ts"),
+      path: join(cwd, ".secretariat/workflows/alpha.dwf.ts"),
     });
     // 枚举不是读取：正文绝不进列表。
     expect(JSON.stringify(entries)).not.toContain("agent(");
@@ -293,8 +293,8 @@ describe("saved workflow store", () => {
     const home = makeHome();
     const roots = savedWorkflowRoots(cwd, { homeDir: home });
     expect(roots).toHaveLength(2);
-    expect(roots[0]).toEqual({ scope: "project", dir: join(cwd, ".zcode/workflows") });
-    expect(roots[1]).toEqual({ scope: "global", dir: join(home, ".zcode/workflows") });
+    expect(roots[0]).toEqual({ scope: "project", dir: join(cwd, ".secretariat/workflows") });
+    expect(roots[1]).toEqual({ scope: "global", dir: join(home, ".secretariat/workflows") });
 
     saveSavedWorkflow({ cwd, name: "shadowed", meta: { description: "project" }, script: SCRIPT });
     const resolved = resolveSavedWorkflow({ cwd, name: "shadowed" });
@@ -319,7 +319,7 @@ describe("saved workflow global scope", () => {
     });
 
     expect(written.scope).toBe("global");
-    expect(written.path).toBe(join(home, ".zcode/workflows/research.dwf.ts"));
+    expect(written.path).toBe(join(home, ".secretariat/workflows/research.dwf.ts"));
 
     const resolved = resolveSavedWorkflow({ cwd, name: "research", homeDir: home });
     expect(resolved.ok).toBe(true);
@@ -485,7 +485,7 @@ describe("moveSavedWorkflow (global → project)", () => {
     expect(result).toEqual({
       ok: true,
       from: written.path,
-      to: join(cwd, ".zcode/workflows/landing.dwf.ts"),
+      to: join(cwd, ".secretariat/workflows/landing.dwf.ts"),
     });
     if (!result.ok) return;
     // 逐字节：move 不 parse、不 reserialize。
@@ -516,7 +516,7 @@ describe("moveSavedWorkflow (global → project)", () => {
     expect(result).toEqual({
       ok: false,
       reason: "target_exists",
-      path: join(cwd, ".zcode/workflows/dup.dwf.ts"),
+      path: join(cwd, ".secretariat/workflows/dup.dwf.ts"),
     });
     // 源与目标都还在（拒绝是原子的：什么都没搬）。
     expect(savedWorkflowExists({ cwd, name: "dup", scope: "project", homeDir: home })).toBe(true);

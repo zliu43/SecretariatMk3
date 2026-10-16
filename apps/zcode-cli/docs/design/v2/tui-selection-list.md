@@ -1,6 +1,6 @@
 # TUI Selection List
 
-ZCode TUI needs a reusable list interaction for commands that choose an existing session or a workspace checkpoint. The first version is intentionally local to the TUI command flow and does not change ZCode app-server or non-interactive prompt behavior.
+Secretariat TUI needs a reusable list interaction for commands that choose an existing session or a workspace checkpoint. The first version is intentionally local to the TUI command flow and does not change Secretariat app-server or non-interactive prompt behavior.
 
 ## Current Implementation Status
 
@@ -65,7 +65,7 @@ Implementation anchors:
 
 Remaining work:
 
-- No ZCode app-server-specific picker protocol is introduced; remote clients should keep
+- No Secretariat app-server-specific picker protocol is introduced; remote clients should keep
   using explicit commands or their own UI projection.
 - The picker only covers persisted root sessions and workspace checkpoints. It
   does not yet provide all-message navigation or arbitrary conversation rewind.

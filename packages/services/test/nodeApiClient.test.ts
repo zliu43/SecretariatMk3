@@ -36,7 +36,7 @@ describe("nodeApiClient", () => {
     expect(headers.get("x-request-id")).toBe("caller-request-id");
   });
 
-  it("401 且请求携带当前 ZCode JWT 时通知回调", async () => {
+  it("401 且请求携带当前 Secretariat JWT 时通知回调", async () => {
     const onZcodeJwtInvalid = vi.fn();
     const fetchImpl = vi.fn(
       async () =>
@@ -55,7 +55,7 @@ describe("nodeApiClient", () => {
     expect(onZcodeJwtInvalid).toHaveBeenCalledTimes(1);
   });
 
-  it("普通 401 不通知 ZCode JWT 失效", async () => {
+  it("普通 401 不通知 Secretariat JWT 失效", async () => {
     const onZcodeJwtInvalid = vi.fn();
     const fetchImpl = vi.fn(async () => new Response("", { status: 401 }));
     const client = createNodeApiClient({ fetchImpl, onZcodeJwtInvalid });

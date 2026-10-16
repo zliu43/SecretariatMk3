@@ -30,7 +30,7 @@ function collectUrls(markdown: string): string[] {
 
 describe("windowsFileLinkEscapeRemarkPlugin", () => {
   it("restores the backslash CommonMark ate before a dot-prefixed directory", () => {
-    // 现场：PowerShell 兜底截图落在 .zcode 下，`\.` 被当作标点转义吃掉，
+    // 现场：PowerShell 兜底截图落在 .secretariat 下，`\.` 被当作标点转义吃掉，
     // 预览请求 C:/Users/dev.zcode/... 直接 ENOENT。
     expect(
       collectUrls(
@@ -58,8 +58,8 @@ describe("windowsFileLinkEscapeRemarkPlugin", () => {
   });
 
   it("restores forward-slash drive paths that still contain an escaped punctuation", () => {
-    expect(collectUrls(String.raw`[shot](C:/Users/dev/\.zcode/shot.png)`)).toEqual([
-      String.raw`C:/Users/dev/\.zcode/shot.png`,
+    expect(collectUrls(String.raw`[shot](C:/Users/dev/\.secretariat/shot.png)`)).toEqual([
+      String.raw`C:/Users/dev/\.secretariat/shot.png`,
     ]);
   });
 

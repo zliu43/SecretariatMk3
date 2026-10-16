@@ -1,8 +1,8 @@
-# ZCode Protocol 模型型控制请求异步化
+# Secretariat Protocol 模型型控制请求异步化
 
 ## 背景
 
-App 通过子进程 stdio 与 `apps/zcode-cli` 的 ZCode Protocol 通信。协议客户端把普通 request 当作短通信请求处理，默认 30 秒超时；agent 侧 NDJSON transport 又会串行处理进入的消息。若一个 protocol handler 在同步等待模型请求，后续消息会排队，甚至会挡住 agent -> app 反向 request 的 response。
+App 通过子进程 stdio 与 `apps/zcode-cli` 的 Secretariat Protocol 通信。协议客户端把普通 request 当作短通信请求处理，默认 30 秒超时；agent 侧 NDJSON transport 又会串行处理进入的消息。若一个 protocol handler 在同步等待模型请求，后续消息会排队，甚至会挡住 agent -> app 反向 request 的 response。
 
 `session/send` 会快速 ACK，真实模型 turn 在后台运行，并通过 session event / `state.updated` 推送进度。过去 `session/compact` 和 `prompt/enhance` 同步等待模型请求时，会遇到同类问题：
 

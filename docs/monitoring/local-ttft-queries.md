@@ -8,7 +8,7 @@ Status: in-progress
 
 ## 接入
 
-沿用 `OTEL_EXPORTER_OTLP_ENDPOINT` 及各 signal 的 endpoint/headers；不要将写入密钥放进看板。灰度由既有 client configs 的 `rendererActionTrace.localTtftEnabled` 布尔值控制，缺省 false，旧 Trace 的 enabled/sampleRatio 不决定新 TTFT 采样。应用本地诊断可设置 `ZCODE_LOCAL_TTFT_ENABLED=1`；不改变旧 Renderer/Agent Trace 抽样。
+沿用 `OTEL_EXPORTER_OTLP_ENDPOINT` 及各 signal 的 endpoint/headers；不要将写入密钥放进看板。灰度由既有 client configs 的 `rendererActionTrace.localTtftEnabled` 布尔值控制，缺省 false，旧 Trace 的 enabled/sampleRatio 不决定新 TTFT 采样。应用本地诊断可设置 `SECRETARIAT_LOCAL_TTFT_ENABLED=1`；不改变旧 Renderer/Agent Trace 抽样。
 
 专用 Metric：`zcode.local_ttft.duration`、`zcode.local_ttft.stage.duration`、`zcode.local_ttft.first_text.duration`，均为毫秒 Histogram，OTLP 使用 DELTA temporality。主样本标签为 provider、model、quality、app_version、os；stage Histogram 再增加固定 stage。provider/model 组合每个 exporter 最多保留 16 种，其余归入 other；每个 instrument 的聚合 cardinality 上限 256。高基数关联只进 Trace。默认体验看板选择 quality=complete，missing/clock_invalid 可单独查询，不能混入完整阶段分布。quality 语义：clock_invalid 只表示检测到时钟异常（负区间、休眠暂停、墙钟漂移超界）；校准缺失或过期只导致跨进程阶段缺失，记为 missing，同进程阶段与总 TTFT 仍可靠。
 
@@ -57,7 +57,7 @@ Trace service.name 为 `zcode-local-ttft`。以 `observation_id` 精确过滤得
 先运行 `node packages/desktop/scripts/ttft-otlp-receiver.mjs`，接收器仅监听 localhost:14318，最多保留 512 批。随后运行：
 
 ```sh
-ZCODE_E2E_MANUAL_REVIEW=1 ZCODE_LOCAL_TTFT_ENABLED=1 \
+SECRETARIAT_E2E_MANUAL_REVIEW=1 SECRETARIAT_LOCAL_TTFT_ENABLED=1 \
 OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:14318 \
 E2E_PROVIDER_REPLAY_FIXTURE_PATH=packages/desktop/test/e2e/fixtures/upstream/common.json,packages/desktop/test/e2e/fixtures/upstream/conversation-session/conversation-session-ttft-stages.json \
 pnpm --filter @zcode/desktop test:e2e -- --spec './test/e2e/conversation-session/manual-review/pending/conversation-session-ttft-stages.test.ts'

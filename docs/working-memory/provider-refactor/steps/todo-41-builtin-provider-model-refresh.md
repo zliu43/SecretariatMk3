@@ -9,7 +9,7 @@
 
 ## 1. 目标
 
-基于 2026-08 当前厂商官网、搜索发现和已确认的 ZCode 产品事实，把
+基于 2026-08 当前厂商官网、搜索发现和已确认的 Secretariat 产品事实，把
 `config/provider/zcode-builtin.json` 升级为 revision 3：补齐当前主推/独特模型，校正确定能力，使用
 Provider-Model Exact Rule 表达默认 enabled，并让 Provider 成员物理顺序与 enabled 区一致。
 

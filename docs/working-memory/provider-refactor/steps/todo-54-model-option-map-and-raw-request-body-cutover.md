@@ -32,7 +32,7 @@ maxOutputTokens
 ```
 
 这会让同一个 Option 的定义与请求效果分散在 Config、ModelFactory、AI SDK namespace 和 Adapter helper 中，
-也迫使高级配置作者理解 `providerOptions.anthropic`、`providerOptions.openai`、`extra_body` 等 ZCode/AI SDK
+也迫使高级配置作者理解 `providerOptions.anthropic`、`providerOptions.openai`、`extra_body` 等 Secretariat/AI SDK
 中间协议，而不是直接理解目标 Anthropic Messages、OpenAI Chat Completions 或 OpenAI Responses Schema。
 
 本 Todo 将映射能力收回每个 Option Spec：每个 Option 只认识自己的最终 `value`，用一条受限 CEL `map`
@@ -44,14 +44,14 @@ Adapter 请求执行复用同一个模块，不能各自解析或解释表达式
 
 ## 2. 第一性原理
 
-### 2.1 ZCode 统一 Option 与原始 API 字段
+### 2.1 Secretariat 统一 Option 与原始 API 字段
 
-| ZCode Option      | Anthropic Messages                               | OpenAI Chat Completions                                | OpenAI Responses    |
+| Secretariat Option      | Anthropic Messages                               | OpenAI Chat Completions                                | OpenAI Responses    |
 | ----------------- | ------------------------------------------------ | ------------------------------------------------------ | ------------------- |
 | `reasoningLevel`  | `thinking.type`、必要时 `thinking.budget_tokens` | `reasoning_effort` 或目标兼容 Schema 的同义字段        | `reasoning.effort`  |
 | `maxOutputTokens` | `max_tokens`                                     | `max_completion_tokens`；部分兼容协议使用 `max_tokens` | `max_output_tokens` |
 
-ZCode 保持公共 Option 的统一语义；具体字段名、对象层级和开关表达由命中当前 `providerId/modelId/api.type`
+Secretariat 保持公共 Option 的统一语义；具体字段名、对象层级和开关表达由命中当前 `providerId/modelId/api.type`
 的 Model Config Rule 声明。Runtime 与 Adapter 不再根据具体模型 ID、Provider ID 或 API 类型硬编码同一映射。
 
 ### 2.2 用户面对原始 API Schema，而不是 AI SDK 协议
@@ -61,7 +61,7 @@ OpenAI Chat Completions 或 OpenAI Responses，并直接书写这些公开 Schem
 
 - AI SDK `providerOptions` 的 namespace；
 - `extra_body` 等 SDK 透传入口；
-- ZCode 内部 `ReasoningParameters`；
+- Secretariat 内部 `ReasoningParameters`；
 - Adapter 为兼容 SDK 建立的预算加减与字段清洗 helper。
 
 Config 中的 Map 结果是最终原始 Request Body 字段权威。AI SDK 或 Adapter 如何生成基础请求体属于内部实现，
@@ -308,10 +308,10 @@ reasoningLevel.values
 
 ### 4.5 `budgetTokens` 边界
 
-需要删除的是 ZCode/AI SDK 中间层的统一 `budgetTokens` 参数与兼容换算，不是 Anthropic 原始 API 字段：
+需要删除的是 Secretariat/AI SDK 中间层的统一 `budgetTokens` 参数与兼容换算，不是 Anthropic 原始 API 字段：
 
 ```text
-ZCode 中间字段 budgetTokens
+Secretariat 中间字段 budgetTokens
 └─ 删除，不进入公共 Option、Request 或 Mapping 参数结构
 
 Anthropic 原始 thinking.budget_tokens
@@ -366,7 +366,7 @@ Anthropic 原始 thinking.budget_tokens
 }
 ```
 
-Provider 不得重新解释 ZCode `maxOutputTokens` 为“仅用户可见输出”。字段名称差异由 Map 解决，语义不变。
+Provider 不得重新解释 Secretariat `maxOutputTokens` 为“仅用户可见输出”。字段名称差异由 Map 解决，语义不变。
 
 ## 6. AI SDK 与 Wire 边界
 
@@ -402,7 +402,7 @@ AI SDK 序列化基础 JSON Request Body
 - 不再同时把同义值写进 AI SDK `providerOptions`；
 - 不保留 `createRequestProviderOptions(api.type, reasoningMapping[level])`；
 - 不保留按 Provider Kind 修改同一 Option 语义的 Runtime 分支；
-- 不保留 Anthropic fixed thinking 的“ZCode 先减、AI SDK 再加回”换算；
+- 不保留 Anthropic fixed thinking 的“Secretariat 先减、AI SDK 再加回”换算；
 - 不保留原始 `max_tokens`、`max_output_tokens`、`max_completion_tokens` 与 canonical Option 竞争的字段清洗事实。
 
 Generate 与 Stream 必须使用同一 Patch 执行器和相同应用顺序。Patch 必须在任何依赖 Body 内容的请求安全校验之前完成；
@@ -668,7 +668,7 @@ Request Body”这条语义边。实现阶段在当前设计文档更新后补�
 - 每个公共 Option Spec 通过自己的 `map(value)` 声明原始 API Schema Request Body 投影；模型/API/Personal Rule 通过叶子 Overlay 汇合；
 - `reasoningMapping`、`ReasoningParameters`、reasoning/max-output 的 AI SDK namespace 映射和旧完整性循环彻底删除；
 - `maxOutputTokens` 与 Reasoning 都由 Option Map 形成最终原始 Body，不存在 Adapter 第二套字段映射；
-- Anthropic fixed-thinking 的预算先减后加和 ZCode 中间 `budgetTokens` 清零；原始 `thinking.budget_tokens` 只作为
+- Anthropic fixed-thinking 的预算先减后加和 Secretariat 中间 `budgetTokens` 清零；原始 `thinking.budget_tokens` 只作为
   Anthropic Map 字段存在；
 - 三种 API Schema 的 Generate/Stream Wire 测试证明字段路径、值和总输出预算语义正确；
 - 多 Option Patch 使用固定顺序并拒绝实际写入路径冲突；Debug/Model IO 与最终 Wire Body 一致；

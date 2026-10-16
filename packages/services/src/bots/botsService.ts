@@ -21,7 +21,7 @@ import {
   isGroupOwnerCommand,
   canAnswerGroupQuestion,
 } from "./groupSessions.js";
-/* eslint-disable max-lines -- Bots 服务仍复用原 RPC 文件名，先把鉴权、命令路由、ZCode Agent 桥接收口集中在同一服务内。 */
+/* eslint-disable max-lines -- Bots 服务仍复用原 RPC 文件名，先把鉴权、命令路由、Secretariat Agent 桥接收口集中在同一服务内。 */
 import { Buffer } from "node:buffer";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -33,7 +33,7 @@ import {
   CONVERSATION_SELECTION_MAX_TEXT_LENGTH,
   generateTraceId,
   normalizeAgentProviderToZCodeAgent,
-  ZCODE_AGENT_PROVIDER,
+  SECRETARIAT_AGENT_PROVIDER,
   BOT_TASK_BROADCAST_CHANNEL,
   BOT_TASK_STREAM_BROADCAST_CHANNEL,
   appendAssistantMessagePart,
@@ -189,7 +189,7 @@ const botsLogger = createServiceLogger("bots");
 
 function formatBotModelSelectionValue(selection: ModelSelection | undefined): string | undefined {
   if (!selection) return undefined;
-  return selection.providerId === ZCODE_AGENT_PROVIDER
+  return selection.providerId === SECRETARIAT_AGENT_PROVIDER
     ? selection.modelId
     : encodeCustomModelValue(selection.providerId, selection.modelId);
 }
@@ -206,7 +206,7 @@ function parseBotModelOptionValue(value: string): ModelSelection | undefined {
       modelId: value.slice(separatorIndex + 1),
     };
   }
-  return value.trim() ? { providerId: ZCODE_AGENT_PROVIDER, modelId: value.trim() } : undefined;
+  return value.trim() ? { providerId: SECRETARIAT_AGENT_PROVIDER, modelId: value.trim() } : undefined;
 }
 
 const BOT_REPLY_GRANULARITY_OPTIONS = [
@@ -722,7 +722,7 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const DEFAULT_BOT_ZCODE_PROVIDER: ZCodeProvider = ZCODE_AGENT_PROVIDER;
+const DEFAULT_BOT_ZCODE_PROVIDER: ZCodeProvider = SECRETARIAT_AGENT_PROVIDER;
 // Bot 模式硬锁 yolo：所有 bot task 一律免交互权限，且禁止通过 /mode 切换运行模式。
 const BOT_FORCED_MODE = "yolo";
 const BOT_TYPING_INTERVAL_MS = 4_000;
@@ -2076,7 +2076,7 @@ export function createBotsService(
           // 只在 prompt 文本里描述路径会让下游附件策略无法选择本地文件读取。
           localPath: cached.localPath,
         });
-        // Bugfix: bot 附件已经被 gateway 下载并缓存到本地。只把图片作为 ZCode Agent image block 传入时，
+        // Bugfix: bot 附件已经被 gateway 下载并缓存到本地。只把图片作为 Secretariat Agent image block 传入时，
         // 下游 agent 可能把内部临时 URL 再 curl 到 /tmp，导致重复下载、额外权限请求和模型安全拦截。
         // 因此同时把本地缓存路径写进 prompt，明确后续工具操作只能围绕本地文件进行。
         fileLines.push(
@@ -2578,7 +2578,7 @@ export function createBotsService(
 
   function normalizeBotDraftOptions(draftOptions: BotDraftOptions): BotDraftOptions {
     // Bugfix: bot-state 里可能还残留旧三方 CLI 草稿 provider。
-    // 如果直接复用，/new 后首条消息会重新创建第三方 runtime，绕过 ZCode Agent 单一事实源。
+    // 如果直接复用，/new 后首条消息会重新创建第三方 runtime，绕过 Secretariat Agent 单一事实源。
     return {
       ...draftOptions,
       provider: normalizeAgentProviderToZCodeAgent(draftOptions.provider),
@@ -2593,7 +2593,7 @@ export function createBotsService(
       provider ?? DEFAULT_BOT_ZCODE_PROVIDER,
     );
     if (context.workspaceIdentity && !(await isRemoteWorkspaceConnected(context))) {
-      // Bugfix: 远端断连时初始化草稿也不能偷偷申请远端 ZCode Agent runtime。
+      // Bugfix: 远端断连时初始化草稿也不能偷偷申请远端 Secretariat Agent runtime。
       // 只有 /reconnect 能恢复连接；草稿先保留最小默认值，重连成功后再刷新。
       return { provider: requestedProvider };
     }
@@ -2733,7 +2733,7 @@ export function createBotsService(
         mode: (forcedDraftMode ?? "default") as ZCodeTaskMode,
       });
     } else if (modeOption?.id) {
-      // provider 不支持 yolo（非 ZCode Agent）：保持其自身默认模式，避免首条消息回调失败。
+      // provider 不支持 yolo（非 Secretariat Agent）：保持其自身默认模式，避免首条消息回调失败。
       botsLogger.debug(
         traceId,
         `skip forced yolo mode unsupported provider=${draftOptions.provider}`,
@@ -4750,7 +4750,7 @@ export function createBotsService(
         answers: { ...pending.answers, [answerKey]: nextValues },
       };
       await writeContext({ ...auth.context, pendingElicitation: nextPending });
-      // Bugfix: 多选题在 Bot 里 toggle 后不会触发 ZCode Agent response，必须主动同步草稿给 UI。
+      // Bugfix: 多选题在 Bot 里 toggle 后不会触发 Secretariat Agent response，必须主动同步草稿给 UI。
       await broadcastPendingElicitationProgress(auth.context, nextPending);
       return createElicitationReply(actor, nextPending, auth.locale);
     }
@@ -4865,7 +4865,7 @@ export function createBotsService(
         ? { renderContext: readBotElicitationRenderContext(event) }
         : {}),
     };
-    // Bugfix: Bot 原先只消费 permission_request，没有把 ZCode Agent 的
+    // Bugfix: Bot 原先只消费 permission_request，没有把 Secretariat Agent 的
     // AskUserQuestion/elicitation_request 转成第三方可回答消息，任务会一直卡在等待用户输入。
     if (context.pendingElicitation) {
       clearPendingElicitationSelection(context.pendingElicitation);
@@ -5637,7 +5637,7 @@ export function createBotsService(
         await broadcastTaskListChange(context, event.taskId, "permission_request", {
           permissionRequest: event,
         });
-        // Bugfix: UI 会把 ZCode Agent 原始权限选项规整成“允许/始终允许/拒绝”的固定顺序和文案；
+        // Bugfix: UI 会把 Secretariat Agent 原始权限选项规整成“允许/始终允许/拒绝”的固定顺序和文案；
         // 机器人之前直接展示 provider 原始英文 name，还额外加取消按钮，导致同一个权限请求在飞书和 UI 看起来不一致。
         const permissionOptions = sortBotPermissionOptions(event.options);
         const permissionSelection: SelectionPrompt = {
@@ -5773,7 +5773,7 @@ export function createBotsService(
                 ),
           );
         }
-        // Bugfix: ZCode Agent 终态事件可能先于 task index/meta 落盘广播到 Bots。
+        // Bugfix: Secretariat Agent 终态事件可能先于 task index/meta 落盘广播到 Bots。
         // 如果这里立刻用旧 meta 更新 sidebar，随后列表再刷新到终态 meta，会出现状态/摘要跳一下。
         // 因此终态广播前短重试读取一次稳定 meta，尽量用同一帧完成 UI 增量更新。
         const completedTask = await readTerminalTaskMeta(context, event.taskId, event.type).catch(
@@ -5945,7 +5945,7 @@ export function createBotsService(
       const nextStreamEvent = streamEventQueue.then(() =>
         handleStreamEvent(event, shouldBroadcast),
       );
-      // Bugfix: ZCode Agent 事件分发不保证等待 async listener。微信这类离散消息如果并发发送，
+      // Bugfix: Secretariat Agent 事件分发不保证等待 async listener。微信这类离散消息如果并发发送，
       // task_complete 的 Change summary 可能抢在前面正文 flush 之前到达客户端，所以这里按任务串行消费。
       streamEventQueue = nextStreamEvent.catch((error: unknown) => {
         botsLogger.warn(
@@ -8041,7 +8041,7 @@ export function createBotsService(
       activeTaskSnapshot?.meta.status === "error"
     ) {
       // Bugfix: Bots 进程内 runningTasks 可能因重启/流式终态事件丢失而和持久化状态不一致。
-      // ZCode Agent 历史任务的 status 为空也可能只是旧数据，不代表 UI 仍在运行；只有本进程确实发起
+      // Secretariat Agent 历史任务的 status 为空也可能只是旧数据，不代表 UI 仍在运行；只有本进程确实发起
       // 且尚未观察到终态的 task 才阻止 /task、/new 等上下文切换。
       runningTasks.delete(context.activeTaskId);
       stopTyping(context.activeTaskId);

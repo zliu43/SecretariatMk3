@@ -9,7 +9,7 @@
 
 ## 数据来源
 
-- `~/.zcode/cli/debug`（开发态）与 `~/.zcode/cli/rollout`（生产态，最多保留最近 3 个会话文件）
+- `~/.secretariat/cli/debug`（开发态）与 `~/.secretariat/cli/rollout`（生产态，最多保留最近 3 个会话文件）
   下的 `model-io-*.jsonl`。
 - 由 `apps/zcode-cli/packages/adapters/src/model/runner-debug.ts` 落盘，文件名形如
   `model-io-<sanitizedSessionId>.jsonl`。一个 session 只对应一个 JSONL 文件；首条记录保存完整
@@ -29,9 +29,9 @@
 - 新实现只用进程内上一条请求摘要判断 delta；进程重启、缓存缺失、历史不匹配或文件超过生产硬上限时，写入当前请求的
   bounded baseline（必要时只保留最近 tail messages），并继续从该 baseline 之后追加 delta。生产 rollout 是“最近有界轨迹”，
   不承诺无限完整回放；开发态 debug 保留更多原始字段，但同样不能在写入时回读整份历史文件。
-- ZCode Agent 把 `taskId` 当作 `sessionId`（见 `zcodeTaskServiceAdapter` 里多处 `sessionId: params.taskId`），
+- Secretariat Agent 把 `taskId` 当作 `sessionId`（见 `zcodeTaskServiceAdapter` 里多处 `sessionId: params.taskId`），
   所以轨迹只读取 `model-io-<sanitizedTaskId>.jsonl`，并按 `record.sessionId === taskId` 精确匹配。
-  仅 ZCode Agent（glm）会落盘 model-io。
+  仅 Secretariat Agent（glm）会落盘 model-io。
 - 读取链路同样必须有界且异步：Host 从文件尾部按块读取，最多扫描 32 MiB，并只保留最近 `limit`
   条记录；不得使用 `readFileSync + split` 同步加载整个 JSONL。若扫描起点落在一条记录中间，丢弃该残行；
   文件不可读时降级为空结果。开发日志记录扫描字节数与耗时，便于定位异常大文件，同时避免高频诊断信息进入生产日志。
@@ -164,5 +164,5 @@ bulk toggle ─> command(version + 1) ────> supersedes older keyed state
 
 ## 多端
 
-- 读盘收口在服务层，桌面端读本机 `~/.zcode/cli`，手机远控经 RPC 读远端 host 的同名目录。
+- 读盘收口在服务层，桌面端读本机 `~/.secretariat/cli`，手机远控经 RPC 读远端 host 的同名目录。
 - 入口在桌面与手机 Web 均可用（移动端不隐藏）；无记录时给出空态提示。

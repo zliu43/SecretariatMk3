@@ -1,10 +1,10 @@
 # Workflow Debugger
 
-Workflow Debugger is a lightweight side-pane tool for inspecting ZCode Agent workflow runs.
+Workflow Debugger is a lightweight side-pane tool for inspecting Secretariat Agent workflow runs.
 
 ## Scope
 
-The default workflow kind is `expert`, while the ZCode task service/types accept arbitrary non-empty workflow kinds and optional `definitionId` values from newer ZCode agents. The panel is intentionally debugging-oriented and shows:
+The default workflow kind is `expert`, while the Secretariat task service/types accept arbitrary non-empty workflow kinds and optional `definitionId` values from newer Secretariat agents. The panel is intentionally debugging-oriented and shows:
 
 - workflow run list for the active workspace
 - selected run snapshot
@@ -13,11 +13,11 @@ The default workflow kind is `expert`, while the ZCode task service/types accept
 - activity to child session mapping
 - recent workflow events
 
-## ZCode Integration
+## Secretariat Integration
 
-The renderer never reads `~/.zcode/cli/workflows` directly. It calls `IZCodeTaskService`, which currently exposes the shared `IWorkflowService` shape.
+The renderer never reads `~/.secretariat/cli/workflows` directly. It calls `IZCodeTaskService`, which currently exposes the shared `IWorkflowService` shape.
 
-Current branch status: the UI and shared `ZCodeWorkflow*` types are still present, but the ZCode task service adapter only returns empty workflow data and marks mutating workflow operations unsupported. The intended agent extension methods remain:
+Current branch status: the UI and shared `ZCodeWorkflow*` types are still present, but the Secretariat task service adapter only returns empty workflow data and marks mutating workflow operations unsupported. The intended agent extension methods remain:
 
 - `zcode.dev/workflow/start`
 - `zcode.dev/workflow/list`

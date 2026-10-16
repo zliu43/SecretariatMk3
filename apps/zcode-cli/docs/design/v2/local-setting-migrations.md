@@ -2,7 +2,7 @@
 
 ## Goal
 
-ZCode needs a durable local state layer for project-scoped runtime choices, while keeping hand-authored config files declarative. The current users are project permission rulesets and project permission mode. Model selection and reasoning are intentionally not global local settings: configured defaults, App Recent, sparse Session Selection, and Active Model each have their own documented owner.
+Secretariat needs a durable local state layer for project-scoped runtime choices, while keeping hand-authored config files declarative. The current users are project permission rulesets and project permission mode. Model selection and reasoning are intentionally not global local settings: configured defaults, App Recent, sparse Session Selection, and Active Model each have their own documented owner.
 
 This layer also needs ordered SQLite migrations so users can safely jump versions without relying on ad hoc `create table if not exists` blocks.
 
@@ -59,9 +59,9 @@ Migration rules:
 
 ## Startup Migration Gate
 
-SQLite schema migration is a startup gate. After config and database path resolution, but before runtime, provider, model, MCP, TUI, ZCode app-server, or session command logic is initialized, bootstrap must open the SQLite store and finish all pending migrations. Later layers receive a migrated store; they must not continue with an unverified schema.
+SQLite schema migration is a startup gate. After config and database path resolution, but before runtime, provider, model, MCP, TUI, Secretariat app-server, or session command logic is initialized, bootstrap must open the SQLite store and finish all pending migrations. Later layers receive a migrated store; they must not continue with an unverified schema.
 
-Fast paths that do not need local state, such as `--help`, `--version`, and `doctor`, may skip the gate. Any path that reads or writes session, permission, local setting, input history, workflow, or ZCode app-server state must pass the gate first.
+Fast paths that do not need local state, such as `--help`, `--version`, and `doctor`, may skip the gate. Any path that reads or writes session, permission, local setting, input history, workflow, or Secretariat app-server state must pass the gate first.
 
 Startup behavior by entrypoint:
 
@@ -69,7 +69,7 @@ Startup behavior by entrypoint:
 | ---------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | prompt / non-interactive CLI | Before app construction and before model adapter creation.  | Normal CLI errors go to stderr; verbose mode may include cause/stack.                                                                                                   | Return exit code `1`; do not create runtime.                               |
 | TUI                          | Before entering the full-screen TUI.                        | Avoid raw stderr while the TUI owns the screen. Pre-TUI status may use the controlled stderr path; failures are printed as ordinary CLI errors before entering the TUI. | Return exit code `1`; do not call `runTui`.                                |
-| ZCode app-server             | Before `zcode app-server --stdio` accepts protocol traffic. | Never write migration progress to stdout, because stdout is the protocol stream. Default to structured logs; failures may be summarized on stderr.                      | Return exit code `1`; do not establish the app-server protocol connection. |
+| Secretariat app-server             | Before `zcode app-server --stdio` accepts protocol traffic. | Never write migration progress to stdout, because stdout is the protocol stream. Default to structured logs; failures may be summarized on stderr.                      | Return exit code `1`; do not establish the app-server protocol connection. |
 
 The storage adapter still owns the actual SQLite transaction and checksum checks. Bootstrap owns the ordering: migration is a named, observable startup stage and blocks all later side effects.
 
@@ -79,7 +79,7 @@ Migration errors are structured around stable categories where possible:
 - `checksum_mismatch`: an applied migration checksum differs from the current migration SQL.
 - `sql_failed`: migration SQL failed after the migration transaction began.
 
-Errors preserve the original cause and include the database path plus migration id when known. CLI and ZCode app-server entrypoints format these errors at their boundary instead of calling `process.exit` from the adapter.
+Errors preserve the original cause and include the database path plus migration id when known. CLI and Secretariat app-server entrypoints format these errors at their boundary instead of calling `process.exit` from the adapter.
 
 ## Provider 数据迁移（Todo109）
 
@@ -126,5 +126,5 @@ During the compatibility phase:
 - A database with only the legacy `permission` table backfills rulesets into `local_setting`.
 - A recorded migration checksum mismatch fails startup.
 - App bootstrap opens the migrated session store before model adapter, runtime, MCP, or TUI initialization.
-- app-server startup migration failure prevents ZCode app-server connection and does not write progress to stdout.
+- app-server startup migration failure prevents Secretariat app-server connection and does not write progress to stdout.
 - TUI startup migration failure returns before entering the full-screen TUI.

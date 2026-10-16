@@ -1,7 +1,7 @@
 import { DEFAULT_ZCODE_ENDPOINT_ORIGIN } from "./zcodeEndpoint.js";
 
-export const ZCODE_SOURCE_HEADERS = {
-  "User-Agent": "ZCode/unknown",
+export const SECRETARIAT_SOURCE_HEADERS = {
+  "User-Agent": "Secretariat/unknown",
   "HTTP-Referer": DEFAULT_ZCODE_ENDPOINT_ORIGIN,
   "X-Title": "Z Code@electron",
 } as const;
@@ -43,10 +43,10 @@ export function buildZCodeSourceHeadersFromContext(
   const sourceTitle = normalizeZCodeSourceHeaderValue(options.sourceTitle) ?? "electron";
 
   return {
-    ...ZCODE_SOURCE_HEADERS,
+    ...SECRETARIAT_SOURCE_HEADERS,
     "HTTP-Referer": endpointOrigin,
-    "User-Agent": `ZCode/${appVersion ?? "unknown"}`,
-    ...(appVersion ? { "X-ZCode-App-Version": appVersion } : {}),
+    "User-Agent": `Secretariat/${appVersion ?? "unknown"}`,
+    ...(appVersion ? { "X-Secretariat-App-Version": appVersion } : {}),
     "X-Title": `Z Code@${sourceTitle}`,
     ...(platform && arch ? { "X-Platform": `${platform}-${arch}` } : {}),
     ...(releaseChannel ? { "X-Release-Channel": releaseChannel } : {}),

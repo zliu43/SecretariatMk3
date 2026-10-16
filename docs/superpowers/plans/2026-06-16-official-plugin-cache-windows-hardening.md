@@ -482,7 +482,7 @@ pnpm --dir apps/zcode-cli --filter @zcode/bootstrap exec vitest run tests/offici
 import { mkdir, mkdtemp, readFile, rm, stat, utimes, writeFile } from "node:fs/promises";
 ```
 
-在 `describe("ZCode plugins", () => { ... })` 内追加：
+在 `describe("Secretariat plugins", () => { ... })` 内追加：
 
 ```ts
   it("cleans stale official plugin seed work directories before reseeding", async () => {
@@ -766,7 +766,7 @@ pnpm --dir apps/zcode-cli --filter @zcode/bootstrap exec vitest run tests/plugin
 
 Windows 桌面端启动时，内置官方插件会 seed 到：
 
-`~/.zcode/cli/plugins/cache/zcode-plugins-official/<plugin>/<version>/`
+`~/.secretariat/cli/plugins/cache/zcode-plugins-official/<plugin>/<version>/`
 
 事故日志显示 `document-skills@0.1.0` 附近有大量 `0.1.0.tmp-*` 残留，并伴随 `ENOTEMPTY` 与 `EPERM` rename 失败。
 
@@ -793,7 +793,7 @@ seed 流程先写 `${version}.tmp-<pid>-<time>`，再删除正式版本目录并
 
 ## 影响面
 
-本修复只涉及 agent 侧 bootstrap/adapters 官方插件缓存文件系统逻辑，不改变 app/main/host process 职责，不改变 ZCode protocol，不改变桌面端 continuous 与 Web remote replayable 的 task realtime 语义。
+本修复只涉及 agent 侧 bootstrap/adapters 官方插件缓存文件系统逻辑，不改变 app/main/host process 职责，不改变 Secretariat protocol，不改变桌面端 continuous 与 Web remote replayable 的 task realtime 语义。
 ```
 
 - [ ] **步骤 2：检查文档没有把计划写成实现承诺**

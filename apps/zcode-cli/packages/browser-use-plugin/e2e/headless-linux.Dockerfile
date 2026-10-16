@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile --filter @zcode/browser-use-plugin...
 RUN pnpm --dir apps/zcode-cli --filter @zcode/browser-use-plugin... build
 
 ENV DISPLAY=""
-ENV ZCODE_HEADLESS_BROWSER_E2E_EXECUTABLE=/usr/bin/chromium
-ENV ZCODE_HEADLESS_BROWSER_E2E_REQUIRED=1
+ENV SECRETARIAT_HEADLESS_BROWSER_E2E_EXECUTABLE=/usr/bin/chromium
+ENV SECRETARIAT_HEADLESS_BROWSER_E2E_REQUIRED=1
 
 CMD ["pnpm", "--dir", "apps/zcode-cli", "--filter", "@zcode/browser-use-plugin", "exec", "vitest", "run", "test/headless-browser.e2e.test.ts"]

@@ -4,7 +4,7 @@
 
 `WebFetch` 抓取 URL 内容，转换为 markdown，并用小模型按 prompt 提取结果。
 
-ZCode v2 第一版实现遵循本文的 L2 runtime 契约：工具本身只表达“抓取并提取网页内容”的意图，实际 HTTP I/O、权限判断、缓存、artifact 写入和二级模型调用都必须通过显式 port 或 service 完成。
+Secretariat v2 第一版实现遵循本文的 L2 runtime 契约：工具本身只表达“抓取并提取网页内容”的意图，实际 HTTP I/O、权限判断、缓存、artifact 写入和二级模型调用都必须通过显式 port 或 service 完成。
 
 实现状态（2026-05-08）：L2a 主线已经落地。`packages/contracts/src/tools/webfetch.ts` 定义运行时和 provider JSON schema，`packages/core/src/tool/handlers/webfetch*.ts` 实现 URL 规范化、host 形态校验、`HttpClientPort` GET、manual safe redirect、HTML/text 提取、内存 fetch cache、lite model prompt 处理、结果预算和网络状态事件。权限层通过 `packages/core/src/permission/service.ts` 使用 `domain:<hostname>` 优先匹配 WebFetch project rule。当前仍未落地跨 session 持久 cache、robots/meta 策略，以及真正的 binary artifact 保存；非 text-like content 目前会返回结构化失败。
 
@@ -12,7 +12,7 @@ ZCode v2 第一版实现遵循本文的 L2 runtime 契约：工具本身只表�
 
 实现状态（2026-07-07 修正）：`WebFetch` 主链路移除外部 `domain_info` / WebFetchPreflight 前置校验。此前调用第三方 domain safety service 会在企业网络、代理或安全策略阻断该服务时，让原本可访问的目标 URL 在真实 fetch 前失败。当前契约改为：通过 URL runtime schema、用户/项目 `domain:<hostname>` 权限规则、`HttpClientPort` 统一网络入口、manual safe redirect、egress proxy 响应和网络事件审计承担边界；handler 不再在目标请求前依赖外部域名判定服务。
 
-实现状态（2026-07-08 安全边界调整）：ZCode 的 `WebFetch` 请求从 agent runtime 所在机器发出，而不是强制经过远端 WebFetch proxy。移除外部 `domain_info` 后，当前只保留 URL 字面量层面的本地/私网目标阻断：普通域名不做本地 DNS lookup preflight，避免公网目标因为本机 DNS 慢或企业网络解析策略在真实 fetch 前失败；字面量 IP、`.localhost` 等本地目标仍在进入 `HttpClientPort` 前阻断。IP 解析和基础 range 判断复用 `ipaddr.js`，ZCode 只保留 WebFetch 专用 public policy、IPv4-mapped IPv6、DNS64 `64:ff9b::/96` 解包、`198.18.0.0/15`、`64:ff9b:1::/48`、`100::/64`、`2001:2::/48`、`2001:10::/28`、`2001:20::/28` 等 URL 字面量安全覆盖。该 guard 不能被 `network.noProxy` / `NO_PROXY` 绕过。
+实现状态（2026-07-08 安全边界调整）：Secretariat 的 `WebFetch` 请求从 agent runtime 所在机器发出，而不是强制经过远端 WebFetch proxy。移除外部 `domain_info` 后，当前只保留 URL 字面量层面的本地/私网目标阻断：普通域名不做本地 DNS lookup preflight，避免公网目标因为本机 DNS 慢或企业网络解析策略在真实 fetch 前失败；字面量 IP、`.localhost` 等本地目标仍在进入 `HttpClientPort` 前阻断。IP 解析和基础 range 判断复用 `ipaddr.js`，Secretariat 只保留 WebFetch 专用 public policy、IPv4-mapped IPv6、DNS64 `64:ff9b::/96` 解包、`198.18.0.0/15`、`64:ff9b:1::/48`、`100::/64`、`2001:2::/48`、`2001:10::/28`、`2001:20::/28` 等 URL 字面量安全覆盖。该 guard 不能被 `network.noProxy` / `NO_PROXY` 绕过。
 
 ## 输入契约
 
@@ -37,7 +37,7 @@ ZCode v2 第一版实现遵循本文的 L2 runtime 契约：工具本身只表�
   `ipaddr.js`，同时对 IPv4-mapped IPv6 和 DNS64 `64:ff9b::/96` 解包后复用 IPv4 public
   policy；`198.18.0.0/15`、`64:ff9b:1::/48`、`100::/64`、`2001:2::/48`、
   `2001:10::/28`、`2001:20::/28` 等库标记为 unicast 但不应被
-  WebFetch 访问的特殊段由 ZCode policy 继续阻断。
+  WebFetch 访问的特殊段由 Secretariat policy 继续阻断。
 - prompt 不能为空，最大 8000 字符。
 - prompt 描述要提取的信息，不能替代权限。
 - 如果有 MCP 提供的认证 web fetch，应优先使用 MCP 工具。
@@ -45,7 +45,7 @@ ZCode v2 第一版实现遵循本文的 L2 runtime 契约：工具本身只表�
 
 ## Prompt 约束
 
-ZCode 为 `WebFetch` 提供完整的 tool prompt 语义，而不是只给模型一行
+Secretariat 为 `WebFetch` 提供完整的 tool prompt 语义，而不是只给模型一行
 “Fetch a URL”。provider-visible tool description 应由短 `description` 加
 `modelInstructions` 组成，投影后至少表达：
 
@@ -60,7 +60,7 @@ ZCode 为 `WebFetch` 提供完整的 tool prompt 语义，而不是只给模型�
 - URL 必须是完整合法 URL；`http:` 会按 provider-visible 约定先规范化为 `https:` 后抓取，`https:` 保持原协议。
 - tool 是只读能力，不修改任何文件，但会执行网络 GET，并可能写入 session artifact/cache。
 - 大内容可能被摘要化；同一 URL 结果会进入自清理的 15 分钟、50 MB 内存 cache，重复访问更快。
-- ZCode 只自动跟随同 host/`www.` 级别的安全 redirect；跨 host redirect 不会自动抓取新主机，
+- Secretariat 只自动跟随同 host/`www.` 级别的安全 redirect；跨 host redirect 不会自动抓取新主机，
   错误信息必须带出 redirect URL，模型只能在用户意图和权限允许时用新 URL 重新发起请求。
 - GitHub URL 优先考虑 `gh` CLI / GitHub API，例如 `gh pr view`、`gh issue view`、`gh api`，
   因为它们通常更适合认证、PR、issue 和结构化数据读取。
@@ -78,7 +78,7 @@ ZCode 为 `WebFetch` 提供完整的 tool prompt 语义，而不是只给模型�
 | `durationMs` | `number` | 抓取和处理耗时 |
 | `url` | `string` | 原始请求 URL |
 
-ZCode 输出结构：
+Secretariat 输出结构：
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -121,7 +121,7 @@ ZCode 输出结构：
 - markdown 输入二级模型前最多 100000 字符。
 - URL cache TTL 15 分钟，总大小 50 MB。
 
-第一版 ZCode 实现采用渐进落地策略。当前代码已经覆盖 L2a 主线，但 L2b 仍是后续工作：
+第一版 Secretariat 实现采用渐进落地策略。当前代码已经覆盖 L2a 主线，但 L2b 仍是后续工作：
 
 - 已实现 L2a：URL 长度和 prompt 长度 schema、URL 解析、HTTP->HTTPS 规范化、host 形态校验、WebFetch URL 字面量 egress guard、domain 权限 rule、`HttpClientPort` GET、manual redirect 安全、HTML/text 提取、10 MB 响应上限、15 分钟/50 MB 内存 cache、lite model prompt、结果预算、artifact 写入接口、大内容截断、trace 传播和 `network_request_status` 事件。
 - 待实现 L2b：binary artifact、跨 session 持久 cache、robots/meta 策略、更完整 HTML 清洗，以及更细粒度的 path 级网络权限规则。
@@ -150,7 +150,7 @@ WebFetch 不会无条件跟随跨主机 redirect：
 - explicit allow 直接 allow。
 - 无规则默认 ask，并建议在 local settings 增加 allow rule。
 
-预授权域名只适用于 WebFetch 的 GET 请求，不应共享给 sandbox 网络权限。ZCode 应把这点写进 `NetworkPermissionPolicy`，避免 GET 预授权扩大成任意网络访问。
+预授权域名只适用于 WebFetch 的 GET 请求，不应共享给 sandbox 网络权限。Secretariat 应把这点写进 `NetworkPermissionPolicy`，避免 GET 预授权扩大成任意网络访问。
 
 `PermissionService` 在处理 `WebFetch` 时应使用 `domain:<hostname>` 作为 rule subject，而不是完整 URL。用户点 “always allow” 时，建议保存 `domain:<hostname>`，不保存带 path/query 的 URL，除非后续引入 path 级规则。
 
@@ -163,7 +163,7 @@ WebFetch 不会无条件跟随跨主机 redirect：
 - 不复现歌词。
 - 不输出法律自评。
 
-ZCode 如果支持 WebFetch 摘要，也应把版权和引用限制放在 `WebFetchProcessingPolicy`，而不是散落在 prompt 字符串里。
+Secretariat 如果支持 WebFetch 摘要，也应把版权和引用限制放在 `WebFetchProcessingPolicy`，而不是散落在 prompt 字符串里。
 
 ## 校验与错误
 
@@ -182,7 +182,7 @@ ZCode 如果支持 WebFetch 摘要，也应把版权和引用限制放在 `WebFe
 
 错误需要保留 domain、URL、HTTP code、是否 egress blocked 等结构化字段。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 `WebFetch` 应拆为：
 
@@ -200,21 +200,21 @@ ZCode 如果支持 WebFetch 摘要，也应把版权和引用限制放在 `WebFe
 `WebFetch` 专用 `HttpClientPort` 的网络环境要求：
 
 - 显式 `network.httpProxy` 配置优先。
-- 未显式配置时，先读取 `ZCODE_HTTP_PROXY`；再读取 runtime 已封存到
-  `ZCODE_TOOL_ENV_PASSTHROUGH_JSON` 的用户标准代理变量。不得直接继承当前进程里的
+- 未显式配置时，先读取 `SECRETARIAT_HTTP_PROXY`；再读取 runtime 已封存到
+  `SECRETARIAT_TOOL_ENV_PASSTHROUGH_JSON` 的用户标准代理变量。不得直接继承当前进程里的
   裸 `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY`，因为 runtime 初始化会先清理这些变量，
   只在明确的工具/网络边界恢复。
   runtime 封存代理变量按小写优先读取（与 undici 的读取顺序一致）：
   `https_proxy`、`HTTPS_PROXY`、`http_proxy`、`HTTP_PROXY`、`all_proxy`、`ALL_PROXY`。
-- `network.noProxy` 必须同时对 WebFetch 生效；`ZCODE_NO_PROXY` 和 runtime 封存的
+- `network.noProxy` 必须同时对 WebFetch 生效；`SECRETARIAT_NO_PROXY` 和 runtime 封存的
   `no_proxy` / `NO_PROXY` 可作为 fallback，且小写优先。runtime 封存的 `no_proxy`
-  只参与 WebFetch fallback，不绕过显式 `network.httpProxy` / `ZCODE_HTTP_PROXY`。
+  只参与 WebFetch fallback，不绕过显式 `network.httpProxy` / `SECRETARIAT_HTTP_PROXY`。
   裸标准环境变量不作为继承输入。
-- 自定义 CA 至少支持 `network.caCertFile` 和 `ZCODE_AGENT_CA_CERT`；标准 CA 变量只由 runtime 派生给受控子进程。
+- 自定义 CA 至少支持 `network.caCertFile` 和 `SECRETARIAT_AGENT_CA_CERT`；标准 CA 变量只由 runtime 派生给受控子进程。
 - WebFetch 自己不得重新解析这些环境变量，必须完全复用 `HttpClientPort` 的统一解析逻辑。
 - WebFetch 通过 `HttpClientPort` 使用普通 HTTP 总请求超时，默认 60000ms；该超时不适用于 provider SSE 等长流式请求。
 - WebFetch 请求必须在 tool handler 层执行 URL 字面量 egress policy，再进入 `HttpClientPort`。
-  修复原因：ZCode WebFetch 不强制经过远端 WebFetch proxy；
+  修复原因：Secretariat WebFetch 不强制经过远端 WebFetch proxy；
   移除外部 `domain_info` 后，只依赖普通 HTTP proxy / noProxy 会让模型驱动的 GET 访问
   agent runtime 所在机器的本地服务、云 metadata endpoint 或内网地址。当前策略暂不对普通
   域名做本地 DNS lookup，只阻断 URL 中直接出现的本地/私网目标。
@@ -240,7 +240,7 @@ ZCode 如果支持 WebFetch 摘要，也应把版权和引用限制放在 `WebFe
 - `packages/core/tests/webfetch-tool.test.ts` 覆盖显式 HTTP URL 规范化为 HTTPS、HTML 转 markdown 后交给 lite model、模型可见结果只返回 `result`、内存 cache 命中仍按新 prompt 处理、literal local/private IP 拒绝、`.localhost` 拒绝、普通域名不触发 DNS preflight、DNS64 私网字面量映射拒绝、公网 IP 字面量允许、`198.18.0.0/15` / `64:ff9b:1::/48` / `100::/64` / `2001:2::/48` / `2001:10::/28` / `2001:20::/28` 特殊段拒绝、cross-host redirect 拒绝、single-label host 拒绝、网络 pending/complete/error 状态事件。
 - `packages/core/tests/permission-service.test.ts` 覆盖 WebFetch project rule 使用规范化 `domain:<hostname>` 匹配，以及 domain deny 覆盖完整 URL allow。
 - `packages/core/tests/tool-contracts.test.ts` 覆盖 WebFetch tool contract 声明为 `sideEffectScope: network` 且需要审批。
-- `packages/adapters/tests/http.test.ts` 覆盖 `HttpClientPort` trace header、`ZCODE_HTTP_PROXY`、runtime 封存代理、`network.noProxy`、`ZCODE_AGENT_CA_CERT`、标准代理/证书变量过滤、响应大小上限和 unsupported protocol；`packages/adapters/tests/http-response-status.test.ts` 覆盖走代理时上游回 `999` / `204` / `304` 原样带回、不打死进程。
+- `packages/adapters/tests/http.test.ts` 覆盖 `HttpClientPort` trace header、`SECRETARIAT_HTTP_PROXY`、runtime 封存代理、`network.noProxy`、`SECRETARIAT_AGENT_CA_CERT`、标准代理/证书变量过滤、响应大小上限和 unsupported protocol；`packages/adapters/tests/http-response-status.test.ts` 覆盖走代理时上游回 `999` / `204` / `304` 原样带回、不打死进程。
 - `packages/desktop/test/e2e/conversation-session/manual-review/pending/conversation-session-webfetch.test.ts`
   保留桌面会话 `WebFetch` 成功闭环用例，但当前位于 `manual-review/pending`，不能计入正式自动覆盖。
   fixture 仍位于 `packages/desktop/test/e2e/fixtures/cases/conversation-session/conversation-session-webfetch.json`。

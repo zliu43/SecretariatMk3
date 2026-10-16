@@ -4,7 +4,7 @@
 
 CUA 插件的历史 manifest 名称是 `zcode-cua`，而 Browser Use 的内部 slug 是
 `browser-use`。当前官方目录已经把 CUA 的展示名设为 `Computer Use`，但已安装插件、
-能力分组和部分确认文案仍直接把旧 manifest 名称格式化成 `Zcode Cua`，造成两个官方
+能力分组和部分确认文案仍直接把旧 manifest 名称格式化成 `Secretariat Cua`，造成两个官方
 插件的用户可见命名风格不一致。
 
 ## 目标

@@ -75,9 +75,9 @@ interface WorkflowRecoveryAction {
   node as optional.
 - `failed` should be reserved for unrecoverable workflow-level corruption or explicit user choice.
 
-## ZCode App-Server Surface
+## Secretariat App-Server Surface
 
-ZCode protocol clients use extension methods:
+Secretariat protocol clients use extension methods:
 
 - `zcode.dev/workflow/get`: returns `snapshot.failure`, `snapshot.recoveryActions`, and
   `snapshot.sessionLinks`.
@@ -90,4 +90,4 @@ ZCode protocol clients use extension methods:
 - A non-cancel child session error pauses the workflow and includes a retry action.
 - A paused graph node retry creates a new activity and preserves the failed session link.
 - Retrying after a model switch uses the current session model for the new attempt.
-- ZCode app-server `workflow/retry` forwards kind, definition id, run id, and node selector.
+- Secretariat app-server `workflow/retry` forwards kind, definition id, run id, and node selector.

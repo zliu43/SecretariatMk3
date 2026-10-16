@@ -4,7 +4,7 @@
 
 **Goal:** Eliminate platform-dependent `/tmp` usage from Desktop E2E runtime files while preserving existing conversation product semantics.
 
-**Architecture:** Keep `.e2e-home` as the isolated HOME and place runtime files under the Agent execution workspace `ZCodeProject/.zcode-e2e`. Specs use a shared path helper, Bash uses workspace-relative POSIX paths, and replay fixtures expand `{{e2eRuntimeRoot}}` before matching requests. Runtime evidence confirms conversation child agents execute from `ZCodeProject`, not the conversation backing workspace.
+**Architecture:** Keep `.e2e-home` as the isolated HOME and place runtime files under the Agent execution workspace `SecretariatProject/.zcode-e2e`. Specs use a shared path helper, Bash uses workspace-relative POSIX paths, and replay fixtures expand `{{e2eRuntimeRoot}}` before matching requests. Runtime evidence confirms conversation child agents execute from `SecretariatProject`, not the conversation backing workspace.
 
 **Tech Stack:** TypeScript, Vitest, WebdriverIO, JSON replay fixtures, Node.js filesystem/path APIs.
 
@@ -27,7 +27,7 @@
 **Interfaces:**
 - Produces: `E2E_RUNTIME_RELATIVE_ROOT`, `E2E_RUNTIME_ROOT_REPLAY_TOKEN`, `resolveE2EHomeDir()`, `resolveE2ERuntimeRoot()`, `resolveE2ERuntimePath()`, `resolveE2EToolPath()`, and `resolveE2EShellPath()`.
 
-- [ ] **Step 1: Write failing tests** proving runtime files resolve below `<home>/ZCodeProject/.zcode-e2e`, tool paths use `/`, shell paths remain workspace-relative, and the E2E tree contains no raw `/tmp`.
+- [ ] **Step 1: Write failing tests** proving runtime files resolve below `<home>/SecretariatProject/.zcode-e2e`, tool paths use `/`, shell paths remain workspace-relative, and the E2E tree contains no raw `/tmp`.
 
 ```ts
 expect(resolveE2ERuntimeRoot("C:\\e2e-home")).toContain(".zcode-e2e");

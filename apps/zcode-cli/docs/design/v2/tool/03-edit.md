@@ -31,7 +31,7 @@
 - 默认要求 `old_string` 在文件中唯一；如果不唯一，`Edit` 必须失败，模型应扩大上下文让 `old_string` 唯一，或显式设置 `replace_all`。
 - `replace_all` 用于跨文件内替换和重命名同一字符串，例如变量重命名。
 - 多处替换必须显式设置 `replace_all`。
-- 总是优先编辑代码库中的既有文件；除非用户显式要求，否则不要创建新文件。当前 ZCode `Edit` 拒绝空 `old_string`，创建新文件应使用 `Write`。
+- 总是优先编辑代码库中的既有文件；除非用户显式要求，否则不要创建新文件。当前 Secretariat `Edit` 拒绝空 `old_string`，创建新文件应使用 `Write`。
 - 只有用户显式要求时才向文件加入 emoji。
 
 ## 输出契约
@@ -71,8 +71,8 @@
 5. 对 UNC path 跳过提前 I/O，交给权限处理。
 6. stat 防止超大文件导致 OOM，上限为 1 GiB。
 7. 通过 `FileSystemPort.readTextFile` 读取文件 bytes，由 adapter 按 BOM、UTF-8 校验和 legacy 中文编码检测推断文本编码，并返回 LF 规范化后的 Unicode 逻辑内容、原始 `encoding` 和 `lineEndings` metadata。
-8. 当前 ZCode 拒绝空 `old_string`，避免对既有文件产生隐式插入；创建新文件或完整重写使用 `Write`。
-9. 不存在文件且 `old_string` 为空时创建文件的行为，ZCode 暂不暴露；后续如需支持必须先更新 `Write/Edit` 边界和测试。
+8. 当前 Secretariat 拒绝空 `old_string`，避免对既有文件产生隐式插入；创建新文件或完整重写使用 `Write`。
+9. 不存在文件且 `old_string` 为空时创建文件的行为，Secretariat 暂不暴露；后续如需支持必须先更新 `Write/Edit` 边界和测试。
 10. `.ipynb` 文件拒绝，要求用 Notebook edit 工具。
 11. 已存在文件必须此前完整 `Read`。
 12. mtime 变更时，如果完整读缓存内容仍相同，可继续；否则拒绝 stale edit。
@@ -113,7 +113,7 @@
 | 空 `file_path` | 路径不能为空 |
 | 不支持编码或新内容不可编码 | 拒绝并保持原文件不变 |
 
-ZCode 应给这些错误稳定 code，避免依赖英文文本判断流程。Edit handler 在原有检查位置发现
+Secretariat 应给这些错误稳定 code，避免依赖英文文本判断流程。Edit handler 在原有检查位置发现
 可预期拒绝时返回 `{ result:false, errorCode, message }`，不通过 `throw` 向 executor
 传递；成功路径、读取次数和执行顺序保持不变。executor 通用组装结构化 error，并只在
 provider-visible `modelContent` 外包 `<tool_use_error>`；UI、日志和结构化 error 保留裸
@@ -122,13 +122,13 @@ message。
 数字错误码固定为：无变更 `1`、文件已存在且
 `old_string` 为空 `3`、文件不存在 `4`、Notebook `5`、未完整读取 `6`、stale `7`、
 未找到 `8`、非唯一 `9`、文件过大 `10`。I/O 故障、取消或 expected revision 冲突仍属于
-执行异常，继续走通用异常路径。ZCode path policy 额外拒绝空 `file_path`，由 Edit
+执行异常，继续走通用异常路径。Secretariat path policy 额外拒绝空 `file_path`，由 Edit
 handler 在进入共享路径解析前返回本地稳定错误码 `13` 和既有
 `Tool path must not be empty` 文案，避免共享异常绕过 Edit 的 provider error envelope。
 这些数字码由 Edit tool contract 统一导出，handler 不再维护第二份私有映射，避免
 provider error 与公开工具契约在后续修改中漂移。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 ## 实现状态（2026-05-08）
 
@@ -151,7 +151,7 @@ provider error 与公开工具契约在后续修改中漂移。
 
 本轮落地模型指导、短结果序列化和 `replace_all=false` 的多匹配拒绝；read cache、stale guard、编码保真和结构化错误在后续阶段补齐。
 
-`Edit` 是 ZCode 的核心 NL-to-code mutation primitive。实现时需要优先保证可验证性：
+`Edit` 是 Secretariat 的核心 NL-to-code mutation primitive。实现时需要优先保证可验证性：
 
 - `old_string` 精确匹配和唯一性是核心契约；兼容 matcher 只能修正模型从 Read 视图复制文本时的格式误差，不能替模型自由猜测修改位置。
 - 结构化补丁编辑由 `ApplyPatch` 承担，不能把 patch 语义塞进 `Edit.old_string`。

@@ -3,7 +3,7 @@ import {
   isOpenCodeRuntimeCrashError,
   isZCodeFileLockTimeoutError,
   normalizeUnknownError,
-  ZCODE_FILE_LOCK_TIMEOUT_ERROR_CODE,
+  SECRETARIAT_FILE_LOCK_TIMEOUT_ERROR_CODE,
 } from "../src/errors.js";
 
 describe("normalizeUnknownError", () => {
@@ -38,20 +38,20 @@ describe("normalizeUnknownError", () => {
 describe("isOpenCodeRuntimeCrashError", () => {
   it("matches Bun crash signatures", () => {
     expect(isOpenCodeRuntimeCrashError("oh no: Bun has crashed. Segmentation fault")).toBe(true);
-    expect(isOpenCodeRuntimeCrashError("[ZCode Agent] opencode runtime 崩溃 (code=3221226505)")).toBe(true);
+    expect(isOpenCodeRuntimeCrashError("[Secretariat Agent] opencode runtime 崩溃 (code=3221226505)")).toBe(true);
   });
 
   it("does not match generic connection failures", () => {
-    expect(isOpenCodeRuntimeCrashError("ZCode Agent connection closed")).toBe(false);
+    expect(isOpenCodeRuntimeCrashError("Secretariat Agent connection closed")).toBe(false);
   });
 });
 
 describe("isZCodeFileLockTimeoutError", () => {
   it("matches direct and RPC-wrapped timeout codes", () => {
-    expect(isZCodeFileLockTimeoutError({ code: ZCODE_FILE_LOCK_TIMEOUT_ERROR_CODE })).toBe(true);
+    expect(isZCodeFileLockTimeoutError({ code: SECRETARIAT_FILE_LOCK_TIMEOUT_ERROR_CODE })).toBe(true);
     expect(
       isZCodeFileLockTimeoutError({
-        error: { code: ZCODE_FILE_LOCK_TIMEOUT_ERROR_CODE, message: "lock timeout" },
+        error: { code: SECRETARIAT_FILE_LOCK_TIMEOUT_ERROR_CODE, message: "lock timeout" },
       }),
     ).toBe(true);
   });

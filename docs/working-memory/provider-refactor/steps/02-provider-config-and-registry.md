@@ -140,7 +140,7 @@ M2.3c 生产 Official / Personal Config Source                         [完成]
       + Provider Config schemaVersion 4 与相邻版本迁移 [未发布开发历史，已完成]
       + 以 `access.type` 表达访问方式，以 `api.type` 表达公开 API；Model Config 使用
         `apiMatch + reasoningMapping` 表达模型/API 组合行为 [完成]
-      + Personal Config 使用既有 `~/.zcode/v2/config.json` 路径；迁移前完整备份原文件，
+      + Personal Config 使用既有 `~/.secretariat/v2/config.json` 路径；迁移前完整备份原文件，
         备份失败不覆盖，转换成功后原子替换同一路径 [完成]
       + 最终完整 Schema 作为首次发布的 `schemaVersion: 1`；未发布的开发期
         v1–v5 迁移分支不进入长期兼容链路 [完成]
@@ -252,7 +252,7 @@ M2.4  Host Settings / Selection Facade 使用唯一 Registry
       + 草稿启动门禁优先使用 Model Selection Service [完成]
       + V4 草稿启动门禁删除旧 Provider Registry Snapshot fallback，只使用
         Model Selection View 作为可选模型事实 [完成]
-      + ZCode Agent 的最近选择/当前回包 Provider 可用性裁决改读 Model Selection View，
+      + Secretariat Agent 的最近选择/当前回包 Provider 可用性裁决改读 Model Selection View，
         不再读取旧 ModelProviderConfig 全局快照 [完成]
       + OAuth 登录后与启动恢复的 Family Selection 删除未参与裁决的旧
         ModelProviderConfig 读取，只使用权益、Team Products 与当前选择状态 [完成]
@@ -264,10 +264,10 @@ M2.4  Host Settings / Selection Facade 使用唯一 Registry
         Registry，不再在 Renderer 按 Provider 调用旧 refreshCodingPlanApiKey [完成]
       + 模型切换提示、时间线与发送埋点只从 Model Selection View 读取 Provider
         label/baseURL，不再使用旧 Provider 快照兜底 [完成]
-      + Workspace 模型偏好裁决直接消费 Model Selection View，删除非 ZCode Agent
+      + Workspace 模型偏好裁决直接消费 Model Selection View，删除非 Secretariat Agent
         分支对旧 ModelProviderConfig Snapshot 的可选性判断 [完成]
       + Workspace reload 删除旧多 Agent Provider 配置裁决器；历史 provider 标识在边界
-        归一到当前唯一 ZCode Agent，模型回显只使用 prepare 回包、App Recent 与
+        归一到当前唯一 Secretariat Agent，模型回显只使用 prepare 回包、App Recent 与
         Model Selection View，不再读取 workspace 下的旧 GLM Provider Config [完成]
       + V4 custom provider 恢复删除旧 ModelProviderConfig fallback，只从
         Model Selection View 选择首个模型 [完成]

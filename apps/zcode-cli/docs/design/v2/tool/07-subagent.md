@@ -12,7 +12,7 @@
 | fork subagent | fork gate 开启且省略 `subagent_type` | 子 agent 继承父会话历史、system prompt 和精确 tool pool，用于 prompt cache 共享 |
 | background subagent | `run_in_background`、agent 定义 `background: true`、coordinator、assistant mode、fork gate 或 proactive 强制 | 立即返回 task 引用，完成后以通知重新进入主会话 |
 | worktree subagent | `isolation: "worktree"` 或 agent 定义自带 worktree isolation | 在临时 git worktree 中运行，完成后无变更自动清理，有变更保留路径和 branch |
-| remote agent | `isolation: "remote"` | 远程环境执行；ZCode 当前不支持 |
+| remote agent | `isolation: "remote"` | 远程环境执行；Secretariat 当前不支持 |
 | teammate spawn | `team_name` 和 `name` 同时存在 | 这是 agent team/swarm，不是普通 subagent，应作为独立工具或独立模式处理 |
 
 关键边界：普通 subagent 不是 OS 子进程，而是在同一进程内创建新的子执行上下文，再运行新的 query loop。外部进程、tmux、in-process teammate 和 remote agent 属于 agent team 或 remote task 分支，不应和普通 subagent 混成一个概念。
@@ -42,7 +42,7 @@
 | `isolation` | `"worktree" \| "remote"` | subagent | `worktree` 创建临时 git worktree。`remote` 当前不支持 |
 | `cwd` | `string` | gated | 让子 agent 在指定 cwd 中运行。要求绝对路径，并且与 `isolation: "worktree"` 互斥 |
 
-ZCode 需要把 schema gating 做成能力协商结果，而不是在 tool 内散落 feature flag。`cwd` 的绝对路径和与 worktree 的互斥关系也应进入 `validateInput`，不能只放在 prompt description。
+Secretariat 需要把 schema gating 做成能力协商结果，而不是在 tool 内散落 feature flag。`cwd` 的绝对路径和与 worktree 的互斥关系也应进入 `validateInput`，不能只放在 prompt description。
 
 ## 输出契约
 
@@ -82,7 +82,7 @@ ZCode 需要把 schema gating 做成能力协商结果，而不是在 tool 内�
 
 ## Agent 定义契约
 
-ZCode 的用户／项目自定义 Markdown 仅从各自 `agents` 根目录直接文件加载
+Secretariat 的用户／项目自定义 Markdown 仅从各自 `agents` 根目录直接文件加载
 （`.md` / `.markdown`，大小写规则不变），不扫描子目录；独立 CLI、Host 和 Settings
 使用同一范围。插件 agent 继续遵循已有插件发现规则。详见根目录 `docs/subagent-runtime-refresh.md`。
 
@@ -108,7 +108,7 @@ agent definition 的核心字段：
 | `permissionMode` | agent 内部工具权限模式。普通 worker 默认使用 `acceptEdits` |
 | `maxTurns` | agent 内部 query loop 最大轮数 |
 | `skills` | 启动时预加载的 prompt skill |
-| `mcpServers` | child 可见的 parent MCP server 范围；设计上可支持引用或 inline config，ZCode 当前只接受 parent server name 列表 |
+| `mcpServers` | child 可见的 parent MCP server 范围；设计上可支持引用或 inline config，Secretariat 当前只接受 parent server name 列表 |
 | `requiredMcpServers` | agent 可用性前置条件，必须有匹配 server 且有工具 |
 | `hooks` | agent 生命周期内注册的 session scoped hooks |
 | `background` | agent 总是后台运行 |
@@ -119,9 +119,9 @@ agent definition 的核心字段：
 
 加载优先级是 built-in、plugin、user、project、flag、managed 逐组覆盖，同名 agent 后面的源会覆盖前面的源。解析失败的 markdown 只在看起来像 agent 文件时进入 `failedFiles`。
 
-### ZCode AGENTS.md 注入契约
+### Secretariat AGENTS.md 注入契约
 
-ZCode 的 custom agent Markdown 额外支持可选 frontmatter 字段 `injectAgentsMd: boolean`。它只控制 child request 是否注入父 runtime 已解析的 AGENTS.md，不改变 agent system prompt：
+Secretariat 的 custom agent Markdown 额外支持可选 frontmatter 字段 `injectAgentsMd: boolean`。它只控制 child request 是否注入父 runtime 已解析的 AGENTS.md，不改变 agent system prompt：
 
 | Profile | `injectAgentsMd` 缺省行为 |
 | --- | --- |
@@ -251,7 +251,7 @@ child 运行时还会：
 
 ## Transcript 与 Resume
 
-ZCode 不再写入独立的 `transcript.jsonl` 文件。子 agent 的 messages/parts 与恢复所需 session state
+Secretariat 不再写入独立的 `transcript.jsonl` 文件。子 agent 的 messages/parts 与恢复所需 session state
 由 session store（默认 SQLite）持久化；session event store 负责运行期事件排序、live sink 和
 进程内事件回放。任务 artifact 目录只保存 `output.txt`、`task.output` 和 `metadata.json`。
 
@@ -278,9 +278,9 @@ transcript sidecar。
 
 ## 权限与副作用
 
-如果 `Agent` 的只读声明固定为 `true`（理由是它只负责编排，实际副作用由子 agent 调用的底层工具做权限检查），对 tool framework 方便，但对 ZCode 的审计语义不够细。
+如果 `Agent` 的只读声明固定为 `true`（理由是它只负责编排，实际副作用由子 agent 调用的底层工具做权限检查），对 tool framework 方便，但对 Secretariat 的审计语义不够细。
 
-ZCode 建议拆成两层声明：
+Secretariat 建议拆成两层声明：
 
 | 维度 | 建议 |
 | --- | --- |
@@ -299,7 +299,7 @@ ZCode 建议拆成两层声明：
 - async agent 默认避免弹权限 prompt，除非 permission mode 是 `bubble` 或显式允许显示 prompt。
 - `AskUserQuestion` 在 subagent 内默认不可用，避免子 agent 直接向用户发起交互。
 
-ZCode 的权限系统应在 spawn 前生成 `SubagentPolicy` 快照，记录 agent type、allowed tools、permission mode、side effect scopes、是否允许 background、是否允许 resume、是否允许 worktree 和是否允许 user prompt。
+Secretariat 的权限系统应在 spawn 前生成 `SubagentPolicy` 快照，记录 agent type、allowed tools、permission mode、side effect scopes、是否允许 background、是否允许 resume、是否允许 worktree 和是否允许 user prompt。
 
 ## Hooks、MCP、Skills
 
@@ -321,11 +321,11 @@ subagent 不是只跑模型和工具，还会触发扩展系统：
 - agent frontmatter hooks 注册为 session scoped hooks，并在 agent lifecycle 结束时清理。
 - agent Stop hooks 会以 `SubagentStop` 事件执行。
 - agent frontmatter `mcpServers` 设计上可在父 MCP clients 基础上 additive 合并，inline MCP client
-  结束时 cleanup；ZCode 当前 child 只借用 parent-owned MCP 连接，不创建 inline client。
+  结束时 cleanup；Secretariat 当前 child 只借用 parent-owned MCP 连接，不创建 inline client。
 - plugin-only policy 下，用户可控 frontmatter MCP 和 hooks 会被跳过或限制。
 - `skills` 会在 agent 启动时解析并预加载为 meta user message；plugin skills 可通过 bare name、plugin prefix 或 suffix match 解析。
 
-ZCode 应把 hook/MCP/skill 都视为外部 I/O 或扩展边界，必须带 trace、权限、timeout、cleanup 和 source trust。
+Secretariat 应把 hook/MCP/skill 都视为外部 I/O 或扩展边界，必须带 trace、权限、timeout、cleanup 和 source trust。
 
 ## 失败路径
 
@@ -352,7 +352,7 @@ ZCode 应把 hook/MCP/skill 都视为外部 I/O 或扩展边界，必须带 trac
 - session store 中 child history 缺失，resume 失败。
 - output file 或 task state 被 evict，`SendMessage` 不会仅凭磁盘 artifact 重新发现目标。
 
-## ZCode Explore MVP（历史基线）
+## Secretariat Explore MVP（历史基线）
 
 本节记录最初 Explore MVP 的收窄范围，不再代表当前完整能力：
 
@@ -367,7 +367,7 @@ ZCode 应把 hook/MCP/skill 都视为外部 I/O 或扩展边界，必须带 trac
   payload 保留 `source: "subagent"`、`parentToolCallId`、`childSessionId`、`childToolCallId`、
   `agentId`、`agentType` 和 `description`。镜像事件不写入父 event store；事实来源仍是 child
   session 中已经持久化的原始事件，避免把 child tool 误计为父 agent 的模型可见工具调用。
-- ZCode Protocol V4 把 Agent/Task 详情统一放在 child session。父 ProductProjection 在 materialize
+- Secretariat Protocol V4 把 Agent/Task 详情统一放在 child session。父 ProductProjection 在 materialize
   tool row 前必须丢弃 `source: "subagent"` 的 mirrored lifecycle，不能生成父 `ToolCallRow`、plan
   或文件摘要；child topic 仍按原始事件生成完整工具行。foreground child 的等待态由父 Agent tool
   和 main turn phase 表达，background child 由 subagent manifest/background work 表达；权限、提问等
@@ -390,7 +390,7 @@ ZCode 应把 hook/MCP/skill 都视为外部 I/O 或扩展边界，必须带 trac
 - 子 agent session history / task state 存储契约，支持 resume、kill、progress、notification 和 event replay。
 - hooks、MCP、skills、remote agent 等扩展边界的 capability、权限、timeout、cleanup、trace 声明。
 
-## ZCode 当前实现
+## Secretariat 当前实现
 
 当前实现已经从最初 Explore MVP 扩展为 profile-backed local agent：
 
@@ -434,13 +434,13 @@ Child finish    -> no parent MCP cleanup
 
 - `to` 必须是当前 runtime `RuntimeTaskRegistry` 中仍可寻址的 `local_agent` task/agent id。当前不支持名称 alias、跨 runtime 投递，也不会在 task 已从 registry evict 后仅凭磁盘 artifact 重新发现目标。
 - provider-visible description 和字段说明只覆盖 local-agent 子集；teammate mailbox、shutdown、
-  plan approval 等 ZCode 未支持的 team protocol 不进入工具说明。
+  plan approval 等 Secretariat 未支持的 team protocol 不进入工具说明。
 - running agent 有 active message sink 时直接投递到当前 turn，返回 `steered` 或 `queued`；没有 sink 或 sink 投递失败时进入该 task 的 pending message queue。
 - terminal agent 仍保留 profile 和 child session id 时，`SendMessage` 复用原 child session 并在后台恢复；目标、profile 或 child session metadata 缺失时返回结构化失败。
 - queued 和 terminal resume 的模型可见成功文案分别固定为：
   `Message queued for delivery to ${to} at its next tool round.`；
   `Agent "${to}" was stopped (${status}); resumed it in the background with your message. You'll be notified when it finishes. Output: ${outputFile}`。
-  `steered` 是 ZCode 的 active-turn 扩展，保持现有独立文案。
+  `steered` 是 Secretariat 的 active-turn 扩展，保持现有独立文案。
 - terminal resume 继续只发布 `SubagentSpawned(background=true, resumed=true)`；V4 在同一次投影中
   复用原 `agentId` / `childSessionId` 恢复 running row 和 cancellable background work，并保留原
   `Agent` tool call 的 `parentToolCallId` 作为 row 展示锚点。不得用本次 `SendMessage` call id 覆盖，
@@ -475,7 +475,7 @@ Child finish    -> no parent MCP cleanup
 - display 从 handler 原始 output 生成，通过 live `tool_call_result.result.display` 下发，并写入 completed tool part 的 versioned metadata，不能混入 hook additional context。
 - Desktop/Web 展示规范见 `docs/ui/tool-display-rendering.md`；CLI TUI 的暂缓适配和验收条件记录在 [Tool Change Chain](./00-tool-change-chain.md) 的 `TODO(TUI display parity)`。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 第一版不建议把 `SubagentTool` 直接写成一个巨型工具。应拆成一组稳定接口：
 

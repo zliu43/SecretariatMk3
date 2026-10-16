@@ -6,7 +6,7 @@
 当前唯一事实链为：
 
 ```text
-ZCode Built-in Model Config Rules
+Secretariat Built-in Model Config Rules
               +
 Personal Model Config Rules
               |

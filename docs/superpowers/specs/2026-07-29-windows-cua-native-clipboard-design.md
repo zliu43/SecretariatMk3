@@ -208,7 +208,7 @@ capability 规则：
    - 读回精确比对；
    - `finally` 恢复原文本并再次验证；
    - 输出仅含布尔值和平台，不输出原文本、marker、token 或 pipe；
-7. zcode-cua 全量 gates、ZCode CUA focused gates、typecheck 与 lint。
+7. zcode-cua 全量 gates、Secretariat CUA focused gates、typecheck 与 lint。
 
 实机 smoke 若在恢复阶段失败，必须返回非零并提示用户当前剪贴板可能仍是测试 marker；
 不得在无法恢复时报告通过。

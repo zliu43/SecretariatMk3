@@ -185,7 +185,7 @@ export function buildRuntimeProcessEnvPatch(
     ...toolEnvPassthroughPatch,
     ...runtimeToolEnvPatch,
     // Python on Windows inherits the active code page (often GBK/936) when no explicit
-    // encoding is set. ZCode/Bash tool output is consumed as UTF-8, so force Python
+    // encoding is set. Secretariat/Bash tool output is consumed as UTF-8, so force Python
     // subprocesses spawned by agents to emit UTF-8.
     ...PYTHON_UTF8_ENV_PATCH,
   };
@@ -261,7 +261,7 @@ export function initializeRuntimeProcessEnv(
   const runtimeProcessEnvPatch =
     preparedRuntimeProcessEnvPatch ?? buildRuntimeProcessEnvPatch(normalizedProcessEnv);
   // host/agent 运行时不能直接继承用户 shell 里的 NODE_ENV、http_proxy 或证书变量。
-  // 网络变量会先封存为 ZCODE_TOOL_ENV_PASSTHROUGH_JSON，只有 Bash/tool 子进程边界才恢复原名。
+  // 网络变量会先封存为 SECRETARIAT_TOOL_ENV_PASSTHROUGH_JSON，只有 Bash/tool 子进程边界才恢复原名。
   sanitizeZCodeRuntimeEnvInPlace(process.env);
   Object.assign(process.env, runtimeProcessEnvPatch);
 }

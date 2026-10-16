@@ -1,6 +1,6 @@
 ---
 name: e2e-case-lifecycle
-description: Plan, maintain, replay, and promote ZCode desktop E2E cases and their fixtures, coverage matrices, and CI admission evidence.
+description: Plan, maintain, replay, and promote Secretariat desktop E2E cases and their fixtures, coverage matrices, and CI admission evidence.
 disable-model-invocation: true
 ---
 
@@ -44,7 +44,7 @@ For a new candidate case:
 5. Run manual/capture with:
 
 ```bash
-ZCODE_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e -- --spec './test/e2e/conversation-session/manual-review/pending/<case>.test.ts'
+SECRETARIAT_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e -- --spec './test/e2e/conversation-session/manual-review/pending/<case>.test.ts'
 ```
 
 Manual/capture artifacts are review evidence, not the final test contract.

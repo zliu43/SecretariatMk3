@@ -183,7 +183,7 @@ Desktop Local Host、Web Remote 与 Remote Workspace 均遵守目标 Environment
 ### 7.3 回归
 
 - Account Config 继续通过既有 Protocol 显式同步，不并入 Personal 文件轮询；
-- ZCode Built-in Active/LKG 与远端刷新机制不变；
+- Secretariat Built-in Active/LKG 与远端刷新机制不变；
 - Model Selection、Provider Settings 和普通模型请求最终看到相同 Registry 事实；
 - macOS、Windows、Linux 均不依赖各自的文件事件实现。
 

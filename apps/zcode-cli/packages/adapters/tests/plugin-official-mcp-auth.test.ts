@@ -93,7 +93,7 @@ describe("plugin mcp zcode_official auth parsing", () => {
   });
 
   it("rejects alias and casing variants of the auth type", async () => {
-    for (const type of ["zcode-official_auth", "zcode-official", "ZCODE_OFFICIAL", "Zcode_Official"]) {
+    for (const type of ["zcode-official_auth", "zcode-official", "SECRETARIAT_OFFICIAL", "Zcode_Official"]) {
       const { cleanup, outcome } = await discoverWithMcpServer({
         auth: { provider: "jwt_token", type },
         type: "http",

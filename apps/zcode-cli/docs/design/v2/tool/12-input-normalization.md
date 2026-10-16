@@ -20,7 +20,7 @@ hook updated input 以及 broker modified input。
 }
 ```
 
-如果 runtime 直接把这个字符串交给 tool handler，`inputSchema` / runtime schema 很容易在执行前失败，严重时还会把异常路径扩散到不该崩的边界。ZCode v2 需要把这类异常输入收敛为“可恢复的输入错误”，而不是让进程因为 JSON 解析或 tool 解析抛出未预期异常。
+如果 runtime 直接把这个字符串交给 tool handler，`inputSchema` / runtime schema 很容易在执行前失败，严重时还会把异常路径扩散到不该崩的边界。Secretariat v2 需要把这类异常输入收敛为“可恢复的输入错误”，而不是让进程因为 JSON 解析或 tool 解析抛出未预期异常。
 
 ## 目标
 

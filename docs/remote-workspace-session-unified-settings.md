@@ -18,7 +18,7 @@
 [
   {
     "kind": "local",
-    "workspacePath": "/Users/dev/ZCodeProject/3DAutoSnake"
+    "workspacePath": "/Users/dev/SecretariatProject/3DAutoSnake"
   },
   {
     "kind": "remote",

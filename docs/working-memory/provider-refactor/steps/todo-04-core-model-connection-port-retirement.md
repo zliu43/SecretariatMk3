@@ -87,7 +87,7 @@ useMidConversationSystem
 
 ### 3.2.1 Model Config 能力规则
 
-`supportsNativeWebSearch` 和 `supportsMidConversationSystem` 统一写入 ZCode Built-in / Personal Model
+`supportsNativeWebSearch` 和 `supportsMidConversationSystem` 统一写入 Secretariat Built-in / Personal Model
 Config Rules，最终成为 Effective Model Config.properties。配置归属在 Model Config，不等于规则只能按
 modelId 匹配：
 

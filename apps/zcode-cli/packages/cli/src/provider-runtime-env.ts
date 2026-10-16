@@ -7,12 +7,12 @@ import {
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
   resolveZCodeBuiltinCachePaths,
   resolveZCodeBuiltinClientPlatform,
-  ZCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
   type ZCodeBuiltinRefreshEvent,
 } from "@zcode/provider-node";
-import { resolveRuntimeZCodeEndpointOrigin, ZCODE_VERSION } from "@zcode/shared";
+import { resolveRuntimeZCodeEndpointOrigin, SECRETARIAT_VERSION } from "@zcode/shared";
 import type { CliEnv } from "./env.js";
 
 export const SEA_ZCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY = "zcode-provider/zcode-builtin.json";
@@ -23,14 +23,14 @@ export function createCliProviderRefreshReporter(
   return {
     onBuiltinRefreshError(error: unknown) {
       stderr.write(
-        `ZCode Built-in 刷新失败: ${error instanceof Error ? error.message : "unknown error"}\n`,
+        `Secretariat Built-in 刷新失败: ${error instanceof Error ? error.message : "unknown error"}\n`,
       );
     },
     onBuiltinRefreshResult(event: ZCodeBuiltinRefreshEvent) {
       // TTL 检查不是生产事件；成功更新才默认留痕，不能输出 CDN URL 查询参数或内容。
       if (event.result === "updated" || process.env.NODE_ENV !== "production") {
         stderr.write(
-          `ZCode Built-in ${event.result}${event.reason ? ` (${event.reason})` : ""}${event.revision === undefined ? "" : ` revision=${event.revision} source=CDN`}\n`,
+          `Secretariat Built-in ${event.result}${event.reason ? ` (${event.reason})` : ""}${event.revision === undefined ? "" : ` revision=${event.revision} source=CDN`}\n`,
         );
       }
     },
@@ -55,13 +55,13 @@ export async function prepareCliProviderRuntimeEnv(
 ): Promise<Record<string, string>> {
   if (!requiresProviderRuntime(options.argv)) return {};
 
-  const explicitZCodeBuiltin = options.env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
-  const explicitPersonal = options.env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
-  const dataBaseDir = options.dataBaseDir ?? options.env.ZCODE_DATA_BASE_DIR?.trim() ?? homedir();
+  const explicitZCodeBuiltin = options.env[SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const explicitPersonal = options.env[SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const dataBaseDir = options.dataBaseDir ?? options.env.SECRETARIAT_DATA_BASE_DIR?.trim() ?? homedir();
   if (explicitZCodeBuiltin && explicitPersonal) {
     return {
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitZCodeBuiltin,
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: explicitPersonal,
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: explicitZCodeBuiltin,
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: explicitPersonal,
     };
   }
 
@@ -73,12 +73,12 @@ export async function prepareCliProviderRuntimeEnv(
       sea: options.sea ?? getSeaProviderConfigAssets(),
     }));
   const personalFilePath =
-    explicitPersonal ?? join(dataBaseDir, ".zcode", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
-  const appVersion = options.appVersion ?? ZCODE_VERSION;
+    explicitPersonal ?? join(dataBaseDir, ".secretariat", "v2", PERSONAL_PROVIDER_CONFIG_FILE_NAME);
+  const appVersion = options.appVersion ?? SECRETARIAT_VERSION;
   const platform = options.platform ?? resolveZCodeBuiltinClientPlatform();
   const zcodeEndpointOrigin = resolveRuntimeZCodeEndpointOrigin(options.env);
   const cachePaths = resolveZCodeBuiltinCachePaths({
-    environmentConfigRoot: join(dataBaseDir, ".zcode", "v2"),
+    environmentConfigRoot: join(dataBaseDir, ".secretariat", "v2"),
     platform,
     appVersion,
     zcodeEndpointOrigin,
@@ -96,9 +96,9 @@ export async function prepareCliProviderRuntimeEnv(
   }
 
   return {
-    [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: cachePaths.activeFilePath,
-    [ZCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
-    [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+    [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: cachePaths.activeFilePath,
+    [SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+    [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
   };
 }
 
@@ -137,13 +137,13 @@ async function resolveBundledZCodeBuiltinProviderConfig(input: {
   if (input.sea?.isSea()) {
     const content = input.sea.getAsset(SEA_ZCODE_BUILTIN_PROVIDER_CONFIG_ASSET_KEY, "utf8");
     return materializeZCodeBuiltinProviderConfig({
-      environmentConfigRoot: join(input.dataBaseDir, ".zcode", "v2"),
+      environmentConfigRoot: join(input.dataBaseDir, ".secretariat", "v2"),
       content,
     });
   }
 
   const entrypoint = input.entrypoint?.trim();
-  if (!entrypoint) throw new Error("无法定位 CLI ZCode Built-in Provider Config：缺少入口路径");
+  if (!entrypoint) throw new Error("无法定位 CLI Secretariat Built-in Provider Config：缺少入口路径");
   // 全局 bin 可以是软链接，随包配置必须相对真实入口定位。
   const entryDirectory = dirname(realpathSync(resolve(entrypoint)));
   const candidates = [
@@ -152,7 +152,7 @@ async function resolveBundledZCodeBuiltinProviderConfig(input: {
   ];
   const candidate = candidates.find((filePath) => existsSync(filePath));
   if (candidate) return candidate;
-  throw new Error(`无法定位 CLI ZCode Built-in Provider Config：${candidates.join(", ")}`);
+  throw new Error(`无法定位 CLI Secretariat Built-in Provider Config：${candidates.join(", ")}`);
 }
 
 function getSeaProviderConfigAssets(): SeaProviderConfigAssets | undefined {

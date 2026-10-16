@@ -2,7 +2,7 @@
 
 ## 背景
 
-ZCode 的 Anthropic Messages 请求默认依赖 AI SDK 的 `apiKey` 配置发送 `x-api-key`。部分 Anthropic-compatible 网关同时按 `Authorization` 读取同一份凭据；如果只发送 `x-api-key`，主对话请求、连通性探测和 Repo Wiki 短请求会出现鉴权行为不一致。
+Secretariat 的 Anthropic Messages 请求默认依赖 AI SDK 的 `apiKey` 配置发送 `x-api-key`。部分 Anthropic-compatible 网关同时按 `Authorization` 读取同一份凭据；如果只发送 `x-api-key`，主对话请求、连通性探测和 Repo Wiki 短请求会出现鉴权行为不一致。
 
 ## 目标
 

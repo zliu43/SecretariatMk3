@@ -6,7 +6,7 @@
 
 **Architecture:** Keep capability precedence and the existing GLM-family matcher unchanged. Add a public structural predicate in the bootstrap capability resolver, normalize only the final provider-visible model ID segment before matching a non-empty hyphen suffix, then cover the fallback boundary with neutral unit fixtures and keep N08 scoped to its explicit text-only E2E contract.
 
-**Tech Stack:** TypeScript, Vitest, ZCode Protocol model catalog, conversation-session case catalog and coverage audit.
+**Tech Stack:** TypeScript, Vitest, Secretariat Protocol model catalog, conversation-session case catalog and coverage audit.
 
 ## Global Constraints
 

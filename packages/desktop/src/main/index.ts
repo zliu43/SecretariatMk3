@@ -68,13 +68,13 @@ import {
   type Locale,
   type AppSettings,
   PlatformChannels,
-  ZCODE_ENV,
-  ZCODE_PRODUCT_FLAVOR,
-  ZCODE_AUTO_UPDATE_ENABLED,
+  SECRETARIAT_ENV,
+  SECRETARIAT_PRODUCT_FLAVOR,
+  SECRETARIAT_AUTO_UPDATE_ENABLED,
   DEFAULT_ZCODE_ENDPOINT_ORIGIN,
   DEFAULT_LOCALE,
   TEST_ZCODE_ENDPOINT_ORIGIN,
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   buildZCodeEndpointUrls,
   resolveWebRemoteControlRelayWsUrl,
   resolveZCodeEndpointOrigin,
@@ -278,9 +278,9 @@ registerLocalMediaPreviewScheme(protocol, [PLUGIN_SANDBOX_PRIVILEGED_SCHEME]);
 const localMediaPreviewPathRegistry = createLocalMediaPreviewPathRegistry();
 
 // e2e 由 Chromedriver 管理远程调试端口；如果这里继续固定到 9229，
-// 会和开发态已打开的 ZCode Dev 抢端口，导致 WebDriver session 创建前白屏超时。
+// 会和开发态已打开的 Secretariat Dev 抢端口，导致 WebDriver session 创建前白屏超时。
 // 仅本地开发运行默认开启远程调试端口，并允许 e2e 通过环境变量交给 Chromedriver 接管。
-if (!app.isPackaged && process.env.ZCODE_DISABLE_FIXED_REMOTE_DEBUGGING_PORT !== "1") {
+if (!app.isPackaged && process.env.SECRETARIAT_DISABLE_FIXED_REMOTE_DEBUGGING_PORT !== "1") {
   app.commandLine.appendSwitch("remote-debugging-port", "9229");
 }
 
@@ -563,7 +563,7 @@ async function runBrowserCommandOnView(params: {
 let currentDesktopZoomLevel = 0;
 let currentDesktopWindowSize: DesktopWindowSize | undefined;
 const preloadPath = join(import.meta.dirname, "../preload/index.cjs");
-const settingsFile = join(homedir(), ".zcode", "v2", "setting.json");
+const settingsFile = join(homedir(), ".secretariat", "v2", "setting.json");
 let activeAppShutdownPolicy = resolveAppShutdownPolicy("normal", process.platform);
 let activeAppShutdownKind: AppShutdownKind | null = null;
 const WINDOWS_AGENT_FORCE_KILL_TIMEOUT_MS = 2_000;
@@ -712,7 +712,7 @@ const appLaunchCoordinator = createAppLaunchCoordinator(appLaunchGate);
 const appTelemetryCredentialService = createCredentialService();
 async function resolveCurrentZCodeEndpointOrigin() {
   return resolveZCodeEndpointOrigin({
-    env: ZCODE_ENV,
+    env: SECRETARIAT_ENV,
     envBaseOrigin: resolveZCodeEndpointEnvBaseOrigin(hostProcessLocalEnv),
     overrideOrigin: (await mainSettingService.get()).zcodeEndpointOrigin,
   });
@@ -803,7 +803,7 @@ function syncAppTelemetryInteractiveState(): void {
 app.on("browser-window-focus", (_event, win) => {
   syncAppTelemetryInteractiveState();
   rebuildMenu();
-  // 设置/更新等无 Host 的 ZCode 窗口也算前台：router 会先把旧 workspace Host 清成 null，
+  // 设置/更新等无 Host 的 Secretariat 窗口也算前台：router 会先把旧 workspace Host 清成 null，
   // 再把无 Host 的新窗口事实静默丢弃，避免旧会话 PiP 继续显示。
   cuaPipFocusRouter.focusWindow(resolveCuaPipWindowKey(win));
 });
@@ -836,14 +836,14 @@ const webRemoteControlSharedHostAttachments = createWebRemoteControlSharedHostAt
 const deviceMid = ensureDesktopDeviceMidSync();
 // 帮助配置是公开读取，不能复用下面附带账号鉴权的灰度响应缓存。
 const readHelpConfig = createDesktopHelpConfigReader({
-  appVersion: ZCODE_VERSION || app.getVersion(),
+  appVersion: SECRETARIAT_VERSION || app.getVersion(),
   deviceMid,
   resolveEndpointOrigin: resolveCurrentZCodeEndpointOrigin,
 });
 // 同一个 /api/v1/client/configs fetcher 供两个灰度 rollout 共用（请求参数与鉴权完全一致，
 // 各自独立缓存/去重，服务端按 data.configs.<key> 区分功能）。
 const electronClientConfigsFetcher = createElectronDesktopContextPromptConfigFetcher({
-  appVersion: ZCODE_VERSION || app.getVersion(),
+  appVersion: SECRETARIAT_VERSION || app.getVersion(),
   deviceMid,
   resolveEndpointOrigin: resolveCurrentZCodeEndpointOrigin,
 });
@@ -857,7 +857,7 @@ const rendererActionTraceRollout = createRendererActionTraceRollout({
 });
 const localTtftExporter = createLocalTtftExporter({
   env: { ...hostProcessLocalEnv, ...process.env },
-  version: ZCODE_VERSION || app.getVersion(),
+  version: SECRETARIAT_VERSION || app.getVersion(),
   logger,
 });
 ipcMain.on(PlatformChannels.ReportLocalTtftBatch, (_event, batch: unknown) =>
@@ -875,13 +875,13 @@ const armsUserIdentitySync = createArmsUserIdentitySync({
   deviceMid,
   setUser: (user) => armsRum.setConfig("user", user),
 });
-const webRemoteControlAppVersion = ZCODE_VERSION || app.getVersion();
+const webRemoteControlAppVersion = SECRETARIAT_VERSION || app.getVersion();
 const defaultZCodeEndpointUrls = buildZCodeEndpointUrls(DEFAULT_ZCODE_ENDPOINT_ORIGIN, {
   appVersion: webRemoteControlAppVersion,
 });
 const webRemoteControlRelayWsEnvOverride =
-  process.env["ZCODE_WEB_REMOTE_CONTROL_RELAY_WS_URL"]?.trim();
-const webRemoteControlUrlEnvOverride = process.env["ZCODE_WEB_REMOTE_CONTROL_URL"]?.trim();
+  process.env["SECRETARIAT_WEB_REMOTE_CONTROL_RELAY_WS_URL"]?.trim();
+const webRemoteControlUrlEnvOverride = process.env["SECRETARIAT_WEB_REMOTE_CONTROL_URL"]?.trim();
 
 function extractOpenWorkspacePathFromDeepLinkUrl(url: string): string | null {
   try {
@@ -1235,7 +1235,7 @@ async function prepareAppQuit(reason: string, kind: AppShutdownKind = "normal"):
 
 function exitPreparedApp(reason: string): never | void {
   logger.info(`[app-quit] exiting prepared app (${reason})`);
-  if (process.env.ZCODE_E2E_RUN_ID?.trim()) {
+  if (process.env.SECRETARIAT_E2E_RUN_ID?.trim()) {
     flushMainE2ECoverage((error) => {
       logger.warn("[e2e-coverage] main coverage flush failed", error);
     });
@@ -1444,12 +1444,12 @@ async function prepareWindowsProcessesForUpdateInstall() {
 
 function shouldConfirmAppQuit() {
   // 开发环境里的普通会话经常需要重启 Electron，只在 production 下拦截，避免打断调试。
-  return ZCODE_ENV === "production" && getRunningAgentSessionCount() > 0;
+  return SECRETARIAT_ENV === "production" && getRunningAgentSessionCount() > 0;
 }
 
 function confirmAppQuit(originWindow?: BrowserWindow | null) {
   if (!shouldConfirmAppQuit()) {
-    logger.info(`[app-quit] quit confirmation skipped in ${ZCODE_ENV}`);
+    logger.info(`[app-quit] quit confirmation skipped in ${SECRETARIAT_ENV}`);
     return true;
   }
 
@@ -1513,7 +1513,7 @@ async function executeDesktopCommandForApp(
 }
 
 async function resolveZCodeEndpointSelection(): Promise<"production" | "test" | "custom"> {
-  if (ZCODE_ENV === "production") {
+  if (SECRETARIAT_ENV === "production") {
     return "production";
   }
   const origin = await resolveCurrentZCodeEndpointOrigin();
@@ -2097,10 +2097,10 @@ app.whenReady().then(async () => {
       : {}),
     logger: console,
     // e2e L05（配额）：只在 e2e run 里允许缩小注册表容量。
-    ...(process.env.ZCODE_E2E_RUN_ID?.trim() &&
-    Number.isInteger(Number(process.env.ZCODE_E2E_PLUGIN_SANDBOX_MAX_ENTRIES)) &&
-    Number(process.env.ZCODE_E2E_PLUGIN_SANDBOX_MAX_ENTRIES) > 0
-      ? { registryMaxEntries: Number(process.env.ZCODE_E2E_PLUGIN_SANDBOX_MAX_ENTRIES) }
+    ...(process.env.SECRETARIAT_E2E_RUN_ID?.trim() &&
+    Number.isInteger(Number(process.env.SECRETARIAT_E2E_PLUGIN_SANDBOX_MAX_ENTRIES)) &&
+    Number(process.env.SECRETARIAT_E2E_PLUGIN_SANDBOX_MAX_ENTRIES) > 0
+      ? { registryMaxEntries: Number(process.env.SECRETARIAT_E2E_PLUGIN_SANDBOX_MAX_ENTRIES) }
       : {}),
   });
   // Electron 的 net.request 只能在 app ready 后使用；灰度请求仍是旁路预热，不阻塞首个 Host。
@@ -2182,7 +2182,7 @@ app.whenReady().then(async () => {
     // 打包态必须与 NSIS 快捷方式使用同一 AUMID，否则 Shell 把它们当成不同应用。
     // 使用构建期产品身份，不依赖用户机器环境；开发态继续保持独立身份。
     app.setAppUserModelId(
-      resolveWindowsAppUserModelIdForFlavor(ZCODE_PRODUCT_FLAVOR, { isPackaged: app.isPackaged }),
+      resolveWindowsAppUserModelIdForFlavor(SECRETARIAT_PRODUCT_FLAVOR, { isPackaged: app.isPackaged }),
     );
   }
 
@@ -2233,11 +2233,11 @@ app.whenReady().then(async () => {
   logWindowsBundledRuntimeIntegrityDiagnostic();
 
   // 启动自动更新检查（后台执行，不阻塞主界面）
-  // Preview 身份无论连接哪个后端都不自动更新：stable feed 上只分发正式 ZCode 安装包，
+  // Preview 身份无论连接哪个后端都不自动更新：stable feed 上只分发正式 Secretariat 安装包，
   // 不向 Preview 渠道提供更新。构建期未启用自动更新时同样不更新
   // （见 docs/desktop/build-time-optional-capabilities.md）。
   void initAutoUpdater({
-    enabled: ZCODE_PRODUCT_FLAVOR === "production" && ZCODE_AUTO_UPDATE_ENABLED,
+    enabled: SECRETARIAT_PRODUCT_FLAVOR === "production" && SECRETARIAT_AUTO_UPDATE_ENABLED,
     onBeforeQuitAndInstall: async () => {
       notifyStabilityLifecycle("update_install");
       await prepareAppQuit("auto-update quitAndInstall", "update-install");
@@ -2448,7 +2448,7 @@ app.whenReady().then(async () => {
     armsCustomContext: {
       deviceMid,
       platform: process.platform,
-      appVersion: ZCODE_VERSION,
+      appVersion: SECRETARIAT_VERSION,
       armsEnv: mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv),
     },
     finalArmsCustomEventE2EEnabled: shouldEnableE2ETestBridge(process.env),
@@ -2475,24 +2475,24 @@ app.whenReady().then(async () => {
   configureDesktopStabilityTelemetry({
     deviceMid,
     platform: process.platform,
-    appVersion: ZCODE_VERSION,
+    appVersion: SECRETARIAT_VERSION,
     armsEnv: mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv),
   });
   configureDesktopResourceTelemetry({
     deviceMid,
     platform: process.platform,
-    appVersion: ZCODE_VERSION,
+    appVersion: SECRETARIAT_VERSION,
     armsEnv: mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv),
   });
   configureDesktopMcpTelemetry({
     deviceMid,
-    appVersion: ZCODE_VERSION,
+    appVersion: SECRETARIAT_VERSION,
     armsEnv: mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv),
   });
   configureDesktopNetworkTelemetry({
     deviceMid,
     platform: process.platform,
-    appVersion: ZCODE_VERSION,
+    appVersion: SECRETARIAT_VERSION,
     armsEnv: mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv),
   });
   registerDesktopStabilityMonitors(logger, crashCapturePaths);
@@ -2502,7 +2502,7 @@ app.whenReady().then(async () => {
   const defaultDataBaseDir = process.env.HOME?.trim() || homedir();
   registerDesktopZCodeDataSizeTelemetry({
     context: {
-      appVersion: ZCODE_VERSION,
+      appVersion: SECRETARIAT_VERSION,
       armsEnv: mapZCodeEnvToArmsRumEnv(desktopRuntimeEnv),
       dataRootKind:
         resolve(getDataBaseDir()) === resolve(defaultDataBaseDir) ? "default" : "custom",
@@ -2519,14 +2519,14 @@ app.whenReady().then(async () => {
   registerDesktopNetworkTelemetry(logger);
 
   // 本地未打包 dev 构建（app.isPackaged === false）必须跳过远端强制升级 gate。
-  // 原因：force-update gate 只看 ZCODE_ENV === "production"，但 dev 构建（如 dev:desktop:cua
+  // 原因：force-update gate 只看 SECRETARIAT_ENV === "production"，但 dev 构建（如 dev:desktop:cua
   // 连真实后端测 computer use）虽指向 production 后端，版本号却滞后于线上 release（feature
   // 分支不 bump 版本），会被 release minimalVersion 误判为"需强制升级"而启动秒退。force-update
   // 是面向打包发布客户端的安全门，对未打包 dev 运行时无意义。打包版 app.isPackaged === true，
   // gate 照常生效，对真实用户零影响。
   const skipForceUpdateForLocalDevRuntime = !app.isPackaged;
   const forceUpdateGuardResult =
-    ZCODE_PRODUCT_FLAVOR === "production" && !skipForceUpdateForLocalDevRuntime
+    SECRETARIAT_PRODUCT_FLAVOR === "production" && !skipForceUpdateForLocalDevRuntime
       ? await maybeBlockStartupForForceUpdate({
           locale: currentApplicationLocale,
           logger,
@@ -2536,7 +2536,7 @@ app.whenReady().then(async () => {
           },
         })
       : { blocked: false };
-  if (ZCODE_PRODUCT_FLAVOR !== "production") {
+  if (SECRETARIAT_PRODUCT_FLAVOR !== "production") {
     logger.info("[force-update] Preview 跳过远端强制升级检查");
   } else if (skipForceUpdateForLocalDevRuntime) {
     logger.info("[force-update] 本地 dev 构建（未打包）跳过远端强制升级检查");

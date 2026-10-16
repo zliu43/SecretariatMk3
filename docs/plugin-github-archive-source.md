@@ -9,7 +9,7 @@
 ## 问题与根因
 
 当前 Marketplace 和插件 entry 的 `github`、`git`、legacy `url`、`git-subdir` 来源最终都会
-进入 `execFile("git", ...)`。这使插件管理能力隐式依赖运行 ZCode Agent 的主机已安装 Git：
+进入 `execFile("git", ...)`。这使插件管理能力隐式依赖运行 Secretariat Agent 的主机已安装 Git：
 
 - Desktop 本地 workspace 依赖本机 Git；
 - standalone CLI 依赖 CLI 所在主机 Git；

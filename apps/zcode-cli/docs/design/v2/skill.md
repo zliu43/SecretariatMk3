@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文是 ZCode v2 接入 skill 的实现级规划。它遵循当前 v2 架构原则：
+本文是 Secretariat v2 接入 skill 的实现级规划。它遵循当前 v2 架构原则：
 
 - spec 先行，再进入 contracts 和实现。
 - core 不直接读文件、扫目录、访问网络或读取环境变量。
@@ -35,17 +35,17 @@
 - 不长期保留大正文，优先 metadata snapshot + 按需读取正文。
 - product gating、env dependency prompt、root alias 渲染作为 Phase 2+；第一版只保留字段和诊断，不实现完整依赖补全。
 
-## ZCode 设计选择
+## Secretariat 设计选择
 
 ## 当前实现核对（2026-05-08）
 
 本轮核对确认 skill P0 主线已经落地，本文后续条目仍作为契约基准，但不应再把以下能力当作未实现缺口：
 
 - Contracts：`packages/contracts/src/skills/index.ts` 已定义 `SkillRoot`、`SkillScope`、`SkillMetadata`、`SkillDiagnostic`、`SkillContent`、`SkillLoadOutcome`、`SkillPort` 和 `SkillConfig`；`packages/contracts/src/tools/skill.ts` 已提供 `Skill` tool 的运行时 schema 与 provider JSON schema。
-- Adapter loader：`packages/adapters/src/skills/index.ts` 已通过 Node adapter 发现从 cwd 向上到 worktree root 的 `.zcode/skills`、`.agents/skills`、`.claude/skills` 及对应 user roots，支持 config extra roots、flat YAML frontmatter、未知字段 diagnostics、同名优先级去重、正文按需读取和 100KB 截断。
+- Adapter loader：`packages/adapters/src/skills/index.ts` 已通过 Node adapter 发现从 cwd 向上到 worktree root 的 `.secretariat/skills`、`.agents/skills`、`.claude/skills` 及对应 user roots，支持 config extra roots、flat YAML frontmatter、未知字段 diagnostics、同名优先级去重、正文按需读取和 100KB 截断。
 - Core runtime：`packages/core/src/context/sections/skills.ts` 已把 skill metadata 渲染为 `meta_user` section，不把正文放进 system prompt；`packages/core/src/tool/handlers/skill.ts` 已通过 `SkillPort` 加载正文，并声明只读、session side effect、runtime input/output schema、result budget、timeout、取消和 trace 传播。
-- Bootstrap / CLI / ZCode app-server：`packages/bootstrap/src/index.ts` 已按 feature gate 和 `skills.*` config 注入 `SkillPort`；`listZCodeSkills()` 复用同一 adapter；`zcode skills` / `zcode skills list` 支持 human、`--json` 和 `--verbose` diagnostics；TUI/command-center 的裸 `/skill` 只读列举 skills，`/skill <name> [task]` 会改写为必须先调用 `Skill` tool 的 prompt；ZCode app-server 暴露 `/skill <skill-name> [task]`，裸 `/skill` 在 ZCode app-server 中返回 usage，不启动模型 turn。
-- Tests：`packages/adapters/tests/skills.test.ts` 覆盖 discovery、正文加载和重复名优先级；`packages/core/tests/skill-tool.test.ts` 与 `packages/core/tests/context-builder.test.ts` 覆盖 metadata 注入和 `Skill` tool；`packages/cli/tests/cli.unit.test.ts` 覆盖 CLI/TUI `/skill`；`packages/bootstrap/tests/zcode-protocol.test.ts` 覆盖 ZCode app-server command 暴露、禁用和 prompt rewrite。
+- Bootstrap / CLI / Secretariat app-server：`packages/bootstrap/src/index.ts` 已按 feature gate 和 `skills.*` config 注入 `SkillPort`；`listZCodeSkills()` 复用同一 adapter；`zcode skills` / `zcode skills list` 支持 human、`--json` 和 `--verbose` diagnostics；TUI/command-center 的裸 `/skill` 只读列举 skills，`/skill <name> [task]` 会改写为必须先调用 `Skill` tool 的 prompt；Secretariat app-server 暴露 `/skill <skill-name> [task]`，裸 `/skill` 在 Secretariat app-server 中返回 usage，不启动模型 turn。
+- Tests：`packages/adapters/tests/skills.test.ts` 覆盖 discovery、正文加载和重复名优先级；`packages/core/tests/skill-tool.test.ts` 与 `packages/core/tests/context-builder.test.ts` 覆盖 metadata 注入和 `Skill` tool；`packages/cli/tests/cli.unit.test.ts` 覆盖 CLI/TUI `/skill`；`packages/bootstrap/tests/zcode-protocol.test.ts` 覆盖 Secretariat app-server command 暴露、禁用和 prompt rewrite。
 
 当前仍未落地，继续作为后续范围：
 
@@ -56,7 +56,7 @@
 
 ### 核心原则
 
-ZCode skill 采用“两层加载”：
+Secretariat skill 采用“两层加载”：
 
 1. **metadata discovery**：启动/turn 初始化时扫描 skill roots，只把 name、description、source、scope、path、policy 等轻量信息进入 context。
 2. **content load**：模型显式调用 `Skill` tool 后，才读取对应 `SKILL.md` 正文并注入当前会话。
@@ -149,10 +149,10 @@ P0 对未知字段不报错，但写入 diagnostics，避免未来字段被静�
 P0 默认 roots：
 
 1. configured extra roots：`skills.roots[]`，按配置顺序优先。
-2. project native：从 cwd 开始逐级向上到 worktree root 的 `<dir>/.zcode/skills/*/SKILL.md`。
+2. project native：从 cwd 开始逐级向上到 worktree root 的 `<dir>/.secretariat/skills/*/SKILL.md`。
 3. project agent-compatible：从 cwd 开始逐级向上到 worktree root 的 `<dir>/.agents/skills/*/SKILL.md`。
 4. project Claude-compatible：从 cwd 开始逐级向上到 worktree root 的 `<dir>/.claude/skills/*/SKILL.md`。
-5. user native：`~/.zcode/skills/*/SKILL.md`
+5. user native：`~/.secretariat/skills/*/SKILL.md`
 6. user agent-compatible：`~/.agents/skills/*/SKILL.md`
 7. user Claude-compatible：`~/.claude/skills/*/SKILL.md`
 
@@ -165,7 +165,7 @@ Project discovery 使用 nearest-first 语义：先检查当前 working director
   进入发现，与 plugin roots 并列注入 runtime、`zcode skills list` 与协议 skill catalog。它不是
   插件：不进市场目录、没有启停开关、不能卸载、不出现在 Settings 与 `$` 引用面板
   （`skills/referenceCatalog` 过滤 `bundled`）。开发态/桌面态沿官方插件同款候选目录在入口旁
-  原地读取；SEA 按内容 hash 一次性解压到 `~/.zcode/cli/bundled-skills/<hash>/`。包内每个
+  原地读取；SEA 按内容 hash 一次性解压到 `~/.secretariat/cli/bundled-skills/<hash>/`。包内每个
   文件都是必需资产，缺一拒绝整包并告警。首个成员是 `dynamic-workflows`
   （`docs/dynamic-workflow/authoring.md`）。
 - plugin-provided skill roots。
@@ -340,7 +340,7 @@ skills.rules
 
 Skill 配置不声明环境变量入口。需要调整 skill 开关、兼容目录或 metadata budget 时，走 config file、CLI/session override 或更高层的运行时配置契约。
 
-新增 `ZCODE_` 环境变量必须先补齐 spec，明确用途、优先级、错误行为和测试覆盖，避免把临时实现细节扩散成长期配置面。
+新增 `SECRETARIAT_` 环境变量必须先补齐 spec，明确用途、优先级、错误行为和测试覆盖，避免把临时实现细节扩散成长期配置面。
 
 Config 合并仍走 system/user/project/session/env/cli 优先级，core 不读取环境变量。
 
@@ -449,7 +449,7 @@ Status: completed for P0 inline load. Tool handler 已通过 `SkillPort` 读取�
 
 ### Phase 5：CLI/TUI
 
-Status: partially completed. `zcode skills` / `zcode skills list`、`zcode skills inspect <name>`、`--json`、`--verbose` diagnostics、TUI/command-center 裸 `/skill` list、`/skill <name> [task]` prompt rewrite、ZCode app-server `/skill <name> [task]` 已实现。TUI/debug diagnostics projection 尚未实现。
+Status: partially completed. `zcode skills` / `zcode skills list`、`zcode skills inspect <name>`、`--json`、`--verbose` diagnostics、TUI/command-center 裸 `/skill` list、`/skill <name> [task]` prompt rewrite、Secretariat app-server `/skill <name> [task]` 已实现。TUI/debug diagnostics projection 尚未实现。
 
 - `zcode skills list`：已实现，只读 discovery，不启动模型/session。
 - `zcode skills inspect <name>`：已实现，只读 discovery 加正文读取，不启动模型/session，CLI 不直接读取 `SKILL.md`。

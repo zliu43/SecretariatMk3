@@ -4,7 +4,7 @@
 
 本文记录 agent loop 面向模型异常行为的兜底策略，作为后续实现依据。重点覆盖 tool call 过多、重复工具调用、provider 异常结束、流式请求失败、上下文溢出和 malformed tool call 等场景。
 
-核心原则：**ZCode 面向长程任务，tool call 数量不设硬停止条件，也不默认设置 100 次之类的全局上限**。硬停止只用于明确的资源或安全边界，例如用户取消、权限拒绝、工具超时、输出截断、进程终止、provider retry 上限、上下文不可恢复溢出等。
+核心原则：**Secretariat 面向长程任务，tool call 数量不设硬停止条件，也不默认设置 100 次之类的全局上限**。硬停止只用于明确的资源或安全边界，例如用户取消、权限拒绝、工具超时、输出截断、进程终止、provider retry 上限、上下文不可恢复溢出等。
 
 ---
 
@@ -20,7 +20,7 @@
 
 ---
 
-## 二、ZCode 设计原则
+## 二、Secretariat 设计原则
 
 1. **长程任务优先**：tool call 计数只作为 telemetry/诊断输入，不作为 runtime 闸门；默认不限制调用次数。
 2. **异常兜底可观测**：所有重试、compact、fallback 都要发事件，并携带 `traceId`、`turnId`、`spanId` 或可关联的父子关系。
@@ -28,7 +28,7 @@
 4. **资源边界仍可硬保护**：工具超时、输出大小、进程取消、权限拒绝、用户中断、不可恢复 provider error 可以硬失败或中断。
 5. **不要吞错误**：低层错误保留原始原因；只有 loop 边界负责决定是否转成模型可见 warning、用户提示或 turn error。
 
-模型网络 retry 由 ZCode adapter 自己执行，不使用 AI SDK 内部 retry。默认重试次数为 10，对应事件里的 `maxAttempts = 11`；日志需要同时记录 `maxAttempts` 和派生的 `maxRetries`。退避策略应支持指数退避、jitter、`retry-after-ms` 和 `retry-after`，其中 provider header 只有在等待时间合理时才覆盖本地退避。
+模型网络 retry 由 Secretariat adapter 自己执行，不使用 AI SDK 内部 retry。默认重试次数为 10，对应事件里的 `maxAttempts = 11`；日志需要同时记录 `maxAttempts` 和派生的 `maxRetries`。退避策略应支持指数退避、jitter、`retry-after-ms` 和 `retry-after`，其中 provider header 只有在等待时间合理时才覆盖本地退避。
 
 ---
 

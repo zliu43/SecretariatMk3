@@ -30,8 +30,8 @@
 - macOS/Linux 现有截图路径保持兼容；Windows SystemSurface 继续是无截图 fallback。
 - 默认测试不得启动 GUI 或读取屏幕；live smoke 必须显式 opt-in，且在启动 Helper/fixture 前验证普通已解锁桌面。
 - live smoke 只能控制自己启动的 fixture 进程，`finally` 恢复/关闭所有资源；输出不得包含截图、marker、窗口标题、路径、token 或 pipe。
-- 必须执行 zcode-cua focused/full tests、native rebuild、build、typecheck、lint；ZCode 执行 source Helper integration、CUA focused tests、official plugin test、typecheck、lint。
-- ZCode 当前 `pnpm test:unit:affected` 的非 CUA baseline 仍要重跑并逐项记录，不能把非零结果称为通过。
+- 必须执行 zcode-cua focused/full tests、native rebuild、build、typecheck、lint；Secretariat 执行 source Helper integration、CUA focused tests、official plugin test、typecheck、lint。
+- Secretariat 当前 `pnpm test:unit:affected` 的非 CUA baseline 仍要重跑并逐项记录，不能把非零结果称为通过。
 
 ---
 
@@ -734,7 +734,7 @@ git commit -m "feat(windows): implement WGC visual capture"
 
 **Interfaces:**
 
-- Env gate: `ZCODE_CUA_WINDOWS_SCREEN_CAPTURE_LIVE=1`.
+- Env gate: `SECRETARIAT_CUA_WINDOWS_SCREEN_CAPTURE_LIVE=1`.
 - Fixture writes only PID/HWND/bounds to a caller-created private temp file and exits on a private close signal.
 - Smoke controls only its two fixture processes.
 
@@ -803,9 +803,9 @@ Expected: PASS; without opt-in no GUI process starts.
 - [ ] **Step 7: Attempt live smoke**
 
 ```powershell
-$env:ZCODE_CUA_WINDOWS_SCREEN_CAPTURE_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_SCREEN_CAPTURE_LIVE='1'
 pnpm smoke:windows:screen-capture
-Remove-Item Env:ZCODE_CUA_WINDOWS_SCREEN_CAPTURE_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_SCREEN_CAPTURE_LIVE
 ```
 
 Expected on ordinary unlocked desktop: exit 0 and every fixed acceptance boolean true. On LockApp/noninteractive desktop: exit 2 before Helper/fixture startup; record as environment-blocked, not passed.
@@ -891,7 +891,7 @@ pnpm test
 
 Expected: exit 0; platform/live skips are explicit.
 
-- [x] **Step 3: Run ZCode integration gates**
+- [x] **Step 3: Run Secretariat integration gates**
 
 Use the existing source-helper environment and execute:
 
@@ -910,9 +910,9 @@ Expected: focused/plugin/typecheck/lint exit 0. Record `test:unit:affected` exac
 On an ordinary unlocked desktop:
 
 ```powershell
-$env:ZCODE_CUA_WINDOWS_SCREEN_CAPTURE_LIVE='1'
-$env:ZCODE_CUA_WINDOWS_POINTER_LIVE='1'
-$env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_SCREEN_CAPTURE_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE='1'
 pnpm smoke:windows:screen-capture
 pnpm smoke:windows:pointer
 pnpm smoke:windows:clipboard
@@ -991,7 +991,7 @@ children it spawned, and print only booleans/counts/fixed status codes.
 
 Lock:
 
-- explicit `ZCODE_CUA_WINDOWS_TOOL_SURFACE_LIVE=1` before any child spawn;
+- explicit `SECRETARIAT_CUA_WINDOWS_TOOL_SURFACE_LIVE=1` before any child spawn;
 - simulated locked-desktop exit `2` before any child spawn;
 - fixed total/per-operation deadlines;
 - private fixture paths and owned-child cleanup;
@@ -1035,9 +1035,9 @@ MCP invocation set plus the two companion tool names do not equal the canonical
 - [x] **Step 4: Run live acceptance and companion smokes**
 
 ```powershell
-$env:ZCODE_CUA_WINDOWS_TOOL_SURFACE_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_TOOL_SURFACE_LIVE='1'
 pnpm smoke:windows:tool-surface
-Remove-Item Env:ZCODE_CUA_WINDOWS_TOOL_SURFACE_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_TOOL_SURFACE_LIVE
 ```
 
 Then rerun screen capture, pointer and clipboard live smokes with their existing
@@ -1061,7 +1061,7 @@ repository gates.
   minimized-window fail-closed, cursor restoration and clean child exit;
 - pointer, text-only clipboard and 30-tool surface acceptances all exited `0`;
   clipboard text and cursor were restored, and no owned Helper/fixture remained;
-- ZCode focused integration was 4 files / 175 passed / 1 skipped; the official
+- Secretariat focused integration was 4 files / 175 passed / 1 skipped; the official
   plugin package's 6 tests, root typecheck and lint all exited `0`;
 - `pnpm test:unit:affected` remained a documented non-CUA repository baseline:
   13 failed files / 20 failed tests, 940 passed files / 8132 passed tests.

@@ -1,11 +1,11 @@
-# ZCode 交互行为
+# Secretariat 交互行为
 
 ## 背景
 
-当 ZCode 当前轮仍在运行时，用户继续发送内容有两种产品语义：
+当 Secretariat 当前轮仍在运行时，用户继续发送内容有两种产品语义：
 
 - 队列：把后续输入作为待发送消息，等上一轮结束后自动发送。
-- 引导：交给 ZCode CLI 的 turn steering，在下一次合法 model-step 边界注入当前轮。
+- 引导：交给 Secretariat CLI 的 turn steering，在下一次合法 model-step 边界注入当前轮。
 
 `AppSettings.zcodeInteractionBehavior` 控制这个偏好，默认值是 `queue`。Composer
 不再暴露会话级“追加模式”切换；会话投影里的 `config.followupMode` 只是 CLI/runtime

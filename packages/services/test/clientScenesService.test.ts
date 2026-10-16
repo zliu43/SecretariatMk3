@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "@zcode/shared";
-import { ZCODE_CLIENT_SCENES_URL } from "../src/providers/api/apiEndpoints.js";
+import { SECRETARIAT_CLIENT_SCENES_URL } from "../src/providers/api/apiEndpoints.js";
 import { createClientScenesService } from "../src/client-scenes/clientScenesService.js";
 
 describe("ClientScenesService", () => {
@@ -63,7 +63,7 @@ describe("ClientScenesService", () => {
       ],
     });
     expect(request).toHaveBeenCalledOnce();
-    expect(request).toHaveBeenCalledWith(ZCODE_CLIENT_SCENES_URL, {
+    expect(request).toHaveBeenCalledWith(SECRETARIAT_CLIENT_SCENES_URL, {
       method: "GET",
     });
   });

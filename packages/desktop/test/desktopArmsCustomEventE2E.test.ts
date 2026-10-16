@@ -23,13 +23,13 @@ describe("desktop final ARMS custom E2E bridge", () => {
     ).toBe(false);
     expect(
       shouldEnableE2ETestBridge({
-        ZCODE_E2E_RUN_ID: "run-1",
+        SECRETARIAT_E2E_RUN_ID: "run-1",
       }),
     ).toBe(false);
     expect(
       shouldEnableE2ETestBridge({
         VITE_ZCODE_E2E_STORE_BRIDGE: "1",
-        ZCODE_E2E_RUN_ID: "run-1",
+        SECRETARIAT_E2E_RUN_ID: "run-1",
       }),
     ).toBe(true);
   });

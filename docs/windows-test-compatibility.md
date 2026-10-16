@@ -50,7 +50,7 @@ rebase 附带处理：staging 的 CUA 单包合并（broker 51 文件并入 `@zc
 4. **Unix socket / macOS 专属链路（约 50 用例）**：CUA 权限代理是 macOS/Linux 专属
    （.app / LaunchServices / codesign / ps+SIGTERM），相关 describe/it 用
    `describe.skipIf(process.platform === "win32")` 并注明原因；平台无关的纯逻辑
-   组保留运行。ZCode Server control channel 不属于此类：Windows 产品实现使用 named
+   组保留运行。Secretariat Server control channel 不属于此类：Windows 产品实现使用 named
    pipe，测试必须用 `resolveServerLayout(...).controlEndpoint` 或等价的平台 endpoint
    helper 覆盖。规则：skip 必须写清"产品为什么不支持 Windows"，禁止无注释 skip。
 5. **路径分隔符（约 20 用例）**：mock POSIX 风格输入的用例，期望值与产品同源构造
@@ -91,7 +91,7 @@ retry）。修完恢复原 mock 顺序作为回归。
 
 - `stdioDesktopPresentationSurface`：期望装配传 `presentationSurface: "desktop"`，
   `packages/server/src` 无该字段（services 层有）；
-- `feedbackHttpClient`：ZCODE_ENV=test 期望 base `zcode.z.ai`，实际 `zcode.z.ai`；
+- `feedbackHttpClient`：SECRETARIAT_ENV=test 期望 base `zcode.z.ai`，实际 `zcode.z.ai`；
 - `useCodingPlanQuotaResetUi`：mock 收到 `builtin:personal-granted`，期望 `builtin:team`。
 
 ### 间歇性 0xC0000005

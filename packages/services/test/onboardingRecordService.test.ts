@@ -8,11 +8,11 @@ import type {
 } from "../src/onboarding/onboardingRecord.js";
 
 const originalHome = process.env.HOME;
-const originalDataBaseDir = process.env.ZCODE_DATA_BASE_DIR;
+const originalDataBaseDir = process.env.SECRETARIAT_DATA_BASE_DIR;
 const tempHomes: string[] = [];
 
 function recordFilePath(home: string): string {
-  return join(home, ".zcode", "v2", "onboarding-record.json");
+  return join(home, ".secretariat", "v2", "onboarding-record.json");
 }
 
 async function createServiceInHome(
@@ -47,8 +47,8 @@ afterEach(() => {
   vi.restoreAllMocks();
   if (originalHome === undefined) delete process.env.HOME;
   else process.env.HOME = originalHome;
-  if (originalDataBaseDir === undefined) delete process.env.ZCODE_DATA_BASE_DIR;
-  else process.env.ZCODE_DATA_BASE_DIR = originalDataBaseDir;
+  if (originalDataBaseDir === undefined) delete process.env.SECRETARIAT_DATA_BASE_DIR;
+  else process.env.SECRETARIAT_DATA_BASE_DIR = originalDataBaseDir;
   while (tempHomes.length > 0) {
     const home = tempHomes.pop();
     if (home) rmSync(home, { recursive: true, force: true });
@@ -94,7 +94,7 @@ describe("onboardingRecordService", () => {
   it("v1 文件按空 decisions 读取，发生写入后自然升级 v2", async () => {
     const home = mkdtempSync(join(tmpdir(), "zcode-onboarding-home-"));
     tempHomes.push(home);
-    mkdirSync(join(home, ".zcode", "v2"), { recursive: true });
+    mkdirSync(join(home, ".secretariat", "v2"), { recursive: true });
     writeFileSync(
       recordFilePath(home),
       JSON.stringify({ version: 1, deviceMid: "device-a", entries: [] }),
@@ -193,7 +193,7 @@ describe("onboardingRecordService", () => {
   it("损坏的记录文件触发重新引导，append 会重建合法文件", async () => {
     const home = mkdtempSync(join(tmpdir(), "zcode-onboarding-home-"));
     tempHomes.push(home);
-    mkdirSync(join(home, ".zcode", "v2"), { recursive: true });
+    mkdirSync(join(home, ".secretariat", "v2"), { recursive: true });
     writeFileSync(recordFilePath(home), "{not-json", { flag: "wx" });
 
     const service = await createServiceInHome(home, "u1");
@@ -219,8 +219,8 @@ describe("onboardingRecordService", () => {
     const dataBaseDir = mkdtempSync(join(tmpdir(), "zcode-onboarding-data-"));
     tempHomes.push(dataBaseDir);
     process.env.HOME = home;
-    // paths.ts 在模块导入时捕获 ZCODE_DATA_BASE_DIR；host 进程正是经该环境变量下发 dataBaseDir。
-    process.env.ZCODE_DATA_BASE_DIR = dataBaseDir;
+    // paths.ts 在模块导入时捕获 SECRETARIAT_DATA_BASE_DIR；host 进程正是经该环境变量下发 dataBaseDir。
+    process.env.SECRETARIAT_DATA_BASE_DIR = dataBaseDir;
     vi.resetModules();
     const mod = await import("../src/onboarding/onboardingRecordService.js");
     const service = mod.createOnboardingRecordService({
@@ -229,7 +229,7 @@ describe("onboardingRecordService", () => {
     });
     await service.appendRecord("device-a", makeEntry());
 
-    const expected = join(dataBaseDir, ".zcode", "v2", "onboarding-record.json");
+    const expected = join(dataBaseDir, ".secretariat", "v2", "onboarding-record.json");
     expect(existsSync(expected)).toBe(true);
     expect(existsSync(recordFilePath(home))).toBe(false);
   });

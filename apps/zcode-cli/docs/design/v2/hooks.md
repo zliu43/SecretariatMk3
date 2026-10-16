@@ -1,11 +1,11 @@
-# ZCode CLI Hooks 设计 v2
+# Secretariat CLI Hooks 设计 v2
 
 ## 文档定位
 
 本文是 hooks 能力的 v2 规划，成熟度为 `L3 Implementation Contract`。它定义事件、配置、运行时边界、权限交互、可观测性和测试要求，并与根目录
 `docs/hooks-runtime-contract.md` 共同作为现有 7 个事件的验收依据。
 
-Hooks 的目标不是把业务逻辑散落到用户脚本里，而是在 agent loop 的关键安全边界提供可审计、可取消、可测试的扩展点。ZCode 的核心原则仍然成立：core 只表达意图，不直接触碰文件系统、网络、子进程或环境变量；所有外部 I/O 通过 adapter/port 收敛。
+Hooks 的目标不是把业务逻辑散落到用户脚本里，而是在 agent loop 的关键安全边界提供可审计、可取消、可测试的扩展点。Secretariat 的核心原则仍然成立：core 只表达意图，不直接触碰文件系统、网络、子进程或环境变量；所有外部 I/O 通过 adapter/port 收敛。
 
 ## 设计取舍
 
@@ -23,7 +23,7 @@ Hooks 的目标不是把业务逻辑散落到用户脚本里，而是在 agent l
 不采用：
 
 - 默认 shell 字符串命令、过多初版事件、hook 直接散布在 UI/AppState 层。
-- hook 通过 mutable output 隐式改变状态；ZCode 需要事件化、schema 化，避免输出契约靠对象引用约定。
+- hook 通过 mutable output 隐式改变状态；Secretariat 需要事件化、schema 化，避免输出契约靠对象引用约定。
 
 ## 设计目标
 
@@ -33,7 +33,7 @@ Hooks 的目标不是把业务逻辑散落到用户脚本里，而是在 agent l
 4. hook 自身的副作用通过 `HookExecutionPort`、`HttpClient`、`ExecutionPort` 等 adapter 收敛。
 5. hook 结果可以影响 agent 行为，但必须通过显式 `HookDecision`，不能直接修改 core 内部状态。
 6. hook 进度、结果、失败和阻断都进入 session event stream，UI 只消费 projection。
-7. 第一版避免新增 `ZCODE_` 环境变量。配置走 config file、CLI/session override 或 SDK 注入。
+7. 第一版避免新增 `SECRETARIAT_` 环境变量。配置走 config file、CLI/session override 或 SDK 注入。
 
 ## 非目标
 
@@ -135,7 +135,7 @@ P1 再考虑：
 - `Stop`：`responsePreview`、`toolCallCount`
 
 模型侧仍只接收受 result budget 约束的工具结果；Hook 兼容边界按 Claude Code 传递完整结构化
-`tool_response`。`toolResultPreview` 和 artifact 引用作为 ZCode 扩展保留，不能替代
+`tool_response`。`toolResultPreview` 和 artifact 引用作为 Secretariat 扩展保留，不能替代
 `tool_response`。
 
 ## Hook 输出契约
@@ -192,7 +192,7 @@ P0 使用一个统一 JSON 输出：
 - `PostToolUse` / `PostToolUseFailure continue:false`：P0 不阻断已完成的 tool，只记录 hook blocked event 和 reason。
 - `SessionStart continue:false`：P0 忽略阻断，只记录 blocked diagnostic；会话仍可继续。
 - `Stop decision:"block"`：仅当存在 reason 或 `additionalContext` 时继续下一轮模型请求。
-- 为兼容已有 ZCode 配置，`Stop continue:true` 且存在 `additionalContext` 也继续下一轮。
+- 为兼容已有 Secretariat 配置，`Stop continue:true` 且存在 `additionalContext` 也继续下一轮。
 
 ## 决策优先级
 
@@ -304,7 +304,7 @@ Tool 执行路径：
 ### Phase 2: Core Runner
 
 - 实现 matcher resolver 和 decision aggregator。
-- 支持 in-memory callback hooks，方便单元测试和 SDK/ZCode app-server 后续接入。
+- 支持 in-memory callback hooks，方便单元测试和 SDK/Secretariat app-server 后续接入。
 - 在 `ToolExecutor` 接入 `PreToolUse`、`PermissionRequest`、`PostToolUse`、`PostToolUseFailure`。
 - 新增 hook session events。
 
@@ -331,7 +331,7 @@ Tool 执行路径：
 ### Phase 6: User-Facing Integration（已完成桌面/Web 共用设置页）
 
 - 设置页列出 user/project 配置、legacy import-only 配置和已启用/禁用插件 hooks。
-- 设置页支持新增、编辑、删除、逐条启停与 legacy 一键导入；写回只修改 `.zcode/config.json`。
+- 设置页支持新增、编辑、删除、逐条启停与 legacy 一键导入；写回只修改 `.secretariat/config.json`。
 - 修改配置后废弃 deferred draft session，下一次发送使用新 runtime snapshot。
 - TUI progress 和最近执行结果仍作为后续增强项。
 
@@ -398,7 +398,7 @@ Phase 6：
 
 ## 关键决策
 
-- ZCode 第一版采用完整的事件语义和 deny > ask > allow 决策优先级，同时使用类型化 hook 名称与稳定顺序。
+- Secretariat 第一版采用完整的事件语义和 deny > ask > allow 决策优先级，同时使用类型化 hook 名称与稳定顺序。
 - `process` 是跨平台首选；`command` 作为显式 shell 兼容形态保留，并由类型区分。
 - hook 不直接修改 core 状态，只返回显式 decision/context/input replacement。
 - permission hook 不替代 permission system，只在 `ask` 阶段提供自动决策入口。

@@ -24,7 +24,7 @@ const ENTRY: ZCodeSavedWorkflowEntry = {
   name: "release-check",
   description: "发布前检查",
   scope: "project",
-  path: "/repo/.zcode/workflows/release-check.dwf.ts",
+  path: "/repo/.secretariat/workflows/release-check.dwf.ts",
   args: {
     branch: { type: "string", required: true, description: "目标分支" },
     count: { type: "number", default: 3 },
@@ -37,7 +37,7 @@ const GLOBAL_ENTRY: ZCodeSavedWorkflowEntry = {
   name: "deep-research",
   description: "深度调研",
   scope: "global",
-  path: "/home/.zcode/workflows/deep-research.dwf.ts",
+  path: "/home/.secretariat/workflows/deep-research.dwf.ts",
 };
 
 const ALPHA: AutomationWorkspaceOption = { workspacePath: "/repo/alpha", label: "Alpha" };

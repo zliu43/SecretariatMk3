@@ -6,7 +6,7 @@
 
 ## 目标
 
-`reasoningLevel` 与 `maxOutputTokens` 是 ZCode 的公共 Model Option。每个 Option Spec 同时声明
+`reasoningLevel` 与 `maxOutputTokens` 是 Secretariat 的公共 Model Option。每个 Option Spec 同时声明
 值域和它到目标 API 原始 JSON Request Body 的映射：
 
 ```ts

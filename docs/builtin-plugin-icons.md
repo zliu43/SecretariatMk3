@@ -15,7 +15,7 @@ https://cdn-zcode.z.ai/zcode/official-plugin/assets/<plugin-name>/icon.png
 资源文件由 `zcode-plugins` 仓库的 `assets/<plugin-name>/icon.png` 提供；该仓库的
 `main` 分支发布流水线会将 assets 目录同步到 CDN。图标使用 HTTPS URL，以符合客户端
 受信任图片地址校验。PNG 必须使用透明背景，并保留 Figma 原始颜色；商店使用语义化
-`bg-hover` 容器承载图标，不再对整张图片做深色主题反相，避免 Android、iOS、ZCode
+`bg-hover` 容器承载图标，不再对整张图片做深色主题反相，避免 Android、iOS、Secretariat
 等品牌色在深色主题失真。Installed Strip 也不得根据插件启用状态对头像整体应用透明度；
 启用状态由管理视图表达。若资源请求失败或没有配置图标，插件商店会继续显示默认图标。
 
@@ -27,7 +27,7 @@ Figma 节点 `5080:5352` 的 Installed Strip 定义了内置图标的视觉契�
 3. `ios-simulator` → `ios`
 4. `restore-legacy-sessions` → `Frame`（归档盒上箭头）
 5. `skill-creator` → `Frame`（立方体）
-6. `zcode-guide` → ZCode 标志
+6. `zcode-guide` → Secretariat 标志
 
 Installed Strip 排序时，内置/inline 插件必须整体排在市场安装插件之前，并按当前语言
 下的展示名称稳定排序；其余市场安装插件继续按安装时间倒序。排序依据使用运行时

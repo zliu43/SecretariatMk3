@@ -171,10 +171,10 @@ describe("config adapters", () => {
   it("deep merges Workspace Plugin enablement and options over User config", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-config-workspace-plugins-"));
     const userPath = join(dir, "user.json");
-    const workspacePath = join(dir, ".zcode", "config.json");
+    const workspacePath = join(dir, ".secretariat", "config.json");
 
     try {
-      await mkdir(join(dir, ".zcode"), { recursive: true });
+      await mkdir(join(dir, ".secretariat"), { recursive: true });
       await writeFile(
         userPath,
         JSON.stringify({
@@ -317,13 +317,13 @@ describe("config adapters", () => {
 
   it("parses the supported ZCODE environment surface", () => {
     const config = parseEnvConfig({
-      ZCODE_STORAGE_DIR: "/tmp/zcode",
-      ZCODE_HTTP_PROXY: "http://127.0.0.1:7890",
-      ZCODE_NO_PROXY: "localhost,127.0.0.1",
-      ZCODE_AGENT_CA_CERT: "/tmp/zcode-ca.pem",
-      ZCODE_HTTP_TIMEOUT: "1234",
-      ZCODE_LOCALE: "zh-CN",
-      ZCODE_LOG_FORMAT: "json",
+      SECRETARIAT_STORAGE_DIR: "/tmp/zcode",
+      SECRETARIAT_HTTP_PROXY: "http://127.0.0.1:7890",
+      SECRETARIAT_NO_PROXY: "localhost,127.0.0.1",
+      SECRETARIAT_AGENT_CA_CERT: "/tmp/zcode-ca.pem",
+      SECRETARIAT_HTTP_TIMEOUT: "1234",
+      SECRETARIAT_LOCALE: "zh-CN",
+      SECRETARIAT_LOG_FORMAT: "json",
     });
 
     expect(config.model).toBeUndefined();
@@ -341,8 +341,8 @@ describe("config adapters", () => {
     const result = createConfig({ env: {}, skipUserConfig: true });
 
     expect(result.config.model).toBeUndefined();
-    expect(DefaultRuntimeConfig.storage.sessionDbPath).toBe("~/.zcode/cli/db/db.sqlite");
-    expect(result.config.storage.sessionDbPath).toBe("~/.zcode/cli/db/db.sqlite");
+    expect(DefaultRuntimeConfig.storage.sessionDbPath).toBe("~/.secretariat/cli/db/db.sqlite");
+    expect(result.config.storage.sessionDbPath).toBe("~/.secretariat/cli/db/db.sqlite");
   });
 
   it("defaults model stream idle timeout to ten minutes", () => {
@@ -393,12 +393,12 @@ describe("config adapters", () => {
   it("parses session database path environment overrides", () => {
     expect(
       parseEnvConfig({
-        ZCODE_SESSION_DB_PATH: "/tmp/zcode/db/db.sqlite",
+        SECRETARIAT_SESSION_DB_PATH: "/tmp/zcode/db/db.sqlite",
       }).storage?.sessionDbPath,
     ).toBe("/tmp/zcode/db/db.sqlite");
     expect(
       parseEnvConfig({
-        ZCODE_SESSION_DB: "/tmp/zcode/legacy.sqlite",
+        SECRETARIAT_SESSION_DB: "/tmp/zcode/legacy.sqlite",
       }).storage?.sessionDbPath,
     ).toBe("/tmp/zcode/legacy.sqlite");
   });
@@ -431,8 +431,8 @@ describe("config adapters", () => {
 
   it("ignores undeclared ZCODE environment switches", () => {
     const config = parseEnvConfig({
-      ZCODE_LOG_LEVEL: "debug",
-      ZCODE_UNDECLARED_FLAG: "1",
+      SECRETARIAT_LOG_LEVEL: "debug",
+      SECRETARIAT_UNDECLARED_FLAG: "1",
     });
 
     expect(config).toEqual({});
@@ -770,7 +770,7 @@ describe("config adapters", () => {
                 url: "https://example.com/sse",
                 oauth: {
                   type: "authorization_code",
-                  clientName: "ZCode",
+                  clientName: "Secretariat",
                   redirectPath: "/oauth/callback/mcp/figma",
                   scope: "mcp:connect",
                 },
@@ -805,7 +805,7 @@ describe("config adapters", () => {
         type: "sse",
         oauth: {
           type: "authorization_code",
-          clientName: "ZCode",
+          clientName: "Secretariat",
           redirectPath: "/oauth/callback/mcp/figma",
           scope: "mcp:connect",
         },
@@ -1179,7 +1179,7 @@ describe("config adapters", () => {
 
       const result = loadFileConfig(path);
       const merged = createConfig({
-        env: { ZCODE_LOG_DIR: logDir },
+        env: { SECRETARIAT_LOG_DIR: logDir },
         userConfigPath: path,
       });
 
@@ -1239,7 +1239,7 @@ describe("config adapters", () => {
       );
 
       const result = createConfig({
-        env: { ZCODE_LOG_DIR: logDir },
+        env: { SECRETARIAT_LOG_DIR: logDir },
         skipUserConfig: true,
         workingDirectory: root,
       });
@@ -1315,7 +1315,7 @@ describe("config adapters", () => {
   it("merges project configs from root to cwd with nearest config winning", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-project-config-"));
     const cwd = join(root, "packages", "app");
-    const cwdConfigDir = join(cwd, ".zcode");
+    const cwdConfigDir = join(cwd, ".secretariat");
 
     try {
       await mkdir(join(root, ".git"));
@@ -1560,7 +1560,7 @@ describe("config adapters", () => {
 
     try {
       await mkdir(join(root, ".git"));
-      await mkdir(join(root, ".zcode"), { recursive: true });
+      await mkdir(join(root, ".secretariat"), { recursive: true });
       await writeFile(
         join(root, "zcode.json"),
         JSON.stringify({
@@ -1578,7 +1578,7 @@ describe("config adapters", () => {
         }),
       );
       await writeFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({
           hooks: {
             enabled: true,
@@ -1606,7 +1606,7 @@ describe("config adapters", () => {
           (diagnostic) => diagnostic.code === "config_project_hooks_pending_trust",
         ),
       ).toHaveLength(2);
-      for (const configPath of [join(root, "zcode.json"), join(root, ".zcode", "config.json")]) {
+      for (const configPath of [join(root, "zcode.json"), join(root, ".secretariat", "config.json")]) {
         expect(result.sources.project.diagnostics).toContainEqual(
           expect.objectContaining({
             code: "config_project_hooks_pending_trust",
@@ -1630,7 +1630,7 @@ describe("config adapters", () => {
 
     try {
       await mkdir(join(root, ".git"));
-      await mkdir(join(root, ".zcode"), { recursive: true });
+      await mkdir(join(root, ".secretariat"), { recursive: true });
       await writeFile(
         userConfigPath,
         JSON.stringify({
@@ -1648,7 +1648,7 @@ describe("config adapters", () => {
         }),
       );
       await writeFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({
           hooks: {
             enabled: true,

@@ -51,7 +51,7 @@ independently so long-running sessions can reclaim vertical space.
 - `Ctrl+X M` toggles the `Modified Files` section.
 - `Ctrl+X A` toggles the `APIs` section.
 - Section expansion state is local TUI presentation state. It is not persisted
-  and does not affect runtime, session, tool, ZCode app-server, storage, permission, or
+  and does not affect runtime, session, tool, Secretariat app-server, storage, permission, or
   provider contracts.
 
 ## Mouse Contract

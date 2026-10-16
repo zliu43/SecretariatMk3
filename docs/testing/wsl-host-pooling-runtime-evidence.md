@@ -9,11 +9,11 @@
 - App 版本：`3.4.0`
 - Electron：`41.0.3`
 - remote 资源：内网 CDN `http://intranet.example.invalid:12345/zcode/@electron/release/v3.4.0/`
-- 启动变量：`ZCODE_DEV_REMOTE_ASSET_USE_CDN=1`，并用
-  `ZCODE_REMOTE_ASSET_CDN_BASE_URL` 指向上述内网根。
+- 启动变量：`SECRETARIAT_DEV_REMOTE_ASSET_USE_CDN=1`，并用
+  `SECRETARIAT_REMOTE_ASSET_CDN_BASE_URL` 指向上述内网根。
 
 本次验证使用当前分支重新构建的 `packages/desktop/out`，renderer 的 Chromium 参数包含
-`--app-path="E:\GitProject\z-code\z-code\packages\desktop"`。没有使用已安装的旧版 ZCode。
+`--app-path="E:\GitProject\z-code\z-code\packages\desktop"`。没有使用已安装的旧版 Secretariat。
 
 ## 自动化验证
 
@@ -136,5 +136,5 @@ T+2s: Host PID 24868 present; server PID 1083 present
 - 没有执行手机 replayable 的真实设备连接；mobile attachment owner 边界由 desktop manager 测试覆盖。
 - Docker 没有进入本次 WSL PID 实测；代码与测试确认它仍走 dedicated `InitRemoteWorkspace`，本改动没有
   为 Docker 增加共享 pool。
-- 不调用 `wsl --terminate` 或 `wsl --shutdown`；验证结束后 distro 可继续运行，只有 ZCode-owned server
+- 不调用 `wsl --terminate` 或 `wsl --shutdown`；验证结束后 distro 可继续运行，只有 Secretariat-owned server
   被回收。

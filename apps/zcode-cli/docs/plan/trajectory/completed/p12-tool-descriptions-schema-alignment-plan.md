@@ -4,13 +4,13 @@
 
 ## 目标
 
-收敛 ZCode 当前已支持 tool 在最终发送给 model provider 时的 provider-visible surface：
+收敛 Secretariat 当前已支持 tool 在最终发送给 model provider 时的 provider-visible surface：
 
 - `tools[].name`
 - `tools[].description`
 - `tools[].inputSchema`
 - tool 是否出现在 main / Explore child request 的最终 `tools[]`
-- ZCode 已支持的 `Agent(Explore)` provider-visible description
+- Secretariat 已支持的 `Agent(Explore)` provider-visible description
 - Explore Agent / Explore child 的 provider-visible system prompt
 
 本 plan 不以 registry、Zod、adapter、schema transform 等内部实现形态作为验收目标。只有最终 provider body 中工具是否出现、工具名、description、JSON schema 或 child prompt 发生差异，才进入本轮 P-12。
@@ -24,11 +24,11 @@
 | TD-D3 | `Skill` provider-visible schema 改为 `skill` 字段；runtime 可兼容旧 `name` 输入，但最终工具 schema 不再暴露 `name`。 |
 | TD-D4 | `Glob/Grep` 从 main provider `tools[]` 移除，只在 Explore child tool surface 保留。`toolAllowlist` 只能收窄当前 tool pool，不能把 Explore-only tool 提升到 main。 |
 | TD-D5 | `GoalRead` 是过期 provider tool，从 provider-visible `tools[]` 删除；goal continuation / verification 继续走 runtime prompt、tool result 或已有 goal flow。 |
-| TD-D6 | `Agent` 只覆盖当前 ZCode 已支持的 Explore 子集；同时显式收敛 Explore Agent 的 child system prompt；`model`、custom/team/fork/worktree/isolation/cwd 等未支持能力 postponed。 |
+| TD-D6 | `Agent` 只覆盖当前 Secretariat 已支持的 Explore 子集；同时显式收敛 Explore Agent 的 child system prompt；`model`、custom/team/fork/worktree/isolation/cwd 等未支持能力 postponed。 |
 | TD-D7 | `WebSearch` provider-visible schema/description/native-search branch 在本轮 P-12 baseline 中暂时 postponed；后续已由 [WebSearch client tool plan](./websearch-client-tool-implementation-plan.md) 单独落地。 |
-| TD-D8 | Read PDF / notebook / SVG / `pages` 等 ZCode 未 provider-ready 能力 postponed；本轮只处理 text/image Read 已支持的能力。 |
-| TD-D9 | `ExitPlanMode` V2 / plan-file approval flow postponed；保留当前 ZCode contract。 |
-| TD-D10 | `ApplyPatch`、`TodoRead`、`ReadSessionContext`、`Workflow` 作为 ZCode-specific tool 保留；只要求 description/schema truthful，不声明不存在的能力。 |
+| TD-D8 | Read PDF / notebook / SVG / `pages` 等 Secretariat 未 provider-ready 能力 postponed；本轮只处理 text/image Read 已支持的能力。 |
+| TD-D9 | `ExitPlanMode` V2 / plan-file approval flow postponed；保留当前 Secretariat contract。 |
+| TD-D10 | `ApplyPatch`、`TodoRead`、`ReadSessionContext`、`Workflow` 作为 Secretariat-specific tool 保留；只要求 description/schema truthful，不声明不存在的能力。 |
 | TD-D11 | `Skill` 是否进入未来其他 agent / custom agent 的 child tool surface 暂时 postponed；当前只调整 main `Skill` schema，Explore child 不暴露 `Skill`。 |
 
 ## Phase 0 Baseline 代码事实
@@ -110,7 +110,7 @@ pnpm prompt-trajectory:testcases -- --cases testcases/p12-tool-surface --out-roo
 - [x] 从 provider-visible built-in tool list 中移除 `GoalRead`。
 - [x] 保留 `target.ts` / goal runtime 需要的非 provider-visible逻辑；删除 provider tool registration，不删除还被内部引用的 goal continuation / verification 能力。
 - [x] 确认 Explore child 仍包含 `Glob/Grep`。
-- [x] 确认 ZCode-specific `ApplyPatch/TodoRead/ReadSessionContext/Workflow` 没有被误删。
+- [x] 确认 Secretariat-specific `ApplyPatch/TodoRead/ReadSessionContext/Workflow` 没有被误删。
 
 ### 预期修改文件
 
@@ -178,7 +178,7 @@ pnpm prompt-trajectory:testcases -- --cases testcases/p12-tool-surface --out-roo
 - [x] `WebFetch` description 只在当前字段范围内补齐 source/quote safety、private/auth URL、redirect、GitHub prefer CLI、MCP preference 等语义；不做 WebSearch/native-search。
 - [x] `AskUserQuestion` description 补齐 clarification 使用时机、不要替代 plan approval、Other 选项由客户端提供、preview/multiSelect 使用边界。
 - [x] `EnterPlanMode` description 若仍提到 `Glob/Grep/Read`，调整为 main 可用工具事实：main 可用 `Read/Bash/Agent(Explore)`；Explore child 内才有 `Glob/Grep`。
-- [x] 保留 ZCode-specific tool truthful wording：`ApplyPatch/TodoRead/ReadSessionContext/Workflow` 只描述自身真实能力。
+- [x] 保留 Secretariat-specific tool truthful wording：`ApplyPatch/TodoRead/ReadSessionContext/Workflow` 只描述自身真实能力。
 
 ### 预期修改文件
 
@@ -206,9 +206,9 @@ pnpm prompt-trajectory:testcases -- --cases testcases/p12-tool-surface --out-roo
 
 ### Checklist
 
-- [x] `Glob` schema 字段收敛到当前 ZCode 支持范围：`pattern` required，`path` optional，strict object。
+- [x] `Glob` schema 字段收敛到当前 Secretariat 支持范围：`pattern` required，`path` optional，strict object。
 - [x] `Glob` description 聚焦 fast file pattern matching、modification-time sorting、find files by name patterns，以及 open-ended multi-round search 使用 Agent tool。
-- [x] `Grep` schema 字段收敛到当前 ZCode 支持范围：`pattern` required，`path/glob/output_mode/-A/-B/-C/context/-n/-i/type/head_limit/offset/multiline` 等已支持字段保持 truthful。
+- [x] `Grep` schema 字段收敛到当前 Secretariat 支持范围：`pattern` required，`path/glob/output_mode/-A/-B/-C/context/-n/-i/type/head_limit/offset/multiline` 等已支持字段保持 truthful。
 - [x] `Grep` description 聚焦 ripgrep-compatible search、regex、glob/type filter、output modes、不要用 Bash `grep/rg` 替代专用工具，以及 open-ended multi-round search 使用 Agent tool。
 - [x] 如果同一 description 仍被 registry 共享，必须确认 main 已不会看到 `Glob/Grep` tool contract。
 
@@ -228,20 +228,20 @@ pnpm prompt-trajectory:testcases -- --cases testcases/p12-tool-surface --out-roo
 
 ## Phase 5：Agent Tool Description + Explore Agent Prompt 收敛
 
-状态：已完成。Focused tests 已转绿；prompt-trajectory e2e 输出到 `tools/prompt-trajectory/out/p12-tool-surface-phase5-agent-full-usage-20260608-182624/test20260608-182625`，确认 parent request 的 `Agent` description 覆盖完整 usage notes 中 ZCode 已支持的部分：description/prompt 参数说明、result relay、trust-but-verify、background/foreground、fresh agent/self-contained prompt、parallel launch 和 available agents；同时覆盖 open-ended codebase research、stateless child、parent relay、background/parallel usage，且未暴露 `model` / `isolation` 字段。Explore child system prompt 覆盖 read-only file-search/codebase-research specialist、tool priority、read-only shell pipeline 允许边界、final report guidance，并移除旧的 `|` 管道误禁。Explore child 不写入 `Skill` guidance，也不暴露 `Skill` tool；main `Skill` tool schema 调整仍属于 Phase 2。
+状态：已完成。Focused tests 已转绿；prompt-trajectory e2e 输出到 `tools/prompt-trajectory/out/p12-tool-surface-phase5-agent-full-usage-20260608-182624/test20260608-182625`，确认 parent request 的 `Agent` description 覆盖完整 usage notes 中 Secretariat 已支持的部分：description/prompt 参数说明、result relay、trust-but-verify、background/foreground、fresh agent/self-contained prompt、parallel launch 和 available agents；同时覆盖 open-ended codebase research、stateless child、parent relay、background/parallel usage，且未暴露 `model` / `isolation` 字段。Explore child system prompt 覆盖 read-only file-search/codebase-research specialist、tool priority、read-only shell pipeline 允许边界、final report guidance，并移除旧的 `|` 管道误禁。Explore child 不写入 `Skill` guidance，也不暴露 `Skill` tool；main `Skill` tool schema 调整仍属于 Phase 2。
 
-目标：同时收敛两个 provider-visible 面：main request 里 `Agent` tool 的 description/schema，以及 Explore child request 里的 Explore Agent system prompt。不引入 ZCode 未支持的 agent feature。
+目标：同时收敛两个 provider-visible 面：main request 里 `Agent` tool 的 description/schema，以及 Explore child request 里的 Explore Agent system prompt。不引入 Secretariat 未支持的 agent feature。
 
 ### Checklist
 
 - [x] `Agent` provider description 改为 Explore routing 语义：适合 open-ended codebase research / locating files / references / answering where/how questions；不应继续写成“不适合 open-ended analysis”这种与 Explore 目标冲突的描述。
 - [x] `Agent` description 明确 Explore 是 stateless、read-only、final answer 只返回给 parent，需要 parent relay。
 - [x] `Agent` schema 保持只暴露当前支持字段：`description/prompt/run_in_background/subagent_type: "Explore"`；不加 `model`。
-- [x] Explore Agent prompt 的 identity / role framing 改为 read-only file-search and codebase research specialist 语义，同时保留 ZCode identity。
+- [x] Explore Agent prompt 的 identity / role framing 改为 read-only file-search and codebase research specialist 语义，同时保留 Secretariat identity。
 - [x] Explore Agent prompt 的 read-only critical section 补齐：禁止创建、修改、删除、移动、复制文件，禁止临时文件，禁止会改变文件/process/system state 的 Bash 命令。
 - [x] 修正 Explore Agent prompt 中 “Using redirect operators (>, >>, |) ...” 对 `|` 的过宽禁止：禁止重定向 / heredoc 写文件和 state-changing command，但允许 read-only pipeline。
 - [x] Explore Agent prompt 的 tool guidance 与最终 child `tools[]` 一致：优先 `Glob` 找文件、`Grep` 搜内容、`Read` 读已知路径、`Bash` 只做 read-only shell 操作；不允许再 spawn agent。
-- [x] Agent description 与 Explore Agent prompt 保持 ZCode 真实扩展工具面：WebFetch/TodoWrite guidance 只描述当前已支持行为；`Skill` 不写入 Explore system prompt，且不进入 Explore child `tools[]`；`WebSearch` / native-search exact schema 和 provider-specific request body 在本轮 P-12 baseline 中 postponed，后续已由 WebSearch client tool plan 单独落地；Agent description 和 Explore prompt 允许用语义化 `WebSearch` 指导 current / post-knowledge-cutoff information search。
+- [x] Agent description 与 Explore Agent prompt 保持 Secretariat 真实扩展工具面：WebFetch/TodoWrite guidance 只描述当前已支持行为；`Skill` 不写入 Explore system prompt，且不进入 Explore child `tools[]`；`WebSearch` / native-search exact schema 和 provider-specific request body 在本轮 P-12 baseline 中 postponed，后续已由 WebSearch client tool plan 单独落地；Agent description 和 Explore prompt 允许用语义化 `WebSearch` 指导 current / post-knowledge-cutoff information search。
 - [x] Explore Agent prompt 的 final answer guidance 补齐：直接回答、给出证据文件路径、只在必要时引用代码片段、证据不足时说明缺口、输出足够紧凑供 parent agent 继续处理。
 
 ### 预期修改文件

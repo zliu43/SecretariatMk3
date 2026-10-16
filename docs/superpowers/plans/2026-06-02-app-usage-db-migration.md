@@ -4,7 +4,7 @@
 
 **Goal:** 把「应用用量」面板的数据源从「本地 session JSON 文件 + 字符估算」整条替换为 zcode agent SQLite 库（`model_usage` / `turn_usage` / `tool_usage`）的真实统计，并新增真实 token 拆分、可靠性指标、工具使用区块。
 
-**Architecture:** agent 子进程内用 SQL 聚合（adapters repo）→ 纯函数 builder 组装快照（bootstrap）→ 新增 ZCode Protocol 方法 `usage/stats`（shared schema + bootstrap handler）→ 宿主 `usageStatsService` 经 `zcodeAgentService` 走协议取数（packages/services）→ UI 重绘 4 个区块（packages/ui）。聚合放在 agent 侧，天然受 30 天保留期约束。
+**Architecture:** agent 子进程内用 SQL 聚合（adapters repo）→ 纯函数 builder 组装快照（bootstrap）→ 新增 Secretariat Protocol 方法 `usage/stats`（shared schema + bootstrap handler）→ 宿主 `usageStatsService` 经 `zcodeAgentService` 走协议取数（packages/services）→ UI 重绘 4 个区块（packages/ui）。聚合放在 agent 侧，天然受 30 天保留期约束。
 
 **Tech Stack:** TypeScript, Node.js `node:sqlite` (`DatabaseSync`), zod, React, vitest, lucide-react, recharts。
 
@@ -1212,7 +1212,7 @@ getAppUsageStats(params: ZCodeAgentAppUsageParams): Promise<AppUsageSnapshot>;
 
 > `AppUsageRange` / `AppUsageSnapshot` 从 `@zcode/shared` 导入。
 
-> **架构说明（实现者必读）**：usage 表位于全局 session 库（`~/.zcode/sessions/default.db`），任意 workspace 的 agent client 查询到的都是全应用范围数据。`getAppUsageStats` 沿用 `getClient(params)` 拿到当前活动 workspace 的 client 即可；它需要一个 `ZCodeAgentWorkspaceTarget`。宿主服务（Task 5）会传入当前活动 workspace 目标，与其它 `zcodeAgentService` 调用一致。
+> **架构说明（实现者必读）**：usage 表位于全局 session 库（`~/.secretariat/sessions/default.db`），任意 workspace 的 agent client 查询到的都是全应用范围数据。`getAppUsageStats` 沿用 `getClient(params)` 拿到当前活动 workspace 的 client 即可；它需要一个 `ZCodeAgentWorkspaceTarget`。宿主服务（Task 5）会传入当前活动 workspace 目标，与其它 `zcodeAgentService` 调用一致。
 
 - [ ] **Step 5: 类型编译验证**
 
@@ -1274,7 +1274,7 @@ import type { IZCodeAgentService, ZCodeAgentWorkspaceTarget } from "../zcode-age
 ```typescript
 async getAppUsageSnapshot(request: AppUsageRequest): Promise<AppUsageSnapshot> {
   // App Usage 现读取 agent 数据库真实统计（model_usage/turn_usage/tool_usage），
-  // 经 ZCode Protocol usage/stats 取回。不再读本地 session JSON 估算。
+  // 经 Secretariat Protocol usage/stats 取回。不再读本地 session JSON 估算。
   const target = dependencies.resolveActiveWorkspaceTarget();
   return dependencies.zcodeAgentService.getAppUsageStats({
     ...target,
@@ -1737,7 +1737,7 @@ Expected: 无业务代码命中（仅 spec/plan 文档或 Coding Plan monitor �
 
 ## 自检（计划 vs spec）
 
-- **数据流（ZCode Protocol）**：Task 1-5 覆盖 contracts→adapters→bootstrap handler→shared schema→host service 全链路。✓
+- **数据流（Secretariat Protocol）**：Task 1-5 覆盖 contracts→adapters→bootstrap handler→shared schema→host service 全链路。✓
 - **删除字符估算管线**：Task 0（类型）+ Task 5（删文件/引用）。✓
 - **概要 8 卡（真实 token/缓存命中/会话/轮次/工具/错误率/TTFT/最常用模型）**：Task 7。✓
 - **30 天热力图**：Task 3（builder weeks）+ Task 8（UI）。✓

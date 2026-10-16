@@ -241,7 +241,7 @@ POST /api/v1/marketing/touch/action
 Content-Type: application/json
 X-Device-Mid: <合法 UUID>
 X-Client-Language: zh-CN
-X-ZCode-App-Version: <实际 App 版本>
+X-Secretariat-App-Version: <实际 App 版本>
 Authorization: Bearer <登录时附带>
 ```
 

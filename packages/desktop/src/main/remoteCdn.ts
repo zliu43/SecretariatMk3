@@ -1,4 +1,4 @@
-import { ZCODE_VERSION, type ZCodeEnv } from "@zcode/shared";
+import { SECRETARIAT_VERSION, type ZCodeEnv } from "@zcode/shared";
 
 declare const __ZCODE_REMOTE_CDN_RELEASE_ROOTS__: readonly string[] | undefined;
 
@@ -52,7 +52,7 @@ export function resolveRemoteCdnBaseUrls(options: ResolveRemoteCdnOptions = {}):
   const orderedReleaseRoots = shouldPreferDomesticRemoteCdn(options)
     ? [REMOTE_CDN_RELEASE_ROOTS.domestic, REMOTE_CDN_RELEASE_ROOTS.overseas]
     : [REMOTE_CDN_RELEASE_ROOTS.overseas, REMOTE_CDN_RELEASE_ROOTS.domestic];
-  const version = options.version ?? ZCODE_VERSION;
+  const version = options.version ?? SECRETARIAT_VERSION;
 
   if (options.env === "test") {
     return [`${TEST_REMOTE_CDN_RELEASE_ROOT}/${version}`];

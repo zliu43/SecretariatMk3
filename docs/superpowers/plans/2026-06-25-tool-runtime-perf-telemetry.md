@@ -10,7 +10,7 @@
 
 **Architecture:** Define a shared contracts-level `ToolPerformanceTelemetrySchema`, attach optional `perf` to Bash/Write/Edit structured outputs, merge executor-level permission wait into `tool_call_result.payload.result.perf`, and report one UI ARMS event per terminal tool update.
 
-**Tech Stack:** TypeScript, Zod contracts, Vitest, existing ZCode session events, existing ARMS custom event wrapper.
+**Tech Stack:** TypeScript, Zod contracts, Vitest, existing Secretariat session events, existing ARMS custom event wrapper.
 
 ---
 

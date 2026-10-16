@@ -1,8 +1,8 @@
-# ZCode Lite Static Distribution
+# Secretariat Lite Static Distribution
 
 ## 背景
 
-ZCode Lite 是不安装 Desktop App 的本地 Web 形态。内网下载源只托管静态发布资源，用户机器负责运行 Node.js、本地 HTTP server、ZCode services 和 agent runtime。
+Secretariat Lite 是不安装 Desktop App 的本地 Web 形态。内网下载源只托管静态发布资源，用户机器负责运行 Node.js、本地 HTTP server、Secretariat services 和 agent runtime。
 
 当前内网下载源是普通静态文件服务，不提供 npm registry metadata API：
 
@@ -11,13 +11,13 @@ http://intranet.example.invalid:12345/zcode/deps/
   -> /Users/dev/shared/zcode/deps/
 ```
 
-因此 ZCode Lite 不依赖 `npx --registry`。发布产物放在 `zcode-lite` 目录下，安装入口优先使用 `install.sh`，tarball 作为可直接下载的备选产物。
+因此 Secretariat Lite 不依赖 `npx --registry`。发布产物放在 `zcode-lite` 目录下，安装入口优先使用 `install.sh`，tarball 作为可直接下载的备选产物。
 
 ## 目标
 
-- 构建脚本能在本地生成一套可上传到静态下载源的 ZCode Lite 发布目录。
+- 构建脚本能在本地生成一套可上传到静态下载源的 Secretariat Lite 发布目录。
 - 发布目录包含安装脚本、版本 manifest、压缩包和校验文件。
-- 用户机器只要求已有 Node.js，不随 ZCode Lite 打包 Node runtime。
+- 用户机器只要求已有 Node.js，不随 Secretariat Lite 打包 Node runtime。
 - `zcode-lite serve` 默认随机选择可用端口、绑定 `127.0.0.1`、自动打开浏览器。
 - 用户显式传 `--host 0.0.0.0` 时允许局域网访问，并默认启用访问 token。
 
@@ -40,8 +40,8 @@ http://intranet.example.invalid:12345/zcode/deps/
       sha256.txt
 
 用户机器
-  ~/.zcode/lite/releases/<version>
-  ~/.zcode/lite/current -> releases/<version>
+  ~/.secretariat/lite/releases/<version>
+  ~/.secretariat/lite/current -> releases/<version>
   ~/.local/bin/zcode-lite
 
 运行时
@@ -58,7 +58,7 @@ http://intranet.example.invalid:12345/zcode/deps/
   浏览器访问 Web UI
 ```
 
-ZCode Lite 使用普通 Web 模式同源 `/ws`，不是手机远控：
+Secretariat Lite 使用普通 Web 模式同源 `/ws`，不是手机远控：
 
 ```text
 Lite Web:
@@ -70,12 +70,12 @@ mobile browser -> relay -> desktop main -> existing host/services -> existing ru
 
 ## 当前普通 Web 支持边界
 
-这里的“普通 Web”指浏览器直接连接 `@zcode/server` 的同源 `/ws`，包括开发环境的 Web 入口和 `zcode-lite serve` 打开的 ZCode Lite 页面；它不包括手机 `/remote`。
+这里的“普通 Web”指浏览器直接连接 `@zcode/server` 的同源 `/ws`，包括开发环境的 Web 入口和 `zcode-lite serve` 打开的 Secretariat Lite 页面；它不包括手机 `/remote`。
 
-当前普通 Web 没有 Desktop 的窗口级 Local Host 进程，因此也没有 Window Host Controller。依赖 Window Host Controller 聚合本地及远程 source 的左侧全局任务列表，暂时不支持普通 Web / ZCode Lite；Controller 不可用时，不在 Web renderer 中另外实现一套聚合或 fallback 逻辑。
+当前普通 Web 没有 Desktop 的窗口级 Local Host 进程，因此也没有 Window Host Controller。依赖 Window Host Controller 聚合本地及远程 source 的左侧全局任务列表，暂时不支持普通 Web / Secretariat Lite；Controller 不可用时，不在 Web renderer 中另外实现一套聚合或 fallback 逻辑。
 
 ```text
-当前普通 Web / ZCode Lite：
+当前普通 Web / Secretariat Lite：
 browser
   -> @zcode/server /ws
      -> createLocalServices()

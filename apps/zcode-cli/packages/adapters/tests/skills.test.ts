@@ -7,7 +7,7 @@ import { createNodeSkillAdapter } from "../src/skills/index.js";
 describe("NodeSkillAdapter", () => {
   it("discovers project skills from SKILL.md metadata", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const skillDir = join(dir, ".zcode", "skills", "demo-skill");
+    const skillDir = join(dir, ".secretariat", "skills", "demo-skill");
 
     try {
       await mkdir(skillDir, { recursive: true });
@@ -36,8 +36,8 @@ describe("NodeSkillAdapter", () => {
 
   it("filters out skills disabled via config (enable:false path)", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const keptDir = join(dir, ".zcode", "skills", "kept-skill");
-    const disabledDir = join(dir, ".zcode", "skills", "disabled-skill");
+    const keptDir = join(dir, ".secretariat", "skills", "kept-skill");
+    const disabledDir = join(dir, ".secretariat", "skills", "disabled-skill");
 
     try {
       await mkdir(keptDir, { recursive: true });
@@ -63,7 +63,7 @@ describe("NodeSkillAdapter", () => {
 
   it("loads skill body without frontmatter", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const skillDir = join(dir, ".zcode", "skills", "agent-skill");
+    const skillDir = join(dir, ".secretariat", "skills", "agent-skill");
 
     try {
       await mkdir(skillDir, { recursive: true });
@@ -96,7 +96,7 @@ describe("NodeSkillAdapter", () => {
   it("discovers user skills imported as directory symlinks", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
     const sourceSkill = join(dir, "external-skills", "linked-skill");
-    const userSkillRoot = join(dir, "home", ".zcode", "skills");
+    const userSkillRoot = join(dir, "home", ".secretariat", "skills");
     const linkedSkill = join(userSkillRoot, "linked-skill");
 
     try {
@@ -123,7 +123,7 @@ describe("NodeSkillAdapter", () => {
   it("filters disabled skills when the scanned skill is a symlink to the configured path", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
     const sourceSkill = join(dir, "cloud-skills", "linked-disabled-skill");
-    const userSkillRoot = join(dir, "home", ".zcode", "skills");
+    const userSkillRoot = join(dir, "home", ".secretariat", "skills");
     const linkedSkill = join(userSkillRoot, "linked-disabled-skill");
 
     try {
@@ -149,7 +149,7 @@ describe("NodeSkillAdapter", () => {
 
   it("loads skills without frontmatter by folder name", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const skillDir = join(dir, ".zcode", "skills", "plain-skill");
+    const skillDir = join(dir, ".secretariat", "skills", "plain-skill");
 
     try {
       await mkdir(skillDir, { recursive: true });
@@ -171,8 +171,8 @@ describe("NodeSkillAdapter", () => {
 
   it("keeps same-name skills from different paths", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const projectSkill = join(dir, ".zcode", "skills", "same-skill");
-    const userSkill = join(dir, "home", ".zcode", "skills", "same-skill");
+    const projectSkill = join(dir, ".secretariat", "skills", "same-skill");
+    const userSkill = join(dir, "home", ".secretariat", "skills", "same-skill");
 
     try {
       await mkdir(projectSkill, { recursive: true });
@@ -200,7 +200,7 @@ describe("NodeSkillAdapter", () => {
   it("discovers project skills from ancestors up to the worktree root", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
     const nestedDirectory = join(dir, "packages", "core");
-    const rootSkill = join(dir, ".zcode", "skills", "root-skill");
+    const rootSkill = join(dir, ".secretariat", "skills", "root-skill");
 
     try {
       await mkdir(join(dir, ".git"), { recursive: true });
@@ -212,7 +212,7 @@ describe("NodeSkillAdapter", () => {
       const outcome = await adapter.discoverSkills({ workingDirectory: nestedDirectory });
 
       expect(outcome.skills.map((skill) => skill.name)).toEqual(["root-skill"]);
-      expect(outcome.skills[0]?.rootPath).toBe(join(dir, ".zcode", "skills"));
+      expect(outcome.skills[0]?.rootPath).toBe(join(dir, ".secretariat", "skills"));
     } finally {
       await rm(dir, { force: true, recursive: true });
     }
@@ -221,8 +221,8 @@ describe("NodeSkillAdapter", () => {
   it("keeps same-name skills from nearest and ancestor roots", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
     const nestedDirectory = join(dir, "packages", "core");
-    const ancestorSkill = join(dir, ".zcode", "skills", "same-skill");
-    const nearestSkill = join(nestedDirectory, ".zcode", "skills", "same-skill");
+    const ancestorSkill = join(dir, ".secretariat", "skills", "same-skill");
+    const nearestSkill = join(nestedDirectory, ".secretariat", "skills", "same-skill");
 
     try {
       await mkdir(join(dir, ".git"), { recursive: true });
@@ -377,9 +377,9 @@ describe("NodeSkillAdapter", () => {
     }
   });
 
-  it("merges .zcode/skills and .agents/skills with .zcode winning same-name loads", async () => {
+  it("merges .secretariat/skills and .agents/skills with .secretariat winning same-name loads", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const zcodeSkill = join(dir, ".zcode", "skills", "dup");
+    const zcodeSkill = join(dir, ".secretariat", "skills", "dup");
     const agentsSkill = join(dir, ".agents", "skills", "dup");
     const agentsOnlySkill = join(dir, ".agents", "skills", "agents-only");
 
@@ -387,7 +387,7 @@ describe("NodeSkillAdapter", () => {
       await mkdir(zcodeSkill, { recursive: true });
       await mkdir(agentsSkill, { recursive: true });
       await mkdir(agentsOnlySkill, { recursive: true });
-      await writeSkill(zcodeSkill, "dup", "From .zcode");
+      await writeSkill(zcodeSkill, "dup", "From .secretariat");
       await writeSkill(agentsSkill, "dup", "From .agents");
       await writeSkill(agentsOnlySkill, "agents-only", "Agents only");
 
@@ -403,9 +403,9 @@ describe("NodeSkillAdapter", () => {
       expect(outcome.skills.map((skill) => skill.description).toSorted()).toEqual([
         "Agents only",
         "From .agents",
-        "From .zcode",
+        "From .secretariat",
       ]);
-      expect(loaded.metadata.description).toBe("From .zcode");
+      expect(loaded.metadata.description).toBe("From .secretariat");
     } finally {
       await rm(dir, { force: true, recursive: true });
     }
@@ -496,7 +496,7 @@ describe("NodeSkillAdapter", () => {
 
   it("ignores node_modules and dot directories directly under a skill root", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-skills-"));
-    const skillsRoot = join(dir, ".zcode", "skills");
+    const skillsRoot = join(dir, ".secretariat", "skills");
     const realDir = join(skillsRoot, "real-skill");
     // Bugfix（ZCT-2070384010482601984）：agent 端与桌面端共享排除策略，
     // node_modules / 点目录不应被当作技能目录，两端判定保持一致。

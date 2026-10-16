@@ -1,6 +1,6 @@
 import {
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  SECRETARIAT_PROTOCOL_NAME,
+  SECRETARIAT_PROTOCOL_VERSION,
   getZCodeGoalActiveIterationCount,
   zcodeApiRetryFromModelNetworkStatusPayload,
   zcodeApiRetryFromStreamRecoveryPayload,
@@ -101,8 +101,8 @@ export async function buildSessionSnapshot(input: {
     messages,
     projection: mapSessionProjection(projection),
     protocol: {
-      name: ZCODE_PROTOCOL_NAME,
-      version: ZCODE_PROTOCOL_VERSION,
+      name: SECRETARIAT_PROTOCOL_NAME,
+      version: SECRETARIAT_PROTOCOL_VERSION,
     },
     runtime: mapRuntimeState({
       activeTurn,

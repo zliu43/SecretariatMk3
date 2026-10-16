@@ -1442,7 +1442,7 @@ describe("broker × v4 竞速", () => {
     saved: {
       name: "release-check",
       args: { target: "packages/core" },
-      path: "/repo/.zcode/workflows/release-check.dwf.ts",
+      path: "/repo/.secretariat/workflows/release-check.dwf.ts",
       scope: "project",
     },
   };
@@ -1496,7 +1496,7 @@ describe("broker × v4 竞速", () => {
           name: "release-check",
           description: "对本仓库做一次发布前检查",
           script: "return 1;",
-          path: "/repo/.zcode/workflows/release-check.dwf.ts",
+          path: "/repo/.secretariat/workflows/release-check.dwf.ts",
           overwrite: true,
           scope: "project",
         },

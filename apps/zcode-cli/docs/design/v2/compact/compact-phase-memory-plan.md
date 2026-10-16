@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文基于 ZCode 当前 compact 实现，列出下一步应该改什么：compact 阶段语义、history replacement、context baseline 与 memory read/write path。它是 `docs/design/v2/compact/README.md` 和 `plan.md` 的增量计划，不替代已有 compact 主路线。
+本文基于 Secretariat 当前 compact 实现，列出下一步应该改什么：compact 阶段语义、history replacement、context baseline 与 memory read/write path。它是 `docs/design/v2/compact/README.md` 和 `plan.md` 的增量计划，不替代已有 compact 主路线。
 
 当前实现已经具备：
 
@@ -24,7 +24,7 @@
 
 ## Todo: 三个 compact 阶段
 
-这里的三个阶段指 compact 的三个核心时机：手动独立 compact、新 turn 请求前 compact、agent turn 中 follow-up 请求前 compact。ZCode 现有 reactive compact retry 是互补能力，保留但单独标注为 `reactive/provider_overflow`。
+这里的三个阶段指 compact 的三个核心时机：手动独立 compact、新 turn 请求前 compact、agent turn 中 follow-up 请求前 compact。Secretariat 现有 reactive compact retry 是互补能力，保留但单独标注为 `reactive/provider_overflow`。
 
 - [x] T1: 在 contract 中增加 `CompactPhase` 和 `CompactReason`，并让 boundary/timeline payload 可选携带。
 - [x] T2: `/compact` 手动入口标为 `standalone_turn/user_requested`。
@@ -41,7 +41,7 @@
 
 ### 1.1 Runtime 触发点
 
-当前 ZCode 在 regular turn 中先写入用户消息，然后进入 tool loop。每次模型请求前都会调用 `autoCompactIfNeeded`。
+当前 Secretariat 在 regular turn 中先写入用户消息，然后进入 tool loop。每次模型请求前都会调用 `autoCompactIfNeeded`。
 
 ```text
 user input persisted
@@ -64,7 +64,7 @@ user input persisted
 - 第一轮模型请求前：用户消息后、provider 请求前。
 - tool follow-up 前：工具结果写入 history 后、下一次 provider 请求前。
 
-两者都保留 `trigger = auto`，并通过 `phase` 区分为 `pre_request` 与 `mid_turn`，ZCode 已把该语义写入 boundary/timeline。
+两者都保留 `trigger = auto`，并通过 `phase` 区分为 `pre_request` 与 `mid_turn`，Secretariat 已把该语义写入 boundary/timeline。
 
 相关代码：
 
@@ -207,7 +207,7 @@ interface HistoryReplacement {
 
 ### 2.4 Reference context baseline
 
-reference context baseline 的目的是避免每轮重复注入完整 initial context：只在 baseline 变化时注入 diff。ZCode 当前 context builder 每次初始化时构建完整 prefix。
+reference context baseline 的目的是避免每轮重复注入完整 initial context：只在 baseline 变化时注入 diff。Secretariat 当前 context builder 每次初始化时构建完整 prefix。
 
 建议分两步：
 
@@ -304,9 +304,9 @@ compact 和 memory 是分开的模块，但它们通过 initial context 和 tran
 - 手动 compact 和 `pre_request` compact：compact 后清空 reference baseline，让下一次 regular turn 完整重建 initial context，不在 replacement history 中注入。
 - `mid_turn` compact：同一个 turn 马上还要继续请求模型，必须把 initial context 立刻插回 replacement history（位于最后一条 user message 之前）。
 
-ZCode 第一阶段没有 reference baseline/diff，也仍然要保住这个约束：`mid_turn` compact 完成后，下一次 provider request 的 context prefix 必须仍包含 system、project instructions、skills 和 memory read instructions。
+Secretariat 第一阶段没有 reference baseline/diff，也仍然要保住这个约束：`mid_turn` compact 完成后，下一次 provider request 的 context prefix 必须仍包含 system、project instructions、skills 和 memory read instructions。
 
-写路径上，memory 不应该把 compact summary 当成唯一事实来源。memory extraction 应信任 transcript 中的原始 user message、tool call/result 和验证证据，并排除 compaction 产物、developer message、reasoning 等 synthetic 内容。ZCode 后续做 memory write 时应遵守：
+写路径上，memory 不应该把 compact summary 当成唯一事实来源。memory extraction 应信任 transcript 中的原始 user message、tool call/result 和验证证据，并排除 compaction 产物、developer message、reasoning 等 synthetic 内容。Secretariat 后续做 memory write 时应遵守：
 
 - compact summary 可以作为导航线索，帮助理解长 session 发生过什么。
 - 长期 memory 的事实落库必须回到原始 transcript、工具结果、测试输出或用户显式偏好。
@@ -442,7 +442,7 @@ ZCode 第一阶段没有 reference baseline/diff，也仍然要保住这个约�
 - 不在 streaming delta 中途 compact。
 - 不把所有 memory 文件塞进每次 provider request。
 - 不让 compact 自动写长期 memory。
-- 不新增 `ZCODE_` 环境变量。
+- 不新增 `SECRETARIAT_` 环境变量。
 - 不把 memory write path 和 read path 一次性合并上线。
 
 ## 五、风险

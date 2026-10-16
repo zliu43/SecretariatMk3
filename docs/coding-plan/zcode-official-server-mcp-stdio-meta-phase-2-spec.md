@@ -1,4 +1,4 @@
-# ZCode 官方 Server MCP：stdio Plugin 经 `_meta` 取身份头（第二阶段，历史 Decision Log）
+# Secretariat 官方 Server MCP：stdio Plugin 经 `_meta` 取身份头（第二阶段，历史 Decision Log）
 
 > 当前实现事实统一见 `zcode-official-server-mcp-auth-spec.md`。本文只保留 stdio 方案的历史背景。
 
@@ -75,20 +75,20 @@ phase-1 只解决了 `type:"http"`：宿主在 fetch wrapper 里逐请求注入�
 
 ## 5. 信任模型：origin 不再由配置提供
 
-phase-1 的判定是"`URL.origin` === 运行时 ZCode API origin"。stdio 没有 URL，改为：
+phase-1 的判定是"`URL.origin` === 运行时 Secretariat API origin"。stdio 没有 URL，改为：
 
 ```text
 targetOrigin := resolveRuntimeZCodeEndpointOrigin(env)     # 客户端自行解析，不读任何插件配置
 ```
 
-口径与 `zcode-protocol-entrypoint.ts` 现有的 4 处调用一致（`ZCODE_BASE_URL` 由宿主
+口径与 `zcode-protocol-entrypoint.ts` 现有的 4 处调用一致（`SECRETARIAT_BASE_URL` 由宿主
 `resolveSpawnEnv` 下发权威值，见 commit `9c9d1683`）。
 
 **为什么这比 http 路径更严**：http 路径下插件能写 url，判定的作用是"把它挡回官方 origin"；
-stdio 路径下插件根本没有表达 origin 的渠道，身份头只可能被解析为"当前 ZCode API origin 的凭证"。
+stdio 路径下插件根本没有表达 origin 的渠道，身份头只可能被解析为"当前 Secretariat API origin 的凭证"。
 `isOfficialMcpOriginTrusted` 的调用照旧保留（同一份 `@zcode/shared` 实现），此时它退化为一条
 恒真断言——**仍要调用**，因为它同时校验 https 与不带 username/password，且 dev loopback 开关
-（`ZCODE_OFFICIAL_MCP_DEV_TRUSTED_ORIGINS`）必须继续生效。
+（`SECRETARIAT_OFFICIAL_MCP_DEV_TRUSTED_ORIGINS`）必须继续生效。
 
 host 侧二次校验（`zcodeAgentService` 在读取凭据**之前**用同一份 registry 校验三元组）不变：
 agent 上报的 `targetOrigin` 就是它自己解析出的那个值，未命中即 `official_mcp_origin_untrusted`，
@@ -97,7 +97,7 @@ agent 上报的 `targetOrigin` 就是它自己解析出的那个值，未命中�
 **新增的残留风险**：phase-1 的三条残留风险全部继续成立，另加一条——**身份头会进入插件的进程内存**。
 http 路径下凭证只在 agent 进程的 fetch wrapper 里出现，插件拿不到；stdio 路径下插件读到的是明文
 `Authorization`，它可以拿去打别的地址。这与 phase-1 §5.1 残留风险 2/3 属同一类（能在插件里跑代码
-的人本来就能读 `~/.zcode` 下的同一份凭证），因此定位仍是**防御纵深**而非防已被攻破的插件。
+的人本来就能读 `~/.secretariat` 下的同一份凭证），因此定位仍是**防御纵深**而非防已被攻破的插件。
 要彻底解决只能走 §3.2 的"宿主代发"方向。
 
 ## 6. 下发通道：复用既有的 `_meta` 注入点

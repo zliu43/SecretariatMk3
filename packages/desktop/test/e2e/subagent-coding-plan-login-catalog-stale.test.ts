@@ -88,7 +88,7 @@ describe("BigModel 登录后 Subagent runtime catalog 滞后", () => {
     const authorizationUrl = await waitForBigModelAuthorizationUrl(openExternalMock);
     const state = new URL(authorizationUrl).searchParams.get("state");
     expect(state).toBeTruthy();
-    await deliverOAuthCallback(`zcode://oauth/callback?state=${state}&authCode=e2e-auth-code`);
+    await deliverOAuthCallback(`secretariat://oauth/callback?state=${state}&authCode=e2e-auth-code`);
 
     await waitForTestIdByDom(TID_TASK_SETTINGS_BUTTON, {
       timeout: 60_000,
@@ -141,7 +141,7 @@ describe("BigModel 登录后 Subagent runtime catalog 滞后", () => {
 });
 
 async function readCodingPlanMockRequests(): Promise<unknown[]> {
-  const baseUrl = process.env.ZCODE_E2E_CODING_PLAN_MOCK_URL?.trim();
+  const baseUrl = process.env.SECRETARIAT_E2E_CODING_PLAN_MOCK_URL?.trim();
   if (!baseUrl) {
     return [];
   }

@@ -39,7 +39,7 @@ function request() {
     createdAt: 1,
     deadlineAt: 600_001,
     sourceFiles: [
-      { path: "/workspace/.zcode/config.json", displayPath: ".zcode/config.json", editable: true },
+      { path: "/workspace/.secretariat/config.json", displayPath: ".secretariat/config.json", editable: true },
     ],
     summary: { eventCount: 1, hookCount: 1, pendingCount: 1 },
     items: [
@@ -50,7 +50,7 @@ function request() {
         type: "command",
         displayName: "SessionStart hook",
         displayCommand: "./scripts/resume.sh",
-        sourcePath: ".zcode/config.json",
+        sourcePath: ".secretariat/config.json",
         resolvedTimeoutMs: 30_000,
         resolvedMaxOutputBytes: 32_768,
         executionMode: "background",
@@ -259,7 +259,7 @@ describe("workspaceHookReview protocol contracts", () => {
       hookExecutionDescriptorSchema.safeParse({
         clientVisible: true,
         sourceKind: "project",
-        sourcePath: "/workspace/.zcode/config.json",
+        sourcePath: "/workspace/.secretariat/config.json",
         executionType: "command",
         executionMode: "foreground",
         commandDisplay: "./scripts/start.sh",

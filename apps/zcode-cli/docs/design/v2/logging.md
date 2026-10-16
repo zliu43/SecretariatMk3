@@ -1,6 +1,6 @@
 # Logging and Trace
 
-ZCode 的日志不是调试输出的集合，而是 agent runtime 的可观测契约。所有 session、turn、message、model request、tool call、permission、storage 操作和外部 I/O 都必须归属到同一个顶层 `traceId` 下，并通过 `spanId` / `parentSpanId` 还原调用链。
+Secretariat 的日志不是调试输出的集合，而是 agent runtime 的可观测契约。所有 session、turn、message、model request、tool call、permission、storage 操作和外部 I/O 都必须归属到同一个顶层 `traceId` 下，并通过 `spanId` / `parentSpanId` 还原调用链。
 
 ## 目标
 
@@ -116,16 +116,16 @@ app-server 进程启动至少记录：
 - `app_server.startup.started`：入口开始。
 - `app_server.startup.config.completed`：配置加载完成。
 - `app_server.startup.session_store.completed`：session store 打开完成。
-- `app_server.startup.connection.completed`：ZCode app-server connection 建立完成。
+- `app_server.startup.connection.completed`：Secretariat app-server connection 建立完成。
 - `app_server.startup.completed` / `app_server.startup.failed`：启动总耗时。
 
-ZCode app-server `session/new` 至少记录：
+Secretariat app-server `session/new` 至少记录：
 
 - `app_server.session.new.started`：收到 new session 请求并创建 session trace。
 - `app_server.session.new.validate.completed`：cwd、MCP server、additional directories 等请求约束校验完成。
 - `app_server.session.new.config.completed`：初始 mode、model、thought level 解析完成。
-- `app_server.session.new.app.completed`：ZCode app/runtime 创建完成。
-- `app_server.session.new.record.completed`：ZCode app-server session record 注册完成。
+- `app_server.session.new.app.completed`：Secretariat app/runtime 创建完成。
+- `app_server.session.new.record.completed`：Secretariat app-server session record 注册完成。
 - `app_server.session.new.commands.completed`：available commands 通知发送完成。
 - `app_server.session.new.completed` / `app_server.session.new.failed`：new session 总耗时。
 
@@ -141,33 +141,33 @@ ZCode app-server `session/new` 至少记录：
 
 ## 环境变量
 
-所有自有环境变量使用 `ZCODE_` 前缀：
+所有自有环境变量使用 `SECRETARIAT_` 前缀：
 
-- `ZCODE_LOG_DIR`：覆盖默认日志目录。
-- `ZCODE_LOG_CONSOLE`：为 `1` 时同时向 stderr 写诊断日志。
+- `SECRETARIAT_LOG_DIR`：覆盖默认日志目录。
+- `SECRETARIAT_LOG_CONSOLE`：为 `1` 时同时向 stderr 写诊断日志。
 
-日志级别不通过环境变量配置。调用方可以显式传入 logger `minLevel` 或通过 logger factory 的运行时接口调整级别；未显式传入时，开发环境默认 `debug`，以便本地 debug app 能看到 `context.built` 和 `context_usage_snapshot`；普通运行默认 `info`。开发环境由 `ZCODE_RUNTIME_ENV=development` 或本地源码/tsx CLI 入口识别；`ZCODE_RUNTIME_ENV=production` 和 `ZCODE_RUNTIME_ENV=test` 明确使用普通默认值。`NODE_ENV` 不参与 ZCode 运行时判定，避免用户 shell 或包管理器变量影响 agent 行为。`ZCODE_LOG_LEVEL` 不属于受支持的环境变量 surface，设置后必须被忽略。
+日志级别不通过环境变量配置。调用方可以显式传入 logger `minLevel` 或通过 logger factory 的运行时接口调整级别；未显式传入时，开发环境默认 `debug`，以便本地 debug app 能看到 `context.built` 和 `context_usage_snapshot`；普通运行默认 `info`。开发环境由 `SECRETARIAT_RUNTIME_ENV=development` 或本地源码/tsx CLI 入口识别；`SECRETARIAT_RUNTIME_ENV=production` 和 `SECRETARIAT_RUNTIME_ENV=test` 明确使用普通默认值。`NODE_ENV` 不参与 Secretariat 运行时判定，避免用户 shell 或包管理器变量影响 agent 行为。`SECRETARIAT_LOG_LEVEL` 不属于受支持的环境变量 surface，设置后必须被忽略。
 
-默认日志目录通过跨平台目录解析获得，初版可使用 `{home}/.zcode/cli/log`。默认日志文件名为 `zcode-YYYY-MM-DD.jsonl`，其中日期使用本机本地日历日，而不是 UTC 日期；否则北京时间等正时区在本地凌晨启动时会把日志写入前一天的文件，导致排查启动耗时时误判为日志缺失。
+默认日志目录通过跨平台目录解析获得，初版可使用 `{home}/.secretariat/cli/log`。默认日志文件名为 `zcode-YYYY-MM-DD.jsonl`，其中日期使用本机本地日历日，而不是 UTC 日期；否则北京时间等正时区在本地凌晨启动时会把日志写入前一天的文件，导致排查启动耗时时误判为日志缺失。
 
 ## 日志保留与自动清理
 
 默认只保留最近 7 个本地日历日的结构化日志文件。清理对象仅限默认日志命名契约匹配的 `zcode-YYYY-MM-DD.jsonl` 文件；其他文件、子目录、artifact、session event、SQLite DB 和 debug 产物不得被日志清理任务删除。
 
-日志清理不是启动门禁，也不应增加用户感知的启动延迟。`createZCodeApp()` 和 ZCode app-server agent 启动完成后，通过 logging adapter 在后台延迟 60 秒调度一次清理；不在配置加载、SQLite migration、runtime 构造或 ZCode Protocol连接前立即执行。短生命周期命令可以因为进程退出而跳过本轮清理。
+日志清理不是启动门禁，也不应增加用户感知的启动延迟。`createZCodeApp()` 和 Secretariat app-server agent 启动完成后，通过 logging adapter 在后台延迟 60 秒调度一次清理；不在配置加载、SQLite migration、runtime 构造或 Secretariat Protocol连接前立即执行。短生命周期命令可以因为进程退出而跳过本轮清理。
 
 清理边界按文件名里的本地日期判断，不依赖 mtime。以本地日期 `2026-05-08` 为例，保留 `2026-05-02` 至 `2026-05-08` 的日志，删除 `2026-05-01` 及更早的匹配日志。不存在的日志目录、并发删除、权限错误或单文件删除失败都不得影响 agent 主流程；失败只写结构化 warn，并包含目录、文件名、retentionDays、cutoffDate 和安全错误摘要。
 
-该能力不新增环境变量。未来如果要开放保留天数或延迟配置，必须先在本 spec 定义配置层级、优先级、错误行为和测试覆盖；能用配置文件、CLI 参数或 session 配置表达的能力，优先不要做成 `ZCODE_` 环境变量。
+该能力不新增环境变量。未来如果要开放保留天数或延迟配置，必须先在本 spec 定义配置层级、优先级、错误行为和测试覆盖；能用配置文件、CLI 参数或 session 配置表达的能力，优先不要做成 `SECRETARIAT_` 环境变量。
 
 ## 默认日志载荷边界
 
-`{home}/.zcode/cli/log/zcode-YYYY-MM-DD.jsonl` 是默认定位日志，目标是回答“哪个 session/turn/trace/protocol seq/事件类型在什么时间出问题”，不是保存完整协议消息、模型流式内容或工具输入输出镜像。默认日志可以记录索引、状态、计数、耗时、字节数、key 列表和短摘要；不得在高频路径写入完整 `protocolMessage`、完整 stream delta、完整 tool input/result、完整 stdout/stderr tail 或完整 request/response headers。
+`{home}/.secretariat/cli/log/zcode-YYYY-MM-DD.jsonl` 是默认定位日志，目标是回答“哪个 session/turn/trace/protocol seq/事件类型在什么时间出问题”，不是保存完整协议消息、模型流式内容或工具输入输出镜像。默认日志可以记录索引、状态、计数、耗时、字节数、key 列表和短摘要；不得在高频路径写入完整 `protocolMessage`、完整 stream delta、完整 tool input/result、完整 stdout/stderr tail 或完整 request/response headers。
 
 高频事件必须摘要化写入：
 
 - `event_store.appended` 对 `model_streaming`、`tool_call_progress`、`streaming_tool_ledger_updated`、`model_network_status` 等与消息流同频或近似同频的事件不逐条写默认日志；按 session/turn/event type 聚合为 `event_store.appended.summary`，记录 `firstSessionEventSequenceNumber`、`lastSessionEventSequenceNumber`、`eventCount`、`payloadBytes`、`payloadKinds`、`firstEventId`、`lastEventId` 和 flush 原因。
-- ZCode Protocol 的 `session/event` 发送日志保留 `deliveryKind`、`protocolSeq`、`eventId`、`protocolEventType`、`payloadKind`、`sessionEventType` 和 source event sequence；默认只记录 `protocolMessageBytes`、`protocolPayloadBytes`、`payloadKeys`、`payloadSummary`，不记录完整 `protocolMessage`。
+- Secretariat Protocol 的 `session/event` 发送日志保留 `deliveryKind`、`protocolSeq`、`eventId`、`protocolEventType`、`payloadKind`、`sessionEventType` 和 source event sequence；默认只记录 `protocolMessageBytes`、`protocolPayloadBytes`、`payloadKeys`、`payloadSummary`，不记录完整 `protocolMessage`。
 - context usage 默认写 compact snapshot：总 token/char、分类、消息 breakdown、每类 contributor 的数量与 Top contributors。完整 `mcpTools`、`systemTools`、`skills`、`systemPromptSections` 和完整 contributor 明细只属于显式诊断日志，不进入默认 daily log。
 - `zcode_protocol.process.memory_sample` 复用 `process/resourceSample` 的 60s 采样节拍写进程内存样本（`rssKb` / `heapUsedKb` / `heapTotalKb` / `externalKb` / `arrayBuffersKb` 与常驻 session、event store 行数等计数器），但只在 heapUsed 相对上次写盘变化超过 5%、任一计数器变化或距上次写盘满 5 分钟时才写；门控与字段口径见仓库根 `docs/monitoring/memory-diagnostics-log.md`。样本不含 session id、路径或任何内容。
 
@@ -194,6 +194,6 @@ ZCode app-server `session/new` 至少记录：
 - `turn.failed` 日志包含外层 runtime 错误和原始 `cause` 的 `name`、`message`、`code` / `type`、redacted `context`，无需查询 SQLite 即可定位常见失败原因。
 - TUI 捕获 turn 失败时展示安全的 cause 链摘要，让用户能直接看到深层失败状态，例如 `provider_not_configured`。
 - logger 文件写入失败不影响 agent 主流程。
-- ZCode app-server `session/new` 日志覆盖 validate/config/create app/register/notify commands/total 阶段，每条阶段日志包含非负 `durationMs` 和同一个 `traceId/sessionId`。
+- Secretariat app-server `session/new` 日志覆盖 validate/config/create app/register/notify commands/total 阶段，每条阶段日志包含非负 `durationMs` 和同一个 `traceId/sessionId`。
 - 日志文件名使用本地日历日，`2026-05-05 02:46 +0800` 必须写入 `zcode-2026-05-05.jsonl`，不能因为 UTC 仍是 `2026-05-04` 而落到前一天文件。
-- 启动完成后调度日志保留清理，默认延迟 60 秒，最多保留最近 7 个本地日历日的 `zcode-YYYY-MM-DD.jsonl`，且清理失败不影响 CLI/TUI/ZCode app-server 主流程。
+- 启动完成后调度日志保留清理，默认延迟 60 秒，最多保留最近 7 个本地日历日的 `zcode-YYYY-MM-DD.jsonl`，且清理失败不影响 CLI/TUI/Secretariat app-server 主流程。

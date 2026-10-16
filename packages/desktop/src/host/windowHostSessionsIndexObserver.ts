@@ -1,5 +1,5 @@
 import type { IDisposable } from "@zcode/rpc";
-import { ZCODE_AGENT_RUNTIME_UNAVAILABLE_CODE, type IZCodeAgentService } from "@zcode/services";
+import { SECRETARIAT_AGENT_RUNTIME_UNAVAILABLE_CODE, type IZCodeAgentService } from "@zcode/services";
 import {
   PROTOCOL_V4_LIMITS,
   sessionsIndexTopic,
@@ -33,7 +33,7 @@ function isRuntimeUnavailableError(error: unknown): boolean {
   return (
     typeof error === "object" &&
     error !== null &&
-    (error as { code?: unknown }).code === ZCODE_AGENT_RUNTIME_UNAVAILABLE_CODE
+    (error as { code?: unknown }).code === SECRETARIAT_AGENT_RUNTIME_UNAVAILABLE_CODE
   );
 }
 

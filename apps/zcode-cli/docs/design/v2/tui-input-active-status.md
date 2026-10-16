@@ -26,7 +26,7 @@ one-row spacer so the composer height does not flash.
 - Keep approval, clarification, selection, and workflow panels in their existing
   replacement slots.
 - Do not add environment variables, runtime events, provider behavior, storage
-  schema, or ZCode app-server protocol changes.
+  schema, or Secretariat app-server protocol changes.
 
 ## Rendering Contract
 

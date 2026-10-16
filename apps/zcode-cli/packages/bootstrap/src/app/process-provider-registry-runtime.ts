@@ -8,7 +8,7 @@ import {
 import {
   isBuiltinModelProviderId,
   resolveRuntimeZCodeEndpointOrigin,
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
 } from "@zcode/shared";
 import { dirname, join } from "node:path";
 import {
@@ -17,7 +17,7 @@ import {
   resolveNodeProviderRuntimePaths,
   downloadZCodeBuiltinRelease,
   resolveZCodeBuiltinClientPlatform,
-  ZCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
   type ZCodeBuiltinRefreshEvent,
 } from "@zcode/provider-node";
 import {
@@ -48,7 +48,7 @@ export async function startProcessProviderRegistryRuntime(
 ) {
   const paths = resolveNodeProviderRuntimePaths(env);
   if (!paths) {
-    throw new Error("缺少进程 Provider Registry 的 ZCode Built-in / Personal Config 路径");
+    throw new Error("缺少进程 Provider Registry 的 Secretariat Built-in / Personal Config 路径");
   }
 
   const accountSource = new MutableAccountProviderConfigSource();
@@ -57,7 +57,7 @@ export async function startProcessProviderRegistryRuntime(
     : undefined;
   let standaloneAccount: AccountProviderService | undefined;
   const bundledFile = options.standalone
-    ? env[ZCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]?.trim()
+    ? env[SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV]?.trim()
     : undefined;
   const runtime = new NodeProviderRegistryRuntime({
     ...paths,
@@ -75,7 +75,7 @@ export async function startProcessProviderRegistryRuntime(
               downloadZCodeBuiltinRelease({
                 endpointOrigin,
                 signal,
-                appVersion: ZCODE_VERSION,
+                appVersion: SECRETARIAT_VERSION,
                 platform: resolveZCodeBuiltinClientPlatform(),
                 request: options.standalone?.request ?? globalThis.fetch,
               }),

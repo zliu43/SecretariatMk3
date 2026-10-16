@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import {
   encodeCustomModelValue,
   formatModelPickerValue as formatSharedModelSelection,
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  SECRETARIAT_PROTOCOL_NAME,
+  SECRETARIAT_PROTOCOL_VERSION,
   type ZCodeSessionEvent,
   type ZCodeMessagePart,
   type ZCodeMessageWithParts,
@@ -72,8 +72,8 @@ const settingsWithDefaultThoughtLevel = {
 function createSnapshot(): ZCodeSessionStateSnapshot {
   return {
     protocol: {
-      name: ZCODE_PROTOCOL_NAME,
-      version: ZCODE_PROTOCOL_VERSION,
+      name: SECRETARIAT_PROTOCOL_NAME,
+      version: SECRETARIAT_PROTOCOL_VERSION,
     },
     session: {
       sessionId: "sess_1",
@@ -1153,13 +1153,13 @@ describe("zcodeSessionProjection", () => {
         ...base.projection,
         lastError: {
           message: "历史任务使用的模型已不可用，请从当前模型列表中选择一个可用模型后继续。",
-          type: "ZCODE_RUNTIME_MODEL_UNAVAILABLE",
+          type: "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE",
         },
       },
     });
 
     expect(snapshot.meta.lastError).toEqual({
-      code: "ZCODE_RUNTIME_MODEL_UNAVAILABLE",
+      code: "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE",
       message: "历史任务使用的模型已不可用，请从当前模型列表中选择一个可用模型后继续。",
     });
   });
@@ -2230,7 +2230,7 @@ describe("zcodeSessionProjection", () => {
     });
   });
 
-  it("maps ZCode Protocol context projection updates to legacy usage_update events", () => {
+  it("maps Secretariat Protocol context projection updates to legacy usage_update events", () => {
     expect(
       zcodeSessionEventToZCodeStreamEvents({
         event: {
@@ -3359,7 +3359,7 @@ describe("zcodeSessionProjection", () => {
     ]);
   });
 
-  it("maps ZCode model retry status updates to apiRetry events", () => {
+  it("maps Secretariat model retry status updates to apiRetry events", () => {
     const events = zcodeSessionEventToZCodeStreamEvents({
       event: {
         eventId: "evt_retry",
@@ -4033,7 +4033,7 @@ describe("zcodeSessionProjection", () => {
     });
   });
 
-  it("maps nested ZCode Protocol projection context usage", () => {
+  it("maps nested Secretariat Protocol projection context usage", () => {
     expect(
       zcodeSessionEventToZCodeStreamEvents({
         event: {
@@ -5627,7 +5627,7 @@ describe("zcodeSessionProjection", () => {
     });
   });
 
-  it("projects ZCode settings updates to model and mode state events", () => {
+  it("projects Secretariat settings updates to model and mode state events", () => {
     const options = zcodeSessionSettingsToConfigOptions(settings);
     const events = zcodeStateUpdatedToZCodeStreamEvents({
       notification: {
@@ -5670,7 +5670,7 @@ describe("zcodeSessionProjection", () => {
     });
   });
 
-  it("parses UI model values into strict ZCode model refs", () => {
+  it("parses UI model values into strict Secretariat model refs", () => {
     expect(parseModelPickerValue("glm/glm-4.6")).toEqual({
       providerId: "glm",
       modelId: "glm-4.6",

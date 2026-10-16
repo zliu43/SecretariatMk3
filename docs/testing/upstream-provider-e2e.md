@@ -33,7 +33,7 @@ pnpm --filter @zcode/desktop test:e2e -- --spec ./test/e2e/upstream-provider.tes
 - API key 会强制使用 `e2e-fixture-key`，不会读取或泄露本地真实 key。
 - 固定响应来自 `packages/desktop/test/e2e/fixtures/upstream/provider-basic.json`。
 - WDIO 会在隔离 HOME 里预置主模型与第二模型；新增会话状态隔离用例复用这份 fixture，避免把 provider 设置页“新增模型”当成会话区测试前置条件。
-- 请求抓包 artifact 写到 `packages/desktop/.e2e-home/.zcode/e2e-network-capture/upstream-provider.json`，认证 header 和 token 字段会脱敏。
+- 请求抓包 artifact 写到 `packages/desktop/.e2e-home/.secretariat/e2e-network-capture/upstream-provider.json`，认证 header 和 token 字段会脱敏。
 - case 同时校验 UI、请求 body、思考深度字段，以及 context 消耗是否等于 fixture 中真实响应的 usage。
 
 这个 case 是“采集一次，固定回放”的回归：fixture 内容来自真实上游请求，但默认执行时不再依赖账号余额、上游限流和模型实时可用性。
@@ -54,9 +54,9 @@ capture 模式会在本机启动透明 MITM 抓包代理：
 
 - provider endpoint 仍是真实地址；性能样本默认推荐 `glmhighspeed` preset。
 - 代理只转发和抓包，不合成模型响应。
-- CA 只生成在 `packages/desktop/.e2e-home/.zcode/e2e-network-capture/ca`，不会写入系统证书库。
+- CA 只生成在 `packages/desktop/.e2e-home/.secretariat/e2e-network-capture/ca`，不会写入系统证书库。
 - WDIO 会把 `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` / `NODE_EXTRA_CA_CERTS` / `SSL_CERT_FILE` 注入到 e2e 进程树。
-- 抓包 artifact 写到 `packages/desktop/.e2e-home/.zcode/e2e-network-capture/upstream-provider.json`。
+- 抓包 artifact 写到 `packages/desktop/.e2e-home/.secretariat/e2e-network-capture/upstream-provider.json`。
 - artifact 会额外记录 `responseChunkTimeline`，保存 response chunk 的相对时间和 bytes；用于之后按真实 SSE 节奏回放。
 
 采集完成后，把脱敏后的响应整理成单 case fixture。固定 case 不直接依赖最新线上响应；动态网络回归需要单独命名和显式运行。

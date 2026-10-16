@@ -6,7 +6,7 @@
 
 **Architecture:** Extend the formal V4 row protocol with an artifact row projected from completed tool attachments. The share service materializes only selected artifact rows through an injected async local file reader, validates capabilities and integrity, creates a preparation with the exact count, uploads multipart descriptors/files in deterministic order, then confirms the unchanged public projection.
 
-**Tech Stack:** TypeScript, Zod, Vitest, Node async file APIs, existing ZCode V4 projection and conversation-share HTTP client.
+**Tech Stack:** TypeScript, Zod, Vitest, Node async file APIs, existing Secretariat V4 projection and conversation-share HTTP client.
 
 ---
 

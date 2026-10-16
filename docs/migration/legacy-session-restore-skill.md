@@ -2,7 +2,7 @@
 
 ## 背景
 
-旧版 ZCode session 记录已备份到 `~/.zcode-bak/v2/sessions`，当前新版 ZCode 已改用 `~/.zcode/cli/db/db.sqlite` 作为真实 session/message/part 存储，并用 `~/.zcode/v2/tasks-index.sqlite` 作为 app 侧任务列表索引。恢复历史任务时，用户需要先选择旧 agent，再选择要恢复的 workspace，最后选择具体对话。
+旧版 Secretariat session 记录已备份到 `~/.zcode-bak/v2/sessions`，当前新版 Secretariat 已改用 `~/.secretariat/cli/db/db.sqlite` 作为真实 session/message/part 存储，并用 `~/.secretariat/v2/tasks-index.sqlite` 作为 app 侧任务列表索引。恢复历史任务时，用户需要先选择旧 agent，再选择要恢复的 workspace，最后选择具体对话。
 
 ## 目标
 
@@ -32,7 +32,7 @@
 
 ## Skill 工作流
 
-默认只扫描备份源 `~/.zcode-bak/v2/sessions`，目的地仍是当前 `~/.zcode/cli/db/db.sqlite` 与 `~/.zcode/v2/tasks-index.sqlite`。需要检查原目录时，必须显式传入 `--legacy-dir ~/.zcode/v2/sessions`。
+默认只扫描备份源 `~/.zcode-bak/v2/sessions`，目的地仍是当前 `~/.secretariat/cli/db/db.sqlite` 与 `~/.secretariat/v2/tasks-index.sqlite`。需要检查原目录时，必须显式传入 `--legacy-dir ~/.secretariat/v2/sessions`。
 
 1. 扫描 agent：
    `node .agents/skills/restore-legacy-sessions/scripts/scan-legacy-sessions.mjs agents`

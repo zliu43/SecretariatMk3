@@ -34,10 +34,10 @@ function catalog(name: string, authority: "session" | "workspace") {
     authority,
     skills: [
       {
-        id: `glm:workspace:/workspace/.zcode/skills/${name}/SKILL.md`,
+        id: `glm:workspace:/workspace/.secretariat/skills/${name}/SKILL.md`,
         name,
         description: `${name} description`,
-        path: `/workspace/.zcode/skills/${name}/SKILL.md`,
+        path: `/workspace/.secretariat/skills/${name}/SKILL.md`,
         scope: "workspace" as const,
         enabled: true,
       },

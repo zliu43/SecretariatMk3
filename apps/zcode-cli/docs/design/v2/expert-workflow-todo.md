@@ -7,8 +7,8 @@ This document is the handoff TODO for taking `/expert` from the current v0 workf
 Current state:
 
 - `/expert` command exists and defaults to yolo.
-- Workflow runs are persisted under `~/.zcode/cli/workflows`.
-- ZCode app-server exposes `start/list/get/cancel` plus workflow event notifications.
+- Workflow runs are persisted under `~/.secretariat/cli/workflows`.
+- Secretariat app-server exposes `start/list/get/cancel` plus workflow event notifications.
 - z-code-2 has a Workflows side pane that shows runs, phases, activities, events, and graph/frontier state.
 - The runtime executes non-exec expert phases serially, and routes `exec` through the generic workflow DAG scheduler.
 
@@ -17,13 +17,13 @@ Target state:
 - `exec` becomes a real DAG scheduler.
 - The graph grows and changes during execution.
 - Child agent sessions are first-class node activities.
-- ZCode app-server streams fine-grained scheduler state so z-code-2 can debug what is running, ready, blocked, retried, reopened, or done.
+- Secretariat app-server streams fine-grained scheduler state so z-code-2 can debug what is running, ready, blocked, retried, reopened, or done.
 
 ## P0: Real DAG Executor
 
 Goal: make `exec` use graph/frontier scheduling instead of one serial phase activity.
 
-Status: initial generic scheduler landed. It derives ready/active/blocked nodes, dispatches ready executable nodes with `maxConcurrentLoops`, records child agent activities per node, emits node/frontier/executor events, retries failed nodes, pauses on `maxConsecutiveErrors`, and exposes the derived scheduler state through the workflow contract plus ZCode app-server detail responses. The durable contract now exposes generic `WorkflowRunSnapshot` / `WorkflowStrategy` names while keeping expert aliases for compatibility. Resume/cancel now have generic snapshot repair helpers: stale active work is closed before resume, cancellation marks non-terminal workflow state as cancelled, and same-process background workflows receive abort signals. Remaining P0 work is mostly feeding richer task graphs from planner output.
+Status: initial generic scheduler landed. It derives ready/active/blocked nodes, dispatches ready executable nodes with `maxConcurrentLoops`, records child agent activities per node, emits node/frontier/executor events, retries failed nodes, pauses on `maxConsecutiveErrors`, and exposes the derived scheduler state through the workflow contract plus Secretariat app-server detail responses. The durable contract now exposes generic `WorkflowRunSnapshot` / `WorkflowStrategy` names while keeping expert aliases for compatibility. Resume/cancel now have generic snapshot repair helpers: stale active work is closed before resume, cancellation marks non-terminal workflow state as cancelled, and same-process background workflows receive abort signals. Remaining P0 work is mostly feeding richer task graphs from planner output.
 
 Tasks:
 
@@ -62,7 +62,7 @@ Tests:
 
 ## P0.5: GSAP-like Node Executor
 
-Goal: make built-in expert task nodes execute closer to `zcode-cli-bak/src/gsap`: subplan the node, run actor/critic loops, and expose every sub-activity through ZCode app-server.
+Goal: make built-in expert task nodes execute closer to `zcode-cli-bak/src/gsap`: subplan the node, run actor/critic loops, and expose every sub-activity through Secretariat app-server.
 
 Status: planned. The generic DAG scheduler should remain the owner of ready/blocked/frontier state. The expert workflow should provide a GSAP-like node executor for task nodes, while phase nodes can keep the direct activity path for compatibility.
 
@@ -75,16 +75,16 @@ Tasks:
   - actor JSON parser with tolerant fallback for Markdown summaries.
   - critic JSON parser with pass/fail verdict and blockers.
   - retry actor rounds with critic feedback up to `reactLoop.maxRounds`.
-- [ ] Keep ZCode app-server aligned:
+- [ ] Keep Secretariat app-server aligned:
   - include nested activities in `snapshot.activities` and `snapshot.sessionLinks`.
   - emit `workflow_session_linked` with `nodeId`, `activityId`, `activityKind`, `loopId`, `sessionId`, and `model`.
   - keep `zcode.dev/workflow/get.scheduler.activeActivities` derivable from the snapshot.
-- [ ] Leave worktree isolation and merge locking as the next slice after the activity/ZCode app-server contract is stable.
+- [ ] Leave worktree isolation and merge locking as the next slice after the activity/Secretariat app-server contract is stable.
 
 Acceptance criteria:
 
 - A seeded expert exec node creates subplanner, actor, and critic activities in addition to the parent node activity.
-- ZCode app-server workflow get can show child session links for each nested attempt.
+- Secretariat app-server workflow get can show child session links for each nested attempt.
 - A critic failure causes another actor round with the prior feedback.
 - A blocked or exhausted loop fails the node through the existing workflow pause/retry policy.
 
@@ -93,7 +93,7 @@ Tests:
 - Scheduler test for nested activity recording and session link derivation.
 - Runtime test for subplanner -> actor -> critic pass on a seeded node.
 - Runtime test for critic fail then pass on the second actor round.
-- ZCode app-server test that `workflow/get` returns nested session links and activity kinds.
+- Secretariat app-server test that `workflow/get` returns nested session links and activity kinds.
 
 ## P1: Exploration Planner
 
@@ -128,7 +128,7 @@ Acceptance criteria:
 - A graph can grow during `exec`.
 - The scheduler sees newly added ready nodes without restarting the workflow.
 - Planner run count and exhausted state survive resume.
-- z-code-2 can show collection/frontier status if returned by ZCode app-server.
+- z-code-2 can show collection/frontier status if returned by Secretariat app-server.
 
 Tests:
 
@@ -208,13 +208,13 @@ Tests:
 - Refuse or repair malformed state according to documented policy.
 - Concurrent mutation lock.
 
-## P4: ZCode app-server State Surface
+## P4: Secretariat app-server State Surface
 
 Goal: expose enough state for z-code-2 to act as a useful workflow debugger.
 
 Tasks:
 
-- Extend ZCode app-server workflow detail response with:
+- Extend Secretariat app-server workflow detail response with:
   - graph nodes and edges
   - active node ids
   - ready node ids
@@ -234,12 +234,12 @@ Acceptance criteria:
 
 Tests:
 
-- [x] ZCode Protocol workflow start returns initial graph.
-- [x] ZCode Protocol workflow get returns derived scheduler state.
-- [x] ZCode Protocol workflow notification fires for node start/complete/fail and frontier changes.
+- [x] Secretariat Protocol workflow start returns initial graph.
+- [x] Secretariat Protocol workflow get returns derived scheduler state.
+- [x] Secretariat Protocol workflow notification fires for node start/complete/fail and frontier changes.
 - [x] Malformed workflow request returns structured invalid request errors.
-- App follow-up: the current z-code app no longer has the ZCode Protocol handler. `packages/shared/src/zcode-task-types.ts` already models `ZCodeWorkflowEventRecord.nodeId` and `payload`, but `packages/services/src/zcode-agent/zcodeTaskServiceAdapter.ts` still leaves workflow methods as empty/unsupported. Reconnect workflow transport through `IZCodeTaskService` before productizing the debugger.
-  - Required app change: route workflow list/get/start/cancel/retry to the ZCode agent server and publish `workspace_workflow_event` through dynamic workspace events.
+- App follow-up: the current z-code app no longer has the Secretariat Protocol handler. `packages/shared/src/zcode-task-types.ts` already models `ZCodeWorkflowEventRecord.nodeId` and `payload`, but `packages/services/src/zcode-agent/zcodeTaskServiceAdapter.ts` still leaves workflow methods as empty/unsupported. Reconnect workflow transport through `IZCodeTaskService` before productizing the debugger.
+  - Required app change: route workflow list/get/start/cancel/retry to the Secretariat agent server and publish `workspace_workflow_event` through dynamic workspace events.
   - Keep `ZCodeWorkflowKind` as a non-empty string so custom definition-backed workflows are observable.
 
 ## P5: z-code-2 Debugger Polish
@@ -252,7 +252,7 @@ Tasks in `/Users/dev/workspace/z-code-2`:
 - Link activity/session rows to the corresponding task/session view.
 - Show node-level event timeline.
 - Show artifact links per phase/node.
-- Show collection/frontier state once ZCode Protocol exposes it.
+- Show collection/frontier state once Secretariat Protocol exposes it.
 - Add explicit refresh/error states per selected run.
 - Add a compact layout for narrow side panes.
 
@@ -269,20 +269,20 @@ Tests:
 
 - Pure tests for graph derived state.
 - UI rendering tests for active/ready/blocked rows.
-- Service tests for workflow ZCode app-server method calls.
+- Service tests for workflow Secretariat app-server method calls.
 - Protocol test for workflow notification to workspace event mapping.
 
 ## P6: Configurable Workflow Definitions
 
 Goal: make workflows configurable without hardcoding every step.
 
-Status: built-in expert runs from a runtime-validated definition object. This slice also defines durable definition provenance, adapter-level JSON loading from `~/.zcode/cli/workflows/definitions`, and a generic bootstrap/ZCode app-server control path. `/expert` remains pinned to the built-in definition, while `zcode.dev/workflow/*` may select a definition-backed workflow with `kind` and `definitionId`.
+Status: built-in expert runs from a runtime-validated definition object. This slice also defines durable definition provenance, adapter-level JSON loading from `~/.secretariat/cli/workflows/definitions`, and a generic bootstrap/Secretariat app-server control path. `/expert` remains pinned to the built-in definition, while `zcode.dev/workflow/*` may select a definition-backed workflow with `kind` and `definitionId`.
 
 Tasks:
 
 - [x] Add runtime-validated `WorkflowDefinition` and `WorkflowPhaseDefinition` contracts.
 - [x] Move built-in expert phase order, behavior, artifact paths, graph seed source, and default strategy into a reusable definition object.
-- [x] Add workflow definition loading from `~/.zcode/cli/workflows/definitions`.
+- [x] Add workflow definition loading from `~/.secretariat/cli/workflows/definitions`.
 - Keep built-in `expert` as the default definition.
 - Define schema for:
   - [x] phases
@@ -299,7 +299,7 @@ Acceptance criteria:
 - [x] Built-in `expert` works without user config.
 - [x] Invalid custom definitions fail before creating a run.
 - [x] Definition name/version is recorded in the run snapshot.
-- [x] ZCode app-server can start/list/get/cancel definition-backed workflow kinds without treating them as expert-only requests.
+- [x] Secretariat app-server can start/list/get/cancel definition-backed workflow kinds without treating them as expert-only requests.
 
 Tests:
 
@@ -311,7 +311,7 @@ Tests:
 ## Suggested Implementation Order
 
 1. P0 real DAG executor.
-2. P4 ZCode app-server scheduler state for active/ready/blocked.
+2. P4 Secretariat app-server scheduler state for active/ready/blocked.
 3. P5 z-code-2 links and filters.
 4. P2 final critic reopen loop.
 5. P1 exploration planner.

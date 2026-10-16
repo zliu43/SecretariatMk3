@@ -11,12 +11,12 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { ZCODE_DWF_CHILD_COMMAND } from "@zcode/contracts";
+import { SECRETARIAT_DWF_CHILD_COMMAND } from "@zcode/contracts";
 import { dynamicWorkflowChildSpawn } from "../src/app/dynamic-workflow-run-launch.js";
 
 describe("dynamicWorkflowChildSpawn", () => {
   it("SEA 下给出隐藏子命令作为 argsPrefix", () => {
-    expect(dynamicWorkflowChildSpawn(true)).toEqual({ argsPrefix: [ZCODE_DWF_CHILD_COMMAND] });
+    expect(dynamicWorkflowChildSpawn(true)).toEqual({ argsPrefix: [SECRETARIAT_DWF_CHILD_COMMAND] });
   });
 
   it("非 SEA 下完全不表态（harness 走缺省的 node <entry> 形状）", () => {

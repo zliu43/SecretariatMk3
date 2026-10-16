@@ -9,9 +9,9 @@
 同为新对话首次执行 `browser.user.openTabs()`：
 
 - 期望：显式 IAB binding 返回 `[]`，不会观察到其它对话的标签页。
-- 实际：ZCode 返回同一 window/workspace 下 5 个 user tabs，其中 4 个是 `about:blank` 或 URL/title 均为空。
+- 实际：Secretariat 返回同一 window/workspace 下 5 个 user tabs，其中 4 个是 `about:blank` 或 URL/title 均为空。
 
-ZCode 的泄漏来自两个已有设计叠加：
+Secretariat 的泄漏来自两个已有设计叠加：
 
 1. 普通右侧 Browser tab 向 main attach guest 时只携带 `workspaceKey`，没有携带它已经存在于 UI 状态中的
    `ownerTaskId`；main 因而只能把它登记为 workspace 级全局可认领 tab。
@@ -100,7 +100,7 @@ A active：resolve active tab from registry[A] + ensureResident[A] + side pane e
 - `packages/ui` 只通过 `IPlatformService.browserViewAttachGuest` 上报 tab ownership，不直接访问 Repo/main。
 - `packages/desktop` main 从发送方绑定 `windowId`，并把 renderer 提供的 `workspaceKey + sessionId` 交给
   `BrowserGuestManager`；renderer 不能伪造 windowId。
-- 本变更不修改 ZCode protocol 的 agent stdio BrowserCommand，不新增 main/relay 业务状态，也不改变
+- 本变更不修改 Secretariat protocol 的 agent stdio BrowserCommand，不新增 main/relay 业务状态，也不改变
   desktop `continuous` 与手机 `replayable` 消息流。
 - 手机 Web 没有 Electron `<webview>` attach；保持现有 fallback，不另起 browser runtime。
 

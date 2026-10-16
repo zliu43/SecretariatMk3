@@ -244,7 +244,7 @@ describe("useWorkspaceFileTreeData", () => {
       .IS_REACT_ACT_ENVIRONMENT;
   });
 
-  it("实时刷新展开目录里的新增文件，不需要重启 ZCode", async () => {
+  it("实时刷新展开目录里的新增文件，不需要重启 Secretariat", async () => {
     vi.useFakeTimers();
     const harness = createWorkspaceFileTreeHarness({
       [WORKSPACE_PATH]: [directory(SRC_PATH)],

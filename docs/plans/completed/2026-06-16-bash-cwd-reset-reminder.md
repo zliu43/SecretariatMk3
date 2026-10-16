@@ -33,7 +33,7 @@
   `<原 stderr 去首尾空白>\nShell cwd was reset to <root>` 作为 Bash result 的 stderr 暴露给 provider。
 - reset 文案只出现在 Bash tool result 的 stderr 中，不是独立 system-reminder；模型 effort 等其他设置不影响该行为。
 
-## 实现前 ZCode 状态
+## 实现前 Secretariat 状态
 
 - `apps/zcode-cli/packages/core/src/tool/handlers/bash.ts`
   - foreground Bash 会设置 `captureCwdAfterSuccess: true`。
@@ -198,7 +198,7 @@ import type {
         runtimeScope: this.config.taskType === "subagent_child" ? "subagent" : "main",
 ```
 
-这里不要用 `parentSessionId` 泛化判断。subagent 分支需要明确的子 agent 身份，ZCode 当前最贴近的明确语义是 `taskType === "subagent_child"`。
+这里不要用 `parentSessionId` 泛化判断。subagent 分支需要明确的子 agent 身份，Secretariat 当前最贴近的明确语义是 `taskType === "subagent_child"`。
 
 - [x] **Step 6：运行窄 type/test 验证**
 
@@ -710,7 +710,7 @@ expect(bashToolEntry.formatModelContent?.(output)).not.toContain("Shell cwd was 
 
 - [x] **Step 3：确认 image 分支不被 cwd reset 扩大**（本次未新增 image cwd reset 行为；已有 image short-circuit 覆盖继续通过）
 
-如果 stdout 是 image 且 cwd 出界，image 分支会 short-circuit。ZCode 当前 image 行为已经单独处理过；本次不要顺手改 image behavior。只验证普通 text Bash reset reminder，不新增 image cwd reset 行为。
+如果 stdout 是 image 且 cwd 出界，image 分支会 short-circuit。Secretariat 当前 image 行为已经单独处理过；本次不要顺手改 image behavior。只验证普通 text Bash reset reminder，不新增 image cwd reset 行为。
 
 - [x] **Step 4：运行相关测试**
 

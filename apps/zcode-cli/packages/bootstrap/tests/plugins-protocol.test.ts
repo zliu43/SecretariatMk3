@@ -3,9 +3,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// 协议 handler 只从 workspace 推导 storageRoot，user config 仍解析到 ~/.zcode/cli/config.json
+// 协议 handler 只从 workspace 推导 storageRoot，user config 仍解析到 ~/.secretariat/cli/config.json
 // （getDefaultConfigPath 无 env 覆盖）。为隔离 restore/overview 的 user-config 往返，把 node:os
-// 的 homedir 重定向到一次性临时目录；tmpdir 等其余实现保留原值。这样 resolvePath("~/.zcode/cli")
+// 的 homedir 重定向到一次性临时目录；tmpdir 等其余实现保留原值。这样 resolvePath("~/.secretariat/cli")
 // 落到隔离目录，绝不触碰真实 HOME。
 // 回归原因：vi.mock 会提升到普通 const 初始化之前；临时 HOME 也必须通过 vi.hoisted
 // 提前建立，否则 mock factory 读取 FAKE_HOME 时会命中 TDZ，导致整个 suite 无法收集。
@@ -59,10 +59,10 @@ afterAll(async () => {
 describe("plugins protocol contracts", () => {
   it("serializes marketplace mutations behind the workspace plugin storage lock", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-protocol-marketplace-lock-"));
-    const previousStorageDir = process.env.ZCODE_STORAGE_DIR;
-    process.env.ZCODE_STORAGE_DIR = join(root, "storage");
+    const previousStorageDir = process.env.SECRETARIAT_STORAGE_DIR;
+    process.env.SECRETARIAT_STORAGE_DIR = join(root, "storage");
     const pluginStorageRoot = getPluginStorageRoot(
-      getCliStorageRoot(process.env.ZCODE_STORAGE_DIR),
+      getCliStorageRoot(process.env.SECRETARIAT_STORAGE_DIR),
     );
     let releaseLock = (): void => {};
     let markLockEntered = (): void => {};
@@ -101,8 +101,8 @@ describe("plugins protocol contracts", () => {
     } finally {
       releaseLock();
       await blocker;
-      if (previousStorageDir === undefined) delete process.env.ZCODE_STORAGE_DIR;
-      else process.env.ZCODE_STORAGE_DIR = previousStorageDir;
+      if (previousStorageDir === undefined) delete process.env.SECRETARIAT_STORAGE_DIR;
+      else process.env.SECRETARIAT_STORAGE_DIR = previousStorageDir;
       await rm(root, { force: true, recursive: true });
     }
   });
@@ -190,7 +190,7 @@ describe("plugins protocol contracts", () => {
     const pluginRoot = join(root, "plugins", "workspace-demo");
     try {
       await writeTestFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({ plugins: { dirs: [pluginRoot] } }),
       );
       await writeTestFile(
@@ -214,7 +214,7 @@ describe("plugins protocol contracts", () => {
   it("keeps the User projection independent from Workspace enable overrides", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-plugin-config-view-"));
     const pluginId = "skill-creator@zcode-plugins-official";
-    const userConfigPath = join(FAKE_HOME, ".zcode", "cli", "config.json");
+    const userConfigPath = join(FAKE_HOME, ".secretariat", "cli", "config.json");
     try {
       await writeTestFile(
         userConfigPath,
@@ -223,7 +223,7 @@ describe("plugins protocol contracts", () => {
         }),
       );
       await writeTestFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({
           plugins: { enabledPlugins: { [pluginId]: false } },
         }),
@@ -266,7 +266,7 @@ describe("plugins protocol contracts", () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-plugin-option-source-view-"));
     const pluginRoot = join(root, "user-plugin");
     const pluginId = "option-source-view@inline";
-    const userConfigPath = join(FAKE_HOME, ".zcode", "cli", "config.json");
+    const userConfigPath = join(FAKE_HOME, ".secretariat", "cli", "config.json");
     try {
       await writeTestFile(
         join(pluginRoot, ".claude-plugin", "plugin.json"),
@@ -307,7 +307,7 @@ describe("plugins protocol contracts", () => {
     const pluginId = "missing-fixture@personal-market";
     try {
       await writeTestFile(
-        join(root, ".zcode", "config.json"),
+        join(root, ".secretariat", "config.json"),
         JSON.stringify({
           plugins: { enabledPlugins: { [pluginId]: true } },
         }),
@@ -337,8 +337,8 @@ describe("plugins protocol contracts", () => {
 
   it("projects the host node_repl association for the official browser-use plugin", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-browser-host-mcp-protocol-"));
-    const previousStorageDir = process.env.ZCODE_STORAGE_DIR;
-    process.env.ZCODE_STORAGE_DIR = join(root, "cli");
+    const previousStorageDir = process.env.SECRETARIAT_STORAGE_DIR;
+    process.env.SECRETARIAT_STORAGE_DIR = join(root, "cli");
 
     try {
       const result = await listPlugins({} as ZCodeProtocolAgentServerContext, {
@@ -349,8 +349,8 @@ describe("plugins protocol contracts", () => {
           ?.hostMcpServerNames,
       ).toEqual(["node_repl"]);
     } finally {
-      if (previousStorageDir === undefined) delete process.env.ZCODE_STORAGE_DIR;
-      else process.env.ZCODE_STORAGE_DIR = previousStorageDir;
+      if (previousStorageDir === undefined) delete process.env.SECRETARIAT_STORAGE_DIR;
+      else process.env.SECRETARIAT_STORAGE_DIR = previousStorageDir;
       await rm(root, { force: true, recursive: true });
     }
   });
@@ -470,19 +470,19 @@ async function writeKnownMarketplaces(
 }
 
 // updatePlugin 走真实 bootstrap 路径：它从 workspace 的 config 推导 pluginStorageRoot，
-// 因此用 ZCODE_STORAGE_DIR 把存储根锚定到临时目录（storage.dir 以 "cli" 结尾时
+// 因此用 SECRETARIAT_STORAGE_DIR 把存储根锚定到临时目录（storage.dir 以 "cli" 结尾时
 // getCliStorageRoot 原样返回，故 pluginStorageRoot = <storageDir>/plugins）。
 describe("updatePlugin handler diagnostics", () => {
   const noopContext = {} as unknown as ZCodeProtocolAgentServerContext;
   let previousStorageDir: string | undefined;
 
   beforeEach(() => {
-    previousStorageDir = process.env.ZCODE_STORAGE_DIR;
+    previousStorageDir = process.env.SECRETARIAT_STORAGE_DIR;
   });
 
   afterEach(() => {
-    if (previousStorageDir === undefined) delete process.env.ZCODE_STORAGE_DIR;
-    else process.env.ZCODE_STORAGE_DIR = previousStorageDir;
+    if (previousStorageDir === undefined) delete process.env.SECRETARIAT_STORAGE_DIR;
+    else process.env.SECRETARIAT_STORAGE_DIR = previousStorageDir;
   });
 
   it("update returns diagnostics when a target fails to reinstall", async () => {
@@ -491,7 +491,7 @@ describe("updatePlugin handler diagnostics", () => {
     const pluginStorageRoot = getPluginStorageRoot(getCliStorageRoot(storageDir));
     const marketplaceRoot = join(root, "marketplace");
     const pluginRoot = join(marketplaceRoot, "plugins", "demo");
-    process.env.ZCODE_STORAGE_DIR = storageDir;
+    process.env.SECRETARIAT_STORAGE_DIR = storageDir;
 
     try {
       // Arrange: a directory marketplace declaring demo@1.0.0, installed into the
@@ -550,30 +550,30 @@ describe("updatePlugin handler diagnostics", () => {
   });
 });
 
-// restoreBuiltinPlugin / overview 走真实 bootstrap 路径：storageRoot 由 ZCODE_STORAGE_DIR
+// restoreBuiltinPlugin / overview 走真实 bootstrap 路径：storageRoot 由 SECRETARIAT_STORAGE_DIR
 // 锚定（storage.dir 以 "cli" 结尾时 getCliStorageRoot 原样返回，pluginStorageRoot =
 // <storageDir>/plugins）；suppressedBuiltins 必须写到 handler 实际解析的 user config，即
-// ~/.zcode/cli/config.json（文件头部已把 homedir 重定向到 FAKE_HOME，故落在隔离目录）。
+// ~/.secretariat/cli/config.json（文件头部已把 homedir 重定向到 FAKE_HOME，故落在隔离目录）。
 describe("restoreBuiltinPlugin handler", () => {
   const noopContext = {} as unknown as ZCodeProtocolAgentServerContext;
   const builtinId = "skill-creator@zcode-plugins-official";
-  const userConfigPath = join(FAKE_HOME, ".zcode", "cli", "config.json");
+  const userConfigPath = join(FAKE_HOME, ".secretariat", "cli", "config.json");
   let previousStorageDir: string | undefined;
 
   beforeEach(() => {
-    previousStorageDir = process.env.ZCODE_STORAGE_DIR;
+    previousStorageDir = process.env.SECRETARIAT_STORAGE_DIR;
   });
 
   afterEach(async () => {
-    if (previousStorageDir === undefined) delete process.env.ZCODE_STORAGE_DIR;
-    else process.env.ZCODE_STORAGE_DIR = previousStorageDir;
+    if (previousStorageDir === undefined) delete process.env.SECRETARIAT_STORAGE_DIR;
+    else process.env.SECRETARIAT_STORAGE_DIR = previousStorageDir;
     await rm(userConfigPath, { force: true });
   });
 
   it("restoreBuiltinPlugin clears suppression via protocol handler", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-restore-handler-"));
     const storageDir = join(root, "cli");
-    process.env.ZCODE_STORAGE_DIR = storageDir;
+    process.env.SECRETARIAT_STORAGE_DIR = storageDir;
 
     try {
       // Arrange: user config (the path the handler actually reads/writes) suppresses
@@ -611,7 +611,7 @@ describe("restoreBuiltinPlugin handler", () => {
   it("restores a suppressed bundled plugin through the locked install handler without deadlocking", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-bootstrap-install-handler-"));
     const storageDir = join(root, "cli");
-    process.env.ZCODE_STORAGE_DIR = storageDir;
+    process.env.SECRETARIAT_STORAGE_DIR = storageDir;
 
     try {
       await writeTestFile(

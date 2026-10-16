@@ -2,9 +2,9 @@
 
 ## Scope
 
-`~/.zcode/v2/tasks-index.sqlite` is the app/host-side index for task list queries. ZCode Agent owns core session content and runtime state; the sqlite index owns fast list metadata and product shell state.
+`~/.secretariat/v2/tasks-index.sqlite` is the app/host-side index for task list queries. Secretariat Agent owns core session content and runtime state; the sqlite index owns fast list metadata and product shell state.
 
-The index is not a replacement for ZCode Protocol session snapshots.
+The index is not a replacement for Secretariat Protocol session snapshots.
 
 ## 库级迁移（Todo109）
 
@@ -103,7 +103,7 @@ Indexes cover active workspace list queries, pinned list queries, archived list 
 
 ## Relationship To Session State
 
-ZCode Agent session state remains authoritative for messages, model/runtime settings, permission requests, stream events, and active turn state.
+Secretariat Agent session state remains authoritative for messages, model/runtime settings, permission requests, stream events, and active turn state.
 
 The task index may cache enough metadata for list rendering, but it must not become the source of truth for session content. Missing rows are seeded from the authoritative `sessions-index` summary during initial reconciliation; opening, resuming, or completing a task later enriches that row from the full session snapshot (including model and searchable message text).
 

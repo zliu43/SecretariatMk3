@@ -1,7 +1,7 @@
 import { dirname } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UnauthorizedError } from "@modelcontextprotocol/client";
-import { ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY } from "@zcode/shared";
+import { SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY } from "@zcode/shared";
 import type { SharedZCodeCredentialStore } from "../src/auth/shared-credentials.js";
 
 const {
@@ -780,7 +780,7 @@ describe("createMcpAdapter", () => {
     const adapter = createMcpAdapter({
       env: {
         PATH: dirname(process.execPath),
-        ZCODE_AGENT_CA_CERT: "/tmp/root-ca.pem",
+        SECRETARIAT_AGENT_CA_CERT: "/tmp/root-ca.pem",
       },
       network: {
         httpProxy: "127.0.0.1:8888",
@@ -820,7 +820,7 @@ describe("createMcpAdapter", () => {
   it("restores captured user network env into stdio MCP transports", async () => {
     const adapter = createMcpAdapter({
       env: {
-        [ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY]: JSON.stringify({
+        [SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY]: JSON.stringify({
           NODE_EXTRA_CA_CERTS: "/tmp/user-ca.pem",
           http_proxy: "http://user-proxy:8080",
         }),
@@ -840,13 +840,13 @@ describe("createMcpAdapter", () => {
       PATH: dirname(process.execPath),
       http_proxy: "http://user-proxy:8080",
     });
-    expect(options.env?.[ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY]).toBeUndefined();
+    expect(options.env?.[SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY]).toBeUndefined();
   });
 
   it("passes proxy-aware fetch into HTTP and SSE MCP transports", async () => {
     const adapter = createMcpAdapter({
       env: {
-        ZCODE_HTTP_PROXY: "http://127.0.0.1:8888",
+        SECRETARIAT_HTTP_PROXY: "http://127.0.0.1:8888",
       },
       network: {},
     });
@@ -928,7 +928,7 @@ describe("createMcpAdapter", () => {
       type: "http",
       url: "https://mcp.example.test",
       headers: {
-        "X-ZCode": "1",
+        "X-Secretariat": "1",
       },
       oauth: {
         type: "client_credentials",
@@ -965,7 +965,7 @@ describe("createMcpAdapter", () => {
       };
     };
 
-    expect(httpOptions.requestInit?.headers).toEqual({ "X-ZCode": "1" });
+    expect(httpOptions.requestInit?.headers).toEqual({ "X-Secretariat": "1" });
     expect(httpOptions.authProvider?.clientInformation()).toEqual({
       client_id: "http-client",
       client_secret: "http-secret",
@@ -996,7 +996,7 @@ describe("createMcpAdapter", () => {
       url: "https://mcp.example.test/mcp",
       oauth: {
         type: "authorization_code",
-        clientName: "ZCode",
+        clientName: "Secretariat",
       },
     });
 
@@ -1029,7 +1029,7 @@ describe("createMcpAdapter", () => {
         url: "https://mcp.example.test/mcp",
         oauth: {
           type: "authorization_code",
-          clientName: "ZCode",
+          clientName: "Secretariat",
         },
       },
     });
@@ -1048,7 +1048,7 @@ describe("createMcpAdapter", () => {
         url: "https://mcp.example.test/mcp",
         oauth: {
           type: "authorization_code",
-          clientName: "ZCode",
+          clientName: "Secretariat",
         },
       },
     });
@@ -1087,7 +1087,7 @@ describe("createMcpAdapter", () => {
         url: "https://mcp.example.test/mcp",
         oauth: {
           type: "authorization_code" as const,
-          clientName: "ZCode",
+          clientName: "Secretariat",
         },
       },
     };
@@ -1132,7 +1132,7 @@ describe("createMcpAdapter", () => {
         url: "https://mcp.example.test/mcp",
         oauth: {
           type: "authorization_code" as const,
-          clientName: "ZCode",
+          clientName: "Secretariat",
         },
       },
     };
@@ -1187,7 +1187,7 @@ describe("createMcpAdapter", () => {
         timeoutMs: 2_000,
         oauth: {
           type: "authorization_code",
-          clientName: "ZCode",
+          clientName: "Secretariat",
         },
       },
       {
@@ -1477,7 +1477,7 @@ describe("createMcpAdapter", () => {
   });
 
   it("converges Phase 2 orchestration errors to a retryable failed server status", async () => {
-    const credentialError = new Error("Unable to read shared ZCode credentials");
+    const credentialError = new Error("Unable to read shared Secretariat credentials");
     const credentialStore = {
       filePath: "/tmp/zcode-unreadable-credentials.json",
       load: vi.fn(async () => {
@@ -1505,7 +1505,7 @@ describe("createMcpAdapter", () => {
       await expect(adapter.connectConfiguredServers({ broken: config })).resolves.toMatchObject({
         statuses: {
           broken: {
-            error: "Unable to read shared ZCode credentials",
+            error: "Unable to read shared Secretariat credentials",
             failureKind: "oauth_authorization_failed",
             status: "failed",
           },
@@ -1548,7 +1548,7 @@ describe("createMcpAdapter", () => {
       url: "https://mcp.example.test/mcp",
       oauth: {
         type: "authorization_code",
-        clientName: "ZCode",
+        clientName: "Secretariat",
       },
     });
 
@@ -1582,7 +1582,7 @@ describe("createMcpAdapter", () => {
       type: "http",
       url: "https://mcp.example.test",
       headers: {
-        "X-ZCode": "1",
+        "X-Secretariat": "1",
       },
       oauth: {
         type: "client_credentials",
@@ -1619,7 +1619,7 @@ describe("createMcpAdapter", () => {
       };
     };
 
-    expect(httpOptions.requestInit?.headers).toEqual({ "X-ZCode": "1" });
+    expect(httpOptions.requestInit?.headers).toEqual({ "X-Secretariat": "1" });
     expect(httpOptions.authProvider?.clientInformation()).toEqual({
       client_id: "http-client",
       client_secret: "http-secret",
@@ -1650,7 +1650,7 @@ describe("createMcpAdapter", () => {
       url: "https://mcp.example.test/mcp",
       oauth: {
         type: "authorization_code",
-        clientName: "ZCode",
+        clientName: "Secretariat",
       },
     });
 
@@ -1688,7 +1688,7 @@ describe("createMcpAdapter", () => {
       url: "https://mcp.example.test/mcp",
       oauth: {
         type: "authorization_code",
-        clientName: "ZCode",
+        clientName: "Secretariat",
       },
     });
 

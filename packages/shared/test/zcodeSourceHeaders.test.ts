@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   buildZCodeSourceHeadersFromContext,
-  ZCODE_SOURCE_HEADERS,
+  SECRETARIAT_SOURCE_HEADERS,
 } from "../src/zcode-source-headers.js";
 
 describe("buildZCodeSourceHeadersFromContext", () => {
-  it("builds the shared ZCode endpoint attribution headers", () => {
+  it("builds the shared Secretariat endpoint attribution headers", () => {
     expect(
       buildZCodeSourceHeadersFromContext({
         appVersion: " 2.14.0 ",
@@ -20,10 +20,10 @@ describe("buildZCodeSourceHeadersFromContext", () => {
         sourceTitle: "cli",
       }),
     ).toEqual({
-      ...ZCODE_SOURCE_HEADERS,
+      ...SECRETARIAT_SOURCE_HEADERS,
       "HTTP-Referer": "https://zcode.z.ai",
-      "User-Agent": "ZCode/2.14.0",
-      "X-ZCode-App-Version": "2.14.0",
+      "User-Agent": "Secretariat/2.14.0",
+      "X-Secretariat-App-Version": "2.14.0",
       "X-Title": "Z Code@cli",
       "X-Platform": "darwin-arm64",
       "X-Release-Channel": "test",
@@ -46,13 +46,13 @@ describe("buildZCodeSourceHeadersFromContext", () => {
     });
 
     expect(headers).toMatchObject({
-      "User-Agent": "ZCode/unknown",
+      "User-Agent": "Secretariat/unknown",
       "X-Client-Language": "unknown",
       "X-Client-Timezone": "unknown",
       "X-Os-Category": "windows",
       "X-Title": "Z Code@electron",
     });
     expect(headers).not.toHaveProperty("X-Device-Mid");
-    expect(headers).not.toHaveProperty("X-ZCode-App-Version");
+    expect(headers).not.toHaveProperty("X-Secretariat-App-Version");
   });
 });

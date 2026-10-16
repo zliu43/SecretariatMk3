@@ -10,7 +10,7 @@ describe("RootStartupLoading", () => {
     expect(html).toContain("linear-gradient");
     expect(html).not.toContain("<animate");
   });
-  it("启动阻塞态使用整体呼吸的 ZCode SVG 而不是可见 loading 文案", () => {
+  it("启动阻塞态使用整体呼吸的 Secretariat SVG 而不是可见 loading 文案", () => {
     const html = renderToStaticMarkup(createElement(RootStartupLoading, { label: "加载中..." }));
 
     expect(html).toContain('data-testid="root-startup-loading"');

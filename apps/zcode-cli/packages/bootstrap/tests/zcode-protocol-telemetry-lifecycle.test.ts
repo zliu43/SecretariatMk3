@@ -131,7 +131,7 @@ vi.mock("@zcode/telemetry", async (importOriginal) => ({
 
 import { runZCodeProtocolAgent } from "../src/zcode-protocol-entrypoint.js";
 
-describe("ZCode Protocol telemetry lifecycle", () => {
+describe("Secretariat Protocol telemetry lifecycle", () => {
   afterEach(() => {
     vi.clearAllMocks();
     telemetryMocks.emitMcpOnStart = false;
@@ -251,11 +251,11 @@ async function runProtocolAgent(
     else input.end();
     await runZCodeProtocolAgent({
       env: {
-        ZCODE_LOG_DIR: join(root, "log"),
-        ZCODE_SESSION_DB_PATH: join(root, "session.sqlite"),
-        ZCODE_STORAGE_DIR: root,
+        SECRETARIAT_LOG_DIR: join(root, "log"),
+        SECRETARIAT_SESSION_DB_PATH: join(root, "session.sqlite"),
+        SECRETARIAT_STORAGE_DIR: root,
         ...providerEnv,
-        ...(runtimeSurface ? { ZCODE_TELEMETRY_RUNTIME_SURFACE: runtimeSurface } : {}),
+        ...(runtimeSurface ? { SECRETARIAT_TELEMETRY_RUNTIME_SURFACE: runtimeSurface } : {}),
       },
       input,
       output: new Writable({

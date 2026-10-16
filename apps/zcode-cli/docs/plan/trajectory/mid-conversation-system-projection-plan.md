@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Do not move from one phase to the next without user confirmation after tests, code review, and prompt-trajectory evidence. Do not create a commit unless the user explicitly asks after review.
 
-**目标：** 在不修改 Anthropic beta/header、不做 provider capability gate 的前提下，按 Anthropic Messages API 的 `mid-conversation-system-2026-04-07` 能力调整 ZCode provider-visible messages 形态：除 request-level userContext / real-user / tool-result 边界外，source-owned internal meta reminder 从 user `<system-reminder>` 投影为 mid-history `role: "system"` message。
+**目标：** 在不修改 Anthropic beta/header、不做 provider capability gate 的前提下，按 Anthropic Messages API 的 `mid-conversation-system-2026-04-07` 能力调整 Secretariat provider-visible messages 形态：除 request-level userContext / real-user / tool-result 边界外，source-owned internal meta reminder 从 user `<system-reminder>` 投影为 mid-history `role: "system"` message。
 
-**架构：** 采用 meta attachment -> request normalize -> system render 链路，在 ZCode 内部引入结构化 runtime attachment entry。Producer 表达语义和 raw body，provider request finalization 决定最终输出 `role: "system"` 还是 user `<system-reminder>` fallback；`RuntimeMessageMetadata` 仍保持 source-only。MCS1 已完成 provider-visible proof，但其实现仍以 wrapped user message 为中间态；MCS1.5 会把主路径改为结构化 attachment entry，避免 request finalizer 再从 `<system-reminder>` 字符串里取 body。当前 `ContextBuilder` 也不再产出 wrapped meta-user message，而是产出 `systemMessages` 和 raw `metaUserAttachments`，runtime 层统一转成 source-aware attachment entry。历史 session/hydrate 中已经持久化为 user synthetic text 的 system-reminder 不升级为 attachment entry，也不投影为 mid-conversation system；它们继续按旧 role:user provider-visible shape 发送。`prompt_attachment` 因当前嵌在真实 user `content[]` block 内，需要单独做 block-level 拆分，避免把真实用户文本误判为 meta reminder。
+**架构：** 采用 meta attachment -> request normalize -> system render 链路，在 Secretariat 内部引入结构化 runtime attachment entry。Producer 表达语义和 raw body，provider request finalization 决定最终输出 `role: "system"` 还是 user `<system-reminder>` fallback；`RuntimeMessageMetadata` 仍保持 source-only。MCS1 已完成 provider-visible proof，但其实现仍以 wrapped user message 为中间态；MCS1.5 会把主路径改为结构化 attachment entry，避免 request finalizer 再从 `<system-reminder>` 字符串里取 body。当前 `ContextBuilder` 也不再产出 wrapped meta-user message，而是产出 `systemMessages` 和 raw `metaUserAttachments`，runtime 层统一转成 source-aware attachment entry。历史 session/hydrate 中已经持久化为 user synthetic text 的 system-reminder 不升级为 attachment entry，也不投影为 mid-conversation system；它们继续按旧 role:user provider-visible shape 发送。`prompt_attachment` 因当前嵌在真实 user `content[]` block 内，需要单独做 block-level 拆分，避免把真实用户文本误判为 meta reminder。
 
 **Tech Stack：** TypeScript, Vitest, `@zcode/core`, `@zcode/contracts`, prompt-trajectory, model-io trajectory converter.
 
@@ -14,7 +14,7 @@
 
 本 plan 负责：
 
-- 将以下 ZCode 已有 provider-visible reminder 在最终 provider request 中投影为 `role: "system"`：
+- 将以下 Secretariat 已有 provider-visible reminder 在最终 provider request 中投影为 `role: "system"`：
   - `skills_listing`
   - `todo_reminder`
   - `runtime_mode`
@@ -42,7 +42,7 @@
 
 - 不新增、修改或自动注入 `anthropic-beta` / provider header。
 - 不做 provider/model capability gate；本轮 assumption 固定为 first-party + Opus 4.8 且 mid-conversation system 已启用。
-- reminder 文案继续使用 ZCode 自身工具名和产品名；本 plan 只调整 channel 与 shape，不改文案语义。
+- reminder 文案继续使用 Secretariat 自身工具名和产品名；本 plan 只调整 channel 与 shape，不改文案语义。
 - 不实现 ToolSearch/deferred tools、MCP instructions、完整 skills/compact reinjection。
 - 不重构 session persistence schema。
 - 不迁移或重写历史 session 里已持久化的 synthetic user system-reminder 消息；hydrate/replay 保持旧 role:user shape。
@@ -52,7 +52,7 @@
 | ID | 类型 | 记录 | 处理时机 |
 | --- | --- | --- | --- |
 | MCS-FU1 | legacy bugfix | 已修复：文本/文件附件读取失败时，`metadata.errorCode === "attachment_read_failed"` 的 text placeholder 不进入 provider-visible user content。过滤只覆盖 failed text stub，不影响 intentional `local_ref` 二进制/大文件句柄、URL/resource link、pasted image placeholder 或 source-less inline text attachment reminder。 | ✅ 已完成，覆盖 focused regression |
-| MCS-FU2 | provider wire shape | mid-conversation system message 在最终 `messages[]` 中应保持 `{ role: "system", content: string }`；ZCode Core 产出 string，但 AI SDK Anthropic serializer 会转为单元素 text-block array。修复只在 Anthropic 最终 fetch boundary 将 `messages[].role === "system"` 的单个纯 text block 还原为 string；prompt-trajectory 导出原样保留已录制 MCS content；不修改顶层 `system[]`、其他 role、cache-control 或其他 provider。正式回归使用确定性的 Anthropic / Opus 4.8 SR12 fixture，直接断言最终 provider request 的 MCS `content` 为 string；SR11 fixture 同步当前 Agent 后台启动文案、`<task-notification>` 与自动 parent continuation 时序。 | ✅ 已完成，正式 trajectory fixture 已通过 |
+| MCS-FU2 | provider wire shape | mid-conversation system message 在最终 `messages[]` 中应保持 `{ role: "system", content: string }`；Secretariat Core 产出 string，但 AI SDK Anthropic serializer 会转为单元素 text-block array。修复只在 Anthropic 最终 fetch boundary 将 `messages[].role === "system"` 的单个纯 text block 还原为 string；prompt-trajectory 导出原样保留已录制 MCS content；不修改顶层 `system[]`、其他 role、cache-control 或其他 provider。正式回归使用确定性的 Anthropic / Opus 4.8 SR12 fixture，直接断言最终 provider request 的 MCS `content` 为 string；SR11 fixture 同步当前 Agent 后台启动文案、`<task-notification>` 与自动 parent continuation 时序。 | ✅ 已完成，正式 trajectory fixture 已通过 |
 
 ## 当前代码事实
 
@@ -77,7 +77,7 @@
 | MCS-D3 | `context_prefix` 继续保持 user `<system-reminder>` | request-level userContext 保持 user context 形态 |
 | MCS-D4 | `skills_listing` 在 provider body 中移动到首个真实 user prompt 后，转为 `role: "system"` | skills listing 作为 meta context 紧随首个真实 user prompt |
 | MCS-D5 | 除 `context_prefix`、`target_continuation`、`tool_result_warning`、`goal_completion_verification` 外的 provider-visible meta source 保持当前触发 cadence/内容，只迁移 channel/wrapper/位置 | 降低行为风险 |
-| MCS-D6 | `prompt_attachment` 优先通过 source/runtime entry 方式拆分；如果实现中发现 hydrate/replay 只能拿到旧 content block，再只对 ZCode 自己生成的严格 shape 做 fallback | 避免泛用 tag heuristic |
+| MCS-D6 | `prompt_attachment` 优先通过 source/runtime entry 方式拆分；如果实现中发现 hydrate/replay 只能拿到旧 content block，再只对 Secretariat 自己生成的严格 shape 做 fallback | 避免泛用 tag heuristic |
 | MCS-D7 | cache-control 在 mid-system projection 后再 finalization，跳过所有 `role: "system"` message | cache anchor 始终落在最后一条非 system message |
 | MCS-D8 | 每个 phase 结束必须跑 focused unit tests + prompt-trajectory e2e，并把输出放到 `apps/zcode-cli/out/` | 验收面是最终 provider request body |
 | MCS-D9 | hydrate/replay 不把历史 synthetic user system-reminder 桥接成 attachment entry，也不通过 exact unwrap 升级为 mid-conversation system | 旧 session 保持旧 role:user shape；只有新 runtime attachment entry 参与 mid-system projection |
@@ -815,7 +815,7 @@ Expected: provider-visible request body matches MCS1.6; no non-incremental traje
 
 ## Phase MCS2: Prompt Attachment / Read-file Synthetic Context Projection
 
-**Phase goal:** 将 ZCode 自己生成的纯文本 attachment/read-file synthetic context 从真实 user `content[]` 中拆出，并在 provider body 中转为 user prompt 后的 `role: "system"` message。
+**Phase goal:** 将 Secretariat 自己生成的纯文本 attachment/read-file synthetic context 从真实 user `content[]` 中拆出，并在 provider body 中转为 user prompt 后的 `role: "system"` message。
 
 **User confirmation gate:** MCS2 完成 tests + prompt-trajectory + code review 后停止，等待用户确认进入 MCS3。
 
@@ -885,7 +885,7 @@ Implemented shape:
 - `prompt_attachment` raw bodies come from `buildPromptAttachmentReminderBodies(...)`; wrapping happens only in final provider projection fallback/legacy paths.
 - `buildUserContentFromTurn(...)` remains a compatibility helper for existing persistence/model-only paths and keeps old provider-visible user content shape when called directly.
 
-For hydrate/replay paths that only have old persisted `content[]` without attachment source metadata, do not block the main implementation. Add a narrow fallback only for exact ZCode-generated prompt attachment text if tests reveal a real regression. The fallback must not classify arbitrary user text solely because it starts with `<system-reminder>`.
+For hydrate/replay paths that only have old persisted `content[]` without attachment source metadata, do not block the main implementation. Add a narrow fallback only for exact Secretariat-generated prompt attachment text if tests reveal a real regression. The fallback must not classify arbitrary user text solely because it starts with `<system-reminder>`.
 
 - [x] **Step 4: Wire regular turn in-memory history**
 
@@ -1003,7 +1003,7 @@ Expected provider-visible shape:
 ]
 ```
 
-If URL/resource remains inside the real user content, that is expected because URL/resource is not a synthetic attachment surface and ZCode should not break it. The important part is that Read-like synthetic attachment context no longer appears as a user `<system-reminder>` block.
+If URL/resource remains inside the real user content, that is expected because URL/resource is not a synthetic attachment surface and Secretariat should not break it. The important part is that Read-like synthetic attachment context no longer appears as a user `<system-reminder>` block.
 
 ## Phase MCS3: Auxiliary Request Surface Audit
 
@@ -1073,7 +1073,7 @@ Expected: PASS or adjust command to exact existing test files discovered in Step
 Expected wording:
 
 ```md
-在 first-party Opus 4.8 / mid-conversation-system enabled assumption 下，ZCode 已在 provider request projection 阶段把 source-aware meta reminders 投影为 `messages[].role = "system"`。request-level userContext/currentDate/user instructions 仍保持 user `<system-reminder>`，这是有意保留的形态。
+在 first-party Opus 4.8 / mid-conversation-system enabled assumption 下，Secretariat 已在 provider request projection 阶段把 source-aware meta reminders 投影为 `messages[].role = "system"`。request-level userContext/currentDate/user instructions 仍保持 user `<system-reminder>`，这是有意保留的形态。
 ```
 
 - [x] **Step 2: Update worklog**
@@ -1141,5 +1141,5 @@ Fill this section during implementation:
 | MCS2 | RED/GREEN: `prompt-attachments.test.ts` failed while `buildRuntimeUserEntriesFromTurn(...)` did not exist, then PASS after adding source-owned runtime entries; follow-up RED/GREEN covered source-less inline text live turn and hydrate drift. Focused set `provider-request-messages.test.ts` / `prompt-attachments.test.ts` / `runtime-persistence.test.ts` PASS: 3 files / 57 tests; `prompt-attachments.test.ts` / `session-history-hydrator.test.ts` / `runtime-persistence.test.ts` PASS after the source-less fix: 3 files / 55 tests. Additional focused set `provider-request-messages.test.ts` / `prompt-attachments.test.ts` / `system-reminder-source.test.ts` and runtime reminder/trace/persistence sets pass in this phase. Core dist refreshed with `node ../../node_modules/typescript/lib/tsc.js -p packages/core/tsconfig.json` before recording. | `apps/zcode-cli/out/mid-conversation-system-mcs2-20260619-015308/sr12-attachments/trajectories/0001.openai_request_body.json`; `apps/zcode-cli/out/mid-conversation-system-mcs2-20260619-015308/sr12-attachments/trajectories/0001.anthropic_request_body.json`; no `*non-incremental*` or diff artifact files. | New regular turns and session hydrate split Read-like text file attachments and source-less inline text attachments into raw `prompt_attachment` attachment entries. Final provider-visible shape: real user message keeps prompt + URL/resource placeholder, followed by `role: "system"` attachment context without `<system-reminder>` wrapper. Pasted inline images remain in the real user entry; legacy/persisted old content-block shape is not upgraded and remains compatible. |
 | MCS3 | Focused set `../../node_modules/.bin/vitest run --config vitest.config.ts packages/core/tests/system-reminder-source.test.ts packages/core/tests/provider-request-messages.test.ts packages/core/tests/prompt-attachments.test.ts packages/core/tests/runtime-reminders.test.ts packages/core/tests/runtime-trace.test.ts packages/core/tests/runtime-persistence.test.ts packages/core/tests/session-history-hydrator.test.ts` PASS: 7 files / 123 tests. Core typecheck `../../node_modules/.bin/tsc -p packages/core/tsconfig.json --noEmit` PASS. `git diff --check` PASS. Recursive `pnpm --filter @zcode/bootstrap^... build` remains blocked by local package-script `tsc` resolution under Node v25.6.0, so core dist was refreshed directly with `../../node_modules/.bin/tsc -p packages/core/tsconfig.json` before prompt-trajectory. | `apps/zcode-cli/out/mid-conversation-system-mcs3-audit/sr12-attachments/trajectories/0001.anthropic_request_body.json`; no `*non-incremental*` files. | Auxiliary request audit complete. Regular turn、compact active/manual、compact helper、target completion verification 均走 `buildProviderRequestMessages(...)`；session title sidecar 与 prompt enhance 是独立短请求，不携带 runtime attachment entries。新增 compact migrated-source regression 和 target verifier plain-user regression；本 phase 无需生产逻辑改动。SR12 trajectory 确认 Read-like attachment context 在 Anthropic `system[]` 中，真实 user content 保留 currentDate、用户 prompt 与 URL resource。 |
 | MCS4 | Docs-only phase; no production code changed after MCS3. Final focused set `../../node_modules/.bin/vitest run --config vitest.config.ts packages/core/tests/system-reminder-source.test.ts packages/core/tests/provider-request-messages.test.ts packages/core/tests/prompt-attachments.test.ts packages/core/tests/runtime-reminders.test.ts packages/core/tests/runtime-trace.test.ts packages/core/tests/runtime-persistence.test.ts packages/core/tests/session-history-hydrator.test.ts` PASS: 7 files / 123 tests. Core typecheck `../../node_modules/.bin/tsc -p packages/core/tsconfig.json --noEmit` PASS. `git diff --check` PASS. | Final evidence remains `apps/zcode-cli/out/mid-conversation-system-mcs3-audit/sr12-attachments/trajectories/0001.anthropic_request_body.json`; no `*non-incremental*` files. | Updated system trajectory diff、system-reminder report、overall prompt assembly Active/Future/Readiness tables, and worklog to the first-party Opus 4.8 / MCS enabled status. `P-27` moved out of Active into current-scope-resolved / future feature gaps; current active MCS surfaces are documented as `role: "system"` / Anthropic `system[]`, while request-level `context_prefix` remains user `<system-reminder>`. |
-| MCS-FU1 | TDD RED: `prompt-attachments.test.ts` failed while legacy `buildUserContentFromTurn(...)` still emitted `[Attached text/plain: missing.md]` for text file read failure. GREEN focused set `../../node_modules/.bin/vitest run --config vitest.config.ts packages/core/tests/prompt-attachments.test.ts packages/core/tests/provider-request-messages.test.ts` PASS: 2 files / 32 tests. | No prompt-trajectory run needed; this is a focused legacy helper regression and the runtime entry path was already source-aware. | A file attachment that fails read/validation is dropped from the attachment list instead of becoming a provider-visible placeholder. ZCode now applies this to failed text file placeholders while preserving image placeholders, URL/resource links, local_ref file references, and source-less inline text attachment reminders. |
+| MCS-FU1 | TDD RED: `prompt-attachments.test.ts` failed while legacy `buildUserContentFromTurn(...)` still emitted `[Attached text/plain: missing.md]` for text file read failure. GREEN focused set `../../node_modules/.bin/vitest run --config vitest.config.ts packages/core/tests/prompt-attachments.test.ts packages/core/tests/provider-request-messages.test.ts` PASS: 2 files / 32 tests. | No prompt-trajectory run needed; this is a focused legacy helper regression and the runtime entry path was already source-aware. | A file attachment that fails read/validation is dropped from the attachment list instead of becoming a provider-visible placeholder. Secretariat now applies this to failed text file placeholders while preserving image placeholders, URL/resource links, local_ref file references, and source-less inline text attachment reminders. |
 | MCS-FU2 | Adapter MCS/provider-body focused set PASS: 3 files / 34 tests；prompt-trajectory tool unit set PASS；fixture JSON 与最终 provider-body 机器断言 PASS。 | `apps/zcode-cli/out/mid-conversation-system-fixture-fix-ucUXfD/sr11/trajectories/0004-non-incremental-change.openai_request_body.json`；`apps/zcode-cli/out/mid-conversation-system-fixture-fix-ucUXfD/sr12/trajectories/0001.anthropic_request_body.json`。 | SR11 使用当前 `Async agent launched successfully.`、固定 Explore 继承 main model，并分别响应自动 notification continuation 与后续 user turn；SR12 使用 Anthropic / `claude-opus-4-8-cc`，最终 `messages[].role === "system"` 的 `content` 为 string，顶层 `system[]`、user content blocks 与 URL resource 保持不变。 |

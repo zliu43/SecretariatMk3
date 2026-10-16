@@ -1,25 +1,25 @@
 ---
 name: restore-legacy-sessions
-description: Use when ZCode needs to inspect, plan, or execute restoration of old ACP-era ZCode sessions from ~/.zcode/v2/sessions into the new ZCode task/session stores. Trigger when the user wants to choose a previous agent, select a workspace to restore, pick a specific historical conversation, dry-run legacy session migration, or reason about tasks-index.sqlite and ~/.zcode/cli/db/db.sqlite consistency.
+description: Use when Secretariat needs to inspect, plan, or execute restoration of old ACP-era Secretariat sessions from ~/.secretariat/v2/sessions into the new Secretariat task/session stores. Trigger when the user wants to choose a previous agent, select a workspace to restore, pick a specific historical conversation, dry-run legacy session migration, or reason about tasks-index.sqlite and ~/.secretariat/cli/db/db.sqlite consistency.
 ---
 
 # Restore Legacy Sessions
 
 ## Overview
 
-Use this skill to guide old ACP-era ZCode session restoration. The first job is selection, not mutation: identify the source agent, the workspace, and the exact conversation before proposing any write to the new stores.
+Use this skill to guide old ACP-era Secretariat session restoration. The first job is selection, not mutation: identify the source agent, the workspace, and the exact conversation before proposing any write to the new stores.
 
 ## Stores
 
-- Legacy snapshots: `~/.zcode/v2/sessions/{workspaceHash}/{legacyTaskId}.json`
-- Task index: `~/.zcode/v2/tasks-index.sqlite`
-- New ZCode session DB: `~/.zcode/cli/db/db.sqlite`
+- Legacy snapshots: `~/.secretariat/v2/sessions/{workspaceHash}/{legacyTaskId}.json`
+- Task index: `~/.secretariat/v2/tasks-index.sqlite`
+- New Secretariat session DB: `~/.secretariat/cli/db/db.sqlite`
 
 Use `restoredTaskId = meta.acpSessionId || meta.taskId`. The legacy snapshot filename and `meta.taskId` are historical IDs; the app task list often uses `meta.acpSessionId` as the real task/session ID.
 
-The scan script defaults to the live legacy source `~/.zcode/v2/sessions`; pass `--legacy-dir <path>` only when the user explicitly asks to inspect another source directory.
+The scan script defaults to the live legacy source `~/.secretariat/v2/sessions`; pass `--legacy-dir <path>` only when the user explicitly asks to inspect another source directory.
 
-Restored ACP-era conversations are normal ZCode Agent history, so persisted provider fields must be `glm`. Treat the snapshot provider as legacy source context only; do not write task-index `migration_source` or `meta_json.migrationSource` for these restores. The `migrationSource` enum is reserved for the existing Claude Code native import path (`claudeCode`).
+Restored ACP-era conversations are normal Secretariat Agent history, so persisted provider fields must be `glm`. Treat the snapshot provider as legacy source context only; do not write task-index `migration_source` or `meta_json.migrationSource` for these restores. The `migrationSource` enum is reserved for the existing Claude Code native import path (`claudeCode`).
 
 ## Selection Workflow
 
@@ -58,19 +58,19 @@ Show compact numbered options with title, updated time, message count, `restored
 After the user chooses an exact conversation, run a dry run first:
 
 ```bash
-node scripts/restore-conversation.mjs --snapshot ~/.zcode/v2/sessions/<workspaceHash>/<legacyTaskId>.json --dry-run
+node scripts/restore-conversation.mjs --snapshot ~/.secretariat/v2/sessions/<workspaceHash>/<legacyTaskId>.json --dry-run
 ```
 
 Then apply the restore:
 
 ```bash
-node scripts/restore-conversation.mjs --snapshot ~/.zcode/v2/sessions/<workspaceHash>/<legacyTaskId>.json
+node scripts/restore-conversation.mjs --snapshot ~/.secretariat/v2/sessions/<workspaceHash>/<legacyTaskId>.json
 ```
 
 ## Restore States
 
 - `ready`: CLI DB and task-index both already contain the restored task id.
-- `needs-cli-db`: task-index exists, but `~/.zcode/cli/db/db.sqlite` has no session row; rebuild the real session from the legacy snapshot.
+- `needs-cli-db`: task-index exists, but `~/.secretariat/cli/db/db.sqlite` has no session row; rebuild the real session from the legacy snapshot.
 - `needs-task-index`: CLI DB exists, but task-index is missing; backfill task-index only.
 - `needs-full-import`: both stores are missing; import session history and then index it.
 
@@ -87,6 +87,6 @@ Do not write data during selection. Before any apply step:
 - Leave task-index `migration_source` empty for ACP-era restores. If a previous restore wrote `legacy-session`, clear it before validating visibility.
 - Write CLI DB `part` rows for visible text and tool calls. The app detail page renders from `part`; `message.data.content` alone is not enough.
 - Preserve assistant threading by setting `parentID` to the preceding user message id when possible.
-- Do not start old ACP runtimes. Restore from snapshots and new ZCode stores only.
+- Do not start old ACP runtimes. Restore from snapshots and new Secretariat stores only.
 
 For app code changes, update a spec under `docs/` before implementation and run `pnpm typecheck` and `pnpm lint`.

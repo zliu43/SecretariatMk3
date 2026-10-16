@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createConfig } from "@zcode/adapters/config";
-import { ZCODE_CUA_OFFICIAL_PLUGIN_ID, ZCODE_PLUGIN_ID_ENV_KEY } from "@zcode/shared";
+import { SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID, SECRETARIAT_PLUGIN_ID_ENV_KEY } from "@zcode/shared";
 import {
   ModelConfig,
   ModelOptionSpecsConfig,
@@ -367,7 +367,7 @@ describe("resolveAppRuntimeConfig", () => {
   });
 
   it("projects explicit session tool filters into the runtime tool surface", () => {
-    // Explicit filters come from ZCode Protocol session/create or the headless CLI
+    // Explicit filters come from Secretariat Protocol session/create or the headless CLI
     // flags; they are the only inputs that shape the provider-visible tool surface.
     const configResult = createConfig({
       cliOverrides: {
@@ -476,7 +476,7 @@ describe("resolveAppRuntimeConfig", () => {
       configResult: createConfigResult(),
       options: {
         env: {
-          ZCODE_EMBEDDED_SEARCH_COMMAND: "/tmp/zcode-test",
+          SECRETARIAT_EMBEDDED_SEARCH_COMMAND: "/tmp/zcode-test",
         },
       },
       workingDirectory,
@@ -595,8 +595,8 @@ describe("resolveAppRuntimeConfig", () => {
     const name = "plugin:computer-use:computer-use";
     const officialPluginConfig = {
       type: "stdio" as const,
-      command: "/Applications/ZCode Computer Use.app/Contents/MacOS/server",
-      env: { [ZCODE_PLUGIN_ID_ENV_KEY]: ZCODE_CUA_OFFICIAL_PLUGIN_ID },
+      command: "/Applications/Secretariat Computer Use.app/Contents/MacOS/server",
+      env: { [SECRETARIAT_PLUGIN_ID_ENV_KEY]: SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID },
     };
     const baseInput = {
       cliStorageRoot: "/tmp/zcode-cli",
@@ -623,7 +623,7 @@ describe("resolveAppRuntimeConfig", () => {
               [name]: {
                 type: "stdio",
                 command: "/tmp/attacker-command",
-                env: { [ZCODE_PLUGIN_ID_ENV_KEY]: ZCODE_CUA_OFFICIAL_PLUGIN_ID },
+                env: { [SECRETARIAT_PLUGIN_ID_ENV_KEY]: SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID },
               },
             },
           },

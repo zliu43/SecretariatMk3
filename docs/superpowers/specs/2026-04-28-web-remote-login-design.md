@@ -13,7 +13,7 @@
 | 约束项 | 说明 |
 |--------|------|
 | 部署域名 | `https://zcode.z.ai`（已在 ZAI OAuth 白名单内） |
-| OAuth 提供方 | ZAI（`chat.z.ai/auth`），**不走桌面端 deep-link `zcode://`** |
+| OAuth 提供方 | ZAI（`chat.z.ai/auth`），**不走桌面端 deep-link `secretariat://`** |
 | Token 存储 | Web 的 `localStorage`，核心 key 与桌面端保持一致：`zcodejwttoken`、`oauth:zai:access_token`、`oauth:zai:user_info`、`oauth:active_provider` |
 | 生产态同域 | 远控页面部署在 `zcode.z.ai` 下，调用 `zcode.z.ai/api/v1/oauth/token` 同源，无 CORS 问题 |
 | 开发态 | 通过环境变量注入本地 origin，ZAI 回调先回到生产域名再转发回局域网 IP；本地 token 交换必须走 Vite proxy 或后端 CORS 白名单，不能假设本地 Vite origin 天然拥有 `/api/v1/oauth/token` |
@@ -266,7 +266,7 @@ Service 模块，对应桌面端 `OAuthService` 在 Web runtime 的等价物，�
 
 ### `packages/web/src/auth/WebLoginPage.tsx`
 
-全屏登录 UI 组件，显示 ZCode logo 和“用 ZAI 登录”按钮。
+全屏登录 UI 组件，显示 Secretariat logo 和“用 ZAI 登录”按钮。
 
 UI 约束：
 

@@ -1,10 +1,10 @@
-# ZCode 项目架构分析与改进建议
+# Secretariat 项目架构分析与改进建议
 
 > **状态：2026-06-10 历史审计。** V4 竖切和窗口作用域 Local/Remote Host 重构后，本文的规模、路径、
 > 多窗口与旧协议判断不再代表当前事实。当前架构请读
 > `docs/architecture/zcode-code-architecture-overview.md`。
 
-> 调研范围：z\-code monorepo（v2\.15\.1，pnpm workspace），含嵌套独立 monorepo `apps/zcode-cli`（ZCode Agent，v0\.14\.1）。数据来源于仓库实际文件统计与文档核对，日期 2026\-06\-10。
+> 调研范围：z\-code monorepo（v2\.15\.1，pnpm workspace），含嵌套独立 monorepo `apps/zcode-cli`（Secretariat Agent，v0\.14\.1）。数据来源于仓库实际文件统计与文档核对，日期 2026\-06\-10。
 > 
 > 
 
@@ -21,14 +21,14 @@ shared ← rpc ← services ← client ← server
 |包|职责|TS 源码行数|
 |---|---|---|
 |@zcode/rpc|VS Code 风格 7 层 IPC 框架，传输无关、类型安全|4,934|
-|@zcode/shared|共享类型 \+ zod schema \+ ZCode Protocol 契约|20,531|
+|@zcode/shared|共享类型 \+ zod schema \+ Secretariat Protocol 契约|20,531|
 |@zcode/services|35 个业务子域服务（agent/session/git/bots/oauth…）|96,506|
 |@zcode/client|RPC 桥接（MessagePort / WebSocket → service 代理）|945|
 |@zcode/server|后端入口（Hono HTTP/WS、stdio、Remote SSH）|11,923|
 |@zcode/ui|平台无关 React 19 组件库（桌面/手机共用）|267,181|
 |@zcode/web|Vite SPA（web 端 \+ 手机远控 /remote、/remote/v3）|6,917|
 |@zcode/desktop|Electron 41 桌面端（main/host/preload/renderer）|39,161|
-|apps/zcode\-cli|嵌套 monorepo，ZCode Agent / app\-server，14 个子包|181,683|
+|apps/zcode\-cli|嵌套 monorepo，Secretariat Agent / app\-server，14 个子包|181,683|
 
 全仓 TS 总量约 **63 万行**，其中 ui 占比约 57%。
 
@@ -40,7 +40,7 @@ shared ← rpc ← services ← client ← server
   过时：当前是每个 BrowserWindow 一个 Local Host，同一窗口的多个本地 workspace 按 workspaceKey 共用该
   Host；远程 workspace 另由窗口/目标作用域的 Remote Host 承载。
 
-- **App ↔ Agent**：通过 `zcode app-server --stdio` 子进程，stdio NDJSON 传输 ZCode Protocol（JSON\-RPC 风格 envelope，单一版本号，无 capabilities 握手）。
+- **App ↔ Agent**：通过 `zcode app-server --stdio` 子进程，stdio NDJSON 传输 Secretariat Protocol（JSON\-RPC 风格 envelope，单一版本号，无 capabilities 握手）。
 
 - 传输统一收敛在 `@zcode/rpc` 的 `IMessagePassingProtocol` 抽象上：桌面 MessagePort、Web WebSocket、远程 SSH stdio\-socket。
 
@@ -120,7 +120,7 @@ en\-US\.ts / zh\-CN\.ts 持续膨胀，建议按命名空间拆分（locales/en/
 
 ## 三、总结
 
-ZCode 的核心架构（分层依赖、RPC 抽象、协议单一真相源、continuous/replayable 双链路隔离、形式化验证）设计质量较高，文档与代码主链路一致性好。主要风险集中在三类：**规模失控**（shared/ui/desktop\-main/超大 service 文件）、**治理工具腐化**（依赖图过时、lint 规则被批量绕过）、**迁移残留**（旧协议遗迹、task/session 双轨）。建议优先恢复治理工具的有效性（P0），再分期偿还架构债（P1）。
+Secretariat 的核心架构（分层依赖、RPC 抽象、协议单一真相源、continuous/replayable 双链路隔离、形式化验证）设计质量较高，文档与代码主链路一致性好。主要风险集中在三类：**规模失控**（shared/ui/desktop\-main/超大 service 文件）、**治理工具腐化**（依赖图过时、lint 规则被批量绕过）、**迁移残留**（旧协议遗迹、task/session 双轨）。建议优先恢复治理工具的有效性（P0），再分期偿还架构债（P1）。
 
 # 第二部分（深挖）：为什么 Bug 频发——根因分析
 

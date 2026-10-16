@@ -68,7 +68,7 @@ describe("resolveOffPeakClientConfig", () => {
     expect(
       resolveOffPeakClientConfig(
         {} as never,
-        { ZCODE_OFFPEAK_MOCK: "1" } as NodeJS.ProcessEnv,
+        { SECRETARIAT_OFFPEAK_MOCK: "1" } as NodeJS.ProcessEnv,
         modelSelectionView,
       ),
     ).toEqual({ enabled: true, modelSelectionView, codingPlanActive: true });
@@ -78,7 +78,7 @@ describe("resolveOffPeakClientConfig", () => {
     expect(
       resolveOffPeakClientConfig(
         {} as never,
-        { ZCODE_OFFPEAK_MOCK: "1", ZCODE_OFFPEAK_MOCK_NO_PLAN: "1" } as NodeJS.ProcessEnv,
+        { SECRETARIAT_OFFPEAK_MOCK: "1", SECRETARIAT_OFFPEAK_MOCK_NO_PLAN: "1" } as NodeJS.ProcessEnv,
         modelSelectionView,
       ).codingPlanActive,
     ).toBe(false);

@@ -17,7 +17,7 @@ Runtime 在普通请求与 compact 恢复处共用增量收集器，按有效历
 最终 role/顺序由现有通用 attachment 重排、MCS 与位置校验裁决；不增加 source 特例或放宽通用 anchor。
 合同与分层覆盖见根目录 `docs/subagent-listing-attachment.md`；I21/SA 保留四类 profile，MCS 用一个代表场景验收，增量/恢复/失败路径由 focused tests 直接断言。
 description 使用精简基线文案：补齐按 agent ID 的 SendMessage 续跑及
-模型/reasoning/tools 定义来源说明（`.zcode/agents/*.md` frontmatter），去掉与首次 listing 重复的并发提示；执行、后台默认和 isolation 不变。
+模型/reasoning/tools 定义来源说明（`.secretariat/agents/*.md` frontmatter），去掉与首次 listing 重复的并发提示；执行、后台默认和 isolation 不变。
 用户／项目自定义 agent 的 Host、Settings 与独立 CLI 扫描均限 agents 根目录直接文件，
 与 depth:0 监听一致；插件递归发现不变。深层文件不进入 listing 或执行定义，父轮快照和 resume 边界不变。
 目录 metadata 在恢复及历史写入/替换边界校验、复制；请求收集只读有效 delta 的名称增删，
@@ -115,7 +115,7 @@ interrupted 冷恢复，不保证原始输出。Desktop continuous 与手机 rep
 - 修改 tool handler、adapter I/O、超时、取消、重试、结果预算、artifact 或模型可见结果。
 - 修改 tool 在 system prompt、model request tools 或 provider adapter 中的呈现。
 - 修改 provider-native/server-side tool 映射，例如 WebSearch。
-- 修改 TUI、ZCode app-server、debug、session replay、compact、resume、rewind 中任何 tool 相关投影。
+- 修改 TUI、Secretariat app-server、debug、session replay、compact、resume、rewind 中任何 tool 相关投影。
 - 修改 MCP、plugin、subagent、background task 等动态或间接 tool 接入。
 
 Skill tool 的 telemetry 增量遵循独立规范
@@ -180,8 +180,8 @@ broker 对 `userInteraction` 请求返回的答案虽然通过 `modifiedInput` �
 
 统一 executor 请求生命周期，不为 user-once 另建审批流水线，不递归重跑 Hook。改写统一 normalize/schema；撤回重构额外引入的 ToolEntry.validateInput 复验，工具语义预检仍只在首次模型输入、PreToolUse 之前执行，handler 自身校验不变。Hook 修改后的权限判断保持，旧 ID 先收口，新输入必要时创建新 ID。2026-09-15 用户确认：Guarded 的可信 broker allow/modify + modifiedInput 表示已批准最终输入，校验并冻结后直接执行，不额外重判/申请批准；来源只取 responder race，不采信载荷自报。原模式范围不扩张，非法输入、取消与 user-once 持久化响应仍拒绝。登记先于交互发布，终态仅一次；取消/超时/错误保留结构化类型。Guarded 自动化无人在线保留待审批，CLI 重启沿已有 hydrate 中断收口；严格 mode 提交失败时不执行 firstInput。协议集成验证修改后只执行一次、一个请求终态；Desktop 回归 Hook 替换及原批准路径，不新增输入编辑控件或第二份 pending。
 
-1. 先写 spec，再实现。spec 至少说明能力、输入、输出、权限、副作用、失败路径、结果预算、事件、UI/ZCode app-server 投影、测试覆盖和迁移策略。
-2. 先补契约，再连实现。跨 LLM、provider、tool executor、session store、ZCode app-server、MCP 或插件边界的数据必须有 runtime schema 或可校验 JSON Schema。
+1. 先写 spec，再实现。spec 至少说明能力、输入、输出、权限、副作用、失败路径、结果预算、事件、UI/Secretariat app-server 投影、测试覆盖和迁移策略。
+2. 先补契约，再连实现。跨 LLM、provider、tool executor、session store、Secretariat app-server、MCP 或插件边界的数据必须有 runtime schema 或可校验 JSON Schema。
 3. 外部 I/O 只走 adapter/port。core/tool handler 不直接调用 `fs`、`fetch`、`http`、`child_process`、`process.env`、系统剪贴板或数据库。
 4. 权限、调度和审批读取 tool 声明，不依赖调用点临时猜测。
 5. 大结果不直接回灌模型上下文，必须走 `resultBudget`、摘要、预览或 artifact/storage。
@@ -222,17 +222,17 @@ current turn model capability
 ### Windows CUA 开发运行时接入（已确认）
 
 Windows 本地源码开发环境新增的仅是 Host backend 对 Windows Computer Use Helper 的
-admission / execution route。它在 `win32` 上显式校验 `ZCODE_CUA_DEV_ROOT` 的
+admission / execution route。它在 `win32` 上显式校验 `SECRETARIAT_CUA_DEV_ROOT` 的
 package、Helper entry 和 native addon，并使用 `process.execPath` 加
 `ELECTRON_RUN_AS_NODE=1` 启动 Helper；该阶段不得注入 broker token。
 
 现有 30 个 CUA MCP tools 的名称、输入/输出 schema、副作用标注、权限和
 delivery-state 语义均不变：不新增、删除或重命名 tool，不改变 provider-visible
-surface，不改变 session event、replay、compact、resume 或 UI/ZCode app-server 投影。
+surface，不改变 session event、replay、compact、resume 或 UI/Secretariat app-server 投影。
 非 Windows、remote、无效开发根目录或缺失产物一律 fail closed，且不得回退到
 macOS Helper。测试需覆盖平台门、稳定失败 reason、异步文件系统检查与最小诊断。
 
-显式禁用工具必须 fail closed。会话级 `toolDenylist`（ZCode Protocol
+显式禁用工具必须 fail closed。会话级 `toolDenylist`（Secretariat Protocol
 `session/create`）不只是执行期权限规则，还必须从
 provider-visible 内置工具和 MCP 工具注册中移除对应工具。测试需要同时覆盖
 模型可见工具面和执行期权限路径，避免“禁用了但模型仍能看到/调用”的假安全状态。
@@ -243,7 +243,7 @@ CLI 的 `--disallowed-tools` / `--disallowedTools` 通过本次 runtime 的
 `--settings`、`--permission-mode`、`--max-turns`、`--allowed-tools`、
 `--allow-main-worktree-yolo` 不得作为可用能力展示。完整语义见
 [CLI 工具可见性 Denylist](./18-cli-tool-visibility-denylist.md)。
-ZCode Protocol `session/create` 也属于同一条链路：App 或评测 harness 如果需要
+Secretariat Protocol `session/create` 也属于同一条链路：App 或评测 harness 如果需要
 session 级工具面约束，应通过协议参数传入 `toolAllowlist` / `toolDenylist`，
 并在创建 runtime 时同步投影到 `runtimeConfig.toolAllowlist` /
 `runtimeConfig.toolDenylist`。不要依赖 prompt 文字要求模型“不要用某些工具”，
@@ -303,7 +303,7 @@ MCP 动态 tool 还需要额外确认：
 
 插件兼容动态 tool 还需要额外确认：
 
-- Claude/ZCode plugin 只通过现有 skill、custom command 和 MCP 投影进入
+- Claude/Secretariat plugin 只通过现有 skill、custom command 和 MCP 投影进入
   runtime；core 不直接读取插件 manifest 或插件目录。
 - 插件 MCP server 的变量展开、server name 规范化、timeout、trust gate 和
   permission 声明必须在 MCP tool 注册前完成，避免 provider-visible tool
@@ -340,9 +340,9 @@ MCP 动态 tool 还需要额外确认：
   输出 stack 首行中的同一 `name + message`。浏览器错误应在原有稳定 error code 下附带有界的恢复
   提示，不能要求模型解析重复正文或依赖错误字符串决定结构化状态。
 - Compact/runtime 可以在请求前对历史旧 tool result 做 provider-visible microcompact projection，但只能替换模型可见内容为稳定占位符或 artifact 引用；不得删除原始 tool part、session transcript、artifact、checkpoint 或破坏 assistant tool call 与 tool result 的配对。该 projection 必须有结构化事件、traceId、pre/post token estimate 和测试覆盖，resume 时不能把 microcompact 事件误当作 full compact boundary。
-- `Bash` 模型可见结果默认规则：返回 stdout/stderr 文本、必要的中断标记、stale read 提示和 artifact 预览，不把 `status`、`exitCode`、bytes、path 等结构化 `BashOutput` 字段 JSON 化给模型；这些字段只供结构化 output、事件、UI/ZCode app-server 和 debug 使用。Bash `isError` 语义只表示命令被中断/取消，非零退出码仍通过文本输出和结构化 `status` 暴露。
+- `Bash` 模型可见结果默认规则：返回 stdout/stderr 文本、必要的中断标记、stale read 提示和 artifact 预览，不把 `status`、`exitCode`、bytes、path 等结构化 `BashOutput` 字段 JSON 化给模型；这些字段只供结构化 output、事件、UI/Secretariat app-server 和 debug 使用。Bash `isError` 语义只表示命令被中断/取消，非零退出码仍通过文本输出和结构化 `status` 暴露。
 - `Edit` / `Write` 成功结果模型可见内容保持短确认；完整内容、diff 和 patch 只能进入结构化 output、事件、UI projection 或 artifact。
-- 新增大内容能力时必须在具体 tool spec 中写清：原始大小上限、模型可见上限、是否报错还是截断、artifact 策略、错误码、UI/ZCode app-server 投影和测试用例。
+- 新增大内容能力时必须在具体 tool spec 中写清：原始大小上限、模型可见上限、是否报错还是截断、artifact 策略、错误码、UI/Secretariat app-server 投影和测试用例。
 
 ## 文件 Mutation Tool 对齐要求
 
@@ -363,13 +363,13 @@ MCP 动态 tool 还需要额外确认：
   root 内、不包含既有敏感 path segment 的严格小写 `.md` Write/Edit 自动授权，并保留既有
   显式 tool/path deny、project ask 与 hook ask。不得因此补 Read、改变普通 Bash 权限，或让
   child runtime 继承 Main 的 Recall/Extraction/Dream 状态。
-- UI/ZCode app-server/Debug 投影：diff preview、权限请求、tool result、trace 和日志应消费结构化 output，不反向解析模型可见文本。
+- UI/Secretariat app-server/Debug 投影：diff preview、权限请求、tool result、trace 和日志应消费结构化 output，不反向解析模型可见文本。
 - TUI `Edit` 文件 diff 投影必须保持审计信息紧凑：生命周期标题使用动作名加文件路径；路径在当前 workspace 内显示相对路径，workspace 外保留绝对路径；输入字段中的 `file_path` / `replace_all`、diff 标题行和 hunk header 不作为默认结果行重复展示；正文 diff 消费结构化 hunk，由 TUI 内部按终端宽度渲染 unified 或 split。语法高亮使用 Shiki tokenization，再转换为 OpenTUI `StyledText`，语言从文件路径推断；Shiki 不支持、加载失败或超过本地预算时必须降级为纯文本 diff，不能影响 tool result 展示。
 - TUI 侧边栏的 current-session modified-file 统计只能消费
   `tool_call_result.payload.result.display` 里的安全 diff 摘要；不得反向解析模型可见
   tool result 文本、读取 git/文件系统或依赖具体 handler 内部结构。
 - 文件 mutation tool 的 diff display 必须同时进入持久化的 tool part metadata。
-  live TUI/ZCode app-server 可以消费 `tool_call_result.payload.result.display`，resume / session load
+  live TUI/Secretariat app-server 可以消费 `tool_call_result.payload.result.display`，resume / session load
   必须从 `part.data.state.metadata.display` 重建同一份 bounded UI 投影，不能依赖内存
   event replay，也不能反向解析 `completed.output` 的模型可见短确认文本。旧 session 中
   缺少 metadata 的 tool part 按 legacy output 展示，不伪造无法可靠还原的历史 diff。
@@ -448,7 +448,7 @@ Browser use 虽由 `js` REPL 驱动，但其 capability manifest、模型文档�
 - CLI headless Browser Use 只能由显式 `--browser-use=headless` 启用，descriptor 必须在真实 Chromium
   launch + CDP handshake 后以 `type: "cdp"` 返回；`headless` 是 launch mode，不是第四种 backend。
   browser-use plugin 禁用、executable 缺失、handshake 失败时不得返回 stub，也不得启动后静默降级。
-  `--prompt`/TUI 可以注入 managed port；ZCode app-server、Desktop 和 mobile shared-host 链路不得因此
+  `--prompt`/TUI 可以注入 managed port；Secretariat app-server、Desktop 和 mobile shared-host 链路不得因此
   另起独立 browser runtime。
 - stale/missing tab、locator strict violation 与 locator timeout 必须保留稳定 error code，并在 message
   中给出恢复路径。strict violation 要求 fresh `domSnapshot()`、`count()` 和更窄的 snapshot-proven
@@ -526,7 +526,7 @@ Browser use 虽由 `js` REPL 驱动，但其 capability manifest、模型文档�
 - `inputSchema`、`outputSchema`、TypeScript 类型和导出入口同步。
 - 新增跨边界数据时，优先补 runtime schema 或稳定接口，而不是只加 TypeScript 类型。
 - provider-native tool 需要在 model/tool contract 里表达执行模式，例如 `executionMode`、`providerNative`、`providerExecuted`。
-- usage、事件 payload、session store、ZCode app-server 或 compact 会消费的新字段，必须从 contracts 层开始声明。
+- usage、事件 payload、session store、Secretariat app-server 或 compact 会消费的新字段，必须从 contracts 层开始声明。
 
 ### 3. Core Tool 声明
 
@@ -566,10 +566,10 @@ Browser use 虽由 `js` REPL 驱动，但其 capability manifest、模型文档�
   当前默认 embedded search branch 会在主智能体和 `Explore` child runtime 中隐藏它们，
   non-embedded/direct fallback branch 才会把它们放入 provider `tools` 数组。调整 branch
   gate 时，需要同时更新 registry 过滤、toolAllowlist 交集语义和相关测试。
-- tool 专属规则默认属于该 tool 的 provider-visible description。ZCode 的 `modelInstructions`
+- tool 专属规则默认属于该 tool 的 provider-visible description。Secretariat 的 `modelInstructions`
   是 tool prompt 的结构化补充，由 `ToolRegistry.toContracts()` 拼入
   `ModelToolContract.description`，而不是作为长文塞进 system prompt。
-- ZCode 不在 system prompt 中镜像普通 tool 列表、运行态元数据或 tool 使用规则；这些信息必须
+- Secretariat 不在 system prompt 中镜像普通 tool 列表、运行态元数据或 tool 使用规则；这些信息必须
   随 model request 的 `tools` 数组进入 provider。debug/usage 可以展示 tool prompt 占用，
   但不能成为模型可见的第二份说明。
 - tool 描述应足够明确，适合模型选择工具；复杂行为放 `modelInstructions`，但最终仍随
@@ -578,7 +578,7 @@ Browser use 虽由 `js` REPL 驱动，但其 capability manifest、模型文档�
   `ToolRegistry.toContracts()` 能投影新描述；调整 prompt 时必须核对本项目实际 tool pool，
   避免把不可用的工具或流程写进模型可见说明。
 - prompt 的边界说明如果和当前 runtime 行为不完全一致，必须在具体 tool spec 写清
-  ZCode 的适配差异，不能让模型看到一个代码无法兑现的工具承诺。
+  Secretariat 的适配差异，不能让模型看到一个代码无法兑现的工具承诺。
 - Bash embedded search 使用的原生 `bfs` / `ugrep` / `rg` 属于 tool runtime contract。调整其版本、
   构建参数、静态依赖或分发路径时，必须同步更新
   [`embedded-search-native-build.md`](../../../../../../docs/runtime-tools/embedded-search-native-build.md)，
@@ -622,7 +622,7 @@ Browser use 虽由 `js` REPL 驱动，但其 capability manifest、模型文档�
 - 流式 function call 参数必须在 adapter 层按 `toolCallId` 组装：
   `tool_input_delta` 只作为 retry-safe prelude 暂存；一旦 JSON 参数完整，
   adapter 生成唯一的 provider-neutral `tool_call`，并对 provider 结尾重复
-  `tool-call` 去重。ZCode Protocol / app-server 不应直接暴露每条高频参数
+  `tool-call` 去重。Secretariat Protocol / app-server 不应直接暴露每条高频参数
   delta 给 UI，而应通过后续 `tool.updated` 生命周期事件展示稳定状态。
 - openai-compatible、anthropic-compatible、gateway、local provider 等兼容层是否需要单独 gate。
 
@@ -787,7 +787,7 @@ Tool Agent Trace 统一在单调用 Executor 外层建立，handler 不单独埋
   不得重新弹出提示。桌面 `desktop-continuous` 与手机 `web-remote-replayable` 分别在自己的
   delivery 边界执行该规则，relay/main 不保存提示状态。
 
-### 11. TUI、ZCode app-server、Debug 与可观测性
+### 11. TUI、Secretariat app-server、Debug 与可观测性
 
 常见位置：
 
@@ -814,11 +814,11 @@ Tool Agent Trace 统一在单调用 Executor 外层建立，handler 不单独埋
 - TUI approval prompt 对命令类输入应优先展示 `input.description` 作为用户可读说明；
   面板内不显示 `riskLevel`/`mode` 等策略元数据，命令预览只展示 `input.command`
   的值，避免把完整 JSON 输入或权限策略原因混在确认内容中。
-- ZCode app-server 是否能转发 tool call update、permission request、usage update、background task、prompt result usage。
+- Secretariat app-server 是否能转发 tool call update、permission request、usage update、background task、prompt result usage。
 - V4 cold hydration 可用由 tool row delta 维护的派生索引加速 turn 终态收口，但 snapshot 仍是
   权威状态；索引必须随 terminal/background/rewind 更新，并在 clone/adopt、strict replay 与
   batch hydration 中保持隔离和终态等价，不能改变 timeline delta 顺序。
-- ZCode app-server permission request 选项必须与当前客户端契约保持一致：普通 tool 至少投影
+- Secretariat app-server permission request 选项必须与当前客户端契约保持一致：普通 tool 至少投影
   `Allow once`、`Always allow in this project` 和 `Deny`，其中 project allow 必须返回
   project 级 `permissionUpdates`，不能退化成一次性 allow。
 - 普通交互 permission 的用户 Deny 必须将 provider-visible `tool_result.content` 对齐为稳定拒绝
@@ -836,7 +836,7 @@ Tool Agent Trace 统一在单调用 Executor 外层建立，handler 不单独埋
 
 核对项：
 
-- 新配置优先走 config/session/project/CLI 参数；新增 `ZCODE_` 环境变量前必须先写 spec。
+- 新配置优先走 config/session/project/CLI 参数；新增 `SECRETARIAT_` 环境变量前必须先写 spec。
 - model capability、provider kind、MCP capability、plugin namespace、subagent tool pool 是否影响 tool 可见性。
 - 删除旧实现时，导出入口、tests、docs、migration、legacy aliases 是否同步处理。
 - dynamic tool / MCP tool 必须经过 capability 声明、schema normalization、命名空间隔离和权限收口。
@@ -845,7 +845,7 @@ Tool Agent Trace 统一在单调用 Executor 外层建立，handler 不单独埋
 
 ### Client-side tool
 
-普通内置 tool 由 ZCode executor 执行。重点检查 handler、adapter I/O、permission、scheduler、resultBudget、artifact、events 和 UI。
+普通内置 tool 由 Secretariat executor 执行。重点检查 handler、adapter I/O、permission、scheduler、resultBudget、artifact、events 和 UI。
 
 如果 client-side tool 允许在模型 SSE 仍打开时提前执行，还必须同步检查
 `docs/design/v2/model/streaming-tool-execution-and-recovery.md` 中定义的
@@ -895,8 +895,8 @@ history。重点检查：
 
 例如 AskUserQuestion。重点检查：
 
-- `requiresUserInteraction`、permission broker、TUI/ZCode app-server request-response、pending/resume、非交互 session 降级。
-- 不把交互流程写死在 TUI，ZCode app-server 也必须能承载。
+- `requiresUserInteraction`、permission broker、TUI/Secretariat app-server request-response、pending/resume、非交互 session 降级。
+- 不把交互流程写死在 TUI，Secretariat app-server 也必须能承载。
 
 ### Background / long-running tool
 
@@ -930,7 +930,7 @@ history。重点检查：
   覆盖，也不能再补发第二个 started 事件表示同一次状态迁移。
 - Background Agent 的 `childSessionId` 是父 session 下钻到完整 child session 的稳定关联字段：
   Agent launch output / runtime task snapshot -> `BackgroundTaskStarted/Updated/Completed` ->
-  ZCode Protocol V4 `backgroundWorks` 必须逐段保留；不得要求 UI 从 tool result 文本、
+  Secretariat Protocol V4 `backgroundWorks` 必须逐段保留；不得要求 UI 从 tool result 文本、
   subagent row 或 `workId` 重新猜测。旧事件确实缺字段时只能降级为不可下钻的普通状态项。
 - child session 自己的 `Write` / `Edit` 文件摘要必须继续以 child 的
   `checkpoint_created` artifact 和终态 `model_complete.fileChanges` 为事实来源，并投影到 child
@@ -940,7 +940,7 @@ history。重点检查：
   `session_entry` 持久化；cold resume 的 `SessionResumed` 建立新 raw event epoch，但 V4 transport
   sequence 必须继续单调，避免旧 detached child 高水位吞掉新的撤销事件。
 - subagent / background task 内部产生的 child tool lifecycle 以 child session 持久事件为事实来源；镜像到父 runtime 的
-  `source: "subagent"` 事件只供兼容消费者、运行态诊断和 telemetry 使用，不是父 session 的工具事实。ZCode Protocol V4
+  `source: "subagent"` 事件只供兼容消费者、运行态诊断和 telemetry 使用，不是父 session 的工具事实。Secretariat Protocol V4
   ProductProjection 必须在 row materialization 前识别该来源，foreground/background 一律不得生成父 conversation 的
   `ToolCallRow`、plan 或文件摘要；完整工具历史只在 `conversation/<childSessionId>` 中物化。父 conversation 继续投影
   Agent/Task 行、subagent manifest、background work 和带 subagent origin 的阻塞交互。该边界同时适用于桌面
@@ -964,12 +964,12 @@ history。重点检查：
 
 - 创建未来执行（如 `CronCreate`）时，持久化模型必须读取会话稳定模型，禁止读取当前 Turn 的临时执行模型。Highspeed、闲时模型等 turn-scoped overlay 只能服务当前 Turn；即使工具在 overlay 生效期间执行，也必须保存 overlay 安装前的会话模型，避免临时 provider 清理后未来任务无法恢复。
 - 临时模型不能反向改变未来任务工具的可见性：Highspeed 用户 Turn 仍允许 `CronCreate`；实际 Automation Turn 以 `automationId` 为最终执行边界，必须忽略同轮误传的加速 `modelSelection` 与 `modelExecution`，并按既有规则隐藏 Automation 写工具。
-- session store、event reducer、resume、compact summary、TUI/ZCode app-server projection。
+- session store、event reducer、resume、compact summary、TUI/Secretariat app-server projection。
 - session-only side effect 和 workspace/system side effect 分开声明。
 - `readOnly` 只用于不会改变 session/workspace/system/network 状态的检查型 tool。会写入 session 状态的 tool 应声明 `sideEffectScope: "session"`，并根据是否允许在 plan mode 使用来设置权限；不要为了免审批把 session mutation 标成 read-only。
 - `allowedInPlanMode` 只允许显式放行 `sideEffectScope: "session"`、`destructive: false`、`needsApproval: false` 的控制型 tool；它不能放行 workspace/system/network side effect，也不能覆盖 global/project deny/ask 规则。典型用途是 child runtime 向所属 coordinator 写入 session-local response queue。
 - 用于完成 long-running target/goal 的 session-state tool 必须把“计划、todo、checklist、阶段完成、预算耗尽或停止工作不是完成证据”写进模型可见描述或 prompt，并要求模型基于真实 artifact、命令输出、测试、PR 状态或用户确认完成审计。
-- 如果 session-state tool 的结果需要二阶段确认，例如 goal completion verifier，优先把 verifier 做成 runtime gate 和可配置开关，不新增持久状态；必须定义 verifier 失败时的模型继续提示、稳定状态事件、UI/ZCode app-server 状态投影和测试覆盖。现有 long-running goal 仍通过兼容事件 `target_changed` 和 ZCode app-server `_meta.zcode.target` 投影给旧客户端；当前模型可见 goal 工具只有 `GoalRead`，不得再新增或恢复 `GoalCreate` / `GoalUpdate` / `Target*` 这类模型可见状态变更工具。
+- 如果 session-state tool 的结果需要二阶段确认，例如 goal completion verifier，优先把 verifier 做成 runtime gate 和可配置开关，不新增持久状态；必须定义 verifier 失败时的模型继续提示、稳定状态事件、UI/Secretariat app-server 状态投影和测试覆盖。现有 long-running goal 仍通过兼容事件 `target_changed` 和 Secretariat app-server `_meta.zcode.target` 投影给旧客户端；当前模型可见 goal 工具只有 `GoalRead`，不得再新增或恢复 `GoalCreate` / `GoalUpdate` / `Target*` 这类模型可见状态变更工具。
 
 ### Discovery-backed instruction tool
 
@@ -988,7 +988,7 @@ history。重点检查：
 - adapters：I/O port 行为、provider mapping、provider error normalization、cross-platform path/exec/network。
 - runtime integration：模型 tool call -> executor -> tool result -> message history -> 下一轮请求。
 - events/persistence：session event、store、resume、compact、rewind、usage summary。
-- TUI/ZCode app-server/debug：用户可见状态、审批、结果展示、usage、trace。
+- TUI/Secretariat app-server/debug：用户可见状态、审批、结果展示、usage、trace。
 - regression：相关包 typecheck、lint，以及能证明该链路的 targeted tests。
 
 如果改动触及共享 contract、runtime、executor、session event 或 model adapter，不能只跑单个 handler 测试；至少跑对应 package 的 typecheck 和相关 integration tests。
@@ -1100,7 +1100,7 @@ executor（permission-flow / permission-input-recheck）
      -> allowedTools -> 模式默认值
 ```
 
-Edit / Write 的 `file_path` 解析后落在 `<cwd>/.zcode/workflow-drafts/` 内即 allow，
+Edit / Write 的 `file_path` 解析后落在 `<cwd>/.secretariat/workflow-drafts/` 内即 allow，
 ruleId `tool.workflowDraft.preapproved`；判定在 `permission/workflow-draft-path.ts`，纯路径比较、
 不碰文件系统。ApplyPatch 虽同为 `edit` 权限名但输入是 `patch_text`，不在其列。
 位次与 WebFetch 预批同处：压不过项目 deny/ask，也压不过 plan（plan 仍拦下一切写入）；
@@ -1126,7 +1126,7 @@ contracts/tools/{create,amend,save}-workflow.ts、eval-workflow-snippet.ts
 之后 `script` 与来源字段同时在场是合法执行态。回填的 `script_line_offset` 与
 `saved.draft` 不进模型的 JSON schema（与 `AmendWorkflow.predecessor` 同一姿态）。
 
-内联与 saved 来源各写一份工作副本到 `<cwd>/.zcode/workflow-drafts/`（`handlers/workflow-drafts.ts`，
+内联与 saved 来源各写一份工作副本到 `<cwd>/.secretariat/workflow-drafts/`（`handlers/workflow-drafts.ts`，
 尽力而为、失败即无路径）；`path` 来源不写。绝对路径随 `submit` / `amend` 的 `scriptPath` 进
 `run-launched`，模型面显示的是工作区相对写法（`handlers/workflow-script-path.ts`）。诊断的
 `{path}:L{line}:C{col}` 按**文件行**（加 `script_line_offset`），而输出里的 `diagnostics` 数组与
@@ -1363,7 +1363,7 @@ Computer Use 收进 `node_repl` 后，`mcp__node_repl__js` 的 display 需要额
   `NodeReplRunResult.cuaApp`，再由 `toMcpRunResult` 落到 `_meta["zcode/nodeReplCuaApp"]`。
   沙箱可写通道送来的 producer 键必须删除（`nodeRepl.setResponseMeta` /
   `nodeRepl.emitStructuredResult` 都在模型可见 globals 上），处置同
-  `ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY`。
+  `SECRETARIAT_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY`。
 - 三处 strict schema 必须同集：contracts 的 `toolResultDisplayPayloadSchema`、shared 的
   `toolCallDisplaySchema`，以及 `toProtocolToolCallDisplay` 的放行名单（`node_repl_images`
   已在名单内，扩字段不需要改它）。
@@ -1543,7 +1543,7 @@ persona 可以点名子代理跑在哪个模型上：`agent(name, { model: "GLM-
      `<workflow-hole>` 块 + 下一步（读草稿、只写语句、FillWorkflowHole）
   -> 模型 FillWorkflowHole{run_id, hole_id, script | path}
      handler（core handlers/fill-workflow-hole.ts）：技能门 -> 二选一 -> 内联体先写 **fill 文件**
-     `<cwd>/.zcode/workflow-drafts/<slug>.<hole-slug>.dwf.ts`（铸 -2 / -3；path 提交不铸）->
+     `<cwd>/.secretariat/workflow-drafts/<slug>.<hole-slug>.dwf.ts`（铸 -2 / -3；path 提交不铸）->
      `fill_unchanged`（path 字节等于上次被拒的尝试）-> 审批按「本会话的 run 免窗」同一谓词
      （hole.owned_by_this_session 由工具回填，模型不可声称）-> port.fillHole
   -> run service（bootstrap dynamic-workflow-run-fill.ts）：读行里的脚本 -> 站点表定位留白 ->

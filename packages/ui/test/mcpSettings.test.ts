@@ -14,14 +14,14 @@ describe("MCP Settings Shared", () => {
   describe("SOURCE_META", () => {
     it("应包含 zcodeagentmcp 的元数据", () => {
       expect(SOURCE_META.zcodeagentmcp).toBeDefined();
-      expect(SOURCE_META.zcodeagentmcp.label).toBe("ZCode Agent");
-      expect(SOURCE_META.zcodeagentmcp.section).toBe("ZCode Agent");
+      expect(SOURCE_META.zcodeagentmcp.label).toBe("Secretariat Agent");
+      expect(SOURCE_META.zcodeagentmcp.section).toBe("Secretariat Agent");
       expect(SOURCE_META.zcodeagentmcp.badgeClass).toContain("cyan");
     });
   });
 
   describe("MCP_SECTIONS", () => {
-    it("只展示 ZCode Agent MCP scope", () => {
+    it("只展示 Secretariat Agent MCP scope", () => {
       expect(MCP_SECTIONS).toEqual(["zcodeagentmcp"]);
       expect([...MCP_SECTIONS]).not.toContain("codexclimcp");
       expect([...MCP_SECTIONS]).not.toContain("geminiclimcp");
@@ -284,7 +284,7 @@ describe("MCP Settings Shared", () => {
             url: "https://mcp.notion.com/mcp",
             oauth: {
               type: "authorization_code",
-              clientName: "ZCode Notion MCP",
+              clientName: "Secretariat Notion MCP",
             },
           },
         }),
@@ -306,7 +306,7 @@ describe("MCP Settings Shared", () => {
       expect(formToConfig(form)).toMatchObject({
         oauth: {
           type: "authorization_code",
-          clientName: "ZCode Notion MCP",
+          clientName: "Secretariat Notion MCP",
         },
       });
     });

@@ -5,14 +5,14 @@ import { join } from "node:path";
 import test from "node:test";
 import { createNodeClipboardImageReader } from "../src/clipboard-image.js";
 
-test("image clipboard reader uses the ZCode storage root for native temp files", async () => {
+test("image clipboard reader uses the Secretariat storage root for native temp files", async () => {
   const storageRoot = await mkdtemp(join(tmpdir(), "zcode-clipboard-storage-root-"));
   const imagePaths: string[] = [];
   const readClipboardImage = createNodeClipboardImageReader({
     platform: "darwin",
     processEnv: {
       ...process.env,
-      ZCODE_STORAGE_DIR: storageRoot,
+      SECRETARIAT_STORAGE_DIR: storageRoot,
     },
     runCommand: async (_file, args) => {
       const scriptLine = args.find((arg) => arg.includes("clipboard.png")) ?? "";

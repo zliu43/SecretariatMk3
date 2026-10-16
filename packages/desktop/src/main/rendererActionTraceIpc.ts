@@ -120,8 +120,8 @@ export function resolveRuntimeConfig(
   config: RendererActionTraceConfigV1,
   env: Record<string, string | undefined>,
 ): RendererActionTraceConfigV1 {
-  if (isTruthy(env.ZCODE_LOCAL_TTFT_ENABLED)) config = { ...config, localTtftEnabled: true };
-  if (!isTruthy(env.ZCODE_RENDERER_ACTION_TRACE_ENABLED)) return config;
+  if (isTruthy(env.SECRETARIAT_LOCAL_TTFT_ENABLED)) config = { ...config, localTtftEnabled: true };
+  if (!isTruthy(env.SECRETARIAT_RENDERER_ACTION_TRACE_ENABLED)) return config;
   return {
     ...config,
     enabled: true,

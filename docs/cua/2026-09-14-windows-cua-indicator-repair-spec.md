@@ -6,7 +6,7 @@ Accepted（2026-09-14）
 
 ## 目标
 
-Windows 顶部提示条（`ZCode 正在操作电脑` / `ZCode is controlling your computer`）在模型使用
+Windows 顶部提示条（`Secretariat 正在操作电脑` / `Secretariat is controlling your computer`）在模型使用
 Computer Use 期间可见，并且**在任何情况下都能关闭**。
 
 指示器保持在 desktop main 侧（`windowsCuaOperationIndicator.ts`，2026-08-04 的既有实现），

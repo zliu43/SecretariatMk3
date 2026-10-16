@@ -35,7 +35,7 @@ function fixture(provider: OAuthProviderId = "zai", responseStatus = 401) {
   };
   const refresh = vi.fn(async () => ({ accessToken: "new-token", refreshToken: "refresh-token" }));
   const onProviderLogout = vi.fn(async () => {});
-  const env = { ZCODE_ENV: "production" };
+  const env = { SECRETARIAT_ENV: "production" };
   const service = new OAuthService(credentials, {
     env,
     onProviderLogout,
@@ -43,7 +43,7 @@ function fixture(provider: OAuthProviderId = "zai", responseStatus = 401) {
       {
         providerId: provider,
         meta: { id: provider, displayName: provider, enabled: true, order: 0 },
-        redirectUri: "zcode://oauth/callback",
+        redirectUri: "secretariat://oauth/callback",
         apiClient: { request: async () => new Response("{}") },
         buildAuthorizeUrl: ({ state }) => `https://example.test/login?state=${state}`,
         parseCallbackParams: (url) => ({
@@ -202,7 +202,7 @@ describe("401 条件退出与会话写入串行化", () => {
       if (key === f.tokenKey && !loggedIn) {
         loggedIn = true;
         const { state } = await f.service.startOAuth(provider);
-        await f.service.handleCallback(`zcode://oauth/callback?code=code&state=${state}`);
+        await f.service.handleCallback(`secretariat://oauth/callback?code=code&state=${state}`);
       }
       return value;
     });

@@ -35,7 +35,7 @@ provider-visible output 以本文“模型 result 映射规则”为基线。
 来自 session cwd，环境变量使用执行 adapter 的默认继承策略。`ExecutionPort` 可以继续保留
 `argv/cwd/env` 给 hooks、内部 runner 或后续非模型调用使用，但不得通过 Bash tool schema 暴露给模型。
 
-`_simulatedSedEdit` 一类内部字段不进入模型 schema。ZCode 如支持内部扩展字段，必须与模型可见 schema 分离，防止绕过权限或 sandbox。
+`_simulatedSedEdit` 一类内部字段不进入模型 schema。Secretariat 如支持内部扩展字段，必须与模型可见 schema 分离，防止绕过权限或 sandbox。
 
 ## 输出契约
 
@@ -73,7 +73,7 @@ provider-visible output 以本文“模型 result 映射规则”为基线。
 - 成功路径需要在模型可见 stdout 前剥离 `<claude-code-hint ... />` 行；hint stripping 先于 image / stale read / gh rate-limit 等后续处理。
 - 图片输出转 image content block；如果无法识别为受支持图片块，回退为文本。resize/compress 是模型预算优化，不是唯一的图片判定依据；当 data URI 的 magic bytes 已确认是受支持图片，且 resize 只是通用处理失败时，可以继续按 image block 暴露给 provider，避免把合法图片降级成原始 data URI 文本。若 resize 明确失败在 `too_large`、`invalid_request`、`unsupported`、`empty` 等预算/请求语义上，必须回退文本，不能绕过 provider 图片预算。
 - 中断、timeout 或用户取消时，在 stderr 段后追加 `<error>Command was aborted before completion</error>`，让模型能稳定识别未完成状态。
-- provider-neutral mapper 本身只根据 `interrupted` 写入 `is_error`；ZCode 生产链路不为非零退出抛异常，所以需要在 provider-visible projection 层把普通失败结果标成 error，并输出 `Exit code N` + stdout/stderr 文本。`grep` 无匹配、`diff` 有差异、`test` 条件为 false 这类语义型非零退出仍不是 provider error。
+- provider-neutral mapper 本身只根据 `interrupted` 写入 `is_error`；Secretariat 生产链路不为非零退出抛异常，所以需要在 provider-visible projection 层把普通失败结果标成 error，并输出 `Exit code N` + stdout/stderr 文本。`grep` 无匹配、`diff` 有差异、`test` 条件为 false 这类语义型非零退出仍不是 provider error。
 - `staleReadFileStateHint` 是面向模型的稳定提示，需要作为文本段追加，不能因为不再 JSON 化结果而丢失。
 - 大输出写入 tool-results / execution artifact，只给 `<persisted-output>` 风格的预览、完整路径和原始大小，不把完整 JSON 或大 stdout 回灌模型上下文。无论持久化来自 execution adapter 的 output artifact，还是来自通用 serializer 的 `resultBudget` artifact，Bash 都必须走同一套 Bash 专用 provider-visible projection。
 - 后台任务返回任务 ID 和输出路径，模型可见文案应说明任务仍在后台运行以及输出写入位置。
@@ -81,17 +81,17 @@ provider-visible output 以本文“模型 result 映射规则”为基线。
   字节，adapter 也要在 spawn 前创建该文件。新 Bash 执行不再生成第二个 stderr 日志文件；
   历史 split-path 字段只用于兼容读取，不能同时暴露给 provider。
 - 后台任务完成、失败、timeout、cancel 或 output-limit 停止后，runtime 需要把一条短 `<task-notification>` 注入下一次模型请求的消息历史。通知只包含 `task-id`、可选 `tool-use-id`、状态、摘要和输出文件路径，不包含完整 stdout/stderr；模型需要读取日志时继续调用 `Read`。
-- 结构化 `status`、`exitCode`、`stdoutBytes`、artifact path 等字段保留在结构化 output、事件、UI、ZCode app-server 和 debug 中；不应成为模型可见结果的主要形态。
+- 结构化 `status`、`exitCode`、`stdoutBytes`、artifact path 等字段保留在结构化 output、事件、UI、Secretariat app-server 和 debug 中；不应成为模型可见结果的主要形态。
 
 ### 模型 result 映射规则
 
-以下规则是模型可见 result 的映射依据，ZCode 测试需要覆盖以下 case：
+以下规则是模型可见 result 的映射依据，Secretariat 测试需要覆盖以下 case：
 
 - `structuredContent` 非空时直接作为 tool result content 返回，优先级高于 `isImage`、stdout、stderr、后台文案和提示字段。
 - `isImage=true` 时只在 stdout 是可识别的 `data:image/*;base64,...` 且图片类型受支持时返回 image content block；否则回退普通文本路径。图片 resize 是 best-effort 优化：如果 resize 失败但共享 magic bytes 检测确认 data URI 和媒体类型一致，并且错误不是明确的预算/请求失败，仍保留原 data URI 并返回 image content block。
 - 普通文本 stdout 先执行 `replace(/^(\s*\n)+/, "")` 去掉前导空行，再执行 `trimEnd()` 去掉尾部空白；stderr 使用 `trim()`。
 - `persistedOutputPath` 只在非后台文本结果中生成 `<persisted-output>` 文案。预览取规范化 stdout 的前 2000 字符，尽量在前半段之后的最后一个换行处截断；大小文案使用 1024 进制、无空格的 `bytes` / `KB` / `MB` / `GB`，例如 `2KB`。serializer 因 `resultBudget` 额外写入 artifact 时，也要调用 Bash 专用 persisted projection，而不是通用 tool output 文案；但如果超预算内容来自 `structuredContent`，不能在 projection 中重新透传完整 structured blocks，应保留 artifact preview。
-- `interrupted=true` 时 stderr 段后追加 `<error>Command was aborted before completion</error>`，并由 mapper 标记为 error。普通失败命令同样是 provider-visible error result；ZCode 在 projection 层生成该结果，而不是依赖 mapper 的 `exitCode` 判断。
+- `interrupted=true` 时 stderr 段后追加 `<error>Command was aborted before completion</error>`，并由 mapper 标记为 error。普通失败命令同样是 provider-visible error result；Secretariat 在 projection 层生成该结果，而不是依赖 mapper 的 `exitCode` 判断。
 - `backgroundTaskId` 生成三种文案：普通后台、用户手动后台化、assistant-mode 自动后台化。普通后台文案必须包含“仍在运行 / 完成会通知 / 用 Read 查看输出文件”；assistant-mode 自动后台化文案必须包含 15s blocking budget 和建议长任务使用 subagent 或 `run_in_background`。
 - `staleReadFileStateHint` 和 `ghRateLimitHint` 都作为独立文本段追加到最后，不能因为 Bash result 不再 JSON 化而丢失。`ghRateLimitHint` 只在未失败的前台结果中根据原始 stdout 计算；failed `gh` 的 provider-visible error 文本不追加该 system-reminder。
 - 后台 result 即使带有 `persistedOutputPath`，模型可见内容也只使用后台说明文案，不生成 `<persisted-output>`。
@@ -133,7 +133,7 @@ Bash prompt 对模型有几类强约束：
 - 不跳过 hooks 或 signing，除非用户明确要求。
 - sandbox 模式下临时文件用 `$TMPDIR`，不直接写 `/tmp`。
 
-ZCode prompt 可以更短，但这些约束应变成 tool policy 和 tests，而不只依赖提示。
+Secretariat prompt 可以更短，但这些约束应变成 tool policy 和 tests，而不只依赖提示。
 
 ## 权限模型
 
@@ -148,7 +148,7 @@ ZCode prompt 可以更短，但这些约束应变成 tool policy 和 tests，而
 - sandbox 是独立边界，不等同于 WebFetch 的预授权域名。
 - `dangerouslyDisableSandbox` 只能在策略允许且用户批准时生效。
 
-ZCode 应把 shell permission 拆成三个层次：
+Secretariat 应把 shell permission 拆成三个层次：
 
 - `ShellParserPort`：跨平台解析 shell command 和提取审计/权限所需的 argv 视图。
 - `ShellPermissionPolicy`：规则匹配、危险语义、readonly 判断。
@@ -176,7 +176,7 @@ plan mode 因此只会自动放行这类 Bash；其他 Bash 仍按 plan mode 的
 
 ## 跨平台要求
 
-ZCode 不能只实现 POSIX Bash：
+Secretariat 不能只实现 POSIX Bash：
 
 - Windows 需要 cmd adapter；Bash tool 可以 best-effort 使用已安装且可检测到的 Git Bash，但不应要求用户安装 Git Bash。
 - Bash tool 始终把模型提供的 `command` 作为 shell command 交给执行 adapter；内部 hooks/runner 如需无 shell 执行，直接使用 `ExecutionPort` 的 argv mode，不通过 Bash tool。
@@ -185,14 +185,14 @@ ZCode 不能只实现 POSIX Bash：
 
 Windows 执行 adapter 的最低兼容规则：
 
-- ZCode 在 Windows 上不得要求用户安装 Git Bash、MSYS2、Cygwin 或 WSL 才能运行内置 Bash tool。
+- Secretariat 在 Windows 上不得要求用户安装 Git Bash、MSYS2、Cygwin 或 WSL 才能运行内置 Bash tool。
 - `ExecutionPort` 的内部 `argv` mode 在 Windows 上必须解析 `PATHEXT`，支持 `pnpm` / `npm` / `npx` 这类只在 PATH 上暴露为 `.cmd` 的 shim。
 - 解析到 `.exe` / `.com` 等原生可执行文件时继续使用 `spawn(file, args, { shell: false })`。
 - 解析到 `.cmd` / `.bat` 时不得直接 spawn；必须显式通过 `ComSpec` 或 `cmd.exe` 执行，并保留 timeout、cancel、stdout/stderr、trace 和 output budget 行为。参数必须按 `cmd.exe` 规则转义，覆盖空格、双引号、管道、重定向、括号、`&`、`^` 和 `%` 等特殊字符。
 - `shell` mode 在 Windows 上默认使用环境里的 `ComSpec` / `COMSPEC`，缺失时退回 `cmd.exe`；在非 Windows 上保持 Node 默认 shell。
 - Windows `Bash` tool 可在 `command.shellProfile === "posix-bash"` 的内部执行路径上 best-effort 使用已安装且可检测到的 Git Bash。Git Bash 仍是可选能力：如果无法解析，`Bash` 必须回退到现有 `ComSpec` / `cmd.exe` 路径。
-- Windows `Bash` tool 可接受 ZCode runtime settings 注入的内部 shell override。有效的用户配置 override 优先级高于自动 Git Bash 检测。
-- ZCode 不新增 Git Bash 路径环境变量，也不设 Windows startup gate。缺失 Git Bash 是 fallback 条件，不是启动失败。
+- Windows `Bash` tool 可接受 Secretariat runtime settings 注入的内部 shell override。有效的用户配置 override 优先级高于自动 Git Bash 检测。
+- Secretariat 不新增 Git Bash 路径环境变量，也不设 Windows startup gate。缺失 Git Bash 是 fallback 条件，不是启动失败。
 - Generic `ExecutionPort` shell mode 在 Windows 上继续使用 `ComSpec` / `cmd.exe`；Git Bash 自动检测和 shell override 只适用于 Bash tool 创建的 `command.shellProfile === "posix-bash"`。
 - `ExecutionPort` 的内部 `env.set` 和 `env.unset` 在 Windows 上都必须按大小写无关规则处理，避免同时传入 `PATH` / `Path` 等重复 key。
 - 仓库开发脚本不得依赖 `rm -rf` 等 POSIX-only 命令；需要删除构建目录时使用 Node 脚本或跨平台 package。
@@ -229,12 +229,12 @@ Windows 执行 adapter 的最低兼容规则：
 | resume    | 第一阶段只恢复事件与消息中已持久化的后台任务信息；如果进程属于上一 CLI 进程的内存任务且无法重新连接，必须在产品语义上视为 lost/orphaned，不假装仍可控制 |
 | shutdown  | 宿主 app/session 关闭时，必须先调用 `ExecutionPort.close()`。adapter 需要尽力停止自己拉起且仍可追踪的前台/后台进程树，再释放内部状态；只有无法重新连接的旧进程才允许落成 `lost/orphaned` |
 
-UI / ZCode app-server 后台任务面板契约：
+UI / Secretariat app-server 后台任务面板契约：
 
 - core 必须把 `BackgroundTaskStarted`、`BackgroundTaskUpdated`、`BackgroundTaskCompleted` 作为后台 Bash 的唯一 UI 通知入口。payload 至少包含 `taskId`、`terminalId`、`status`、`cancellable`、`pid`、`stdoutBytes`、`stderrBytes`、`stdoutTail`、`stderrTail`、`outputPath`、`outputBytes` 和 `outputTruncated`。
-- TUI、GUI、ZCode protocol client 不读取 `ExecutionPort` 内部 map；它们只维护 session event 投影，并把 running 且 `cancellable=true` 的任务展示为可停止的后台 terminal。
+- TUI、GUI、Secretariat protocol client 不读取 `ExecutionPort` 内部 map；它们只维护 session event 投影，并把 running 且 `cancellable=true` 的任务展示为可停止的后台 terminal。
 - kill/cancel 是显式用户动作，不是 permission approval；点击 kill 后 UI 调用 session 层 `cancelBackgroundTask(taskId)`，core 再调用 `ExecutionPort.cancelBackgroundTask`，并发出 `cancelRequestedAt` 更新和最终 completed/cancelled/lost 事件。
-- ZCode app-server 兼容层把后台任务映射成标准 `tool_call` / `tool_call_update`，同时在 `_meta["zcode.dev/backgroundTask"]` 内暴露 `taskId`、`terminalId`、`cancellable` 和扩展方法 `zcode.dev/backgroundTask/cancel`。不理解扩展的 ZCode protocol client 仍能展示长任务状态，理解扩展的 client 可以实现后台任务 panel 和 kill 按钮。
+- Secretariat app-server 兼容层把后台任务映射成标准 `tool_call` / `tool_call_update`，同时在 `_meta["zcode.dev/backgroundTask"]` 内暴露 `taskId`、`terminalId`、`cancellable` 和扩展方法 `zcode.dev/backgroundTask/cancel`。不理解扩展的 Secretariat protocol client 仍能展示长任务状态，理解扩展的 client 可以实现后台任务 panel 和 kill 按钮。
 - TUI 兼容层保留 `backgroundTerminals` screen state 和 `cancelBackgroundTask(taskId)` 回调接口；具体快捷键、弹窗或 side panel 可以独立演进，不改变 core event 契约。
 - prompt/stall 通知属于后台任务状态更新，默认不需要用户确认。只有需要用户选择时才进入自然语言确认流程，不要求用户输入 shell 命令。
 
@@ -277,7 +277,7 @@ background commit 由 execution adapter 内的 Bash lifecycle 持有。commit �
 关闭语义补充：
 
 - `Bash` tool 不直接持有子进程句柄；关闭责任仍收敛在 `ExecutionPort`。
-- `ZCodeApp.close()`、ZCode app-server `closeSession`、TUI 切换 session、CLI `--prompt` 结束后的 app cleanup，都是 `ExecutionPort.close()` 的合法调用点。
+- `ZCodeApp.close()`、Secretariat app-server `closeSession`、TUI 切换 session、CLI `--prompt` 结束后的 app cleanup，都是 `ExecutionPort.close()` 的合法调用点。
 - CLI 进程收到 shutdown 信号时也必须走同一条 cleanup 链路：
   - `SIGINT` 和 `SIGTERM` 在所有平台注册。
   - POSIX 平台额外注册 `SIGHUP`，覆盖终端关闭或父 shell 退出场景。
@@ -292,7 +292,7 @@ background commit 由 execution adapter 内的 Bash lifecycle 持有。commit �
 
 ## 分阶段目标
 
-ZCode 的 Bash v2 按本项目的 `ExecutionPort`、session event、permission service 和 adapter 边界重写。禁止让 `BashTool` 直接持有子进程、文件描述符、terminal 状态或权限规则实现。
+Secretariat 的 Bash v2 按本项目的 `ExecutionPort`、session event、permission service 和 adapter 边界重写。禁止让 `BashTool` 直接持有子进程、文件描述符、terminal 状态或权限规则实现。
 
 第一阶段先补长任务和大输出的运行时能力：
 
@@ -314,7 +314,7 @@ ZCode 的 Bash v2 按本项目的 `ExecutionPort`、session event、permission s
 - stream artifact identity：只生成 canonical output path，兼容 stdoutPersistedOutputPath；
   不暴露第二个 stderr path。
 - background notifications：后台任务启动、pid 更新、完成、失败、timeout、cancel、output limit 都必须转成 session event，TUI 不读取 adapter 内部状态。Bash 后台任务完成后还必须进入 pending notification 队列，在下一次模型请求前注入 `<task-notification>`，让模型知道可以用 `Read` 打开输出文件。
-- background panel：core 为 UI 留出后台 terminal 投影和 cancel 接口；ZCode app-server 用标准 tool_call + zcode meta 承载，TUI 用 screen state + callback 承载。
+- background panel：core 为 UI 留出后台 terminal 投影和 cancel 接口；Secretariat app-server 用标准 tool_call + zcode meta 承载，TUI 用 screen state + callback 承载。
 - prompt stall detection：后台任务输出在一段时间内不增长，且 tail 像交互式 prompt 时，需要发出 blocked/stalled 通知，提示模型改用非交互参数或管道输入。
 
 第二阶段补 shell policy 能力：
@@ -347,11 +347,11 @@ ZCode 的 Bash v2 按本项目的 `ExecutionPort`、session event、permission s
 
 - contracts 定义 `ExecutionPort` 运行时契约。
 - adapters 提供 Node.js `spawn` 实现，覆盖 shell mode、内部 argv mode、cwd/env overlay、streaming、timeout、cancel、输出截断和非零退出码。
-- app/session lifecycle 需要显式调用 `ExecutionPort.close()`，把 CLI/TUI/ZCode app-server 正常关闭纳入 shell 清理链路。
+- app/session lifecycle 需要显式调用 `ExecutionPort.close()`，把 CLI/TUI/Secretariat app-server 正常关闭纳入 shell 清理链路。
 - core `Bash` handler 只依赖 `ExecutionPort`，不再直接导入 `child_process`。
 - background task 第一版由 `ExecutionPort.start/getBackgroundTask/cancelBackgroundTask` 提供内存状态；sandbox profile 和大输出 artifact store 保留接口字段，后续接入 `ShellExecutionService` / `TaskOutputStore`。
 - TUI 第一版显示当前 running background terminal 数量，维护可取消状态和 tail preview，并在后台任务完成时通过 session event 自动更新。
-- ZCode app-server 第一版把后台任务转成可展示的 tool call，并通过 `zcode.dev/backgroundTask/cancel` 支持客户端手动停止。
+- Secretariat app-server 第一版把后台任务转成可展示的 tool call，并通过 `zcode.dev/backgroundTask/cancel` 支持客户端手动停止。
 
 ## 校验与错误
 
@@ -372,7 +372,7 @@ ZCode 的 Bash v2 按本项目的 `ExecutionPort`、session event、permission s
 
 这些错误应通过 `ShellExecutionError`、`ShellPermissionError`、`ShellTimeoutError`、`ShellInterruptedError` 等结构化类型上抛。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 文件 mutation 必须优先使用专用工具：
 

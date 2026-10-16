@@ -13,7 +13,7 @@ Contracts 共同构成 Telemetry Schema：方法签名和类型约束以 Contrac
 
 ## 1. OpenTelemetry 数据模型
 
-ZCode 使用以下 OpenTelemetry 数据模型描述 Agent 执行：
+Secretariat 使用以下 OpenTelemetry 数据模型描述 Agent 执行：
 
 ```text
 Resource：Telemetry 生产者（CLI 版本、产品版本、构建、运行面、安装实例）
@@ -58,9 +58,9 @@ agent_turn
 `model_attempt` 为统计对象；工具成功率以 `tool_execution` 为统计对象；Shell/Git 退出码以
 `command_execution` 为统计对象。
 
-Resource、Context、SpanContext、Parent、Link、Event、Baggage 和 Metric 的定义及其在 ZCode
+Resource、Context、SpanContext、Parent、Link、Event、Baggage 和 Metric 的定义及其在 Secretariat
 中的使用约束，详见
-[OpenTelemetry 概念与 ZCode 取舍](./reference/otel-concepts.md)。
+[OpenTelemetry 概念与 Secretariat 取舍](./reference/otel-concepts.md)。
 
 ## 2. 观测设施边界
 
@@ -78,7 +78,7 @@ Trace 不写入本地日志，也不通过 RUM 上报。即使这些数据最终
 
 ## 3. 设计原则
 
-### 3.1 OTel 表达结构，ZCode 定义业务语义
+### 3.1 OTel 表达结构，Secretariat 定义业务语义
 
 Parent、Link、Context、Span、Event、Status、Resource 使用 OTel 原生能力；Turn、Step、
 Attempt、Reasoning、Cache、Tool Outcome 等业务语义使用完整的 `zcode.*` 字段。

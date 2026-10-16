@@ -43,7 +43,7 @@ and composer room in narrower terminals.
 ## State And Boundaries
 
 - The state is local TUI presentation state only. It does not affect session,
-  runtime, tool, permission, ZCode app-server, storage, or provider contracts.
+  runtime, tool, permission, Secretariat app-server, storage, or provider contracts.
 - Terminal width is read through the existing OpenTUI terminal-dimensions hook.
 - No environment variables or platform-specific terminal commands are added.
 

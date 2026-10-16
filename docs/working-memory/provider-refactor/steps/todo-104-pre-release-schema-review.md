@@ -203,7 +203,7 @@ interface ZhipuAccountAccessConfig {
 
 ## 4. entitled 的裁决与调用背景
 
-用户的最终解释：这份 Config 决定 ZCode 认为能不能用这个模型、请求时怎么用；最终是否有资格使用，仍由账号和远端等共同决定。因此 `entitled` 放在 Provider Config 中说得通。
+用户的最终解释：这份 Config 决定 Secretariat 认为能不能用这个模型、请求时怎么用；最终是否有资格使用，仍由账号和远端等共同决定。因此 `entitled` 放在 Provider Config 中说得通。
 
 ```text
 内置 / 账号 / 个人配置
@@ -212,7 +212,7 @@ interface ZhipuAccountAccessConfig {
 Effective Provider Config（可以包含动态事实）
           |
           v
-ZCode 本地可用性判断与请求装配
+Secretariat 本地可用性判断与请求装配
           |
           v
 账号服务提供请求期访问材料 -> 模型服务端最终鉴权 / 授权
@@ -844,7 +844,7 @@ Provider / Model / 排序修改 --+
 程序维护层：统一放进环境目录下 runtime/provider/。runtime 在这里表示程序维护的数据，不表示可随意清空的临时文件。此前讨论的 cache/、state/ 两套顶层目录方案均被替代。
 
 ```text
-~/.zcode/v2/
+~/.secretariat/v2/
 |-- provider_config.json
 |-- bot-config.v3.json
 |-- bot-state.v3.json

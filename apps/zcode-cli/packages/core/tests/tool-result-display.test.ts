@@ -1,6 +1,6 @@
 import {
   parseToolResultDisplayPayload,
-  ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY,
+  SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY,
 } from "@zcode/contracts";
 import { toolCallGetWorkflowRunDisplaySchema } from "@zcode/shared/zcode-protocol-v4";
 import { describe, expect, it } from "vitest";
@@ -231,7 +231,7 @@ describe("tool result display", () => {
     const display = createToolResultDisplay("mcp__node_repl__js", {
       content: [{ type: "text", text: "clicked" }],
       _meta: {
-        [ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY]: {
+        [SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY]: {
           appKey: "darwin:com.apple.notes",
           displayName: "Notes",
         },
@@ -249,7 +249,7 @@ describe("tool result display", () => {
     const display = createToolResultDisplay("mcp__node_repl__js", {
       content: [{ type: "image", data: "AAAA", mimeType: "image/png" }],
       _meta: {
-        [ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY]: {
+        [SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY]: {
           appKey: "windows-aumid:Microsoft.WindowsCalculator",
         },
       },
@@ -266,7 +266,7 @@ describe("tool result display", () => {
   it("ignores a malformed node_repl app identity instead of dropping the whole display", () => {
     const display = createToolResultDisplay("mcp__node_repl__js", {
       content: [{ type: "image", data: "AAAA", mimeType: "image/png" }],
-      _meta: { [ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY]: { appKey: "" } },
+      _meta: { [SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY]: { appKey: "" } },
     });
 
     expect(display).toEqual({
@@ -1094,14 +1094,14 @@ describe("workflow observation tool displays", () => {
           name: "nightly-sync",
           description: "d".repeat(5_000),
           scope: "project",
-          path: ".zcode/workflows/nightly-sync.dwf.ts",
+          path: ".secretariat/workflows/nightly-sync.dwf.ts",
           args: {
             question: { type: "string", description: "what to research", required: true },
             depth: { type: "number" },
           },
         },
       ],
-      invalid: [{ path: ".zcode/workflows/broken.dwf.ts", reason: "bad frontmatter" }],
+      invalid: [{ path: ".secretariat/workflows/broken.dwf.ts", reason: "bad frontmatter" }],
     });
     if (display?.kind !== "saved_workflow_list") {
       throw new Error("Expected saved_workflow_list display payload");
@@ -1109,7 +1109,7 @@ describe("workflow observation tool displays", () => {
     expect(display.workflows[0]?.argNames).toEqual(["question", "depth"]);
     expect(display.workflows[0]?.description!.length).toBeLessThanOrEqual(2_048);
     expect(display.invalid).toEqual([
-      { path: ".zcode/workflows/broken.dwf.ts", reason: "bad frontmatter" },
+      { path: ".secretariat/workflows/broken.dwf.ts", reason: "bad frontmatter" },
     ]);
     expect(display.truncated).toBe(true);
     expect(parseToolResultDisplayPayload(display)).toEqual(display);

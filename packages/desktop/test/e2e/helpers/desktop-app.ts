@@ -30,17 +30,17 @@ import { sel } from "./selectors.js";
 
 const DEFAULT_E2E_HOME_DIR = resolve(process.cwd(), ".e2e-home");
 const E2E_HOME_DIR =
-  process.env.ZCODE_E2E_HOME_DIR?.trim() ||
-  process.env.ZCODE_DATA_BASE_DIR?.trim() ||
-  process.env.ZCODE_DESKTOP_HOME_DIR?.trim() ||
+  process.env.SECRETARIAT_E2E_HOME_DIR?.trim() ||
+  process.env.SECRETARIAT_DATA_BASE_DIR?.trim() ||
+  process.env.SECRETARIAT_DESKTOP_HOME_DIR?.trim() ||
   // 修复原因：WDIO worker 环境不稳定时，helper 曾回落到真实 HOME，
   // 导致 provider 诊断和清理读写开发者本机配置，而不是当前 e2e sandbox。
   DEFAULT_E2E_HOME_DIR;
 // Bug 根因：storage profile 回滚删除了该共享根字段，但多个 E2E 仍需定位 CLI 数据。
-// 隔离由测试 HOME 保证，目录名保持生产历史语义 .zcode。
-const E2E_STORAGE_ROOT = join(E2E_HOME_DIR, ".zcode");
+// 隔离由测试 HOME 保证，目录名保持生产历史语义 .secretariat。
+const E2E_STORAGE_ROOT = join(E2E_HOME_DIR, ".secretariat");
 const E2E_APP_DATA_DIR = join(E2E_STORAGE_ROOT, "v2");
-export const DEFAULT_WORKSPACE = join(E2E_HOME_DIR, "ZCodeProject");
+export const DEFAULT_WORKSPACE = join(E2E_HOME_DIR, "SecretariatProject");
 export const DEFAULT_CONVERSATION_WORKSPACE = join(E2E_STORAGE_ROOT, "workspace", "default");
 const SETTINGS_FILE = join(E2E_APP_DATA_DIR, "setting.json");
 const CREDENTIALS_FILE = join(E2E_APP_DATA_DIR, "credentials.json");
@@ -50,7 +50,7 @@ const AGENTS_STATE_FILE = join(E2E_APP_DATA_DIR, "agents-state.json");
 const REMOVE_APP_DATA_RETRY_DELAYS_MS = [200, 500, 1000, 2000, 3000];
 const REMOVE_APP_DATA_MAX_ATTEMPTS = REMOVE_APP_DATA_RETRY_DELAYS_MS.length;
 const E2E_USER_PROFILE = {
-  displayName: "ZCode E2E",
+  displayName: "Secretariat E2E",
   id: "zcode-e2e-user",
   username: "zcode-e2e-user",
 };
@@ -558,7 +558,7 @@ export function getE2EAppDataPaths() {
 }
 
 export async function clearAppData() {
-  if (process.env.ZCODE_E2E_DEFER_APP_DATA_CLEANUP === "1") {
+  if (process.env.SECRETARIAT_E2E_DEFER_APP_DATA_CLEANUP === "1") {
     // 修复原因：普通 spec 的 after hook 先 app.quit 会抢在 ChromeDriver
     // deleteSession 前销毁 browsing context，导致每个 worker 都支付断连超时。
     // WDIO afterSession 会在进程退出后删除 app data，此处只交还关闭所有权。
@@ -571,7 +571,7 @@ export async function clearAppData() {
 export async function quitElectronAppGracefully() {
   try {
     const result = (await browser.electron.execute((electron) => {
-      if (electron.app.getName() !== "ZCode E2E") {
+      if (electron.app.getName() !== "Secretariat E2E") {
         return { quit: false, pid: process.pid };
       }
       // 修复原因：clearAppData 常在 spec after 中运行；如果把 app.quit 延迟
@@ -618,7 +618,7 @@ async function removeAppDataWithRetry() {
       if (!isRetryableRemoveError(error) || attempt === REMOVE_APP_DATA_MAX_ATTEMPTS) {
         if (
           !isRetryableRemoveError(error) ||
-          process.env.ZCODE_E2E_STRICT_APP_DATA_CLEANUP === "1"
+          process.env.SECRETARIAT_E2E_STRICT_APP_DATA_CLEANUP === "1"
         ) {
           throw error;
         } else {
@@ -688,7 +688,7 @@ function listWindowsLeftoverE2EProcessPids() {
     return collectWindowsE2EProcessTreePids(output, {
       currentPid: process.pid,
       homeDir: E2E_HOME_DIR,
-      runId: process.env.ZCODE_E2E_RUN_ID,
+      runId: process.env.SECRETARIAT_E2E_RUN_ID,
     });
   } catch {
     return [];
@@ -882,7 +882,7 @@ export async function snapshotCliConfig(): Promise<CliConfigSnapshot> {
 }
 
 export async function restoreCliConfig(snapshot: CliConfigSnapshot): Promise<void> {
-  // 修复原因：seedCliConfig 写的是隔离 HOME 下的 CLI 全局配置；只清 ~/.zcode/v2
+  // 修复原因：seedCliConfig 写的是隔离 HOME 下的 CLI 全局配置；只清 ~/.secretariat/v2
   // 会让 WebFetch 临时代理留到同一 E2E session 后续步骤，必须恢复文件级快照。
   if (snapshot.content === null) {
     await rm(CLI_CONFIG_FILE, { force: true });
@@ -949,7 +949,7 @@ export function probeWorkspaceAppState(
     (element) => element.dataset.testid === params.workspaceItemTestId,
   );
   const conversationWorkspaceReady =
-    params.expectedPath.replace(/\\/g, "/").endsWith("/.zcode/workspace/default") &&
+    params.expectedPath.replace(/\\/g, "/").endsWith("/.secretariat/workspace/default") &&
     Boolean(document.querySelector(`[data-testid="${params.composerWorkspaceTriggerTestId}"]`));
   // v4 硬切后聊天区是 v4 session pane（testid 带 paneId 后缀，用前缀匹配）。
   return (workspaceItem || conversationWorkspaceReady) &&
@@ -1471,10 +1471,10 @@ export async function clickAboutMenuItem() {
     const menu = electron.Menu.getApplicationMenu();
     const topMenuLabel = process.platform === "darwin" ? electron.app.name : "Help";
     const topMenu = menu?.items.find((item) => item.label === topMenuLabel);
-    const menuItem = topMenu?.submenu?.items.find((item) => item.label === "About ZCode");
+    const menuItem = topMenu?.submenu?.items.find((item) => item.label === "About Secretariat");
 
     if (!menuItem) {
-      throw new Error(`未找到 About ZCode 菜单项: ${topMenuLabel}`);
+      throw new Error(`未找到 About Secretariat 菜单项: ${topMenuLabel}`);
     }
 
     menuItem.click(undefined as never, undefined, undefined as never);

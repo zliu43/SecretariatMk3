@@ -48,7 +48,7 @@ if (parsed.values.target) {
   await mkdir(workspacePath);
 }
 
-const zcodeDirectory = join(workspacePath, ".zcode");
+const zcodeDirectory = join(workspacePath, ".secretariat");
 const recorderPath = join(zcodeDirectory, "workspace-hook-trust-uat-recorder.mjs");
 const configPath = join(zcodeDirectory, "config.json");
 const evidencePath = join(workspacePath, ".workspace-hook-trust-uat", "executions.jsonl");
@@ -84,7 +84,7 @@ const config = {
               type: "process",
               command: "node",
               args: [
-                ".zcode/workspace-hook-trust-uat-recorder.mjs",
+                ".secretariat/workspace-hook-trust-uat-recorder.mjs",
                 "SessionStart",
                 "session-start-a",
               ],
@@ -96,7 +96,7 @@ const config = {
               type: "process",
               command: "node",
               args: [
-                ".zcode/workspace-hook-trust-uat-recorder.mjs",
+                ".secretariat/workspace-hook-trust-uat-recorder.mjs",
                 "SessionStart",
                 "session-start-b",
               ],
@@ -114,7 +114,7 @@ const config = {
               type: "process",
               command: "node",
               args: [
-                ".zcode/workspace-hook-trust-uat-recorder.mjs",
+                ".secretariat/workspace-hook-trust-uat-recorder.mjs",
                 "UserPromptSubmit",
                 "prompt-submit",
               ],
@@ -164,7 +164,7 @@ if (parsed.values.json) {
       `config:    ${configPath}`,
       `evidence:  ${evidencePath}`,
       "",
-      "Open the workspace in ZCode Desktop, then follow:",
+      "Open the workspace in Secretariat Desktop, then follow:",
       "docs/testing/workspace-hook-trust-manual-acceptance.md",
       "",
     ].join("\n"),
@@ -181,7 +181,7 @@ if (parsed.values.json) {
  * 这里在每轮开始前做廉价断言，让污染在数秒内暴露，而不是等测完才发现。
  */
 async function verifyFixture(workspacePath, asJson) {
-  const targetConfigPath = join(workspacePath, ".zcode", "config.json");
+  const targetConfigPath = join(workspacePath, ".secretariat", "config.json");
   const targetEvidencePath = join(workspacePath, ".workspace-hook-trust-uat", "executions.jsonl");
   const problems = [];
   let declarations = [];

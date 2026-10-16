@@ -101,8 +101,8 @@ export default defineConfig({
           ],
           exclude: ["packages/desktop/test/e2e/**", ...forkIsolatedTests],
           // Node 24/macOS 的 threads 全量运行可触发 V8 SIGSEGV；诊断时切换进程隔离，测试范围不变。
-          pool: process.env.ZCODE_TEST_POOL === "forks" ? "forks" : "threads",
-          maxWorkers: process.env.ZCODE_TEST_POOL === "forks" ? 2 : 4,
+          pool: process.env.SECRETARIAT_TEST_POOL === "forks" ? "forks" : "threads",
+          maxWorkers: process.env.SECRETARIAT_TEST_POOL === "forks" ? 2 : 4,
           sequence: { groupOrder: 0 },
         },
       },

@@ -11,7 +11,7 @@ ModelSelection 转化为能够稳定封装模型 API 调用的 Model。
 Provider Config 路径                         Model Config 路径
 ====================                       =================
 
-ZCode Built-in Provider Config             ZCode Built-in Model Config Rules
+Secretariat Built-in Provider Config             Secretariat Built-in Model Config Rules
               |                                         |
               v                                         +
 Account Built-in Provider Config           Personal Model Config Rules
@@ -75,7 +75,7 @@ effectiveBuiltinProviders = zcodeBuiltinProviders.overlay(accountBuiltinProvider
 effectiveProviders = effectiveBuiltinProviders.overlay(personalProviders);
 ```
 
-优先级是 `Personal > Account Built-in > ZCode Built-in`。Account Built-in 只处理 ZCode Built-in 已声明
+优先级是 `Personal > Account Built-in > Secretariat Built-in`。Account Built-in 只处理 Secretariat Built-in 已声明
 的账号 Provider；其结果是 Effective Built-in Provider Config。Personal 保存用户自定义 Provider 和最终
 覆盖。
 
@@ -90,7 +90,7 @@ Model Config Rules 固定按以下顺序组合：
 effectiveModelRules = ModelConfigRules.composeEffective(zcodeBuiltinModelRules, personalModelRules);
 ```
 
-其内部顺序是 `ZCode Built-in + Personal provider-model`。Personal JSON 只保存精确 Rule，物理排列
+其内部顺序是 `Secretariat Built-in + Personal provider-model`。Personal JSON 只保存精确 Rule，物理排列
 不改变精确 Rule 最后覆盖的语义。
 
 Rules 解析 Effective Provider Config 中的模型，不能先解析模型再追加 Account 或 Personal Provider
@@ -99,7 +99,7 @@ Overlay。`Effective` 只表示 Overlay/解析已经完成，不产生第二套�
 完整字段、Overlay、可见性、Access、存储和迁移见
 [`registry/configuration.md`](./registry/configuration.md)。
 
-ZCode Built-in Release 的 Provider/Rule 排列、Match/Exact Rule 写作层级、Endpoint 特化、证据边界和默认
+Secretariat Built-in Release 的 Provider/Rule 排列、Match/Exact Rule 写作层级、Endpoint 特化、证据边界和默认
 启用目录维护规范见
 [`registry/zcode-builtin-provider-config.md`](./registry/zcode-builtin-provider-config.md)。
 
@@ -131,7 +131,7 @@ Request Auth 缺失时，Model/Adapter 在网络请求前返回类型化鉴权�
 一次性安全校验 Header、Off-Peak Ticket 等动态材料不进入 Provider Config 或 Registry View。普通 API Key
 Provider 仍可以由 Personal Config 保存 API Key。
 
-账号 Access 类别由 ZCode Built-in 声明；Account Overlay 只写入 `access.entitled`，并在服务端返回
+账号 Access 类别由 Secretariat Built-in 声明；Account Overlay 只写入 `access.entitled`，并在服务端返回
 账号模型集合时约束对应 Provider 的模型成员。
 `productId`、`organizationId`、`projectId`、账号身份与动态凭据由 Account Connection Service 拥有，
 在请求期按静态 `family + mode` 解析，不进入 Provider Config 或 Active Model。

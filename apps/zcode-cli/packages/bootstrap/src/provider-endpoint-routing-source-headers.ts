@@ -5,11 +5,11 @@ import {
   buildZCodeSourceHeadersFromContext,
   resolveRuntimeZCodeEndpointOrigin,
   resolveRuntimeZCodeEnv,
-  ZCODE_APP_VERSION_ENV,
+  SECRETARIAT_APP_VERSION_ENV,
 } from "@zcode/shared";
 import type { ModelProviderSourceTitle } from "./model-config.js";
 
-const ZCODE_DATA_BASE_DIR_ENV_KEY = "ZCODE_DATA_BASE_DIR";
+const SECRETARIAT_DATA_BASE_DIR_ENV_KEY = "SECRETARIAT_DATA_BASE_DIR";
 const cachedDeviceMidByStateFile = new Map<string, string>();
 
 interface CreateProviderEndpointRoutingSourceHeadersOptions {
@@ -24,7 +24,7 @@ export async function createProviderEndpointRoutingSourceHeaders(
   const env = options.env ?? process.env;
   const deviceMid = await readExistingDeviceMid(resolveTelemetryStateFile(env));
   return buildZCodeSourceHeadersFromContext({
-    appVersion: env[ZCODE_APP_VERSION_ENV] ?? options.appVersion,
+    appVersion: env[SECRETARIAT_APP_VERSION_ENV] ?? options.appVersion,
     arch: readOsArch(),
     clientLanguage: resolveClientLanguage(),
     clientTimezone: resolveClientTimezone(),
@@ -46,8 +46,8 @@ function resolveClientTimezone(): string {
 }
 
 function resolveTelemetryStateFile(env: NodeJS.ProcessEnv): string {
-  const dataBaseDir = env[ZCODE_DATA_BASE_DIR_ENV_KEY]?.trim() || homedir();
-  return join(dataBaseDir, ".zcode", "v2", "telemetry-state.json");
+  const dataBaseDir = env[SECRETARIAT_DATA_BASE_DIR_ENV_KEY]?.trim() || homedir();
+  return join(dataBaseDir, ".secretariat", "v2", "telemetry-state.json");
 }
 
 async function readExistingDeviceMid(

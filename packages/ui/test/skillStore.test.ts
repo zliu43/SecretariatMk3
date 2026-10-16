@@ -149,7 +149,7 @@ describe("skillStore", () => {
     expect(useSkillStore.getState().skills[0]?.name).toBe("code-review");
   });
 
-  it("切换 legacy provider 时会归一到 ZCode Agent 并清理上一套缓存", async () => {
+  it("切换 legacy provider 时会归一到 Secretariat Agent 并清理上一套缓存", async () => {
     let resolveList: ((value: Awaited<ReturnType<ISkillsService["list"]>>) => void) | null = null;
     const list = vi.fn<ISkillsService["list"]>(
       () =>

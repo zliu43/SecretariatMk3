@@ -2,7 +2,7 @@
 
 ## 背景
 
-ZCode 曾提供三档界面缩放：偏小、正常、偏大。入口包括桌面 View 菜单快捷键、设置页和侧边栏账户菜单，并通过 `localStorage` 与 Electron `webFrame` / `webContents` 持久化当前窗口缩放。
+Secretariat 曾提供三档界面缩放：偏小、正常、偏大。入口包括桌面 View 菜单快捷键、设置页和侧边栏账户菜单，并通过 `localStorage` 与 Electron `webFrame` / `webContents` 持久化当前窗口缩放。
 
 ## 目标
 

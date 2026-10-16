@@ -293,7 +293,7 @@ describe("prompt attachment provider content order", () => {
     expect(resolved).toMatchObject({
       contentBlock: {
         type: "text",
-        text: expect.stringContaining("video is larger than the ZCode video input limit"),
+        text: expect.stringContaining("video is larger than the Secretariat video input limit"),
       },
       metadata: { recoverability: "metadata_only", storageKind: "local_ref" },
     });
@@ -431,7 +431,7 @@ describe("prompt attachment provider content order", () => {
         "- The user has the in-app browser open with 1 tab.\n" +
         "- Current URL: https://m.ituring.com.cn/book?tab=ebook&sort=hot\n" +
         "</in-app-browser-context>\n\n" +
-        "## My request for ZCode:\n" +
+        "## My request for Secretariat:\n" +
         "打开这本书",
     );
     expect(buildUserContentFromTurn("打开这本书", [])).toBe("打开这本书");
@@ -900,7 +900,7 @@ describe("prompt attachment provider content order", () => {
   it("keeps pasted temporary text attachments out of prompt_attachment system reminders", () => {
     const pastedContent = "secret pasted text ".repeat(400);
     const localReferenceText = [
-      "Attached text/plain: /Users/test/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+      "Attached text/plain: /Users/test/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
       "The file was sent by local path because it is a pasted-text temporary attachment that is deferred to keep the model context small.",
       "Use the available file reading tools if you need to inspect the file contents.",
     ].join("\n");
@@ -912,7 +912,7 @@ describe("prompt attachment provider content order", () => {
         },
         filename: "pasted-text.txt",
         metadata: {
-          originalUrl: "/Users/test/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+          originalUrl: "/Users/test/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
           recoverability: "metadata_only",
           sizeBytes: Buffer.byteLength(pastedContent, "utf8"),
           storageKind: "local_ref",
@@ -920,14 +920,14 @@ describe("prompt attachment provider content order", () => {
         mime: "text/plain",
         source: {
           type: "file",
-          path: "/Users/test/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+          path: "/Users/test/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
           text: {
-            value: "/Users/test/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+            value: "/Users/test/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
             start: 0,
             end: 71,
           },
         },
-        url: "/Users/test/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+        url: "/Users/test/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
       },
     ] satisfies ResolvedTurnAttachment[]);
 
@@ -953,7 +953,7 @@ describe("prompt attachment provider content order", () => {
   });
 
   it("resolves pasted temporary text files as local references without reading contents", async () => {
-    const path = "/Users/test/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt";
+    const path = "/Users/test/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt";
     const fileSystemPort = {
       async stat(request) {
         expect(request.path).toBe(path);

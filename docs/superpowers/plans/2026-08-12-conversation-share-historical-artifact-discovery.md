@@ -6,7 +6,7 @@
 
 **Architecture:** Extend `conversationRowsRangeV4` with the projection revision so the share service can query selected turn headers through `conversationFileChangesV4` at one revision/epoch. Materialize explicit artifact rows and supported file-change candidates through one async local source, deduplicate by canonical realpath with explicit rows winning, synthesize transient artifact rows, then reuse the existing public projection and prepare/upload/confirm pipeline.
 
-**Tech Stack:** TypeScript, Zod, Vitest, Node async file APIs, ZCode V4 conversation protocol, existing conversation-share service and HTTP client.
+**Tech Stack:** TypeScript, Zod, Vitest, Node async file APIs, Secretariat V4 conversation protocol, existing conversation-share service and HTTP client.
 
 ## Global Constraints
 

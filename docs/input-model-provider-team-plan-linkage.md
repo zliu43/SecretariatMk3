@@ -47,7 +47,7 @@ App modelProviderService + entitlement + family settings
 ### Provider 目录
 
 `useModelProviders` 先读 `getAllCached()`，再后台读 `getAll()`；设置页保存后立即更新共享 snapshot，
-关键 runtime 字段变化再同步到所有已打开 workspace。ZCode Agent 菜单只使用 app provider registry
+关键 runtime 字段变化再同步到所有已打开 workspace。Secretariat Agent 菜单只使用 app provider registry
 构造 provider/model groups，不把 CLI 返回的 native available list 反向混入完整目录。
 
 Provider 进入菜单前至少要满足：
@@ -55,7 +55,7 @@ Provider 进入菜单前至少要满足：
 - enabled；
 - 有模型；
 - 有可用 credential 或被 Coding/Start Plan 的专用鉴权规则允许；
-- endpoint format 可被 ZCode Agent runtime 使用；
+- endpoint format 可被 Secretariat Agent runtime 使用；
 - provider family、当前 connection selection 和 entitlement 没有把它过滤掉。
 
 目录仍在 entitlement/provider 水合时，不把暂时不可见的历史模型立即判为不可用。水合完成且模型确实不存在时，

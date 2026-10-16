@@ -9,7 +9,7 @@ still leaving rich runtime diagnostics available for development builds.
 
 - The CLI resolves `TuiOptions.developerMode` before launching the TUI.
 - `developerMode` is true when the inherited environment has
-  `ZCODE_RUNTIME_ENV=development`.
+  `SECRETARIAT_RUNTIME_ENV=development`.
 - The TUI treats `developerMode` as display-only input and must not read
   `process.env` directly.
 - `TuiOptions.version` carries the CLI version that is already resolved by the
@@ -26,9 +26,9 @@ still leaving rich runtime diagnostics available for development builds.
 - Developer sidebar additionally shows the OpenTUI shell subtitle, the Run
   section, the Context section, and the API diagnostics section.
 - The first sidebar row displays the product name and current CLI version as
-  `ZCode <version>`. The `ZCode` segment uses the sidebar accent blue; the
+  `Secretariat <version>`. The `Secretariat` segment uses the sidebar accent blue; the
   version segment uses muted text.
-- If no version is supplied, the product row falls back to `ZCode 0.0.0` so
+- If no version is supplied, the product row falls back to `Secretariat 0.0.0` so
   embedded tests and local harnesses have deterministic output.
 - The footer never shows stale keyboard hints. It displays the workspace path.
   If a Git branch is available, it appends the branch after a colon, for example
@@ -54,7 +54,7 @@ still leaving rich runtime diagnostics available for development builds.
 
 ## Tests
 
-- CLI tests assert `ZCODE_RUNTIME_ENV=development` is projected to
+- CLI tests assert `SECRETARIAT_RUNTIME_ENV=development` is projected to
   `TuiOptions.developerMode`.
 - CLI tests assert the resolved Git branch is projected to
   `TuiOptions.workspaceGitBranch` without making Git a hard startup dependency.

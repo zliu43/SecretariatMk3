@@ -1,8 +1,8 @@
-# ZCode Agent 与 App 当前集成
+# Secretariat Agent 与 App 当前集成
 
 更新日期：2026-09-04
 
-ZCode App 只启动 ZCode Agent（`apps/zcode-cli` 的 `zcode app-server --stdio`）。退役的多 Agent
+Secretariat App 只启动 Secretariat Agent（`apps/zcode-cli` 的 `zcode app-server --stdio`）。退役的多 Agent
 process manager、第三方 runtime installer、proxy traffic 和 UI agent switch 不属于当前产品路径。
 
 ## 进程与服务边界
@@ -55,7 +55,7 @@ stdio 使用 LF 分隔的 NDJSON，schema 位于 `packages/shared/src/zcode-prot
   最终收敛到同一 snapshot；
 - 旧 `session/*` schema 只允许维护剩余兼容 facade，不能承接新 conversation 功能。
 
-详见 [ZCode Protocol](./zcode-protocol.md)。
+详见 [Secretariat Protocol](./zcode-protocol.md)。
 
 ## Provider 就绪与启动
 
@@ -102,7 +102,7 @@ tasks-index 建立后台订阅时由 Agent spawn preflight 动态检查真实 cw
 
 ## 远程资源与打包
 
-当前默认远端部署/桌面打包只保留 ZCode Agent 及必要工具/runtime（例如 Node、node-pty、ripgrep 和各平台
+当前默认远端部署/桌面打包只保留 Secretariat Agent 及必要工具/runtime（例如 Node、node-pty、ripgrep 和各平台
 search runtime）。历史 `resourcePackages.selectedPackageIds` 只兼容读取，不能裁剪当前必需资源。构建脚本、
 签名和 Windows 资源锁检查都不得把本机残留的退役第三方 runtime 重新带入产物。
 

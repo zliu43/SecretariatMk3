@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Do not move from one phase to the next without user confirmation after tests and code review. Do not create a commit unless the user explicitly asks after review.
 
-**目标：** 在不实现 user-message `content[]` merge / provider projection 的前提下，梳理并确定 ZCode CLI provider-visible `<system-reminder>` 的来源、生命周期、文案语义、delivery channel 和测试证据。
+**目标：** 在不实现 user-message `content[]` merge / provider projection 的前提下，梳理并确定 Secretariat CLI provider-visible `<system-reminder>` 的来源、生命周期、文案语义、delivery channel 和测试证据。
 
 **核心边界：** 这是 system-reminder source/content 计划，不是 user message 结构调整计划。实现过程中可以新增 source helper、formatter、descriptor 和 source-level tests，但不能把多条 user message 合并成同一条 `content[]`，不能改变 session store / UI transcript 结构，也不能实现 attachment bubble-up、cache-control finalization 或 provider request projection。
 
@@ -20,10 +20,10 @@
 
 - provider-visible system-reminder source taxonomy；
 - source owner、delivery channel、lifecycle、meta/source provenance；
-- ZCode 已有或明确 active feature 的 reminder 文案语义；
+- Secretariat 已有或明确 active feature 的 reminder 文案语义；
 - `date_change` runtime-local 行为；
 - Plan/target/Todo、hook、memory、skill listing、output style、tool-result warning、resume continuity、mid-turn system event 等 system-reminder source；
-- attachment-origin system-reminder 内容盘点和 ZCode-supported 类型的文案补齐，但不做 attachment order / bubble-up；
+- attachment-origin system-reminder 内容盘点和 Secretariat-supported 类型的文案补齐，但不做 attachment order / bubble-up；
 - tests / prompt-trajectory evidence，证明 reminder 的存在、缺失、channel 边界和 provider JSON 不泄漏内部 descriptor。
 
 本 plan 不负责：
@@ -36,8 +36,8 @@
 - MCP instructions/resources P-14/P-15；
 - skill discovery P-27；
 - generalized attachment bubble-up / first-turn tail bubbling / attachment-before-prompt order P-16；
-- task_reminder cadence：ZCode 当前没有对应 producer，不新增空壳；Todo reminder cadence 已在 SR5 active phase 实现，runtime_mode / plan mode content-cadence 在 SR9 完成；
-- 为 ZCode 没有对应功能的 source 增加空壳 reminder。
+- task_reminder cadence：Secretariat 当前没有对应 producer，不新增空壳；Todo reminder cadence 已在 SR5 active phase 实现，runtime_mode / plan mode content-cadence 在 SR9 完成；
+- 为 Secretariat 没有对应功能的 source 增加空壳 reminder。
 
 ## Reminder Source Constraints
 
@@ -171,7 +171,7 @@ pnpm --filter @zcode/core typecheck
 
 ## Phase SR1: Existing Reminder Source Inventory
 
-**Phase goal:** 把 ZCode 现有 provider-visible system-reminder source 显式化，并保证文案语义不被重构破坏。
+**Phase goal:** 把 Secretariat 现有 provider-visible system-reminder source 显式化，并保证文案语义不被重构破坏。
 
 **User confirmation gate:** Phase SR1 完成 tests + code review 后停止，等待用户确认。
 
@@ -188,8 +188,8 @@ pnpm --filter @zcode/core typecheck
 
 - [x] Hook additional context 继续 provider-visible，使用 `hook_context` / `current_turn` descriptor。
 - [x] Relevant memory 继续 provider-visible，使用 `relevant_memory` / `current_turn` descriptor；当前只完成 source/tag ownership，是否改为每条 memory 单独 message + 全文仍需单独决策。
-- [x] Plan mode reminder 保留 ZCode 当前 read-only/plan-mode 语义，使用 `runtime_mode` / `current_turn` descriptor；本 task 只完成 source ownership，content/cadence 在 SR9 继续完善。
-- [x] Auto mode 如果当前 ZCode 有真实 producer，则用 `runtime_mode` / `current_turn` descriptor；如果没有，记录 absent，不新增空壳。
+- [x] Plan mode reminder 保留 Secretariat 当前 read-only/plan-mode 语义，使用 `runtime_mode` / `current_turn` descriptor；本 task 只完成 source ownership，content/cadence 在 SR9 继续完善。
+- [x] Auto mode 如果当前 Secretariat 有真实 producer，则用 `runtime_mode` / `current_turn` descriptor；如果没有，记录 absent，不新增空壳。
 - [x] Active goal/target request-time reminder 已按后续决策移除；不再保留 `runtime_target` source。`target_continuation` 自动续跑输入仍保留。
 - [x] Output style reminder active 条件：只有当前 output style 非 default/非空时插入 `output_style` / `current_turn` system-reminder；default/空 style 不插入。Tail reminder 的 provider-visible content 在 SR9 继续完善，避免和 system prompt `output_style` section 重复暴露完整 style prompt。
 - [x] 不改变这些 reminder 当前在 `messages` 中的 standalone / append 行为；只做 source ownership、formatter 和测试证据。
@@ -214,7 +214,7 @@ pnpm --filter @zcode/core typecheck
 - [x] Target continuation prompt 作为独立 provider-visible source，使用 `target_continuation` wrapper；merge 后通过 `inputSource: "goal-continuation"` / `inputVisibility: "model-only"` 写入 session/protocol metadata，并在 runtime/persistence/hydrate 边界桥接为 `runtimeMessage.source: "target_continuation"`。Provider body 不携带 `source=` attribute。
 - [x] Provider body 不泄漏 descriptor；tests 通过 formatter/helper 或 trace-side evidence 验证 source ownership。
 
-### Task SR1.3: Classify ZCode-specific existing producers
+### Task SR1.3: Classify Secretariat-specific existing producers
 
 **Files:**
 - Modify: `apps/zcode-cli/packages/core/src/runtime/helpers/model-anomaly.ts`
@@ -226,7 +226,7 @@ pnpm --filter @zcode/core typecheck
 - [x] Repeated tool call / tool call budget warnings 使用 `model_anomaly` source；channel 以实际插入路径为准，优先标成 `mid_turn_event`，若它是下一次 request 的 dynamic context 则标成 `current_turn`。
 - [x] Conversation rewind、workspace rewind、workspace fork notice 使用 `rewind_notice` / `history_continuity` source。
 - [x] Goal completion verification reminder 使用 `goal_completion_verification` / `tool_result` taxonomy，保持现有 provider-visible text semantics；formatter 位于 contracts/tool-result surface，失败反馈进入 GoalUpdate tool result，verifier auxiliary request 由 `querySource: target_completion_verification` 标记，不进入 `MessageHistory` runtime metadata。若未来要统一 source/evidence metadata，应单独设计 tool-result metadata envelope。
-- [x] 这些 ZCode-specific sources 按自身语义归类；目标是避免 source taxonomy 漏掉现有 provider-visible reminder producer。
+- [x] 这些 Secretariat-specific sources 按自身语义归类；目标是避免 source taxonomy 漏掉现有 provider-visible reminder producer。
 
 **Verification:**
 
@@ -266,7 +266,7 @@ pnpm --filter @zcode/core typecheck
 - [x] Fresh runtime first turn：记录当前 local date，不发送 reminder。
 - [x] Resume first turn：记录当前 local date，不发送 reminder。
 - [x] Same runtime 跨本地日期：发送一次 `date_change` / `current_turn` system-reminder。
-- [x] `/clear` / equivalent reset 如当前 ZCode 有对应 runtime reset path，则重置 date-change state；没有则记录为 absent。当前未发现独立 `/clear` runtime reset path，本 phase 记录为 absent。
+- [x] `/clear` / equivalent reset 如当前 Secretariat 有对应 runtime reset path，则重置 date-change state；没有则记录为 absent。当前未发现独立 `/clear` runtime reset path，本 phase 记录为 absent。
 - [x] `date_change` 不刷新、重建或修改 request-level `current_date` prefix。
 - [x] 本 phase 不关心 `date_change` 与 human prompt 是否合并成同一条 `content[]`。
 
@@ -285,7 +285,7 @@ pnpm --dir apps/zcode-cli/packages/adapters exec oxlint src/context/index.ts
 
 ## Phase SR3: Todo / Task / Goal Reminder Semantics
 
-**Phase goal:** 确定 ZCode-supported planning state reminders 的 provider-visible text semantics 和 lifecycle。SR3 曾有 per-request todo-state baseline，但当前 regular turn 已由 SR5 的 `todo_reminder` cadence 替换；`todo_state` 不再保留为 active source，保留本 phase 记录是为了说明为什么 regular turn 不再发送 per-request todo-state reminder。
+**Phase goal:** 确定 Secretariat-supported planning state reminders 的 provider-visible text semantics 和 lifecycle。SR3 曾有 per-request todo-state baseline，但当前 regular turn 已由 SR5 的 `todo_reminder` cadence 替换；`todo_state` 不再保留为 active source，保留本 phase 记录是为了说明为什么 regular turn 不再发送 per-request todo-state reminder。
 
 **User confirmation gate:** Phase SR3 完成 tests + code review 后停止，等待用户确认。
 
@@ -323,7 +323,7 @@ pnpm --dir apps/zcode-cli/packages/adapters exec oxlint src/context/index.ts
 - Modify: background task / task status producer after confirming current source path
 - Test: `apps/zcode-cli/packages/core/tests/runtime-trace.test.ts`
 
-- [x] 如果当前 ZCode 有 provider-visible task/background status notification，使用 `task_status` / `mid_turn_event` descriptor。
+- [x] 如果当前 Secretariat 有 provider-visible task/background status notification，使用 `task_status` / `mid_turn_event` descriptor。
 - [x] Background task notification 的 session store 持久化保持 raw `<task-notification>`；当前 request 和 session hydrate 重建 provider history 时再补 `task_status` system-reminder 外层。
 - [x] 如果没有 provider-visible producer，不新增空壳；在本计划中记录 absent / postponed。
 
@@ -428,7 +428,7 @@ pnpm --dir apps/zcode-cli/packages/core exec oxlint src/agent/message-history.ts
 - [x] 新增 `todo_reminder` source descriptor，`channel: "current_turn"`、`lifecycle: "per_current_turn"`、`isMeta: true`、`providerVisibility: "provider_visible"`。
 - [x] 新增 `TODO_REMINDER_CONFIG`：`TURNS_SINCE_WRITE = 10`，`TURNS_BETWEEN_REMINDERS = 10`。
 - [x] 新增 `getTodoReminderTurnCounts(entries)`：倒序扫描 `RuntimeMessageEntry[]`，统计最近 TodoWrite assistant tool call 后的 assistant turns，以及最近 `source === "todo_reminder"` 后的 assistant turns。
-- [x] Assistant thinking/reasoning-only message 如在 ZCode 中没有独立 role/type，不新增特殊跳过逻辑；如已有 provider-visible assistant message，则按 assistant turn 计数。
+- [x] Assistant thinking/reasoning-only message 如在 Secretariat 中没有独立 role/type，不新增特殊跳过逻辑；如已有 provider-visible assistant message，则按 assistant turn 计数。
 - [x] 新增 `buildTodoReminder(todos)`，文案语义：提醒 TodoWrite 很久没用、可考虑使用/清理 todo list、仅在 relevant 时使用、不要向用户提及 reminder；如果 todos 非空，附上现有 todo list。
 - [x] Tests 覆盖计数 helper：无 TodoWrite、最近 TodoWrite、最近 todo_reminder、满足/不满足两个阈值。
 
@@ -444,7 +444,7 @@ pnpm --dir apps/zcode-cli/packages/core exec oxlint src/agent/message-history.ts
 
 - [x] 移除或停用 `buildRuntimeRequestEntries(...)` 内的 SR3 per-request non-empty todo-state append 路径。
 - [x] 在 regular turn request assembly 前调用 `maybeInjectTodoReminder(...)` 或等价 internal method；该方法只在当前 exposed tools 包含 `TodoWrite` 时继续。
-- [x] ZCode 当前没有 brief / 直接向用户发消息类工具；gate 保留扩展点，但当前不额外 skip。
+- [x] Secretariat 当前没有 brief / 直接向用户发消息类工具；gate 保留扩展点，但当前不额外 skip。
 - [x] 当 `turnsSinceLastTodoWrite >= 10` 且 `turnsSinceLastReminder >= 10` 时，将 wrapped `todo_reminder` 加入 `messageHistory`，并带 source-only metadata：`source: "todo_reminder"`；当前不做 provider projection，先保持 standalone。
 - [x] 如果 sessionStore 存在，使用 synthetic notice persistence 记录 provider-visible wrapped reminder text + `metadata.source = "todo_reminder"` / `metadata.runtimeMessage.source = "todo_reminder"`；hydrate 后可恢复 marker，避免 resume 后重复提醒。
 - [x] 当前 provider request 中不再出现 SR3 的 authoritative todo-state reminder；仅在 cadence due 时出现 `todo_reminder` 文案。
@@ -473,7 +473,7 @@ pnpm --dir apps/zcode-cli/packages/core exec oxlint src/system-reminder/source.t
 
 ## Phase SR6: Attachment-Origin Reminder Content
 
-**Phase goal:** 盘点并补齐 ZCode-supported attachment-origin system-reminder 文案，不改变 attachment order / bubble-up。
+**Phase goal:** 盘点并补齐 Secretariat-supported attachment-origin system-reminder 文案，不改变 attachment order / bubble-up。
 
 **User confirmation gate:** Phase SR6 完成 tests + code review 后停止，等待用户确认。
 
@@ -486,12 +486,12 @@ pnpm --dir apps/zcode-cli/packages/core exec oxlint src/system-reminder/source.t
 - Test: `apps/zcode-cli/packages/core/tests/runtime-persistence.test.ts`
 - Test: `apps/zcode-cli/packages/core/tests/session-history-hydrator.test.ts`
 
-- [x] 列出当前 ZCode 支持且 provider-visible 的 prompt attachment 类型：`file` text preview / local text file、`image` image block、`url` resource surface、read-failure/too-large placeholders；当前 `TurnAttachment` 不支持 directory attachment。
-- [x] 对每种类型标记 system-reminder 处理方式：text/file 使用 ZCode generic `prompt_attachment` reminder；image 保持原 provider block；URL 在 runtime pre-adapter 为 `resource_link`，OpenAI-compatible final body 为 `[Resource: ...]` text placeholder；placeholder 只有 text mime 时补 reminder。
+- [x] 列出当前 Secretariat 支持且 provider-visible 的 prompt attachment 类型：`file` text preview / local text file、`image` image block、`url` resource surface、read-failure/too-large placeholders；当前 `TurnAttachment` 不支持 directory attachment。
+- [x] 对每种类型标记 system-reminder 处理方式：text/file 使用 Secretariat generic `prompt_attachment` reminder；image 保持原 provider block；URL 在 runtime pre-adapter 为 `resource_link`，OpenAI-compatible final body 为 `[Resource: ...]` text placeholder；placeholder 只有 text mime 时补 reminder。
 - [x] UI-only / control-only / telemetry-only attachment 不生成 provider reminder。
 - [x] MCP resources 保持 P-15 postponed，不在本 phase 处理。
 
-### Task SR6.2: Add reminder text for ZCode-supported text attachments where needed
+### Task SR6.2: Add reminder text for Secretariat-supported text attachments where needed
 
 **Files:**
 - Create: `apps/zcode-cli/packages/core/src/system-reminder/prompt-attachment.ts`
@@ -500,7 +500,7 @@ pnpm --dir apps/zcode-cli/packages/core exec oxlint src/system-reminder/source.t
 - Test: `apps/zcode-cli/packages/core/tests/runtime-persistence.test.ts`
 - Test: `apps/zcode-cli/packages/core/tests/session-history-hydrator.test.ts`
 
-- [x] 对 ZCode 已支持且当前 provider body 缺少 explanatory context 的 text/file attachment，补充 `prompt_attachment` source-owned system-reminder text；live turn 与 session hydrate 均恢复同一语义。
+- [x] 对 Secretariat 已支持且当前 provider body 缺少 explanatory context 的 text/file attachment，补充 `prompt_attachment` source-owned system-reminder text；live turn 与 session hydrate 均恢复同一语义。
 - [x] 非文本 blocks（image、resource_link、file data block 等）必须保持原样，不被 wrapper 吃掉。
 - [x] Active slice 不断言 attachment block 在 human prompt 前；只断言 reminder text / non-text block 保真。
 - [x] 不实现 synthetic Read tool call/result shape；该形态作为 attachment taxonomy follow-up 保留（后续在 SR12 落地）。
@@ -595,9 +595,9 @@ pnpm lint
 - E2E: `apps/zcode-cli/tools/prompt-trajectory/testcases/system-reminder-sr9-runtime/fixture.json`
 
 - [x] Plan mode reminder cadence：首个 plan turn 发送 full reminder；已有 plan reminder 后，未满 5 个 human turns 不重复发送；第 1、6、11... 次 attachment 使用 full reminder，其余使用 sparse reminder。
-- [x] ZCode `runtime_mode` full reminder 继续保留 ZCode 自身工具名和模式语义，provider-visible content 覆盖核心语义：plan mode active、禁止非只读修改/非 read-only tool、等待用户切换/确认后再实现；不引入 ZCode 当前不存在的 plan-file/edit-boundary 工具名。
+- [x] Secretariat `runtime_mode` full reminder 继续保留 Secretariat 自身工具名和模式语义，provider-visible content 覆盖核心语义：plan mode active、禁止非只读修改/非 read-only tool、等待用户切换/确认后再实现；不引入 Secretariat 当前不存在的 plan-file/edit-boundary 工具名。
 - [x] 新增 sparse reminder 文案：提醒 plan mode still active、read-only 限制仍生效、不要把 plan approval 当成普通文本问题；不要求 exact wording。
-- [x] 不硬编码 ZCode 当时不存在的 tool name（如 `ExitPlanModeV2`、`AskUserQuestion`）；如 ZCode 没有对应 tool，则使用 ZCode 当前 mode-switch / clarification 语义表达。
+- [x] 不硬编码 Secretariat 当时不存在的 tool name（如 `ExitPlanModeV2`、`AskUserQuestion`）；如 Secretariat 没有对应 tool，则使用 Secretariat 当前 mode-switch / clarification 语义表达。
 - [x] Tests 覆盖：首次 plan request 有 full reminder；连续 plan follow-up 未满 5 个 human turns 不重复；满足 cadence 后出现 sparse/full；普通 mode 不出现 `runtime_mode`。
 
 ### Task SR9.2: `output_style` tail reminder content
@@ -657,7 +657,7 @@ SR9 prompt-trajectory coverage boundary:
 
 ## Phase SR10: System-Reminder Tag Wrap Audit
 
-**Phase goal:** 盘点所有最终 provider-visible `<system-reminder>` attachment/tool-result/userContext source，确认 ZCode active source 都有 tag wrap；只按最终 content 判断，不把 implementation path 差异当 diff。
+**Phase goal:** 盘点所有最终 provider-visible `<system-reminder>` attachment/tool-result/userContext source，确认 Secretariat active source 都有 tag wrap；只按最终 content 判断，不把 implementation path 差异当 diff。
 
 **User confirmation gate:** Phase SR10 完成 audit doc + tests/code review 后停止，等待用户确认。
 
@@ -669,14 +669,14 @@ SR9 prompt-trajectory coverage boundary:
 - Test: `apps/zcode-cli/packages/core/tests/runtime-reminders.test.ts`
 
 - [x] 列出会输出 `<system-reminder>` 的 active / postponed / ignored source 候选：plan_mode、output_style、date_change、todo_reminder、task_reminder、diagnostics、queued_command、task_status、hook family、relevant_memories、skill_listing、file/directory attachment、deferred_tools_delta、agent_listing_delta、mcp_instructions_delta、compaction/context-efficiency、verify_plan_reminder 等。
-- [x] 对每项标记 ZCode 状态：`active wrapped`、`active unwrapped`、`active different structure`、`ZCode-specific`、`postponed`、`absent by decision`。
+- [x] 对每项标记 Secretariat 状态：`active wrapped`、`active unwrapped`、`active different structure`、`Secretariat-specific`、`postponed`、`absent by decision`。
 - [x] 对 active source 增加或复用 focused tests，断言 provider-visible text 包含 exactly one `<system-reminder>` wrapper，且不泄漏 source/descriptor metadata。
 - [x] 对 `tool_result_warning` 保持 tool result inline wrapper，不要求进入 synthetic user notice。
-- [x] 对 `model_anomaly`、`rewind_notice`、`resume_goal_state`、`goal_completion_verification` 等 ZCode-specific source 只验收自身 wrapper，按自身语义归类；`runtime_target` 已移除，不再作为 active source 验收。
+- [x] 对 `model_anomaly`、`rewind_notice`、`resume_goal_state`、`goal_completion_verification` 等 Secretariat-specific source 只验收自身 wrapper，按自身语义归类；`runtime_target` 已移除，不再作为 active source 验收。
 
 SR10 implementation evidence:
 
-- 已完成 tag-wrap 盘点，状态分为 active wrapped / active unwrapped / active different structure / ZCode-specific / postponed / absent by decision，只按最终 provider-visible content 判断。
+- 已完成 tag-wrap 盘点，状态分为 active wrapped / active unwrapped / active different structure / Secretariat-specific / postponed / absent by decision，只按最终 provider-visible content 判断。
 - `system-reminder-source.test.ts` 覆盖所有 registered provider-visible source exactly-one wrapper、nested tag escaping 和 descriptor metadata 不泄漏。
 - `runtime-reminders.test.ts` 覆盖 `rewind_notice` conversation fork producer 改走统一 wrapper 后能 escape nested tag-like text。
 - `target-tool.test.ts` 覆盖 `goal_completion_verification` tool-result content exactly-one wrapper；该函数位于 contracts 层，保持手写 tag 以避免 contracts 反向依赖 core helper。
@@ -709,7 +709,7 @@ pnpm --filter @zcode/core typecheck
 - Testcase: `apps/zcode-cli/tools/prompt-trajectory/testcases/system-reminder-sr11-subagent-notification/`
 
 - [x] 确定 queued command provider-visible content 规则：human queued input 保持 user-authored；system-origin / task-notification origin 使用 `<system-reminder>` wrapper；array content 只 wrap text blocks，image blocks 保留。
-- [x] 对照 ZCode subagent notification producer：`formatBackgroundCompletionNotification(...)` / `formatBackgroundFailureNotification(...)` 当前输出 `<subagent-notification>` raw text，`drainPendingSubagentNotifications(...)` 只打 `queued_system_notification` metadata，不在 drain 点统一 wrap。
+- [x] 对照 Secretariat subagent notification producer：`formatBackgroundCompletionNotification(...)` / `formatBackgroundFailureNotification(...)` 当前输出 `<subagent-notification>` raw text，`drainPendingSubagentNotifications(...)` 只打 `queued_system_notification` metadata，不在 drain 点统一 wrap。
 - [x] 判断最终 provider body 是否应改为 `<system-reminder><subagent-notification>...</subagent-notification></system-reminder>`；如果改，确认不会导致 hydrate 后 double wrap，也不会改变 UI transcript raw notification 展示。
 - [x] Live drain 时只把 provider-visible `MessageHistory` text 包 `wrapSystemReminderForSource("queued_system_notification", rawText)`，persisted raw notification 保持 `<subagent-notification>`。
 - [x] Session hydrate 对 `runtimeMessage.source === "queued_system_notification"` 和 legacy `metadata.source === "subagent"` 补同一 provider-visible wrapper。
@@ -719,8 +719,8 @@ pnpm --filter @zcode/core typecheck
 SR11 research conclusion:
 
 - system-origin / task-notification queued input 在 provider-visible 边界加 system-origin 前缀并统一包 `<system-reminder>`；human queued input 不包。
-- ZCode background Bash `<task-notification>` 已符合该规则：live provider history 包 `task_status` system-reminder，session store 保持 raw notification，hydrate 再补 wrapper。
-- ZCode subagent background notification 曾经只写 raw `<subagent-notification>` 到 provider history，虽然 metadata source 是 `queued_system_notification`；这是 SR11 唯一 active wrapper/content gap。
+- Secretariat background Bash `<task-notification>` 已符合该规则：live provider history 包 `task_status` system-reminder，session store 保持 raw notification，hydrate 再补 wrapper。
+- Secretariat subagent background notification 曾经只写 raw `<subagent-notification>` 到 provider history，虽然 metadata source 是 `queued_system_notification`；这是 SR11 唯一 active wrapper/content gap。
 - 已按确认实现：保持 `formatBackgroundCompletionNotification(...)` / `formatBackgroundFailureNotification(...)` 和 persisted session part raw；只在 live drain + hydrate provider projection 边界用 `wrapSystemReminderForSource("queued_system_notification", rawText)`。这样不改变 UI transcript，不改变 persisted raw text，并能沿用已有 source metadata 防误判。
 - Prompt-trajectory e2e 输出：`tools/prompt-trajectory/out/system-reminder-sr11-subagent-notification/test20260604-sr11`。最终 parent follow-up request 是 `trajectories/0004-non-incremental-change.openai_request_body.json`；`non-incremental` 来自 parent tool-loop、child subagent request、parent follow-up 的多 request 形态交错，不是 provider-visible SR11 content mismatch。该 request 中 `<system-reminder>` / `<subagent-notification>` open/close 均 exactly one，且无 `runtimeMessage` / `providerVisibility` / `evidenceLabel` / `source=` 泄漏。
 
@@ -746,11 +746,11 @@ pnpm --filter @zcode/core typecheck
 - Modify: `apps/zcode-cli/docs/plan/trajectory/system-reminder-source-alignment-plan.md`
 
 - [x] 设计 synthetic Read / Bash tool call/result 的最终 provider-visible meta-user text body 形态。
-- [x] 对照 ZCode 当前 attachment model：live turn `buildUserContentFromTurn(...)`、session `FilePart` persistence、hydrate `filePartToContentBlock(...)`、tool-result summary/compact/media-budget 边界。
-- [x] 明确采用 `text-simulated`：在 `prompt_attachment` `<system-reminder>` 文本中模拟 ZCode `Read` call/result，不生成真实 provider tool result boundary。
-- [x] text-simulated 策略风险已收敛：只覆盖 ZCode-supported file-source text attachment；source-less inline text 保持中性 wrapper，directory/Bash、bubble-up 和 content merge 继续 out of scope。
+- [x] 对照 Secretariat 当前 attachment model：live turn `buildUserContentFromTurn(...)`、session `FilePart` persistence、hydrate `filePartToContentBlock(...)`、tool-result summary/compact/media-budget 边界。
+- [x] 明确采用 `text-simulated`：在 `prompt_attachment` `<system-reminder>` 文本中模拟 Secretariat `Read` call/result，不生成真实 provider tool result boundary。
+- [x] text-simulated 策略风险已收敛：只覆盖 Secretariat-supported file-source text attachment；source-less inline text 保持中性 wrapper，directory/Bash、bubble-up 和 content merge 继续 out of scope。
 
-### Task SR12.2: Implement chosen shape for ZCode-supported file-source text attachments
+### Task SR12.2: Implement chosen shape for Secretariat-supported file-source text attachments
 
 **Files:**
 - Modify: `apps/zcode-cli/packages/core/src/system-reminder/prompt-attachment.ts`
@@ -759,7 +759,7 @@ pnpm --filter @zcode/core typecheck
 - Test: `apps/zcode-cli/packages/core/tests/runtime-persistence.test.ts`
 - Test: `apps/zcode-cli/packages/core/tests/session-history-hydrator.test.ts`
 
-- [x] 只覆盖 ZCode-supported file-source text attachment；live turn 和 hydrate 都优先使用用户提交的附件引用作为 `file_path`，避免 nested path 被 basename 截断；source-less inline text 保持中性 `prompt_attachment` wrapper；image/file data block 继续保真，URL/resource surface 继续作为 ZCode-specific wrapper 外内容处理，不被 synthetic Read wrapper 吃掉。
+- [x] 只覆盖 Secretariat-supported file-source text attachment；live turn 和 hydrate 都优先使用用户提交的附件引用作为 `file_path`，避免 nested path 被 basename 截断；source-less inline text 保持中性 `prompt_attachment` wrapper；image/file data block 继续保真，URL/resource surface 继续作为 Secretariat-specific wrapper 外内容处理，不被 synthetic Read wrapper 吃掉。
 - [x] live turn 和 session hydrate 生成一致的 provider-visible shape。
 - [x] 不改变 session store/UI transcript 结构；如果需要额外 metadata，只能放在 runtime/provider projection 边界，不写入 UI-facing message body。
 - [x] 不把 synthetic attachment shape 计入真实 tool execution ledger、Todo/tool cadence 或 permission flow。
@@ -772,7 +772,7 @@ pnpm --filter @zcode/core typecheck
 - Modify: `apps/zcode-cli/worklogs/trajectory-align-log.md`
 
 - [x] 导出至少一个 nested file-source text attachment testcase 的 provider request body，证明 chosen shape 与 SR12 决策一致。
-- [x] 导出至少一个 URL/resource attachment testcase，证明 URL/resource surface 保持 ZCode-specific wrapper 外 provider-visible content。
+- [x] 导出至少一个 URL/resource attachment testcase，证明 URL/resource surface 保持 Secretariat-specific wrapper 外 provider-visible content。
 - [x] 在本计划中分开记录 SR6 generic reminder 与 SR12 synthetic Read shape 的状态。
 - [x] 更新 worklog under current date-level entry。
 
@@ -790,18 +790,18 @@ pnpm lint
 
 - [x] 每个 active system-reminder source 都有明确 source owner、channel、lifecycle、isMeta、providerVisibility、evidenceLabel。
 - [x] Existing hook/memory/plan/target/skill listing/tool-result/resume reminder 仍 provider-visible，且 source ownership 清晰。
-- [x] `runtime_mode` / plan mode 采用 content/cadence 规则：首轮 full、后续 human-turn cadence、full/sparse 循环，且不引入 ZCode 不存在的 tool name。
+- [x] `runtime_mode` / plan mode 采用 content/cadence 规则：首轮 full、后续 human-turn cadence、full/sparse 循环，且不引入 Secretariat 不存在的 tool name。
 - [x] `date_change` 按 runtime-local 行为实现并补齐 provider-visible wording：fresh/resume 首轮只记录日期，同 runtime 跨日才发送，不刷新 request-level prefix，且提醒不要显式告诉用户。
 - [x] `output_style` 只有 non-default/非空时发送 system-reminder；default/空 style 不发送；tail reminder 只提示 active style，不重复完整 style prompt。
 - [x] Goal/target request-time reminder 已移除；`target_continuation` model-only continuation 仍保留。Todo regular turn 已用 SR5 `todo_reminder` cadence，不再保留 per-request todo-state baseline；`todo_reminder` 文案已在 SR9 补齐 only-if-relevant / ignore-if-not-applicable / never-mention 语义。
 - [x] Skill listing 保持 request-prefix source；attachment 增量 listing 暂不实现；skill discovery 保持 postponed。
 - [x] Tool-result warnings 保持 tool-result source。
-- [x] ZCode-specific existing producers 覆盖完整：context prefix、model anomaly、rewind/fork notice、goal completion verification 都有 source taxonomy。
+- [x] Secretariat-specific existing producers 覆盖完整：context prefix、model anomaly、rewind/fork notice、goal completion verification 都有 source taxonomy。
 - [x] Human queued input 保持 real user source，不能靠 `<system-reminder>` 文本误判。
-- [x] Attachment-origin system-reminder 只覆盖 ZCode-supported provider-visible 类型；不做 order / bubble-up。
-- [x] 所有带 `<system-reminder>` tag 的 active / postponed / ZCode-specific 功能点均完成 tag-wrap audit；active source 有 focused tests 证明 exactly one wrapper。
+- [x] Attachment-origin system-reminder 只覆盖 Secretariat-supported provider-visible 类型；不做 order / bubble-up。
+- [x] 所有带 `<system-reminder>` tag 的 active / postponed / Secretariat-specific 功能点均完成 tag-wrap audit；active source 有 focused tests 证明 exactly one wrapper。
 - [x] `queued_system_notification` / subagent notification 已完成 SR11 调研、live/hydrate wrapper implementation、focused tests 和 prompt-trajectory e2e；session/UI raw notification 保持不变。
-- [x] Synthetic Read/Bash tool call/result meta-user text shape 作为 SR12 最终 phase 单独处理；ZCode-supported file-source text attachment 已采用 synthetic `Read` meta-user text shape，source-less inline text 不虚构 tool name，directory/Bash 无 active producer。
+- [x] Synthetic Read/Bash tool call/result meta-user text shape 作为 SR12 最终 phase 单独处理；Secretariat-supported file-source text attachment 已采用 synthetic `Read` meta-user text shape，source-less inline text 不虚构 tool name，directory/Bash 无 active producer。
 - [x] ToolSearch/deferred tools、MCP instructions/resources、skill discovery、bubble-up、content merge、cache-control finalization 均不在本 plan 实现。
 - [x] Provider JSON 不泄漏 descriptor/provenance/evidence metadata。
 - [x] Prompt-trajectory evidence 存在，并只验收 system-reminder source/content/channel，不验收 `content[]` merge shape。

@@ -331,7 +331,7 @@ describe("buildWorkflowGraphByToolCallId", () => {
       toolCallId: "launch-abc",
       name: "deep-research",
       scope: "project",
-      path: "/w/.zcode/workflows/deep-research.dwf.ts",
+      path: "/w/.secretariat/workflows/deep-research.dwf.ts",
       display: { ...display, causalityGraph: GRAPH },
     };
     const rows = [

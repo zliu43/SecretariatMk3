@@ -5,7 +5,7 @@ import {
   isTrustedRewardsUrl,
   REWARDS_PARTITION,
   resolveRewardsOrigin,
-  ZCODE_ENV,
+  SECRETARIAT_ENV,
   type RewardsContext,
 } from "@zcode/shared";
 import { useServices } from "@/hooks/useServices.js";
@@ -43,7 +43,7 @@ export function RewardsWebview({ onClose }: { onClose: () => void }) {
     buildRewardsUrl(
       resolveRewardsOrigin({
         ...policy,
-        env: ZCODE_ENV,
+        env: SECRETARIAT_ENV,
         override:
           typeof env.VITE_REWARDS_WEBVIEW_ORIGIN === "string"
             ? env.VITE_REWARDS_WEBVIEW_ORIGIN

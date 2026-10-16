@@ -104,7 +104,7 @@ const SAVED_RUN_INPUT = {
       skipTests: false,
       matrix: { os: ["mac", "win"], strict: true },
     },
-    path: "/repo/.zcode/workflows/release-check.dwf.ts",
+    path: "/repo/.secretariat/workflows/release-check.dwf.ts",
     scope: "project",
   },
 };
@@ -143,7 +143,7 @@ const SAVE_INPUT = {
   whenToUse: "用户说要发版时",
   args: { target: { type: "string", required: true, description: "要检查的包" } },
   script: SCRIPT,
-  path: "/repo/.zcode/workflows/release-check.dwf.ts",
+  path: "/repo/.secretariat/workflows/release-check.dwf.ts",
   overwrite: true,
   scope: "project",
 };
@@ -267,7 +267,7 @@ describe("SaveWorkflow 的确认窗（v4 投影）", () => {
     // 覆盖与否是决策关键信息：批准一次覆盖 = 同意丢掉磁盘上那一份。它必须在窗上，
     // 而唯一对所有客户端版本都成立的通道就是入参。
     expect(detail.overwrite).toBe(true);
-    expect(detail.path).toBe("/repo/.zcode/workflows/release-check.dwf.ts");
+    expect(detail.path).toBe("/repo/.secretariat/workflows/release-check.dwf.ts");
     expect(detail.scope).toBe("project");
     expect(detail.script).toBe(SCRIPT);
     expect(conversationSnapshotSchema.safeParse(saveGate().getSnapshot()).success).toBe(true);

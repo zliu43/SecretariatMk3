@@ -1422,14 +1422,14 @@ describe("feishu bot provider", () => {
             message_id: "om_message",
             chat_type: "group",
             content: JSON.stringify({ text: "@_user_1 /status" }),
-            mentions: [{ key: "@_user_1", id: { open_id: "ou_bot" }, name: "ZCode" }],
+            mentions: [{ key: "@_user_1", id: { open_id: "ou_bot" }, name: "Secretariat" }],
           },
         },
       }),
     ).toEqual([
       {
         botId: "feishu-1",
-        text: "@ZCode /status",
+        text: "@Secretariat /status",
         commandText: "/status",
         contentParts: [
           {
@@ -1437,7 +1437,7 @@ describe("feishu bot provider", () => {
             channel: "feishu",
             entityType: "unknown",
             idType: "open_id",
-            name: "ZCode",
+            name: "Secretariat",
             refId: "om_message:m1",
             targetId: "ou_bot",
           },
@@ -1524,7 +1524,7 @@ describe("feishu bot provider", () => {
             content: JSON.stringify({
               content: [
                 [
-                  { tag: "at", user_id: "ou_bot", user_name: "ZCode" },
+                  { tag: "at", user_id: "ou_bot", user_name: "Secretariat" },
                   { tag: "text", text: "看看这个方案 " },
                   {
                     tag: "a",
@@ -2296,7 +2296,7 @@ describe("feishu bot provider", () => {
             code: 0,
             data: {
               app: {
-                app_name: "ZCode Assistant",
+                app_name: "Secretariat Assistant",
               },
             },
           }),
@@ -2315,7 +2315,7 @@ describe("feishu bot provider", () => {
         credentialRef: "app-secret-name",
         feishuAppId: "cli_name",
       }),
-    ).resolves.toBe("ZCode Assistant");
+    ).resolves.toBe("Secretariat Assistant");
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(String(fetchMock.mock.calls[1]?.[0])).toContain(
@@ -2338,7 +2338,7 @@ describe("feishu bot provider", () => {
             code: 0,
             data: {
               app: {
-                app_name: "ZCode Assistant",
+                app_name: "Secretariat Assistant",
               },
             },
           }),
@@ -2357,7 +2357,7 @@ describe("feishu bot provider", () => {
         credentialRef: "app-secret-name",
         feishuAppId: "cli_fallback",
       }),
-    ).resolves.toBe("ZCode Assistant");
+    ).resolves.toBe("Secretariat Assistant");
 
     expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(String(fetchMock.mock.calls[2]?.[0])).toContain(

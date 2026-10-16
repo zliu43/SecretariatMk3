@@ -93,7 +93,7 @@ The selected level's `providerOptionsByLevel[level]` flows unchanged through
 `adapters/src/model/runner-options.ts:mergeProviderOptions` → AI SDK
 `providerOptions`. For OpenAI-compatible providers, the runner copies the canonical
 `openaiCompatible.reasoningEffort` field into the SDK's resolved provider-name
-namespace. The SDK then serializes it once as top-level `reasoning_effort`; ZCode does
+namespace. The SDK then serializes it once as top-level `reasoning_effort`; Secretariat does
 not generate `extra_body` or `chat_template_kwargs` for these levels.
 
 ## Level Display

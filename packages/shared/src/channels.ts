@@ -106,13 +106,13 @@ export const ServiceChannels = {
   CuaPipSession: "cua-pip-session",
   /** 跨窗口广播 */
   Broadcast: "broadcast",
-  /** ZCode task wrapper 服务 */
+  /** Secretariat task wrapper 服务 */
   ZCodeTask: "zcode-task",
   /** 窗口 Host 聚合 workspace/task 投影与列表写路由 */
   WindowController: "window-controller",
-  /** ZCode Protocol agent 服务 */
+  /** Secretariat Protocol agent 服务 */
   ZCodeAgent: "zcode-agent",
-  /** ZCode session 应用服务 */
+  /** Secretariat session 应用服务 */
   ZCodeSession: "zcode-session",
   /** 会话分享发布、预览与 continuation API 编排 */
   ConversationShare: "conversation-share",
@@ -131,7 +131,7 @@ export const ServiceChannels = {
   /** Coding Plan 订阅购买服务 */
   CodingPlanSubscription: "coding-plan-subscription",
   ClientConfig: "client-config",
-  /** ZCode 客户端场景配置服务 */
+  /** Secretariat 客户端场景配置服务 */
   ClientScenes: "client-scenes",
   CloudContent: "cloud-content",
   MarketingTouch: "marketing-touch",
@@ -198,7 +198,7 @@ export const PlatformChannels = {
   SelectFile: "zcode:select-file",
   /** 打开系统多文件选择框 */
   SelectFiles: "zcode:select-files",
-  /** Renderer → Main：写入宿主 ~/.zcode 临时文本附件 */
+  /** Renderer → Main：写入宿主 ~/.secretariat 临时文本附件 */
   CreateTempTextAttachment: "zcode:create-temp-text-attachment",
   /** Renderer → Main：把 dwf 产物某一版的字节落成本机副本（「作为文件打开」） */
   MaterializeWorkflowArtifactFile: "zcode:materialize-workflow-artifact-file",
@@ -322,7 +322,7 @@ export const PlatformChannels = {
   ClearNetworkCapture: "zcode:clear-network-capture",
   /** 打开资源管理器窗口（其他窗口触发） */
   OpenResourceManager: "zcode:open-resource-manager",
-  /** 资源管理器「存储」tab：开始扫描本机 .zcode 占用（main 持有 StorageService，Worker 线程遍历） */
+  /** 资源管理器「存储」tab：开始扫描本机 .secretariat 占用（main 持有 StorageService，Worker 线程遍历） */
   StorageStartScan: "zcode:storage-start-scan",
   /** 资源管理器「存储」tab：取消扫描 */
   StorageCancelScan: "zcode:storage-cancel-scan",
@@ -342,7 +342,7 @@ export const PlatformChannels = {
   OpenInFileManager: "zcode:open-in-file-manager",
   /** Renderer → Main：使用系统默认应用打开本地文件 */
   OpenExternalFile: "zcode:open-external-file",
-  /** Renderer → Main：打开 ZCode Computer Use 权限引导 */
+  /** Renderer → Main：打开 Secretariat Computer Use 权限引导 */
   OpenCuaPermissionOnboarding: "zcode:open-cua-permission-onboarding",
   /** Renderer → Main：取消当前 renderer 发起的一次权限引导 participant */
   CancelCuaPermissionOnboarding: "zcode:cancel-cua-permission-onboarding",
@@ -399,7 +399,7 @@ export const PlatformChannels = {
   TaskNotificationSound: "zcode:task-notification-sound",
   /** Main → Preload：用户点击了系统通知，携带 taskId 让 renderer 跳转到对应任务 */
   TaskNotificationClick: "zcode:task-notification-click",
-  /** Renderer → Main：导出日志（打包 ~/.zcode/v2 及外部 agent 日志为 zip 并在 Finder 中显示） */
+  /** Renderer → Main：导出日志（打包 ~/.secretariat/v2 及外部 agent 日志为 zip 并在 Finder 中显示） */
   ExportLogs: "zcode:export-logs",
   /** Renderer → Main：截取当前窗口作为反馈附件 */
   CaptureWindowScreenshot: "zcode:capture-window-screenshot",
@@ -575,9 +575,9 @@ export const InternalChannels = {
 } as const;
 
 /** @deprecated `/ws` 已忽略该头；保留常量仅供旧客户端兼容。 */
-export const ZCODE_RPC_CLIENT_MODE_HEADER = "x-zcode-rpc-client-mode";
+export const SECRETARIAT_RPC_CLIENT_MODE_HEADER = "x-zcode-rpc-client-mode";
 /** desktop 先经受保护 HTTP endpoint 申请，再在 `/ws/host` 握手时一次性消费。 */
-export const ZCODE_RPC_HOST_CAPABILITY_HEADER = "x-zcode-rpc-host-capability";
+export const SECRETARIAT_RPC_HOST_CAPABILITY_HEADER = "x-zcode-rpc-host-capability";
 
 // ============================================================================
 // 进程间消息类型 —— main ↔ host process 之间的 postMessage
@@ -636,7 +636,7 @@ export const HostMessageTypes = {
   LocalMediaPreviewPathAuthorizeResult: "local-media-preview-path-authorize-result",
   /** main → host：插件 UI 沙箱登记结果（PluginSandboxRegisterResultPayload） */
   PluginSandboxRegisterResult: "plugin-sandbox-register-result",
-  /** Main → Host：全局前台 ZCode 窗口派生的 producer focus fact。 */
+  /** Main → Host：全局前台 Secretariat 窗口派生的 producer focus fact。 */
   CuaPipFocusChanged: "cua-pip-focus-changed",
   /** main → host：要求 Host 现读本地 Source，并同步指定 Remote Environment。 */
   ProviderProvisioningExecute: "provider-provisioning-execute",
@@ -717,7 +717,7 @@ export const HostResponseTypes = {
   BotRemoteWorkspaceRuntimePortRequest: "bot-remote-workspace-runtime-port-request",
   /** host → main：Agent 请求向另一个 session 发送消息 */
   SessionMessageSendRequested: "session-message-send-requested",
-  /** host → main：声明一个 ZCode Agent session 当前归属该 host */
+  /** host → main：声明一个 Secretariat Agent session 当前归属该 host */
   SessionRouteAnnounce: "session-route-announce",
   /** host → main：目标 host 完成本地 session message 投递 */
   SessionMessageDeliverResult: "session-message-deliver-result",

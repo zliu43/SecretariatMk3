@@ -1,8 +1,8 @@
-# ZCode CLI Compact 设计 v2
+# Secretariat CLI Compact 设计 v2
 
 ## 文档定位
 
-本文记录 ZCode v2 compact 的候选设计。当前文档属于 `L1 Candidate Contract`：它明确 compact 的领域边界、状态变化、对外契约和风险，但不固定最终 TypeScript 接口、数据库表结构或事件字段全集。
+本文记录 Secretariat v2 compact 的候选设计。当前文档属于 `L1 Candidate Contract`：它明确 compact 的领域边界、状态变化、对外契约和风险，但不固定最终 TypeScript 接口、数据库表结构或事件字段全集。
 
 实施拆分见 [plan.md](./plan.md)。
 
@@ -16,7 +16,7 @@ Compact 的目标不是简单减少 UI 中可见消息，而是在不丢失当�
 
 ### 1.1 核心概念
 
-ZCode v2 应把 compact 视为 session 状态机中的一类结构化事件，而不是一个直接改数组的工具函数。
+Secretariat v2 应把 compact 视为 session 状态机中的一类结构化事件，而不是一个直接改数组的工具函数。
 
 核心对象：
 
@@ -36,13 +36,13 @@ attachments
 hook results
 ```
 
-ZCode 保留这种顺序语义：先声明边界，再给 summary，再接原始保留消息和恢复上下文。这样 session replay、resume、UI projection 和 provider request 都能用同一个断点模型理解 compact。
+Secretariat 保留这种顺序语义：先声明边界，再给 summary，再接原始保留消息和恢复上下文。这样 session replay、resume、UI projection 和 provider request 都能用同一个断点模型理解 compact。
 
 ### 1.2 触发路径
 
 Compact 至少需要三类触发路径。
 
-自动 compact：每轮模型请求前根据活跃上下文 token 估算判断。策略是给 summary 输出和后续请求预留 buffer，不等到真正满窗才 compact。ZCode 应把阈值策略做成配置化 policy，例如 `effectiveContextWindow - reservedOutputTokens - compactBufferTokens`，并记录阈值来源。
+自动 compact：每轮模型请求前根据活跃上下文 token 估算判断。策略是给 summary 输出和后续请求预留 buffer，不等到真正满窗才 compact。Secretariat 应把阈值策略做成配置化 policy，例如 `effectiveContextWindow - reservedOutputTokens - compactBufferTokens`，并记录阈值来源。
 
 手动 compact：用户通过命令主动压缩当前上下文。手动 compact 可以附带 summary 指令，但不能绕过权限、hook、trace 和持久化流程。
 
@@ -89,7 +89,7 @@ Compact summary 应稳定覆盖这些信息：
 - 仍未完成的待办和不应再重复尝试的路径。
 - 对后续 agent 有用的环境、权限、模式和工具状态。
 
-Summary prompt 可以要求模型先写内部分析块，但进入 post-compact context 的内容必须是清洗后的 summary。ZCode 不应把 summary agent 的草稿推回主上下文。
+Summary prompt 可以要求模型先写内部分析块，但进入 post-compact context 的内容必须是清洗后的 summary。Secretariat 不应把 summary agent 的草稿推回主上下文。
 
 ### 1.5 Microcompact 和 full compact 的边界
 
@@ -100,7 +100,7 @@ Microcompact 只处理局部上下文压力，不应等同于 full compact。
 - provider-neutral local microcompact：对旧 tool result 做 provider-visible 内容清理，只保留占位符、原始大小、tool id 和可追踪 artifact/session 引用；不修改原始 transcript、tool part 或 workspace checkpoint。
 - time-based local microcompact：长时间 idle 后如果 provider cache 预计过期，可主动清理旧 tool result，减少下一次请求重写成本。
 - pressure-based local microcompact：当活跃上下文超过 microcompact 阈值但还没到 full compact 阈值时，先清理旧 tool result，避免过早生成有损 summary。
-- provider-specific cached microcompact：只有 provider adapter 明确声明支持时，才使用 cache edit/reference 删除服务端缓存中的旧 tool result；它是可选优化，不是 ZCode 的主路径。
+- provider-specific cached microcompact：只有 provider adapter 明确声明支持时，才使用 cache edit/reference 删除服务端缓存中的旧 tool result；它是可选优化，不是 Secretariat 的主路径。
 
 Microcompact 不应创建 full `CompactBoundary`，除非它真的改变了可恢复消息链。它需要自己的事件类型或 metadata，避免 resume/rewind 把它误解成历史断代。
 
@@ -112,7 +112,7 @@ call ids 和 traceId。该事件只服务观测和 UI，不参与 full compact a
 
 ### 1.6 Session memory compact
 
-如果 ZCode 引入 session memory，应把它作为 compact 的一种 summary 来源，而不是绕过 compact 机制。
+如果 Secretariat 引入 session memory，应把它作为 compact 的一种 summary 来源，而不是绕过 compact 机制。
 
 流程上可以先尝试 session memory compact：
 
@@ -159,7 +159,7 @@ Compact 后这些状态通常需要清理或重建：
 
 ### 2.1 对用户的行为承诺
 
-ZCode 对外应把 compact 描述为：
+Secretariat 对外应把 compact 描述为：
 
 ```text
 清理旧对话历史，但保留一份可继续工作的上下文总结。
@@ -175,7 +175,7 @@ ZCode 对外应把 compact 描述为：
 
 ### 2.2 对 SDK / TUI / CLI 的事件要求
 
-Compact 必须对外发出结构化事件，而不是只输出一段文本。Core 是 compact 生命周期的事实来源，不能提前把 TUI/ZCode app-server 文案写进事件；它只发布 `status`、`trigger`、`phase`、`compactReason`、`display`、token 统计、boundary/summary id 和失败原因等机器可读字段。
+Compact 必须对外发出结构化事件，而不是只输出一段文本。Core 是 compact 生命周期的事实来源，不能提前把 TUI/Secretariat app-server 文案写进事件；它只发布 `status`、`trigger`、`phase`、`compactReason`、`display`、token 统计、boundary/summary id 和失败原因等机器可读字段。
 
 至少需要：
 
@@ -193,13 +193,13 @@ SDK 消费者需要能识别 compact boundary。TUI 消费者需要能在视觉�
 Compact timeline 的显示规则属于客户端投影：
 
 - TUI 根据 `status + trigger + display` 从自身 copy registry 渲染分隔线文本和状态行。
-- ZCode app-server transport 根据同一结构生成 timeline metadata，供客户端识别 synthetic timeline；若外部兼容协议要求纯文本 fallback，该文本只能在 transport/client 层生成，不能来自 core payload。
+- Secretariat app-server transport 根据同一结构生成 timeline metadata，供客户端识别 synthetic timeline；若外部兼容协议要求纯文本 fallback，该文本只能在 transport/client 层生成，不能来自 core payload。
 - Session store 可以保留旧版本写入的 `timelineText` 用于兼容历史数据，但新写入的 compact timeline part 不再持久化渲染文案。
 - Replay 时优先使用结构化字段恢复 timeline；旧历史缺少结构化字段时，才允许读取 legacy `timelineText` 作为兜底。
 
 ### 2.3 对配置和权限的要求
 
-ZCode 自有配置和环境变量必须使用 `ZCODE_` 前缀。
+Secretariat 自有配置和环境变量必须使用 `SECRETARIAT_` 前缀。
 
 建议配置项：
 
@@ -209,7 +209,7 @@ ZCode 自有配置和环境变量必须使用 `ZCODE_` 前缀。
 - `compact.maxConsecutiveFailures`：自动 compact 失败熔断次数。
 - `compact.preserveRecentTokens`：session memory compact 或 partial compact 的最近上下文保留量。
 
-调试和运维 override 不声明环境变量入口，优先使用 config file、CLI/session override 或测试注入。新增 `ZCODE_` 环境变量必须先补齐 spec，明确用途、优先级、错误行为和测试覆盖。
+调试和运维 override 不声明环境变量入口，优先使用 config file、CLI/session override 或测试注入。新增 `SECRETARIAT_` 环境变量必须先补齐 spec，明确用途、优先级、错误行为和测试覆盖。
 
 权限上，compact 自身通常不是危险操作，但它会触发 provider 请求、hook 执行、session 写入和可能的文件读取恢复附件。因此它的副作用范围至少包括 `network`、`workspace`、`session-storage` 和 `user-visible-state`。
 
@@ -219,7 +219,7 @@ Compact 对 rewind 有直接影响。
 
 Conversation rewind 依赖可选择的 user message 和当前 active message chain。Full compact 后，compact 前的 user message 通常不再在 active chain 中；即使 UI 仍保留 scrollback，模型上下文和 message selector 也应以最近 boundary 后的投影为准。
 
-File rewind 依赖 user message UUID 对应的 file history snapshot。如果 snapshot 的锚点消息已经被 compact prune，resume 后可能无法从 active chain 中恢复这个 checkpoint。ZCode 需要明确策略：
+File rewind 依赖 user message UUID 对应的 file history snapshot。如果 snapshot 的锚点消息已经被 compact prune，resume 后可能无法从 active chain 中恢复这个 checkpoint。Secretariat 需要明确策略：
 
 - compact 前的 file checkpoint 是否继续出现在 UI 中。
 - 如果显示，是否只能恢复文件，不能恢复对话。
@@ -302,7 +302,7 @@ Compact 必须具备可诊断性。
 
 Compact 是有损操作，但不应是不可观测操作。
 
-ZCode v2 的基本原则：
+Secretariat v2 的基本原则：
 
 - 有损边界必须显式进入 session log。
 - 任何跨进程、跨恢复、跨 SDK 的 compact 结果都必须有 runtime schema。

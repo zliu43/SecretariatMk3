@@ -93,8 +93,8 @@ const INDICATOR_SHADOW_INSET = { top: 6, right: 8, bottom: 12, left: 8 } as cons
 
 function indicatorCopy(locale: Locale): { text: string; width: number } {
   return locale === "zh-CN"
-    ? { text: "ZCode 正在操作电脑", width: 234 }
-    : { text: "ZCode is controlling your computer", width: 308 };
+    ? { text: "Secretariat 正在操作电脑", width: 234 }
+    : { text: "Secretariat is controlling your computer", width: 308 };
 }
 
 function indicatorWindowSize(locale: Locale): { width: number; height: number } {
@@ -174,7 +174,7 @@ git commit -m "fix(cua): render natural Windows indicator shadow"
 停止当前 `@zcode/desktop dev:local-cli` 进程树，然后用以下环境变量启动隐藏 dev 进程：
 
 ```powershell
-$env:ZCODE_CUA_DEV_ROOT = "C:\Users\dev\zcode-cua"
+$env:SECRETARIAT_CUA_DEV_ROOT = "C:\Users\dev\zcode-cua"
 pnpm --filter @zcode/desktop dev:local-cli
 ```
 

@@ -49,7 +49,7 @@
 - 每个 subagent 继承父 turn 的 runtime config、cwd、approval、sandbox、环境选择。
 - spawn 立即返回 id；wait 通过 status subscription 等待终态。
 - registry 维护 agent tree、名称、spawn limit 和 last task message。
-- ZCode 第一版在 `SubagentPort.run()` 之外新增后台任务 API，而不是让 tool executor 自己轮询内部 Promise。
+- Secretariat 第一版在 `SubagentPort.run()` 之外新增后台任务 API，而不是让 tool executor 自己轮询内部 Promise。
 
 ## 第一版契约
 

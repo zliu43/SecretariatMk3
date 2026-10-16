@@ -1,8 +1,8 @@
 {
   "name": "@zcode/desktop",
   "private": true,
-  "description": "ZCode Desktop App",
-  "author": "ZCode",
+  "description": "Secretariat Desktop App",
+  "author": "Secretariat",
   "type": "module",
   "main": "out/main/index.js",
   "scripts": {
@@ -121,5 +121,5 @@
     "wdio-electron-service": "^9.2.1",
     "webdriverio": "^9.27.0"
   },
-  "productName": "ZCode"
+  "productName": "Secretariat"
 }

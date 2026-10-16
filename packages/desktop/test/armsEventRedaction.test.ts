@@ -84,7 +84,7 @@ describe("redactArmsEventBatch - exception", () => {
         type: "error",
         source: "uncaughtException",
         message: "boom",
-        file: "file:///C:/Users/erin/AppData/Local/Programs/ZCode/resources/app.asar/dist/renderer/assets/index-9f3a.js",
+        file: "file:///C:/Users/erin/AppData/Local/Programs/Secretariat/resources/app.asar/dist/renderer/assets/index-9f3a.js",
         line: 1,
         column: 2345,
       },
@@ -162,7 +162,7 @@ describe("redactArmsEventBatch - api / resource", () => {
         event_type: "resource",
         type: "api",
         url: "https://zcode.z.ai/api/v1/ping",
-        message: "connect ECONNREFUSED for /Users/erin/.zcode/socket",
+        message: "connect ECONNREFUSED for /Users/erin/.secretariat/socket",
       },
     ]);
     expect(event!.message).not.toContain("erin");

@@ -12,7 +12,7 @@ import type { CuaOsSupport, CuaPermissionKind, RemoteTarget } from "@zcode/share
 import {
   DesktopCommandIds,
   isRemoteWorkspaceIdentity,
-  ZCODE_CUA_OFFICIAL_PLUGIN_ID,
+  SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID,
 } from "@zcode/shared";
 import { isCuaPermissionStatusAvailable, type CuaPermissionRestartOptions } from "@zcode/services";
 import { Button } from "@/components/ui/button.js";
@@ -127,9 +127,9 @@ export function ComputerUseSection({
   const setPluginEnabled = usePluginManagementStore((state) => state.setEnabled);
   const initializePlugins = usePluginManagementStore((state) => state.initialize);
   const togglingPluginId = usePluginManagementStore((state) => state.togglingPluginId);
-  const cuaPlugin = plugins.find((plugin) => plugin.id === ZCODE_CUA_OFFICIAL_PLUGIN_ID);
+  const cuaPlugin = plugins.find((plugin) => plugin.id === SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID);
   const cuaEnabled = cuaPlugin?.enabled ?? false;
-  const cuaToggling = togglingPluginId === ZCODE_CUA_OFFICIAL_PLUGIN_ID;
+  const cuaToggling = togglingPluginId === SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID;
 
   const initRef = useRef(false);
   useEffect(() => {
@@ -166,7 +166,7 @@ export function ComputerUseSection({
     );
     pendingGrantSessionIdRef.current = undefined;
   }, [path, workspaceIdentity]);
-  // 重启 Helper 后验证仍持续 stale → 显示"重启 ZCode"兜底按钮。accessibility 变 granted 时自愈清除。
+  // 重启 Helper 后验证仍持续 stale → 显示"重启 Secretariat"兜底按钮。accessibility 变 granted 时自愈清除。
   const [verifyTimedOut, setVerifyTimedOut] = useState(false);
   // 卸载守卫：异步 fetch / 重启 / 切换完成时若组件已卸载，跳过 setState。
   const mountedRef = useRef(true);
@@ -317,8 +317,8 @@ export function ComputerUseSection({
     [onRestart],
   );
 
-  // 兜底:重启 Helper 后仍持续 stale 时,用户可一键重启 ZCode(复用 OAuth 登出同款 RelaunchApp)。
-  // 新 ZCode 进程会干净地重新拉起 Helper,绕过当前进程里可能卡住的重启机制(孤儿/socket/状态污染)。
+  // 兜底:重启 Helper 后仍持续 stale 时,用户可一键重启 Secretariat(复用 OAuth 登出同款 RelaunchApp)。
+  // 新 Secretariat 进程会干净地重新拉起 Helper,绕过当前进程里可能卡住的重启机制(孤儿/socket/状态污染)。
   const onRelaunchApp = useCallback(async () => {
     if (typeof platform.executeDesktopCommand !== "function") return;
     await platform.executeDesktopCommand(DesktopCommandIds.RelaunchApp);
@@ -331,7 +331,7 @@ export function ComputerUseSection({
       const operationContextKey = pluginToggleContextKey;
       // 切换 zcode-cua 插件 = 同步其 MCP server + skill 一起启用/禁用。
       const completed = await runAfterSuccessfulPluginEnabledChange({
-        submit: () => setPluginEnabled(ZCODE_CUA_OFFICIAL_PLUGIN_ID, next, pluginManagementService),
+        submit: () => setPluginEnabled(SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID, next, pluginManagementService),
         isCurrent: () =>
           mountedRef.current &&
           pluginToggleGenerationRef.current === operationGeneration &&
@@ -516,7 +516,7 @@ export function ComputerUseSection({
     void (returnRecoveryRef.current.pending ? applyPendingGrant() : onRestart());
   }, [applyPendingGrant, onRestart]);
 
-  // 自愈:accessibility 在后续任一次查询里变成 granted 时,清除"重启 ZCode"兜底(说明问题已解决)。
+  // 自愈:accessibility 在后续任一次查询里变成 granted 时,清除"重启 Secretariat"兜底(说明问题已解决)。
   useEffect(() => {
     if (availableStatus?.accessibility === "granted") setVerifyTimedOut(false);
   }, [availableStatus?.accessibility]);
@@ -576,7 +576,7 @@ export function ComputerUseSection({
   };
 
   // 旧 Helper 的 stale 可能来自进程缓存，也可能来自旧 ad-hoc CDHash；先重启并验证，仍失败时同时
-  // 保留重新授权入口与“重启 ZCode”兜底，避免把不可由单次 Helper 重启修复的状态误导成已解决。
+  // 保留重新授权入口与“重启 Secretariat”兜底，避免把不可由单次 Helper 重启修复的状态误导成已解决。
   const renderRestartDetail = (): ReactNode => (
     <div className="flex flex-col items-start gap-2">
       <Button

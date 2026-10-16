@@ -75,9 +75,9 @@ describe("createZCodeSessionService", () => {
           command: "uvx",
           args: ["zcode-cua"],
           env: [
-            { name: "ZCODE_PLUGIN_ID", value: "computer-use@zcode-plugins-official" },
+            { name: "SECRETARIAT_PLUGIN_ID", value: "computer-use@zcode-plugins-official" },
             {
-              name: "ZCODE_CUA_PLUGIN_AUTHORITY",
+              name: "SECRETARIAT_CUA_PLUGIN_AUTHORITY",
               value: "dev.zcode.cua-helper/dev",
             },
           ],
@@ -329,7 +329,7 @@ describe("createZCodeSessionService", () => {
       initialize: vi.fn(async () => ({
         available: true,
         workspaceKey: "remote:ssh:dev:/workspace/app",
-        protocolName: "ZCode Protocol",
+        protocolName: "Secretariat Protocol",
         protocolVersion: 1,
         transportKind: "stdio",
       })),
@@ -674,7 +674,7 @@ describe("createZCodeSessionService", () => {
 
   it("syncs resume model override into the task index", async () => {
     const snapshot = {
-      protocol: { name: "ZCode Protocol", version: 1 },
+      protocol: { name: "Secretariat Protocol", version: 1 },
       session: {
         sessionId: "session-1",
         mode: "build",
@@ -722,7 +722,7 @@ describe("createZCodeSessionService", () => {
   it("replays requested thought level before broadcasting resume snapshot", async () => {
     const makeSnapshot = (thoughtLevel: string) =>
       ({
-        protocol: { name: "ZCode Protocol", version: 1 },
+        protocol: { name: "Secretariat Protocol", version: 1 },
         session: {
           sessionId: "session-1",
           mode: "build",
@@ -787,7 +787,7 @@ describe("createZCodeSessionService", () => {
 
   it("skips resume thought replay when the restored model does not support the requested level", async () => {
     const snapshot = {
-      protocol: { name: "ZCode Protocol", version: 1 },
+      protocol: { name: "Secretariat Protocol", version: 1 },
       session: {
         sessionId: "session-1",
         mode: "build",
@@ -856,7 +856,7 @@ describe("createZCodeSessionService", () => {
 
   it("updates only task model when resume snapshot broadcast is disabled", async () => {
     const snapshot = {
-      protocol: { name: "ZCode Protocol", version: 1 },
+      protocol: { name: "Secretariat Protocol", version: 1 },
       session: {
         sessionId: "session-1",
         mode: "build",

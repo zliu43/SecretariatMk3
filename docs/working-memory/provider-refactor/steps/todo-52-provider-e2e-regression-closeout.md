@@ -209,7 +209,7 @@ CPUW-01/CPUW-03 保留，购买完成后的用户可见行为收口为：
 
 对应技术修复：
 
-- mock control plane 使用显式 `ZCODE_CODING_PLAN_UPGRADE_MOCK_BASE_URL`；
+- mock control plane 使用显式 `SECRETARIAT_CODING_PLAN_UPGRADE_MOCK_BASE_URL`；
 - 不从 Personal Config 查 Account Provider API Key；
 - 不断言旧 `enabled`、Family current selection 或 private credential；
 - 使用刷新请求作为 WebView 完成事件的正式结果；模型选择变化不由购买弹窗测试代为定义。

@@ -2,14 +2,14 @@
 
 ## 背景
 
-本文最初记录的缺口是：ZCode 的对外输入和 provider-visible history
+本文最初记录的缺口是：Secretariat 的对外输入和 provider-visible history
 基本仍是纯文本。原始问题包括：
 
 - `ZCodeApp.submitPrompt(prompt: string)` / `sendInput(input: string)` 只接收文本。
-- `AgentRuntime.executeTurn(input, attachments?)` 已有附件参数，但 bootstrap、CLI、TUI、ZCode app-server 没有传入附件。
+- `AgentRuntime.executeTurn(input, attachments?)` 已有附件参数，但 bootstrap、CLI、TUI、Secretariat app-server 没有传入附件。
 - `ModelInputMessage.content` 是 `string`，`toAiSdkMessages()` 直接把 user/system 内容转成字符串。
 - session store 已有 `FilePart`，`persistUserPrompt()` 也会把附件落成 `file` part，但 resume 时 `session-history-hydrator` 只把 file part 恢复成 `[Attached file: ...]` 文本。
-- ZCode app-server spec 明确拒绝 embedded resources、images、audio，直到 runtime attachments 有稳定 schema。
+- Secretariat app-server spec 明确拒绝 embedded resources、images、audio，直到 runtime attachments 有稳定 schema。
 
 ## 当前实现状态
 
@@ -19,7 +19,7 @@ Status as of 2026-05-08: 图片输入主线已经落地，文件/资源/大媒�
 
 - `PromptInput = string | { text, attachments }` 已在 bootstrap 暴露；`submitPrompt()` 和 `sendInput()` 都会把附件传给 runtime。active turn steering 仍是文本队列，带附件输入在 active turn 时被稳定拒绝。
 - CLI 支持 `--attach <path>`，按扩展名把常见图片传为 `image`，其它路径传为 `file`；TUI 图片粘贴通过 `TuiReadClipboardImage` 传入 data URL-backed `image` attachment。
-- ZCode app-server `prompt` 已声明 image capability，并把 ZCode app-server `image` content block 转成 runtime `image` attachment；`text` 和 `resource_link` 仍按文本内容处理，不自动读取远程资源。
+- Secretariat app-server `prompt` 已声明 image capability，并把 Secretariat app-server `image` content block 转成 runtime `image` attachment；`text` 和 `resource_link` 仍按文本内容处理，不自动读取远程资源。
 - `ModelInputMessage.content` 已扩展为 `string | ModelMessageContentBlock[]`，并有运行时 JSON schema 覆盖 `text`、`reasoning`、`image`、`file` 和 `resource_link` block。
 - runtime resolver 会把 inline/local image attachment 转成 provider-neutral image block，图片进入模型前通过 `ImageProcessorPort.resizeToFit` 限制最长边 2000 像素；WebP 在 Jimp adapter 中保持原始 bytes，不做 resize/transcode。
 - local text/file attachment 当前按 `text/plain` 预算读取为 text block；超限会写 preview 和 truncated fallback。非文件、超大图片、坏 data URL 或读取失败会转成稳定文本占位和 metadata，而不是把坏 payload 交给 provider。
@@ -34,9 +34,9 @@ Status as of 2026-05-08: 图片输入主线已经落地，文件/资源/大媒�
 - compact boundary 还没有记录附件统计、`attachmentMessageIds`、strip refs 或 context overflow 后的专门 media-strip replay。
 - debug/trace 还没有完整展示附件 storageKind、projection result、降级原因和 hash 前缀。
 
-Status update as of 2026-05-14: provider request 前的媒体预算投影已进入当前阶段。ZCode 会在真正调用模型前统计 provider-visible image/PDF data URL 字节数，优先保留最新真实用户消息里的媒体，把较旧媒体替换成可读 placeholder；如果最新用户消息本身已经超过预算，则本地抛出可恢复的 invalid input 错误，不把请求打到 provider。
+Status update as of 2026-05-14: provider request 前的媒体预算投影已进入当前阶段。Secretariat 会在真正调用模型前统计 provider-visible image/PDF data URL 字节数，优先保留最新真实用户消息里的媒体，把较旧媒体替换成可读 placeholder；如果最新用户消息本身已经超过预算，则本地抛出可恢复的 invalid input 错误，不把请求打到 provider。
 
-Status update as of 2026-06-06: 桌面 GUI 的文件选择入口改为优先传 `localPath`，不再把普通文件序列化成 `dataBase64` 附件。ZCode app-server 会在 `session/send` 边界把 GUI 的 `kind/localPath/dataBase64/textContent` 协议附件转换成 core 的 `TurnAttachment { type, path/content }`。TUI/CLI 与 GUI 共用 core resolver：小文本仍按 `inlineTextMaxBytes = 64 KiB` 内联为 synthetic Read 结果；超过该阈值的文本、非文本普通文件和超过 `INLINE_MEDIA_ATTACHMENT_MAX_BYTES = 20 MiB` 的图片只交付本地路径引用，让模型按需使用读取工具，而不是把大文件内容塞进 prompt。
+Status update as of 2026-06-06: 桌面 GUI 的文件选择入口改为优先传 `localPath`，不再把普通文件序列化成 `dataBase64` 附件。Secretariat app-server 会在 `session/send` 边界把 GUI 的 `kind/localPath/dataBase64/textContent` 协议附件转换成 core 的 `TurnAttachment { type, path/content }`。TUI/CLI 与 GUI 共用 core resolver：小文本仍按 `inlineTextMaxBytes = 64 KiB` 内联为 synthetic Read 结果；超过该阈值的文本、非文本普通文件和超过 `INLINE_MEDIA_ATTACHMENT_MAX_BYTES = 20 MiB` 的图片只交付本地路径引用，让模型按需使用读取工具，而不是把大文件内容塞进 prompt。
 
 Status update as of 2026-07-31: inline/paste 图片继续把 data URL artifact 作为恢复事实，同时在
 `<storageRoot>/cli/image-cache/<sessionId>/` 中 eager 物化可重建的真实图片文件；durable artifact
@@ -64,7 +64,7 @@ video path 与 image 一样不持久化；冷恢复时从 durable artifact 重�
 Status update as of 2026-08-19: video 输入已作为独立 modality 接入当前主线。CLI、V4
 `AttachmentRef`、composer inline upload 与 Read 均可生成 provider-neutral video block；模型 catalog
 能力与 provider wire 能力分别门控，不支持时 strip。模型能力由 Active Model 的
-`properties.input_format.support_video` 表达，30MiB 输入上限是与 image 同类的 ZCode 全局产品策略，不随 catalog、session 或
+`properties.input_format.support_video` 表达，30MiB 输入上限是与 image 同类的 Secretariat 全局产品策略，不随 catalog、session 或
 turn model 配置。用户与 tool-result
 video 都以 `FilePart + zcode-artifact://` 作为跨 provider/cold-resume 的 durable 事实，当前 provider
 需要的 base64 只在请求期投影。core/Read 的 video 输入策略为 30MiB；V4 上传继续沿用既有 20MiB、
@@ -118,7 +118,7 @@ Desktop 专用媒体 scheme 必须在 `app.ready` 前以 `standard + secure + st
 
 ### 持久化与 provider 投影
 
-ZCode 当前的 session store 形态是：消息由 `MessageInfo + Part[]` 组成，附件是 `FilePart`：
+Secretariat 当前的 session store 形态是：消息由 `MessageInfo + Part[]` 组成，附件是 `FilePart`：
 
 ```typescript
 type FilePart = {
@@ -142,9 +142,9 @@ provider transform 的规则：
 - compact/replay 时可以 `stripMedia`，把媒体替换成 `[Attached image/png: file]` 这类占位。
 - TUI 对图片/PDF使用虚拟占位符 `[Image N]` / `[PDF N]`，删除占位符就删除对应 part；SVG 按文本粘贴，不当作图片 base64。
 
-### 对 ZCode 的取舍
+### 对 Secretariat 的取舍
 
-ZCode 采用 durable part 模型作为持久化主线，因为当前仓库已经有 `FilePart` / `FilePartSource` 形状；同时采用显式输入 variant 和本地图片延迟编码，避免入口层直接把本地路径伪装成 provider 内容。
+Secretariat 采用 durable part 模型作为持久化主线，因为当前仓库已经有 `FilePart` / `FilePartSource` 形状；同时采用显式输入 variant 和本地图片延迟编码，避免入口层直接把本地路径伪装成 provider 内容。
 
 具体取舍：
 
@@ -258,7 +258,7 @@ wire 或 model-io 诊断中。
 - `mediaSnapshotMaxBytes`: 20 MiB，超过则拒绝或只保留 metadata。具体 provider 的更低限制由 provider adapter 再次门控。
 - `toolAttachmentMaxBytes`: 20 MiB，tool 产物媒体进入同一 artifact store。
 
-后续如果要把这些阈值暴露成配置，必须另写配置优先级、错误行为和测试覆盖；不要直接加 `ZCODE_*` 环境变量。
+后续如果要把这些阈值暴露成配置，必须另写配置优先级、错误行为和测试覆盖；不要直接加 `SECRETARIAT_*` 环境变量。
 
 ### 投影层
 
@@ -321,7 +321,7 @@ interface MessageProjector {
 核心目标：
 
 1. 建立 provider-neutral 的消息内容块和附件 schema。
-2. 让 CLI/TUI/ZCode app-server/bootstrap/runtime/session store 使用同一份附件契约。
+2. 让 CLI/TUI/Secretariat app-server/bootstrap/runtime/session store 使用同一份附件契约。
 3. 图片在支持 image input 的模型上以 image content block 进入 provider；不支持时给出稳定、可解释的降级。
 4. 文本文件可以按预算内联；大文件和二进制文件只保留摘要、metadata 和可追踪引用，不把大体积内容直接塞回上下文。
 5. resume、compact、rewind、debug、event log 都能观察和恢复附件状态。
@@ -412,7 +412,7 @@ interface AttachmentStorageMetadata {
 }
 ```
 
-`metadata_only` 不是成功附件，它表示用户确实提交过附件，但 ZCode 没有把原始内容保存下来，模型只能看到可解释 fallback。
+`metadata_only` 不是成功附件，它表示用户确实提交过附件，但 Secretariat 没有把原始内容保存下来，模型只能看到可解释 fallback。
 
 `ModelInputMessage.content` 从 `string` 扩展为：
 
@@ -473,9 +473,9 @@ sendInput(input: string | UserPromptInput, options?: SendInputOptions): Promise<
 `UserAttachmentInput` 是入口层 schema，runtime 之前先由 adapter 解析为稳定 `MessageContentBlock[]`。
 为兼容当前 API，`string` 等价于 `{ text: string, attachments: [] }`。
 
-### ZCode app-server
+### Secretariat app-server
 
-ZCode app-server 当前支持 `text` 和 `resource_link`。下一步：
+Secretariat app-server 当前支持 `text` 和 `resource_link`。下一步：
 
 - `text` -> text block。
 - `resource_link` -> resource_link block，先不自动读取网络。
@@ -484,7 +484,7 @@ ZCode app-server 当前支持 `text` 和 `resource_link`。下一步：
 
 ## Provider Transform
 
-`toAiSdkMessages()` 负责把 ZCode content blocks 转成 AI SDK `ModelMessage`：
+`toAiSdkMessages()` 负责把 Secretariat content blocks 转成 AI SDK `ModelMessage`：
 
 - text block -> `{ type: "text", text }`。
 - image block -> AI SDK image part。
@@ -595,7 +595,7 @@ Compact 时：
 1. Bootstrap API 支持 `submitPrompt(string | UserPromptInput)`、`sendInput(string | UserPromptInput)`。
 2. CLI 增加 `--attach <path>`，多次传入按顺序生成 `FilePart`。
 3. TUI 支持附件 draft 列表和虚拟 placeholder，删除 placeholder 同步删除 part。
-4. ZCode app-server 接入 `text`、`resource_link`、embedded image/resource；audio/video 继续返回稳定 unsupported。
+4. Secretariat app-server 接入 `text`、`resource_link`、embedded image/resource；audio/video 继续返回稳定 unsupported。
 5. 所有入口都走同一 resolver，不重复实现读取逻辑。
 
 ### Phase 5：Provider transform
@@ -652,7 +652,7 @@ npm test
 - 本地文件路径跨平台解析，Windows/macOS/Linux 分隔符和空格路径不破。
 - 大文件不直接进入模型上下文，而是 artifact/ref + preview。
 - session resume 后附件不丢失、不重复、不错误重放。
-- ZCode app-server unsupported content block 返回稳定 invalid params。
+- Secretariat app-server unsupported content block 返回稳定 invalid params。
 - 日志和 event 不泄露 base64 或完整文件内容。
 
 ## Composer PDF 对齐（2026-08-29）

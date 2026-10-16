@@ -57,7 +57,7 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
   });
 
   it("off-peak mock 直接使用 Built-in 模型，不等待远端 client config", async () => {
-    vi.stubEnv("ZCODE_OFFPEAK_MOCK", "1");
+    vi.stubEnv("SECRETARIAT_OFFPEAK_MOCK", "1");
     const apiClient: ApiClient = {
       request: vi.fn(async () => {
         throw new Error("mock mode must not request remote client config");
@@ -94,9 +94,9 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
   });
 
   it("读取手动领取 preview 并归一化 plans", async () => {
-    vi.stubEnv("ZCODE_ENDPOINT_ORIGIN", "https://preview.example.com");
-    // Bugfix: 开发机 ambient ZCODE_BASE_URL 优先级高于 ZCODE_ENDPOINT_ORIGIN，置空避免 preview 域被生产域覆盖
-    vi.stubEnv("ZCODE_BASE_URL", "");
+    vi.stubEnv("SECRETARIAT_ENDPOINT_ORIGIN", "https://preview.example.com");
+    // Bugfix: 开发机 ambient SECRETARIAT_BASE_URL 优先级高于 SECRETARIAT_ENDPOINT_ORIGIN，置空避免 preview 域被生产域覆盖
+    vi.stubEnv("SECRETARIAT_BASE_URL", "");
     const apiClient: ApiClient = {
       request: vi.fn(async () =>
         createJsonResponse({
@@ -377,8 +377,8 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
     );
   });
 
-  it("ZCODE_ENV=test 时 BigModel Coding Plan API 使用 bigmodel.cn", async () => {
-    vi.stubEnv("ZCODE_ENV", "test");
+  it("SECRETARIAT_ENV=test 时 BigModel Coding Plan API 使用 bigmodel.cn", async () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
     const apiClient: ApiClient = {
       request: vi.fn(async () =>
         createJsonResponse({
@@ -486,10 +486,10 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
     );
   });
 
-  it("ZCODE_ENV=test 时 Z.ai Coding Plan 业务接口使用 api.z.ai", async () => {
-    vi.stubEnv("ZCODE_ENV", "test");
+  it("SECRETARIAT_ENV=test 时 Z.ai Coding Plan 业务接口使用 api.z.ai", async () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
     // 修复原因：开发机若设了 ZAI_BUSINESS_BASE_URL=https://api.z.ai，
-    // resolveZaiBusinessBaseUrl 会优先读它，覆盖 ZCODE_ENV fallback，导致断言不稳定。
+    // resolveZaiBusinessBaseUrl 会优先读它，覆盖 SECRETARIAT_ENV fallback，导致断言不稳定。
     vi.stubEnv("ZAI_BUSINESS_BASE_URL", "");
     const apiClient: ApiClient = {
       request: vi.fn(async (input) => {
@@ -658,7 +658,7 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
     );
   });
 
-  it("getStaticProducts 从 ZCode client config 读取套餐配置且不需要 OAuth", async () => {
+  it("getStaticProducts 从 Secretariat client config 读取套餐配置且不需要 OAuth", async () => {
     const apiClient: ApiClient = {
       request: vi.fn(async () =>
         createJsonResponse({
@@ -850,21 +850,21 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
     );
   });
 
-  it("client configs 根据 ZCODE_ENV 选择测试或生产环境", () => {
+  it("client configs 根据 SECRETARIAT_ENV 选择测试或生产环境", () => {
     expect(
       resolveCodingPlanClientConfigUrl({
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
       }).toString(),
     ).toBe("https://zcode.z.ai/api/v1/client/configs");
     expect(
       resolveCodingPlanClientConfigUrl({
-        ZCODE_ENV: "production",
-        ZCODE_PRODUCTION_BASE_URL: "https://runtime.example.com",
+        SECRETARIAT_ENV: "production",
+        SECRETARIAT_PRODUCTION_BASE_URL: "https://runtime.example.com",
       }).toString(),
     ).toBe("https://runtime.example.com/api/v1/client/configs");
   });
 
-  it("getForceUpdateConfig 从 ZCode client config 读取强制升级配置", async () => {
+  it("getForceUpdateConfig 从 Secretariat client config 读取强制升级配置", async () => {
     const apiClient: ApiClient = {
       request: vi.fn(async () =>
         createJsonResponse({
@@ -946,7 +946,7 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
     await expect(provider.getForceUpdateConfig()).resolves.toBeNull();
   });
 
-  it("getStartPlanPreview 从 ZCode client config 读取未登录 Start Plan 预览", async () => {
+  it("getStartPlanPreview 从 Secretariat client config 读取未登录 Start Plan 预览", async () => {
     const apiClient: ApiClient = {
       request: vi.fn(async () =>
         createJsonResponse({
@@ -956,7 +956,7 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
             configs: {
               startPlanPreview: {
                 planId: "zcode-v3-start-plan",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 entitlements: [
                   {
                     grantUnits: 10_000_000,
@@ -983,7 +983,7 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
 
     expect(result).toEqual({
       planId: "zcode-v3-start-plan",
-      name: "ZCode V3 Start Plan",
+      name: "Secretariat V3 Start Plan",
       entitlements: [
         {
           grantUnits: 10_000_000,
@@ -1098,7 +1098,7 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
           configs: {
             startPlanPreview: {
               planId: "zcode-v3-start-plan",
-              name: "ZCode V3 Start Plan",
+              name: "Secretariat V3 Start Plan",
               entitlements: [
                 {
                   grantUnits: 10_000_000,
@@ -1802,8 +1802,8 @@ describe("BigModelCodingPlanSubscriptionProvider", () => {
     });
   });
 
-  it("ZCODE_ENV=test 时 Team Plan 企业接口使用 bigmodel.cn", async () => {
-    vi.stubEnv("ZCODE_ENV", "test");
+  it("SECRETARIAT_ENV=test 时 Team Plan 企业接口使用 bigmodel.cn", async () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
     const apiClient: ApiClient = {
       request: vi
         .fn()
@@ -2379,8 +2379,8 @@ describe("ZaiCodingPlanSubscriptionProvider (family-aware Team Plan)", () => {
   });
 
   // 修复原因：开发机可能设了 ZAI_BUSINESS_BASE_URL=https://api.z.ai 环境变量，
-  // resolveZaiBusinessBaseUrl 会优先读它，覆盖 ZCODE_ENV 逻辑导致测试域名断言不稳定。
-  // 测试里统一 stub 成空，强制走 ZCODE_ENV fallback 链。
+  // resolveZaiBusinessBaseUrl 会优先读它，覆盖 SECRETARIAT_ENV 逻辑导致测试域名断言不稳定。
+  // 测试里统一 stub 成空，强制走 SECRETARIAT_ENV fallback 链。
   function createZaiCredentialService(token = "zai-business-jwt") {
     return {
       load: vi.fn(async (key: string) => (key === "oauth:zai:access_token" ? token : null)),
@@ -2453,9 +2453,9 @@ describe("ZaiCodingPlanSubscriptionProvider (family-aware Team Plan)", () => {
     });
   });
 
-  it("ZCODE_ENV=test 时 zai Team Plan 企业接口使用 api.z.ai", async () => {
-    vi.stubEnv("ZCODE_ENV", "test");
-    // 开发机 ZAI_BUSINESS_BASE_URL 会覆盖 ZCODE_ENV fallback，这里 stub 成空强制走 fallback
+  it("SECRETARIAT_ENV=test 时 zai Team Plan 企业接口使用 api.z.ai", async () => {
+    vi.stubEnv("SECRETARIAT_ENV", "test");
+    // 开发机 ZAI_BUSINESS_BASE_URL 会覆盖 SECRETARIAT_ENV fallback，这里 stub 成空强制走 fallback
     vi.stubEnv("ZAI_BUSINESS_BASE_URL", "");
     const apiClient: ApiClient = {
       request: vi.fn(async () => createJsonResponse({ code: 200, data: { productList: [] } })),

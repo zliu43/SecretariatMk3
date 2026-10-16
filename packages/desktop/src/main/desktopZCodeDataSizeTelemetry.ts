@@ -11,18 +11,18 @@ import { scanZCodeDataDirectoryInWorker } from "./zcodeDataSizeWorkerClient.js";
 
 export type { ZCodeDataSizeTelemetryState } from "./zcodeDataSizeTelemetryState.js";
 
-export const ZCODE_DATA_SIZE_SCAN_MAX_DURATION_MS = 30_000;
-export const ZCODE_DATA_SIZE_SCAN_MAX_FILES = 200_000;
-export const ZCODE_DATA_SIZE_DAILY_INTERVAL_MS = 24 * 60 * 60 * 1000;
-export const ZCODE_DATA_SIZE_IDLE_POLL_MS = 5 * 60 * 1000;
-export const ZCODE_DATA_SIZE_IDLE_WAIT_FALLBACK_MS = 6 * 60 * 60 * 1000;
-export const ZCODE_DATA_SIZE_MINIMUM_IDLE_SECONDS = 5 * 60;
-export const ZCODE_DATA_SIZE_STARTUP_MIN_DELAY_MS = 2 * 60 * 1000;
-export const ZCODE_DATA_SIZE_STARTUP_JITTER_MAX_MS = 8 * 60 * 1000;
-export const ZCODE_DATA_SIZE_DAILY_JITTER_MAX_MS = 60 * 60 * 1000;
-export const ZCODE_DATA_SIZE_ABORTED_RETRY_MS = 30 * 60 * 1000;
-export const ZCODE_DATA_SIZE_FAILURE_RETRY_MS = 6 * 60 * 60 * 1000;
-export const ZCODE_DATA_SIZE_ACTIVITY_POLL_MS = 1_000;
+export const SECRETARIAT_DATA_SIZE_SCAN_MAX_DURATION_MS = 30_000;
+export const SECRETARIAT_DATA_SIZE_SCAN_MAX_FILES = 200_000;
+export const SECRETARIAT_DATA_SIZE_DAILY_INTERVAL_MS = 24 * 60 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_IDLE_POLL_MS = 5 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_IDLE_WAIT_FALLBACK_MS = 6 * 60 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_MINIMUM_IDLE_SECONDS = 5 * 60;
+export const SECRETARIAT_DATA_SIZE_STARTUP_MIN_DELAY_MS = 2 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_STARTUP_JITTER_MAX_MS = 8 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_DAILY_JITTER_MAX_MS = 60 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_ABORTED_RETRY_MS = 30 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_FAILURE_RETRY_MS = 6 * 60 * 60 * 1000;
+export const SECRETARIAT_DATA_SIZE_ACTIVITY_POLL_MS = 1_000;
 
 interface ZCodeDataSizeTelemetryTiming {
   abortedRetryMs: number;
@@ -38,16 +38,16 @@ interface ZCodeDataSizeTelemetryTiming {
 }
 
 const DEFAULT_TIMING: ZCodeDataSizeTelemetryTiming = {
-  abortedRetryMs: ZCODE_DATA_SIZE_ABORTED_RETRY_MS,
-  activityPollMs: ZCODE_DATA_SIZE_ACTIVITY_POLL_MS,
-  dailyIntervalMs: ZCODE_DATA_SIZE_DAILY_INTERVAL_MS,
-  dailyJitterMaxMs: ZCODE_DATA_SIZE_DAILY_JITTER_MAX_MS,
-  failureRetryMs: ZCODE_DATA_SIZE_FAILURE_RETRY_MS,
-  idlePollMs: ZCODE_DATA_SIZE_IDLE_POLL_MS,
-  idleWaitFallbackMs: ZCODE_DATA_SIZE_IDLE_WAIT_FALLBACK_MS,
-  minimumIdleSeconds: ZCODE_DATA_SIZE_MINIMUM_IDLE_SECONDS,
-  startupJitterMaxMs: ZCODE_DATA_SIZE_STARTUP_JITTER_MAX_MS,
-  startupMinDelayMs: ZCODE_DATA_SIZE_STARTUP_MIN_DELAY_MS,
+  abortedRetryMs: SECRETARIAT_DATA_SIZE_ABORTED_RETRY_MS,
+  activityPollMs: SECRETARIAT_DATA_SIZE_ACTIVITY_POLL_MS,
+  dailyIntervalMs: SECRETARIAT_DATA_SIZE_DAILY_INTERVAL_MS,
+  dailyJitterMaxMs: SECRETARIAT_DATA_SIZE_DAILY_JITTER_MAX_MS,
+  failureRetryMs: SECRETARIAT_DATA_SIZE_FAILURE_RETRY_MS,
+  idlePollMs: SECRETARIAT_DATA_SIZE_IDLE_POLL_MS,
+  idleWaitFallbackMs: SECRETARIAT_DATA_SIZE_IDLE_WAIT_FALLBACK_MS,
+  minimumIdleSeconds: SECRETARIAT_DATA_SIZE_MINIMUM_IDLE_SECONDS,
+  startupJitterMaxMs: SECRETARIAT_DATA_SIZE_STARTUP_JITTER_MAX_MS,
+  startupMinDelayMs: SECRETARIAT_DATA_SIZE_STARTUP_MIN_DELAY_MS,
 };
 
 interface ZCodeDataSizeTelemetryLogger {
@@ -130,7 +130,7 @@ function stableJitterMs(deviceMid: string, bucketAt: number, maxMs: number): num
   if (maxMs <= 0) {
     return 0;
   }
-  const key = `${deviceMid}:${Math.floor(bucketAt / ZCODE_DATA_SIZE_DAILY_INTERVAL_MS)}`;
+  const key = `${deviceMid}:${Math.floor(bucketAt / SECRETARIAT_DATA_SIZE_DAILY_INTERVAL_MS)}`;
   let hash = 2_166_136_261;
   for (let index = 0; index < key.length; index += 1) {
     hash ^= key.charCodeAt(index);
@@ -264,7 +264,7 @@ export function createZCodeDataSizeTelemetryScheduler(
         // Bug 根因：Worker 可能在下一次 activity poll 前结束；若任务恰在这个窗口启动，
         // 旧实现会跳过 busy 检查直接上报。发送前同步复查，关闭该 TOCTOU 窗口。
         abortController.abort();
-        throw new DOMException("ZCode data size scan eligibility lost", "AbortError");
+        throw new DOMException("Secretariat data size scan eligibility lost", "AbortError");
       }
       const reportReservedAt = Date.now();
       const previousState = await reserveReport(reportReservedAt);
@@ -275,7 +275,7 @@ export function createZCodeDataSizeTelemetryScheduler(
       if (abortController.signal.aborted || collectionEligibilityLost(relaxedIdle)) {
         await rollbackReportReservation(previousState);
         abortController.abort();
-        throw new DOMException("ZCode data size report eligibility lost", "AbortError");
+        throw new DOMException("Secretariat data size report eligibility lost", "AbortError");
       }
       try {
         await dependencies.report(result);
@@ -422,8 +422,8 @@ export function registerDesktopZCodeDataSizeTelemetry(options: {
     scan: ({ signal }) =>
       scanZCodeDataDirectoryInWorker(
         {
-          maxDurationMs: ZCODE_DATA_SIZE_SCAN_MAX_DURATION_MS,
-          maxFiles: ZCODE_DATA_SIZE_SCAN_MAX_FILES,
+          maxDurationMs: SECRETARIAT_DATA_SIZE_SCAN_MAX_DURATION_MS,
+          maxFiles: SECRETARIAT_DATA_SIZE_SCAN_MAX_FILES,
           rootPath: options.rootPath,
         },
         signal,

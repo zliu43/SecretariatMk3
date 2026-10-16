@@ -1,6 +1,6 @@
 # Tool Calling Loop 实现计划
 
-> 模型异常兜底和 tool call 计数策略见 [`model-anomaly-fallbacks.md`](./model-anomaly-fallbacks.md)。ZCode 面向长程任务，tool call 数量不设硬停止条件；context/token limit 触发 auto compact，provider context overflow 触发 reactive compact。
+> 模型异常兜底和 tool call 计数策略见 [`model-anomaly-fallbacks.md`](./model-anomaly-fallbacks.md)。Secretariat 面向长程任务，tool call 数量不设硬停止条件；context/token limit 触发 auto compact，provider context overflow 触发 reactive compact。
 
 ## 核心循环
 

@@ -1,4 +1,4 @@
-# ZCode CLI 架构设计 v2
+# Secretariat CLI 架构设计 v2
 
 ## 文档定位
 
@@ -28,7 +28,7 @@
 
 ## 一、总体架构
 
-ZCode CLI 按四层组织：
+Secretariat CLI 按四层组织：
 
 - `app/bootstrap`
 - `application/core`
@@ -41,7 +41,7 @@ ZCode CLI 按四层组织：
 
 `core/` 是业务状态机和调度层。它负责 session、turn、agent loop、tool lifecycle、permission、compact、rewind、subagent、mailbox、memory、hooks、mode 等领域逻辑。core 只表达意图，不直接触碰外部世界。
 
-`adapters/` 是外部 I/O 实现层。它负责文件系统、子进程、网络、SQLite、artifact、provider、MCP、ZCode app-server、config loader、logger、metrics、sandbox 等具体副作用。所有 adapter 都必须通过 contracts 暴露能力。
+`adapters/` 是外部 I/O 实现层。它负责文件系统、子进程、网络、SQLite、artifact、provider、MCP、Secretariat app-server、config loader、logger、metrics、sandbox 等具体副作用。所有 adapter 都必须通过 contracts 暴露能力。
 
 `bootstrap/` 是组合层和入口层。它负责 CLI、TUI、server、SDK 等入口的启动、依赖装配、渲染、退出码和进程边界。它是唯一允许把 core 和 adapter 组装到一起的地方。
 
@@ -144,7 +144,7 @@ adapters/
 
 1. 入口层解析最小启动信息，并创建顶层执行上下文。
 2. 配置系统按明确优先级合并默认值、用户配置、项目配置、环境变量和 CLI 参数。
-3. 所有项目自有环境变量使用 `ZCODE_` 前缀。
+3. 所有项目自有环境变量使用 `SECRETARIAT_` 前缀。
 4. bootstrap 创建基础 adapter，并把它们注入 core。
 5. storage 执行必要初始化和迁移。
 6. core 恢复或创建 session，并通过事件重放生成 projection。
@@ -335,7 +335,7 @@ v2 不定义具体 RPC 方法表。RPC 方法必须从真实 CLI/TUI/SDK 操作�
 
 设计约束：
 
-- 自有环境变量统一使用 `ZCODE_` 前缀。
+- 自有环境变量统一使用 `SECRETARIAT_` 前缀。
 - 安全相关配置需要能追踪来源。
 - core 不直接读取环境变量。
 - provider、model、tool、sandbox 等差异不应全部塞进基础配置。
@@ -751,7 +751,7 @@ artifact 用于承载大体积结果、附件、下载文件、模型流片段�
 
 ## 八、多 Session 并行执行
 
-ZCode CLI 需要把 session、message、tool call、permission、checkpoint、队列和 pending 状态视为一等对象。
+Secretariat CLI 需要把 session、message、tool call、permission、checkpoint、队列和 pending 状态视为一等对象。
 
 ### 8.1 Session 隔离
 
@@ -903,7 +903,7 @@ watcher 只提供上下文提示。真正的并发安全由 file write adapter �
 
 - hooks。
 - skills。
-- MCP / ZCode app-server。
+- MCP / Secretariat app-server。
 - plugin capability。
 - metrics 和 telemetry。
 - memory pipeline。
@@ -966,7 +966,7 @@ v2 故意不把字段和方法写死。接口应由实现反馈、失败路径�
 - Memory Pipeline
 - Config schema and subscription
 - Transport / RPC Protocol
-- MCP / ZCode app-server integration
+- MCP / Secretariat app-server integration
 - Metrics / Observability
 
 每个详细设计都必须包含：

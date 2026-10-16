@@ -42,13 +42,13 @@ Run `npm run bootstrap` after cloning the repository. It checks the local Node.j
 
 zcode plugins are local bundles that can contribute skills, custom commands, and MCP servers. The plugin surface is compatible with the Claude Code plugin layout, so existing plugin content can be reused with minimal changes.
 
-Plugin state lives under `~/.zcode/cli/plugins`:
+Plugin state lives under `~/.secretariat/cli/plugins`:
 
 - `cache/`: installed marketplace plugin code and static files.
 - `data/<plugin-id>/`: persistent plugin data. MCP servers should write runtime output here, not into the plugin source directory.
 - `marketplaces/zcode-plugins-official/`: bundled and CDN partitions plus the merged metadata for the single official marketplace.
 
-This repository also ships built-in official plugins as workspace packages. The bundled Browser Use, Document Skills, Skill Creator, and ZCode Guide content plugins are default-enabled and appear as `browser-use@zcode-plugins-official`, `document-skills@zcode-plugins-official`, `skill-creator@zcode-plugins-official`, and `zcode-guide@zcode-plugins-official`. Runtime-heavy official plugins, and local-data migration plugins such as `ios-simulator@zcode-plugins-official`, `android-emulator@zcode-plugins-official`, and `restore-legacy-sessions@zcode-plugins-official`, are discovered by zcode but stay disabled until the user enables them.
+This repository also ships built-in official plugins as workspace packages. The bundled Browser Use, Document Skills, Skill Creator, and Secretariat Guide content plugins are default-enabled and appear as `browser-use@zcode-plugins-official`, `document-skills@zcode-plugins-official`, `skill-creator@zcode-plugins-official`, and `zcode-guide@zcode-plugins-official`. Runtime-heavy official plugins, and local-data migration plugins such as `ios-simulator@zcode-plugins-official`, `android-emulator@zcode-plugins-official`, and `restore-legacy-sessions@zcode-plugins-official`, are discovered by zcode but stay disabled until the user enables them.
 
 ```sh
 zcode plugins list
@@ -99,10 +99,10 @@ Example `.zcode-plugin/plugin.json` with inline MCP config:
   "mcpServers": {
     "ios-simulator": {
       "command": "node",
-      "args": ["${ZCODE_PLUGIN_ROOT}/dist/mcp/server.js"],
-      "cwd": "${ZCODE_PROJECT_DIR}",
+      "args": ["${SECRETARIAT_PLUGIN_ROOT}/dist/mcp/server.js"],
+      "cwd": "${SECRETARIAT_PROJECT_DIR}",
       "env": {
-        "PLUGIN_DATA": "${ZCODE_PLUGIN_DATA}",
+        "PLUGIN_DATA": "${SECRETARIAT_PLUGIN_DATA}",
         "DEFAULT_DEVICE": "${user_config.default_device}"
       }
     }
@@ -135,13 +135,13 @@ Unsupported Claude plugin fields are ignored with diagnostics rather than execut
 
 Plugin MCP config can use both zcode and Claude-compatible variable names:
 
-- `${ZCODE_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_ROOT}`
-- `${ZCODE_PLUGIN_DATA}` and `${CLAUDE_PLUGIN_DATA}`
-- `${ZCODE_PROJECT_DIR}` and `${CLAUDE_PROJECT_DIR}`
+- `${SECRETARIAT_PLUGIN_ROOT}` and `${CLAUDE_PLUGIN_ROOT}`
+- `${SECRETARIAT_PLUGIN_DATA}` and `${CLAUDE_PLUGIN_DATA}`
+- `${SECRETARIAT_PROJECT_DIR}` and `${CLAUDE_PROJECT_DIR}`
 - `${user_config.key}`
-- `${ZCODE_SOME_ENV}`
+- `${SECRETARIAT_SOME_ENV}`
 
-Only environment variables with the `ZCODE_` prefix are expanded. Missing variables disable the affected MCP server and produce a plugin diagnostic.
+Only environment variables with the `SECRETARIAT_` prefix are expanded. Missing variables disable the affected MCP server and produce a plugin diagnostic.
 
 ### Recommended Layout
 
@@ -161,7 +161,7 @@ Keep reusable content in Claude-compatible locations. Add a `.zcode-plugin/plugi
 
 ## MCP Configuration
 
-zcode reads MCP servers from the main JSON config. The default user config path is `~/.zcode/cli/config.json`; MCP entries live under `mcp.servers`. MCP is enabled by default, so `features.mcp` only needs to be set when you want an explicit on/off switch. The current CLI does not auto-discover standalone `mcp.json` or `.mcp.json` files outside enabled plugins.
+zcode reads MCP servers from the main JSON config. The default user config path is `~/.secretariat/cli/config.json`; MCP entries live under `mcp.servers`. MCP is enabled by default, so `features.mcp` only needs to be set when you want an explicit on/off switch. The current CLI does not auto-discover standalone `mcp.json` or `.mcp.json` files outside enabled plugins.
 
 ```json
 {
@@ -204,7 +204,7 @@ MCP tools are registered before the first model request and exposed as `mcp__<se
 
 ## Hooks Configuration
 
-zcode reads hooks from the same main JSON config file as MCP, usually `~/.zcode/cli/config.json`. Hooks are disabled by default; set `hooks.enabled` to `true` and add process hooks under `hooks.events`.
+zcode reads hooks from the same main JSON config file as MCP, usually `~/.secretariat/cli/config.json`. Hooks are disabled by default; set `hooks.enabled` to `true` and add process hooks under `hooks.events`.
 
 Supported hook events:
 

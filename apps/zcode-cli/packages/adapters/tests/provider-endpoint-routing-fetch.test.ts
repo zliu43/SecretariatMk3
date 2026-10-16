@@ -33,7 +33,7 @@ describe("provider endpoint routing fetch", () => {
         Authorization: "Bearer secret",
         Host: "api.z.ai",
         "x-api-key": "provider-key",
-        "X-ZCode-Trace-Id": "trace-1",
+        "X-Secretariat-Trace-Id": "trace-1",
       },
       method: "POST",
       signal: controller.signal,
@@ -73,7 +73,7 @@ describe("provider endpoint routing fetch", () => {
     await fetch(SOURCE_ZAI, {
       headers: {
         Authorization: "Bearer provider-key",
-        "X-ZCode-Trace-Id": "trace-authorization-only",
+        "X-Secretariat-Trace-Id": "trace-authorization-only",
       },
     });
 

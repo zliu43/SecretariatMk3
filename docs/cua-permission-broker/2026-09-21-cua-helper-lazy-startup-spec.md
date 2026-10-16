@@ -68,7 +68,7 @@ startup（含 750–1080ms bundle 验签 + Gatekeeper + 健康），而它要发
 
 | 平台 | 传输路径 | pluginAuthority |
 | --- | --- | --- |
-| darwin | `resolveBrokerSocketPath()` 稳定推导（ZCODE_HOME 派生），零 IO | spawn 时铸造（per-bootstrap config-provenance，保留现状） |
+| darwin | `resolveBrokerSocketPath()` 稳定推导（SECRETARIAT_HOME 派生），零 IO | spawn 时铸造（per-bootstrap config-provenance，保留现状） |
 | win32 | Host app 进程铸一次的稳定 pipe 名（含随机段；模块级 singleton；Host 重建复用同名；跨 app 运行必不相同） | 同 darwin |
 
 - spawn env 注入 = 纯查表，函数体内不得出现任何 `await` Helper 相关 IO。
@@ -157,7 +157,7 @@ Agent(SDK)                                    Helper
 - `ensureStandaloneHelperLaunched` 增加 win32 分支：
   `fork(recipe.entryPath, ["--socket", 稳定pipe名, "--parent-pid", recipe.hostPid],`
   `{ env: { ELECTRON_RUN_AS_NODE: "1", [ADDON_ENV]: recipe.addonPath, …白名单 } })`。
-- recipe 经 spawn env 注入，键名定稿为 `ZCODE_CUA_WIN_HELPER_RECIPE`（值为 JSON：
+- recipe 经 spawn env 注入，键名定稿为 `SECRETARIAT_CUA_WIN_HELPER_RECIPE`（值为 JSON：
   `entryPath`、`command`、`root`、`addonPath`、`commandEnv`、`hostPid`；常量登记进
   producer helperConstants，z-code 侧用同名字面量，两处一致属跨仓契约）。
 - `--parent-pid` 恒为 **hostPid**：Helper 生命周期挂 Host（watchdog 只认 Host pid），

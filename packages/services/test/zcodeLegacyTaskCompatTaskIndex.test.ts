@@ -38,10 +38,10 @@ import type {
 } from "@zcode/shared";
 import {
   resolveWorkspaceKey,
-  ZCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME,
-  ZCODE_CUA_OFFICIAL_PLUGIN_ID,
-  ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
-  ZCODE_PLUGIN_ID_ENV_KEY,
+  SECRETARIAT_CUA_OFFICIAL_MCP_NAMESPACE_NAME,
+  SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID,
+  SECRETARIAT_CUA_PLUGIN_AUTHORITY_ENV_KEY,
+  SECRETARIAT_PLUGIN_ID_ENV_KEY,
 } from "@zcode/shared";
 
 vi.mock("#src/zcode-agent/groupRuntimeSnapshot.js", () => ({
@@ -95,7 +95,7 @@ function makeSnapshot(params: {
   };
   const model = params.model ?? { providerId: "glm", modelId: "glm-4.6" };
   return {
-    protocol: { name: "ZCode Protocol", version: 1 },
+    protocol: { name: "Secretariat Protocol", version: 1 },
     session: {
       sessionId: params.sessionId,
       workspace,
@@ -234,7 +234,7 @@ function createAgentMock() {
     initialize: vi.fn(async (params) => ({
       available: true,
       workspaceKey: params.workspaceIdentity ?? params.workspacePath,
-      protocolName: "ZCode Protocol",
+      protocolName: "Secretariat Protocol",
       protocolVersion: 1,
       transportKind: "stdio",
     })),
@@ -624,7 +624,7 @@ async function seedLegacyAcpSessionId(
   await repo.ensureReady();
 }
 
-describe("ZCode legacy task compat task index", () => {
+describe("Secretariat legacy task compat task index", () => {
   it.each([undefined, "ssh://host/repo"])(
     "waits for an in-flight topic admission before confirming cancellation (%s)",
     async (workspaceIdentity) => {
@@ -1200,12 +1200,12 @@ describe("ZCode legacy task compat task index", () => {
       provider: "glm",
       mcpServers: [
         {
-          name: ZCODE_CUA_OFFICIAL_MCP_NAMESPACE_NAME,
+          name: SECRETARIAT_CUA_OFFICIAL_MCP_NAMESPACE_NAME,
           command: "uvx",
           args: ["zcode-cua"],
           env: [
-            { name: ZCODE_PLUGIN_ID_ENV_KEY, value: ZCODE_CUA_OFFICIAL_PLUGIN_ID },
-            { name: ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY, value: "test-authority" },
+            { name: SECRETARIAT_PLUGIN_ID_ENV_KEY, value: SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID },
+            { name: SECRETARIAT_CUA_PLUGIN_AUTHORITY_ENV_KEY, value: "test-authority" },
           ],
         },
       ],
@@ -3285,7 +3285,7 @@ describe("ZCode legacy task compat task index", () => {
     ).resolves.toBe(true);
   });
 
-  it("merges live subagent tool projection into terminal ZCode snapshots", async () => {
+  it("merges live subagent tool projection into terminal Secretariat snapshots", async () => {
     const { agent, eventEmitter, service } = createService();
     const task = await service.createTask({ workspacePath: "/repo", provider: "glm" });
     const terminalSnapshot = makeSnapshot({
@@ -4056,7 +4056,7 @@ describe("ZCode legacy task compat task index", () => {
     expect(visibleArchived.map((task) => task.taskId)).toEqual(["stale_glm"]);
   });
 
-  it("does not include zero ZCode Protocol context usage in task snapshots", async () => {
+  it("does not include zero Secretariat Protocol context usage in task snapshots", async () => {
     const { service } = createService();
     const task = await service.createTask({ workspacePath: "/repo", provider: "glm" });
 
@@ -4859,7 +4859,7 @@ describe("ZCode legacy task compat task index", () => {
     });
   });
 
-  it("maps ZCode Protocol context projection events to legacy usage_update", async () => {
+  it("maps Secretariat Protocol context projection events to legacy usage_update", async () => {
     const { eventEmitter, service } = createService();
     const task = await service.createTask({ workspacePath: "/repo", provider: "glm" });
     const received: ZCodeStreamEvent[] = [];
@@ -5389,7 +5389,7 @@ describe("ZCode legacy task compat task index", () => {
     });
   });
 
-  it("maps ZCode model retry status to apiRetry stream events and runtime snapshots", async () => {
+  it("maps Secretariat model retry status to apiRetry stream events and runtime snapshots", async () => {
     const { eventEmitter, service } = createService();
     const task = await service.createTask({ workspacePath: "/repo", provider: "glm" });
     const received: ZCodeStreamEvent[] = [];

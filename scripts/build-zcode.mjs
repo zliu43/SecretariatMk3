@@ -14,7 +14,7 @@ import { installScriptSource } from "./zcode-distribution/installer.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const defaultOutDir = resolve(root, "dist", "zcode");
-const defaultBaseUrl = (await loadEndpointEnv()).ZCODE_DIST_BASE_URL?.trim() || "";
+const defaultBaseUrl = (await loadEndpointEnv()).SECRETARIAT_DIST_BASE_URL?.trim() || "";
 const packageDirName = "zcode";
 const usage = `Usage:
   pnpm build:zcode
@@ -233,7 +233,7 @@ async function createTarball({ packageParent, releaseDir, tarballName }) {
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (!options.help && !options.baseUrl)
-    throw new Error("Configure ZCODE_DIST_BASE_URL in .env or pass --base-url");
+    throw new Error("Configure SECRETARIAT_DIST_BASE_URL in .env or pass --base-url");
   if (options.help) {
     console.log(usage);
     return;
@@ -242,7 +242,7 @@ async function main() {
   const rootPackageJson = await readJson(resolve(root, "package.json"));
   const version = options.version ?? rootPackageJson.version;
   if (!version || typeof version !== "string") {
-    throw new Error("Unable to resolve ZCode version.");
+    throw new Error("Unable to resolve Secretariat version.");
   }
 
   await buildOutputs(options.skipBuild);

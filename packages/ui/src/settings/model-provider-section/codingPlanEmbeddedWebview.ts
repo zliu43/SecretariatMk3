@@ -6,7 +6,7 @@ import {
   isZaiCodingPlanProviderId,
   normalizeZCodeEndpointOrigin,
   type ZCodeEnv,
-  ZCODE_ENV,
+  SECRETARIAT_ENV,
   ZAI_PROVIDER_ID,
 } from "@zcode/shared";
 import type { CodingPlanWebviewLocale } from "@zcode/shared";
@@ -81,7 +81,7 @@ export function resolveCodingPlanEmbeddedOrigin({
   endpointOrigin,
   e2eStoreBridgeEnabled,
   overrideOrigin,
-  zcodeEnv = ZCODE_ENV,
+  zcodeEnv = SECRETARIAT_ENV,
 }: ResolveCodingPlanEmbeddedOriginOptions): string {
   const normalizedOverride = overrideOrigin?.trim();
   if (
@@ -90,7 +90,7 @@ export function resolveCodingPlanEmbeddedOrigin({
   ) {
     return normalizeZCodeEndpointOrigin(normalizedOverride);
   }
-  // Bug 原因：本地开发默认注入 ZCODE_ENV=production，不能仅凭 Vite DEV 就打开未启动的官网本地页。
+  // Bug 原因：本地开发默认注入 SECRETARIAT_ENV=production，不能仅凭 Vite DEV 就打开未启动的官网本地页。
   if (dev && zcodeEnv === "test") {
     return "http://localhost:3000";
   }

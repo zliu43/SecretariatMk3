@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Windows 与 macOS 必须复用 `ZCODE_CUA_OFFICIAL_PLUGIN_ID`、插件 store 和 `setEnabled` 流程。
+- Windows 与 macOS 必须复用 `SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID`、插件 store 和 `setEnabled` 流程。
 - Windows 只显示总开关，不显示画中画、后台模式、Helper 状态或授权相关内容。
 - macOS 现有完整设置和权限能力判断保持不变。
 - Linux、普通 Web、手机远控和远程 workspace 不开放该本地设置能力。
@@ -286,7 +286,7 @@ Expected: PASS；平台配置顺序、不可见落点回退和既有 Windows 终
 **Interfaces:**
 
 - Consumes: `ComputerUseSectionProps.isWindowsDesktop?: boolean`
-- Consumes: `ZCODE_CUA_OFFICIAL_PLUGIN_ID`
+- Consumes: `SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID`
 - Preserves: `usePluginManagementStore.setEnabled(pluginId, next, pluginManagementService)`
 
 - [ ] **Step 1: 写 Windows 渲染和开关行为的失败测试**
@@ -325,7 +325,7 @@ it("Windows 总开关复用官方 zcode-cua 启停流程", async () => {
 
   await waitFor(() => {
     expect(setEnabled).toHaveBeenCalledWith(
-      ZCODE_CUA_OFFICIAL_PLUGIN_ID,
+      SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID,
       false,
       pluginManagementService,
     );

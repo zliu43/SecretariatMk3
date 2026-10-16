@@ -20,8 +20,8 @@ SDK 入口为：
 const { join } = await import("node:path");
 const { pathToFileURL } = await import("node:url");
 const computerUseRoot =
-  process.env.ZCODE_CUA_PLUGIN_ROOT ??
-  process.env.ZCODE_PLUGIN_ROOT ??
+  process.env.SECRETARIAT_CUA_PLUGIN_ROOT ??
+  process.env.SECRETARIAT_PLUGIN_ROOT ??
   process.env.CLAUDE_PLUGIN_ROOT;
 const { setupComputerUseRuntime } = await import(
   pathToFileURL(join(computerUseRoot, "scripts", "computer-use-client.mjs")).href,
@@ -53,7 +53,7 @@ socket、token 或 native module。
 
 Browser Use 与 Computer Use 可以在同一个 Worker 共存；两者共享
 `agent.documentation.get`，分别路由自己的文档名，不互相覆盖文档 loader。
-共享的是 `node_repl` 通道，不是插件运行时目录：CUA 的 `ZCODE_CUA_PLUGIN_ROOT`
+共享的是 `node_repl` 通道，不是插件运行时目录：CUA 的 `SECRETARIAT_CUA_PLUGIN_ROOT`
 优先提供 `sharp` 等 native closure 与 CUA 文档，Browser Use 的 root 只负责 browser
 bridge 和 host server。截图、缩放和带截图的状态读取不依赖 Browser Use 的 `node_modules`。
 

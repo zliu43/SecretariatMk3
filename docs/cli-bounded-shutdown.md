@@ -1,4 +1,4 @@
-# ZCode CLI 有界关闭规格
+# Secretariat CLI 有界关闭规格
 
 > 状态：accepted，2026-07-22。
 
@@ -13,7 +13,7 @@
 | Change       | 修正一次性 CLI 在模型完成后被继承 pipe、悬空 Browser close 或其它 adapter handle 永久保活的问题                                         |
 | 用户可见入口 | `zcode --prompt`、`--target` 与 TUI 退出；Desktop/remote host 复用同一 session cleanup 不变量                                           |
 | 状态 owner   | Execution adapter 持有命令进程组和 stdio；managed CDP adapter 持有 Chromium；session facade 编排 teardown；CLI entry 只持有最终退出边界 |
-| 成功标准     | 正常清理优先；任一外部 close 永不 settle 时，ZCode CLI 仍在固定上限内结束，不等待孤儿进程自然死亡                                       |
+| 成功标准     | 正常清理优先；任一外部 close 永不 settle 时，Secretariat CLI 仍在固定上限内结束，不等待孤儿进程自然死亡                                       |
 | Out of scope | 纯 Node 跨平台保证杀死已经 `setsid`/daemonize 并脱离原进程组的任意第三方进程；改变 desktop continuous / mobile replayable 语义          |
 
 ## Clarification log

@@ -11,7 +11,7 @@ hooks 从可执行配置中剥离（一律忽略）；本 MR 在此之上建立�
 
 - 项目 hook 声明规范化为 immutable `HookBundleSnapshot`，逐条计算 `hookDeclarationDigest`；
 - 持久 Trust 以 `workspaceIdentity + hookDeclarationDigest` 为 key 存用户侧 trust store
-  （`~/.zcode/security/workspace-hook-trust-v1.json`，workspace 文件不能自授信任）；
+  （`~/.secretariat/security/workspace-hook-trust-v1.json`，workspace 文件不能自授信任）；
 - **软门禁**：未信任 hook 不阻塞 turn——本轮跳过并上报 `HookRunBlocked`，聊天底部出现
   pending banner，用户在 `设置 → 钩子` 逐条点"信任"；信任只作用于未来自然事件，已跳过的
   SessionStart 不补跑；声明语义变化 → digest 变化 → 旧 Trust 失效；
@@ -112,7 +112,7 @@ MR 中存在一处与 hook trust 非同域但有逻辑耦合的 v4 改动，在�
 ## 5. 兼容性说明
 
 - 协议增量均为 additive（v4 snapshot/delta 新字段 default null），旧客户端可忽略。
-- 已有 zcode.json/.zcode/config.json 的用户升级后：项目 hook 从"被安全策略忽略"变为
+- 已有 zcode.json/.secretariat/config.json 的用户升级后：项目 hook 从"被安全策略忽略"变为
   "待信任软门禁"，首次会在设置页看到逐条信任入口——行为变化符合预期且有 banner 引导。
 - 桌面 continuous 与手机 replayable 链路：trust 判定在共享 runtime/services 层完成，
   未改动 stream/snapshot/队列/owner 语义；手机端走同一 review RPC 与同一 trust store。

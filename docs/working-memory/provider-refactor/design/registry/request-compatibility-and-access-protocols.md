@@ -9,7 +9,7 @@ Compatibility 容器；协议差异必须归入已有的真实领域契约，否
 
 ## 1. 总原则
 
-模型响应进入 ZCode 后，默认遵守无损回放原则：
+模型响应进入 Secretariat 后，默认遵守无损回放原则：
 
 ```text
 Provider 返回的真实 content / reasoning / metadata
@@ -33,7 +33,7 @@ Provider 返回的真实 content / reasoning / metadata
 新增 Adapter 协议投影必须同时满足下列条件：
 
 1. 当前 AI SDK 或目标 Adapter 的标准编码不能表达该服务的真实协议；
-2. 行为能够由当前官方契约、ZCode 产品服务契约或可复现真实请求证明；
+2. 行为能够由当前官方契约、Secretariat 产品服务契约或可复现真实请求证明；
 3. 归属已有 Model/Provider 契约，Adapter 不需要按具体 ID hardcode；
 4. 失败行为明确，兼容投影不能静默丢数据；
 5. 它不是另一领域的 Access、安全校验、排队或鉴权状态机。
@@ -59,7 +59,7 @@ Provider 返回的真实 content / reasoning / metadata
 
 ### 3.1 OpenAI-compatible
 
-ZCode 必须保存服务端真实返回的 reasoning block，并把同一段 canonical 历史交回 Adapter。当前
+Secretariat 必须保存服务端真实返回的 reasoning block，并把同一段 canonical 历史交回 Adapter。当前
 `@ai-sdk/openai-compatible` 已能把 assistant reasoning content 编码为 `reasoning_content`，因此不再需要
 `withOpenAiCompatibleReasoningContent()` 重新提取、删除 reasoning part 或为空 tool-call 制造
 `reasoning_content: ""`。
@@ -73,7 +73,7 @@ ZCode 必须保存服务端真实返回的 reasoning block，并把同一段 can
 AI SDK reasoning part + provider metadata
         |
         v
-ZCode canonical reasoning block
+Secretariat canonical reasoning block
         |
         v
 AI SDK assistant reasoning part
@@ -217,7 +217,7 @@ Off-Peak 的排队、Ticket 和失效重试属于访问该产品服务的执行�
 
 ## 7. 实施与验证门槛
 
-1. 先用最终 HTTP request body 测试证明当前 OpenAI-compatible SDK 能原生回放非空 reasoning，再删除 ZCode helper；
+1. 先用最终 HTTP request body 测试证明当前 OpenAI-compatible SDK 能原生回放非空 reasoning，再删除 Secretariat helper；
 2. 删除 GitHub Copilot omit 字段和规则，不保留兼容读取；
 3. 官方版本安全校验按 `zhipu-account.mode` 与显式 Access 分派，并保持动态材料与运行状态不进入 Config；
 4. Off-Peak 启用事实是 `mode=off-peak`，字符串 marker 与现有运行状态机保持等价；

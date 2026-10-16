@@ -48,7 +48,7 @@ describe("BotsRepo", () => {
   });
 
   it("reads legacy bot-state.json but writes bot-state.v2.json", async () => {
-    const dataDir = join(tempDir!, ".zcode", "v2");
+    const dataDir = join(tempDir!, ".secretariat", "v2");
     writeFileSync(
       join(dataDir, "bot-state.json"),
       `${JSON.stringify({
@@ -101,7 +101,7 @@ Extend `packages/services/test/botsModelCacheRepo.test.ts` with a failing test:
 
 ```ts
   it("reads legacy bots-model-cache.json but writes bots-model-cache.v2.json", async () => {
-    const dataDir = join(tempDir!, ".zcode", "v2");
+    const dataDir = join(tempDir!, ".secretariat", "v2");
     writeFileSync(
       join(dataDir, "bots-model-cache.json"),
       `${JSON.stringify({

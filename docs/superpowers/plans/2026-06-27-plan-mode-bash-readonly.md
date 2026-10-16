@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Make ZCode Bash read-only permission classification conservative and keep it independent from cwd persistence.
+**Goal:** Make Secretariat Bash read-only permission classification conservative and keep it independent from cwd persistence.
 
 **Architecture:** Keep using `unbash` for AST parsing, then apply a conservative safety layer over parsed simple commands, redirects, assignments, and argv. Bash read-only classification may grant plan-mode permission and concurrency safety, but it must not decide whether a successful Bash call persists cwd.
 

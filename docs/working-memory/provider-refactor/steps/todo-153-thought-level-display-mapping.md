@@ -54,7 +54,7 @@
 - `extra-high`、`extra_high` 是外部工具与用户配置中已有的 xhigh 别名写法，因此保留这两项；default 用于恢复默认，不能固定解释为中档。
 - Balanced、Deep 等展示名在外部工具中常见，实际值通常为 medium、high；这只说明词汇存在，不能建立所有来源通用的 value 等价契约。
 - 本项目 `packages/shared/src/model-config.ts` 接受非空、非重复的任意字符串档位（即用户自定义名称），不能通过缩小展示表限制配置值域。
-- 外部工具中的 ultra 还可能包含运行时编排语义。此处“极致 / Ultra”是展示裁决，不将外部运行策略导入 ZCode，也不改变请求层 `reasoningLevel.map`。
+- 外部工具中的 ultra 还可能包含运行时编排语义。此处“极致 / Ultra”是展示裁决，不将外部运行策略导入 Secretariat，也不改变请求层 `reasoningLevel.map`。
 - 其余取消映射的词，本轮未找到足以支撑全局强制归类的依据；不声称这些词从未被使用。
 
 保留已保存选择、原始 value、合法性校验、Provider／模型身份、默认选档策略与请求参数映射。不增加 schema、迁移、builtin revision、运行时状态或跨端同步机制。

@@ -1,4 +1,4 @@
-# ZCode 早期分层架构（历史）
+# Secretariat 早期分层架构（历史）
 
 本文记录项目从共享 UI + Channel RPC + service interface 起步时的分层背景。它不再描述当前 Host 数量、
 remote topology、Root props 或 conversation 数据流；当前事实请读
@@ -20,7 +20,7 @@ remote topology、Root props 或 conversation 数据流；当前事实请读
 
 ```text
 旧：Renderer reducer -> task state -> UI
-新：ZCode CLI ProductProjection -> V4 topic -> read-only UI store
+新：Secretariat CLI ProductProjection -> V4 topic -> read-only UI store
 
 旧：一个抽象 server 承载所有部署形态
 新：每个窗口的 Host/service graph + workspace-scoped CLI + remote attachment
@@ -54,4 +54,4 @@ apps/zcode-cli   <- Agent runtime + V4 authority
 - [代码架构总览](./zcode-code-architecture-overview.md)
 - [Message Flow](./message-flow.md)
 - [RPC 架构](./rpc.md)
-- [ZCode Protocol](../zcode-protocol.md)
+- [Secretariat Protocol](../zcode-protocol.md)

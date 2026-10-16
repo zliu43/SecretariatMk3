@@ -101,7 +101,7 @@ describe("slashCommandHelpers", () => {
     expect(result.map((item) => item.value)).toEqual(["review", "compact"]);
   });
 
-  it("buildSlashSuggestions 会规范化已带 / 的 ZCode Agent 命令名", () => {
+  it("buildSlashSuggestions 会规范化已带 / 的 Secretariat Agent 命令名", () => {
     const result = buildSlashSuggestions([
       {
         name: "/compact",
@@ -197,7 +197,7 @@ describe("slashCommandHelpers", () => {
           id: "glm:workspace:code-review",
           name: "code-review",
           description: "review code",
-          path: "/repo/.zcode/skills/code-review/SKILL.md",
+          path: "/repo/.secretariat/skills/code-review/SKILL.md",
           scope: "workspace",
           pluginName: undefined,
         },
@@ -214,7 +214,7 @@ describe("slashCommandHelpers", () => {
         description: "Workspace · review code",
         keywords: ["code-review", "review code", "workspace", "skill", "skills"],
         data: {
-          path: "/repo/.zcode/skills/code-review/SKILL.md",
+          path: "/repo/.secretariat/skills/code-review/SKILL.md",
           scope: "workspace",
         },
       },

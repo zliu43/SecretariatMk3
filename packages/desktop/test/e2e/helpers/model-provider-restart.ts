@@ -6,7 +6,7 @@ import {
   BUILTIN_PROVIDER_TEMPLATE_IDS,
   TID_CHAT_MODEL_SELECT_TRIGGER,
   TID_V4_MODEL_CONFIG,
-  ZCODE_AGENT_PROVIDER,
+  SECRETARIAT_AGENT_PROVIDER,
   encodeCustomModelValue,
   type ProviderFamilyConnectionSelection,
 } from "@zcode/shared";
@@ -150,7 +150,7 @@ export async function seedPersistedModelSelection(params: {
     paths.workspace,
     MODEL_SELECTION_RECENT_KEY_PREFIX,
     params,
-    ZCODE_AGENT_PROVIDER,
+    SECRETARIAT_AGENT_PROVIDER,
   );
 }
 
@@ -308,7 +308,7 @@ export async function waitForV4DraftModelConfig(params: { model: string; thought
 }
 
 export async function waitForPlanModelIoRequest(expectedText: string) {
-  const debugDir = join(paths.homeDir, ".zcode", "cli", "debug");
+  const debugDir = join(paths.homeDir, ".secretariat", "cli", "debug");
   let matched: { model?: string; thinking?: { type?: string } } | null = null;
   await browser.waitUntil(
     async () => {

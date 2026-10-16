@@ -3,7 +3,7 @@ import {
   ApiError,
   BIGMODEL_PROVIDER_ID,
   CREDENTIAL_DECRYPT_ERROR_CODE,
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   ZAI_PROVIDER_ID,
   type ApiClient,
   type OAuthProviderId,
@@ -23,12 +23,12 @@ import { AccountProviderApiKeyResolver } from "../src/model-provider/accountProv
 import { createAccountProjectTokenClient } from "../src/model-provider/accountProjectTokenClient.js";
 import { resolveAccountTeamPlanRuntimeApiKey } from "../src/model-provider/accountProviderTeamPlanRequestKey.js";
 
-const DESKTOP_OAUTH_CALLBACK_URI = "zcode://oauth/callback";
+const DESKTOP_OAUTH_CALLBACK_URI = "secretariat://oauth/callback";
 
 function buildDesktopOAuthLoginRedirectUri(origin: string): string {
   const url = new URL("/app/oauth/login", origin);
   url.searchParams.set("redirect", DESKTOP_OAUTH_CALLBACK_URI);
-  url.searchParams.set("app_version", ZCODE_VERSION);
+  url.searchParams.set("app_version", SECRETARIAT_VERSION);
   return url.toString();
 }
 
@@ -41,8 +41,8 @@ const TEST_DESKTOP_OAUTH_LOGIN_REDIRECT_URI = buildDesktopOAuthLoginRedirectUri(
 // Windows 机器上设置了 ZAI_TEST_OAUTH_ORIGIN 等环境变量，会覆盖测试预期的 test 端点值
 // 过滤掉这些可能污染测试的环境变量
 const OAUTH_ENV_KEYS_TO_OMIT = new Set([
-  "ZCODE_ENV",
-  "ZCODE_ENDPOINT_ORIGIN",
+  "SECRETARIAT_ENV",
+  "SECRETARIAT_ENDPOINT_ORIGIN",
   "ZAI_TEST_OAUTH_ORIGIN",
   "ZAI_PRODUCTION_OAUTH_ORIGIN",
   "ZAI_OAUTH_ORIGIN",
@@ -55,9 +55,9 @@ const OAUTH_ENV_KEYS_TO_OMIT = new Set([
   "ZAI_TEST_BUSINESS_BASE_URL",
   "ZAI_PRODUCTION_BUSINESS_BASE_URL",
   "ZAI_BUSINESS_BASE_URL",
-  "ZCODE_TEST_BASE_URL",
-  "ZCODE_PRODUCTION_BASE_URL",
-  "ZCODE_BASE_URL",
+  "SECRETARIAT_TEST_BASE_URL",
+  "SECRETARIAT_PRODUCTION_BASE_URL",
+  "SECRETARIAT_BASE_URL",
 ]);
 const cleanProcessEnv = Object.fromEntries(
   Object.entries(process.env).filter(([key]) => !OAUTH_ENV_KEYS_TO_OMIT.has(key)),
@@ -286,8 +286,8 @@ describe("oauthService", () => {
 
     expect(authorizeUrl.searchParams.get("state")).toBe(started.state);
     expect(redirectUrl.origin + redirectUrl.pathname).toBe("https://zcode.z.ai/app/oauth/login");
-    expect(redirectUrl.searchParams.get("redirect")).toBe("zcode://oauth/callback");
-    expect(redirectUrl.searchParams.get("app_version")).toBe(ZCODE_VERSION);
+    expect(redirectUrl.searchParams.get("redirect")).toBe("secretariat://oauth/callback");
+    expect(redirectUrl.searchParams.get("app_version")).toBe(SECRETARIAT_VERSION);
     expect(result).toEqual({
       kind: "session",
       provider: ZAI_PROVIDER_ID,
@@ -336,14 +336,14 @@ describe("oauthService", () => {
       "/api/biz/v1/organization/org/projects/project/api_keys/key/access_tokens",
     ]);
     await expect(
-      service.handleCallback(`zcode://oauth/callback?state=${started.state}&code=late-code`),
+      service.handleCallback(`secretariat://oauth/callback?state=${started.state}&code=late-code`),
     ).resolves.toEqual({ kind: "duplicate", provider: ZAI_PROVIDER_ID });
     await expect(
-      service.handleCallback("zcode://oauth/callback?state=different-state&code=late-code"),
+      service.handleCallback("secretariat://oauth/callback?state=different-state&code=late-code"),
     ).rejects.toThrow("OAuth state 不匹配或已过期");
     now += 30_000;
     await expect(
-      service.handleCallback(`zcode://oauth/callback?state=${started.state}&code=too-late-code`),
+      service.handleCallback(`secretariat://oauth/callback?state=${started.state}&code=too-late-code`),
     ).rejects.toThrow("OAuth state 不匹配或已过期");
     await expect(service.pollPendingOAuth()).resolves.toBeNull();
     expect(mockFetch).toHaveBeenCalledTimes(6);
@@ -403,8 +403,8 @@ describe("oauthService", () => {
       });
       expect(authorizeUrl.origin + authorizeUrl.pathname).toBe("https://bigmodel.cn/login");
       expect(redirectUrl.origin + redirectUrl.pathname).toBe("https://zcode.z.ai/app/oauth/login");
-      expect(redirectUrl.searchParams.get("redirect")).toBe("zcode://oauth/callback");
-      expect(redirectUrl.searchParams.get("app_version")).toBe(ZCODE_VERSION);
+      expect(redirectUrl.searchParams.get("redirect")).toBe("secretariat://oauth/callback");
+      expect(redirectUrl.searchParams.get("app_version")).toBe(SECRETARIAT_VERSION);
       expect(result).toEqual({
         kind: "session",
         provider: BIGMODEL_PROVIDER_ID,
@@ -465,7 +465,7 @@ describe("oauthService", () => {
     await vi.advanceTimersByTimeAsync(5_000);
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?state=${started.state}&code=late-code`),
+      service.handleCallback(`secretariat://oauth/callback?state=${started.state}&code=late-code`),
     ).rejects.toThrow("OAuth state 不匹配或已过期");
     expect(exchangeToken).not.toHaveBeenCalled();
     expect(credentialStore.get("oauth:zai:access_token")).toBe("existing-token");
@@ -910,7 +910,7 @@ describe("oauthService", () => {
     const { state } = await service.startOAuth(BIGMODEL_PROVIDER_ID);
 
     await service.handleCallback(
-      `zcode://oauth/callback?state=${state}&channel_id=douyin&utm_source=wechat`,
+      `secretariat://oauth/callback?state=${state}&channel_id=douyin&utm_source=wechat`,
     );
 
     const repo = new OAuthCredentialRepo(credentialServiceStub);
@@ -1000,7 +1000,7 @@ describe("oauthService", () => {
       env: {
         ...cleanProcessEnv,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
         ZAI_OAUTH_CLIENT_ID: "client_P8X5CMWmlaRO9gyO-KSqtg",
         ZAI_OAUTH_ORIGIN: "https://chat.z.ai/",
       },
@@ -1021,7 +1021,7 @@ describe("oauthService", () => {
       env: {
         ...cleanProcessEnv,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
       },
     });
 
@@ -1031,12 +1031,12 @@ describe("oauthService", () => {
     expect(parsed.searchParams.get("redirect")).toBe(TEST_DESKTOP_OAUTH_LOGIN_REDIRECT_URI);
   });
 
-  it("uses bigmodel.cn to build BigModel authorize URL when ZCODE_ENV=test", async () => {
+  it("uses bigmodel.cn to build BigModel authorize URL when SECRETARIAT_ENV=test", async () => {
     const service = createBigModelService({
       env: {
         ...cleanProcessEnv,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
       },
     });
 
@@ -1046,12 +1046,12 @@ describe("oauthService", () => {
     expect(parsed.origin + parsed.pathname).toBe("https://bigmodel.cn/login");
   });
 
-  it("uses production bigmodel.cn to build BigModel authorize URL when ZCODE_ENV=production", async () => {
+  it("uses production bigmodel.cn to build BigModel authorize URL when SECRETARIAT_ENV=production", async () => {
     const service = createBigModelService({
       env: {
         ...process.env,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_ENV: "production",
+        SECRETARIAT_ENV: "production",
       },
     });
 
@@ -1070,7 +1070,7 @@ describe("oauthService", () => {
 
     await expect(
       service.handleCallback(
-        `zcode://oauth/callback?state=${state}&channel_id=google_ads&utm_source=google`,
+        `secretariat://oauth/callback?state=${state}&channel_id=google_ads&utm_source=google`,
       ),
     ).resolves.toEqual({
       kind: "attribution",
@@ -1086,7 +1086,7 @@ describe("oauthService", () => {
 
     await expect(
       service.handleCallback(
-        `zcode://oauth/callback?state=${state}&channel_id=duplicate&utm_source=duplicate`,
+        `secretariat://oauth/callback?state=${state}&channel_id=duplicate&utm_source=duplicate`,
       ),
     ).rejects.toThrow("OAuth 归因回调已处理");
     expect(await credentialServiceStub.load("oauth:login_attribution")).toBe(
@@ -1097,7 +1097,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=auth-code-001&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-001&state=${state}`),
     ).resolves.toMatchObject({
       kind: "session",
       provider: BIGMODEL_PROVIDER_ID,
@@ -1110,13 +1110,13 @@ describe("oauthService", () => {
     });
     const first = await service.startOAuth(BIGMODEL_PROVIDER_ID);
     await service.handleCallback(
-      `zcode://oauth/callback?state=${first.state}&channel_id=google_ads`,
+      `secretariat://oauth/callback?state=${first.state}&channel_id=google_ads`,
     );
 
     const second = await service.startOAuth(BIGMODEL_PROVIDER_ID);
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=old-code&state=${first.state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=old-code&state=${first.state}`),
     ).rejects.toThrow("OAuth state 不匹配或已过期");
     expect(second.state).not.toBe(first.state);
     await service.cancelPending();
@@ -1128,22 +1128,22 @@ describe("oauthService", () => {
       apiClient: createMockApiClient(vi.fn<typeof fetch>()),
     });
     const { state } = await service.startOAuth(BIGMODEL_PROVIDER_ID);
-    await service.handleCallback(`zcode://oauth/callback?state=${state}&channel_id=google_ads`);
+    await service.handleCallback(`secretariat://oauth/callback?state=${state}&channel_id=google_ads`);
 
     await vi.advanceTimersByTimeAsync(5 * 60 * 1000);
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=late-code&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=late-code&state=${state}`),
     ).rejects.toThrow("OAuth state 不匹配或已过期");
   });
 
   // Windows 机器上设置了 ZAI_TEST_OAUTH_ORIGIN 等环境变量，会覆盖测试预期的 test 端点值
-  it("uses testZAI endpoints from runtime ZCODE_ENV without explicit origin overrides", async () => {
+  it("uses testZAI endpoints from runtime SECRETARIAT_ENV without explicit origin overrides", async () => {
     const service = createBigModelService({
       env: {
         ...cleanProcessEnv,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
       },
     });
 
@@ -1187,7 +1187,7 @@ describe("oauthService", () => {
     );
     fetchMock.mockResolvedValueOnce(createZaiBusinessLoginResponse());
     const result = await service.handleCallback(
-      `zcode://oauth/callback?code=zai-code-001&state=${state}&channel_id=google_ads&utm_source=google&utm_campaign=brand_search`,
+      `secretariat://oauth/callback?code=zai-code-001&state=${state}&channel_id=google_ads&utm_source=google&utm_campaign=brand_search`,
     );
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -1246,14 +1246,14 @@ describe("oauthService", () => {
     expect(await credentialServiceStub.load("oauth:active_provider")).toBe(ZAI_PROVIDER_ID);
   });
 
-  it("uses ZCODE_BASE_URL for zai backend token exchange", async () => {
+  it("uses SECRETARIAT_BASE_URL for zai backend token exchange", async () => {
     const fetchMock = vi.fn<typeof fetch>();
     const service = createBigModelService({
       apiClient: createMockApiClient(fetchMock),
       env: {
         ...process.env,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_BASE_URL: "https://zcode.z.ai",
+        SECRETARIAT_BASE_URL: "https://zcode.z.ai",
       },
     });
     const { state } = await service.startOAuth(ZAI_PROVIDER_ID);
@@ -1274,7 +1274,7 @@ describe("oauthService", () => {
     );
     fetchMock.mockResolvedValueOnce(createZaiBusinessLoginResponse());
 
-    await service.handleCallback(`zcode://oauth/callback?code=zai-code-001&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?code=zai-code-001&state=${state}`);
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
@@ -1311,7 +1311,7 @@ describe("oauthService", () => {
     );
     fetchMock.mockResolvedValueOnce(createZaiBusinessLoginResponse());
 
-    await service.handleCallback(`zcode://oauth/callback?code=zai-code-001&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?code=zai-code-001&state=${state}`);
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
@@ -1351,7 +1351,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createZaiBusinessLoginResponse());
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?code=zai-code-001&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?code=zai-code-001&state=${state}`),
     ).resolves.toEqual({
       kind: "session",
       provider: ZAI_PROVIDER_ID,
@@ -1397,7 +1397,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createZaiBusinessLoginResponse());
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?code=zai-code-002&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?code=zai-code-002&state=${state}`),
     ).resolves.toEqual({
       kind: "session",
       provider: ZAI_PROVIDER_ID,
@@ -1429,7 +1429,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?code=bad-code&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?code=bad-code&state=${state}`),
     ).rejects.toThrow(/invalid oauth code/);
 
     expect(await credentialServiceStub.load("oauth:zai:access_token")).toBeNull();
@@ -1463,7 +1463,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?code=zai-code-001&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?code=zai-code-001&state=${state}`),
     ).rejects.toThrow(/data.zai.access_token/);
 
     expect(await credentialServiceStub.load("oauth:zai:access_token")).toBeNull();
@@ -1498,7 +1498,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?code=zai-code-001&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?code=zai-code-001&state=${state}`),
     ).rejects.toThrow(/data.token/);
 
     expect(await credentialServiceStub.load("oauth:zai:access_token")).toBeNull();
@@ -1541,7 +1541,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?code=zai-code-003&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?code=zai-code-003&state=${state}`),
     ).resolves.toEqual({
       kind: "session",
       provider: ZAI_PROVIDER_ID,
@@ -1815,7 +1815,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse());
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
     const result = await service.handleCallback(
-      `zcode://oauth/callback?authCode=auth-code-001&state=${state}&utm_source=google`,
+      `secretariat://oauth/callback?authCode=auth-code-001&state=${state}&utm_source=google`,
     );
 
     expect(fetchMock).toHaveBeenNthCalledWith(
@@ -1890,7 +1890,7 @@ describe("oauthService", () => {
     );
 
     const result = await service.handleCallback(
-      `zcode://oauth/callback?authCode=auth-code-001&state=${state}`,
+      `secretariat://oauth/callback?authCode=auth-code-001&state=${state}`,
     );
 
     expect(result.userInfo).toEqual({
@@ -1922,7 +1922,7 @@ describe("oauthService", () => {
     );
 
     const result = await service.handleCallback(
-      `zcode://oauth/callback?authCode=auth-code-001&state=${state}`,
+      `secretariat://oauth/callback?authCode=auth-code-001&state=${state}`,
     );
 
     expect(result.userInfo).toEqual({
@@ -1945,7 +1945,7 @@ describe("oauthService", () => {
     );
 
     const result = await service.handleCallback(
-      `zcode://oauth/callback?authCode=auth-code-001&state=${state}`,
+      `secretariat://oauth/callback?authCode=auth-code-001&state=${state}`,
     );
 
     expect(result.userInfo).toEqual({
@@ -1968,7 +1968,7 @@ describe("oauthService", () => {
     );
 
     const result = await service.handleCallback(
-      `zcode://oauth/callback?authCode=auth-code-001&state=${state}`,
+      `secretariat://oauth/callback?authCode=auth-code-001&state=${state}`,
     );
 
     expect(result.userInfo).toEqual({
@@ -1978,14 +1978,14 @@ describe("oauthService", () => {
     });
   });
 
-  it("uses ZCODE_BASE_URL for bigmodel backend token exchange", async () => {
+  it("uses SECRETARIAT_BASE_URL for bigmodel backend token exchange", async () => {
     const fetchMock = vi.fn<typeof fetch>();
     const service = createBigModelService({
       apiClient: createMockApiClient(fetchMock),
       env: {
         ...process.env,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_BASE_URL: "https://zcode.z.ai",
+        SECRETARIAT_BASE_URL: "https://zcode.z.ai",
       },
     });
     const { state } = await service.startOAuth(BIGMODEL_PROVIDER_ID);
@@ -1993,7 +1993,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse());
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
 
-    await service.handleCallback(`zcode://oauth/callback?authCode=auth-code-001&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-001&state=${state}`);
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
@@ -2002,7 +2002,7 @@ describe("oauthService", () => {
     );
   });
 
-  // Windows 机器上设置了 ZCODE_TEST_BASE_URL 等环境变量，会覆盖测试预期的 test 端点值
+  // Windows 机器上设置了 SECRETARIAT_TEST_BASE_URL 等环境变量，会覆盖测试预期的 test 端点值
   it("uses test product endpoints for bigmodel token exchange and userinfo", async () => {
     const fetchMock = vi.fn<typeof fetch>();
     const service = createBigModelService({
@@ -2010,7 +2010,7 @@ describe("oauthService", () => {
       env: {
         ...cleanProcessEnv,
         BIGMODEL_OAUTH_APP_SECRET: "unit-test-secret",
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
       },
     });
     const { state } = await service.startOAuth(BIGMODEL_PROVIDER_ID);
@@ -2018,7 +2018,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse());
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
 
-    await service.handleCallback(`zcode://oauth/callback?authCode=auth-code-001&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-001&state=${state}`);
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
@@ -2051,7 +2051,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=auth-code-500&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-500&state=${state}`),
     ).rejects.toMatchObject<ApiError>({
       name: "ApiError",
       method: "POST",
@@ -2129,7 +2129,7 @@ describe("oauthService", () => {
 
     const started = await service.startOAuthWithPolling(BIGMODEL_PROVIDER_ID);
     const deepLink = service.handleCallback(
-      `zcode://oauth/callback?state=${started.state}&code=deep-link-code`,
+      `secretariat://oauth/callback?state=${started.state}&code=deep-link-code`,
     );
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
     rejectExchange(new Error("deep-link exchange failed"));
@@ -2167,7 +2167,7 @@ describe("oauthService", () => {
       ],
     });
     const { state } = await service.startOAuth(BIGMODEL_PROVIDER_ID);
-    const callback = service.handleCallback(`zcode://oauth/callback?state=${state}&code=late`);
+    const callback = service.handleCallback(`secretariat://oauth/callback?state=${state}&code=late`);
     await Promise.resolve();
     await service.cancelPending();
     resolveExchange({ accessToken: "cancelled-token" });
@@ -2199,7 +2199,7 @@ describe("oauthService", () => {
     );
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
 
-    await service.handleCallback(`zcode://oauth/callback?authCode=switch-code&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?authCode=switch-code&state=${state}`);
 
     expect(await credentialServiceStub.load("oauth:active_provider")).toBe(BIGMODEL_PROVIDER_ID);
     expect(await credentialServiceStub.load("oauth:bigmodel:access_token")).toBe(
@@ -2228,7 +2228,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=auth-code-missing&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-missing&state=${state}`),
     ).rejects.toThrow(/缺少 data.token/);
     expect(await credentialServiceStub.load("oauth:bigmodel:access_token")).toBeNull();
     expect(await credentialServiceStub.load("zcodejwttoken")).toBeNull();
@@ -2253,7 +2253,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=auth-code-expired&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-expired&state=${state}`),
     ).rejects.toThrow(/authCode 已过期/);
     expect(await credentialServiceStub.load("oauth:bigmodel:access_token")).toBeNull();
   });
@@ -2268,7 +2268,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse("code-field-zcode-jwt"));
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
 
-    await service.handleCallback(`zcode://oauth/callback?code=oauth-code-002&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?code=oauth-code-002&state=${state}`);
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock).toHaveBeenNthCalledWith(
@@ -2317,7 +2317,7 @@ describe("oauthService", () => {
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
 
     const result = await service.handleCallback(
-      `zcode://oauth/callback?authCode=subscription-code-001&state=${state}`,
+      `secretariat://oauth/callback?authCode=subscription-code-001&state=${state}`,
     );
 
     expect(result).toEqual({
@@ -2357,7 +2357,7 @@ describe("oauthService", () => {
 
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse());
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
-    await service.handleCallback(`zcode://oauth/callback?authCode=auth-code-004&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-004&state=${state}`);
 
     const tokenCall = fetchMock.mock.calls[0];
     if (!tokenCall) {
@@ -2378,13 +2378,13 @@ describe("oauthService", () => {
     const second = await service.startOAuth(BIGMODEL_PROVIDER_ID);
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=first&state=${first.state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=first&state=${first.state}`),
     ).rejects.toThrow(/state/);
 
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse("token-2"));
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=second&state=${second.state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=second&state=${second.state}`),
     ).resolves.toEqual({
       kind: "session",
       provider: BIGMODEL_PROVIDER_ID,
@@ -2535,7 +2535,7 @@ describe("oauthService", () => {
             enabled: true,
             order: 9,
           },
-          redirectUri: "zcode://custom-auth/callback",
+          redirectUri: "secretariat://custom-auth/callback",
           parseCallbackParams: () => ({ code: "", state: "" }),
           buildAuthorizeUrl: () => "https://example.com/auth",
           exchangeToken: async () => ({ accessToken: "unused" }),
@@ -3010,7 +3010,7 @@ describe("oauthService", () => {
     );
     zaiFetchMock.mockResolvedValueOnce(createZaiBusinessLoginResponse("zai-business-token"));
 
-    await zaiService.handleCallback(`zcode://zai-auth/callback?code=zai-code&state=${state}`);
+    await zaiService.handleCallback(`secretariat://zai-auth/callback?code=zai-code&state=${state}`);
     releaseTokenLoad();
 
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -3169,7 +3169,7 @@ describe("oauthService", () => {
     const { state } = await service.startOAuth(BIGMODEL_PROVIDER_ID);
     fetchMock.mockResolvedValueOnce(createBigModelZcodeTokenResponse("new-zcode-jwt", "new-token"));
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
-    await service.handleCallback(`zcode://oauth/callback?authCode=new-login&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?authCode=new-login&state=${state}`);
     releaseExpiredJwtRead();
 
     await expect(restorePromise).resolves.toMatchObject({ status: "authenticated" });
@@ -3218,7 +3218,7 @@ describe("oauthService", () => {
       createBigModelZcodeTokenResponse("new-bigmodel-jwt", "new-bigmodel-token"),
     );
     fetchMock.mockResolvedValueOnce(createBigModelUserInfoResponse());
-    await service.handleCallback(`zcode://oauth/callback?authCode=switch-login&state=${state}`);
+    await service.handleCallback(`secretariat://oauth/callback?authCode=switch-login&state=${state}`);
     releaseExpiredJwtRead();
 
     await expect(restorePromise).resolves.toMatchObject({ status: "authenticated" });
@@ -3495,7 +3495,7 @@ describe("oauthService", () => {
     );
 
     await expect(
-      service.handleCallback(`zcode://oauth/callback?authCode=auth-code-401&state=${state}`),
+      service.handleCallback(`secretariat://oauth/callback?authCode=auth-code-401&state=${state}`),
     ).rejects.toMatchObject<ApiError>({
       name: "ApiError",
       method: "POST",

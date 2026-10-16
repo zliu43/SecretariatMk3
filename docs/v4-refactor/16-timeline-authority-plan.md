@@ -4,7 +4,7 @@
 > [`15-timeline-resolver-design-review.md`](./15-timeline-resolver-design-review.md)（前审 F1–F10）、
 > 第二轮代码级评审（R1–R13，2026-07-07）。
 > 出发点：彻底解决 v4 重构后仍存在的「消息/timeline 顺序错位」与「消息莫名不渲染」，
-> 并最大限度兼容用户已有历史数据（`~/.zcode/cli/db/db.sqlite`：2,989 sessions / 26,942 messages / 96,112 parts）。
+> 并最大限度兼容用户已有历史数据（`~/.secretariat/cli/db/db.sqlite`：2,989 sessions / 26,942 messages / 96,112 parts）。
 
 ## 实施状态（2026-07-08）
 
@@ -354,7 +354,7 @@ retryNotice/goalSet/forkCreated 不再产生 lifecycle marker row（S7/S9/S10，
   steer 的 submitting 被 stop → 退回 `admitted`（回 held queue），已 drained 被 stop →
   `promoted`（消息留轮内 interrupted，S15）。账本同时为输入类 command 提供 durable
   幂等（当前 command-inbox 幂等表是内存 LRU，进程重启即失效）。
-  注：ZCode 的 messageId 在 drain 时才 `createMessageId()`，admission 时没有预分配的
+  注：Secretariat 的 messageId 在 drain 时才 `createMessageId()`，admission 时没有预分配的
   message id 可复用为 input id；选 nullable 外键对现有 id 流侵入最小，且账本能表达「已接受但未消费」态。
 - **promoted 原子性**：drain/promote 与 user message 持久化同事务；
   drained row 文本从账本取，投影不再依赖内存 `queue.items`

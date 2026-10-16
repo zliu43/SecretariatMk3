@@ -187,7 +187,7 @@ describe("Hooks settings page", () => {
     expect(saved[0]?.hooks.map((hook) => hook.id)).toEqual(["hook-b"]);
   });
 
-  it("imports a compatibility hook as an enabled ZCode hook", async () => {
+  it("imports a compatibility hook as an enabled Secretariat hook", async () => {
     const legacy: Hook = {
       id: "legacy",
       event: "Stop",
@@ -539,7 +539,7 @@ describe("Hooks settings page", () => {
       location: {
         source: "zcode",
         scope: "project",
-        directoryPath: "/ancestor/.zcode",
+        directoryPath: "/ancestor/.secretariat",
         projectPath: "/workspace",
       },
     };
@@ -715,7 +715,7 @@ function configuredHook(): Hook {
     location: {
       source: "zcode",
       scope: "project",
-      directoryPath: "/workspace/.zcode",
+      directoryPath: "/workspace/.secretariat",
       projectPath: "/workspace",
     },
   };
@@ -736,7 +736,7 @@ function workspaceConfiguredHook(
       declarationEnabled: true,
       runtimeHooksEnabled: true,
       configuredEnabled: true,
-      sourcePath: ".zcode/config.json",
+      sourcePath: ".secretariat/config.json",
       trustState,
     },
   };

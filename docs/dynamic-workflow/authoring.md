@@ -600,7 +600,7 @@ How the pack reaches each runtime:
   hosts.
 - SEA binaries embed `skills/**` under the `zcode-bundled-skills/` asset prefix
   (`cli/scripts/sea-bundled-skill-assets.mjs`) with a manifest whose hash covers every file.
-  On start the CLI extracts the pack once into `~/.zcode/cli/bundled-skills/<hash>/`; the
+  On start the CLI extracts the pack once into `~/.secretariat/cli/bundled-skills/<hash>/`; the
   directory name is the content identity, so restarts are idempotent and concurrent starts
   have exactly one winner. A hash mismatch refuses the pack and falls back to the newest
   complete extraction.
@@ -673,7 +673,7 @@ as §16 "Tool reference", the contract the tool descriptions no longer carry: `C
 three sources and its fields, the facade declarations embedded verbatim between
 `<!-- facade-dts:start -->` and `<!-- facade-dts:end -->`, the rules the compiler and the
 analyzer enforce, and the fields and rules of `AmendWorkflow`, `SaveWorkflow` and
-`EvalWorkflowSnippet`. Two reference files are read on demand through `${ZCODE_SKILL_DIR}`:
+`EvalWorkflowSnippet`. Two reference files are read on demand through `${SECRETARIAT_SKILL_DIR}`:
 `patterns.md`, a catalogue of sixteen topology shapes as fragments, whose index sends the
 reader to the pipeline shapes first (per-item chaining, streaming through channels, a feedback
 loop with a counted close) and then lists the rest (fan-out over a glob, changed-file review
@@ -820,7 +820,7 @@ size budget per description; `core/tests/workflow-skill-gate.test.ts` and
 A workflow subagent does not get the interactive agent's identity. The context builder
 takes a third path when the runtime config carries `workflowActor` (mutually exclusive
 with a custom system prompt; both present is a wiring error). The CLI prefix ("You are
-ZCode, an interactive coding agent") is skipped, and the identity section is replaced by a
+Secretariat, an interactive coding agent") is skipped, and the identity section is replaced by a
 **Workflow Actor Identity** section, which is the first line of the system prompt:
 
 1. An opening sentence: "You are a subagent inside a dynamic workflow run, named
@@ -1159,7 +1159,7 @@ In brief, because the rendering belongs to `docs/dynamic-workflow/presentation.m
   source the tab can reach, and "copy path". The header therefore carries one file control,
   not two; where the split button is absent, "show in workspace" stands in the header on
   its own. The file is a **copy the desktop writes** from the bytes the tab
-  already read, at `~/.zcode/tmp/workflow-artifacts/<runId>-<digest>/<artifactId>-<digest>/v<N>/<name>`;
+  already read, at `~/.secretariat/tmp/workflow-artifacts/<runId>-<digest>/<artifactId>-<digest>/v<N>/<name>`;
   the name is the base name of `sourcePath` for `file` (its extension picks the app) and
   `<artifactId>.md` for `markdown`. Each `<digest>` is the first 8 hex digits of the SHA-256 of
   the id before it, as the CLI sent it. It keeps two ids the engine tells apart in two directories

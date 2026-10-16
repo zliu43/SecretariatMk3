@@ -4,7 +4,7 @@ import { channelContentPartsSchema, type ChannelContentPart } from "./channel-me
 import { z } from "zod";
 import { modelSelectionSchema, type ModelSelection } from "./model-selection.js";
 import { conversationQuotesSchema } from "./conversationSelection.js";
-import { ZCODE_AGENT_PROVIDER, ZCODE_AGENT_PROVIDER_LABEL } from "./zcode-agent-policy.js";
+import { SECRETARIAT_AGENT_PROVIDER, SECRETARIAT_AGENT_PROVIDER_LABEL } from "./zcode-agent-policy.js";
 import type {
   ZCodeConfigOption,
   ZCodeElicitationRequest,
@@ -709,7 +709,7 @@ export const botCommandPolicySchema = botAllowedCommandsSchema;
 // 因此解析时继续接受这些历史值，并统一归一到当前唯一的 agent provider。
 const legacyBotAgentProviderSchema = z
   .enum(["codex", "claude", "opencode", "gemini", "glm"])
-  .transform((): typeof ZCODE_AGENT_PROVIDER => ZCODE_AGENT_PROVIDER);
+  .transform((): typeof SECRETARIAT_AGENT_PROVIDER => SECRETARIAT_AGENT_PROVIDER);
 
 export const botCurrentOptionsSchema = z
   .object({
@@ -717,7 +717,7 @@ export const botCurrentOptionsSchema = z
     mode: z.string().min(1).optional(),
     sandboxMode: z.string().min(1).optional(),
     approvalPolicy: z.string().min(1).optional(),
-    // 兼容旧 bot-config.json；CLI provider 现在统一由 ZCode Protocol 侧配置决定。
+    // 兼容旧 bot-config.json；CLI provider 现在统一由 Secretariat Protocol 侧配置决定。
     cli: legacyBotAgentProviderSchema.optional(),
   })
   .strict();
@@ -927,4 +927,4 @@ export function normalizeBotReplyGranularity(
 export const BOT_ZCODE_PROVIDER_OPTIONS: Array<{
   id: ZCodeProvider;
   label: string;
-}> = [{ id: ZCODE_AGENT_PROVIDER, label: ZCODE_AGENT_PROVIDER_LABEL }];
+}> = [{ id: SECRETARIAT_AGENT_PROVIDER, label: SECRETARIAT_AGENT_PROVIDER_LABEL }];

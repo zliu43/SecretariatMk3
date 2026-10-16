@@ -4,9 +4,9 @@
 
 **Goal:** 实现 subagent blocking interaction delegate 语义：child runtime 产生普通权限请求、AskUserQuestion、ExitPlanMode approval 等阻塞交互时，parent-visible interaction channel 负责展示和回包，payload 里保留 child/subagent 归因信息，避免 subagent 内 Bash/AskUserQuestion/ExitPlanMode 等等待用户输入的路径无弹窗卡死。
 
-**Architecture:** 在 ZCode core 层新增 subagent interaction broker delegate，把 child 侧经 `PermissionBrokerPort` 发出的阻塞交互请求对外 `sessionId` 改写为 parent session id，并附带 `origin.kind="subagent"` 元数据。bootstrap 按 toolName 继续分流到 `interaction/requestPermission` 或 `interaction/requestUserInput`，service/task/UI 继续按 parent task/session 路由 pending permission 和 elicitation；用户回包沿现有 protocol request promise 返回 child tool executor。普通权限请求与 ZCode 已拆出的 elicitation channel 统一走这条代理链路，并以 `origin` 元数据标明请求来自哪个 subagent。
+**Architecture:** 在 Secretariat core 层新增 subagent interaction broker delegate，把 child 侧经 `PermissionBrokerPort` 发出的阻塞交互请求对外 `sessionId` 改写为 parent session id，并附带 `origin.kind="subagent"` 元数据。bootstrap 按 toolName 继续分流到 `interaction/requestPermission` 或 `interaction/requestUserInput`，service/task/UI 继续按 parent task/session 路由 pending permission 和 elicitation；用户回包沿现有 protocol request promise 返回 child tool executor。普通权限请求与 Secretariat 已拆出的 elicitation channel 统一走这条代理链路，并以 `origin` 元数据标明请求来自哪个 subagent。
 
-**Tech Stack:** TypeScript, Zod schema, ZCode Protocol, core AgentRuntime, services task projection, React UI permission/elicitation surface, Vitest, WDIO manual-review E2E, pnpm.
+**Tech Stack:** TypeScript, Zod schema, Secretariat Protocol, core AgentRuntime, services task projection, React UI permission/elicitation surface, Vitest, WDIO manual-review E2E, pnpm.
 
 ## Global Constraints
 

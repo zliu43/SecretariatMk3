@@ -1,14 +1,14 @@
-# ZCode Protocol Agent Server
+# Secretariat Protocol Agent Server
 
 ## 背景
 
-z-code 桌面端后续不再通过 ZCode app-server 兼容多 agent，而是只把 zcode-cli 作为私有 agent server 集成。桌面、SSH、Docker 场景里，GUI/host process 需要以薄客户端方式连接 zcode-cli，由 server 统一持有 session、模型、思考深度、模式、消息和运行态。
+z-code 桌面端后续不再通过 Secretariat app-server 兼容多 agent，而是只把 zcode-cli 作为私有 agent server 集成。桌面、SSH、Docker 场景里，GUI/host process 需要以薄客户端方式连接 zcode-cli，由 server 统一持有 session、模型、思考深度、模式、消息和运行态。
 
 ## 范围
 
-- 新增 `zcode app-server --stdio` 入口，输出只承载 ZCode Protocol NDJSON frame。
+- 新增 `zcode app-server --stdio` 入口，输出只承载 Secretariat Protocol NDJSON frame。
 - `agent-server --stdio` 作为同一能力的别名，方便后续命名切换。
-- ZCode Protocol schema 仍由外层 z-code workspace 的 `packages/shared/src/zcode-protocol/index.ts` 单文件导出。
+- Secretariat Protocol schema 仍由外层 z-code workspace 的 `packages/shared/src/zcode-protocol/index.ts` 单文件导出。
 - v1 只实现 stdio transport；WebSocket 留给 cloud IDE/remote sandbox 后续复用同一 envelope。
 
 ## 状态归属
@@ -34,7 +34,7 @@ zcode app-server --stdio
 
 ## stdio 输出边界
 
-`app-server --stdio` 与 `agent-server --stdio` 的 stdout 是严格的 ZCode Protocol NDJSON
+`app-server --stdio` 与 `agent-server --stdio` 的 stdout 是严格的 Secretariat Protocol NDJSON
 帧通道，不是通用日志流。宿主继续对每个非空 stdout 行执行严格的 schema
 解析；不得为了兼容污染而忽略非 JSON 行。
 
@@ -100,10 +100,10 @@ stateDiagram-v2
 
 ### 桌面字节码试验的启动约定
 
-- `ZCODE_DESKTOP_AGENT_BYTECODE=1` 是 Dev desktop 启动器传给 Host 的实验开关，默认关闭；
+- `SECRETARIAT_DESKTOP_AGENT_BYTECODE=1` 是 Dev desktop 启动器传给 Host 的实验开关，默认关闭；
   普通 Dev 启动显式关闭，`pnpm dev:desktop:bytecode` 显式开启。不开启时忽略残留字节码。
 - 仅 Electron 的工作区 dist 解析路径选择同目录 `zcode.bytecode.cjs`；显式
-  `ZCODE_AGENT_SERVER_COMMAND` 保持最高优先级，非 Electron/远端保持原入口。
+  `SECRETARIAT_AGENT_SERVER_COMMAND` 保持最高优先级，非 Electron/远端保持原入口。
 - 开启后字节码入口缺失直接报错；禁止回退到 JS，避免 A/B 数据失真。
 - `app-server --stdio`、`--surface`、cwd、stdin EOF、stdout 帧以及 stderr 诊断契约不变。
   `storagePreparationEntry` 仍指向普通 `zcode.cjs`，不改变 Host Worker 的准备协议。

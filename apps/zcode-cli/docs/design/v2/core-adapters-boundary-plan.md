@@ -19,7 +19,7 @@
 3. `packages/core/src/tool/handlers/read.ts`、`write.ts`、`edit.ts` 直接使用 `fs/promises`。
 4. `packages/core/src/tool/handlers/bash.ts` 直接使用 `child_process.exec`，且是 shell 字符串执行。
 5. built-in tool 的注册和具体 I/O handler 位于 core，导致 ToolRuntime 无法做到纯业务编排。
-6. `ToolRegistry.toContracts()` 目前只把工具 schema 暴露给模型，没有把模型 tool call 回接到 ZCode 的 permission / scheduler / executor 生命周期。
+6. `ToolRegistry.toContracts()` 目前只把工具 schema 暴露给模型，没有把模型 tool call 回接到 Secretariat 的 permission / scheduler / executor 生命周期。
 7. config、logging、model adapter 等能力正在 adapter 层成形，但 core 还没有统一通过 contracts port 消费这些能力。
 
 这些问题会带来三个后果：
@@ -45,7 +45,7 @@
 
 - 不完整实现 SQLite event store。
 - 不完整实现 sandbox。
-- 不完整实现 MCP / ZCode app-server。
+- 不完整实现 MCP / Secretariat app-server。
 - 不完整实现 compact / memory / subagent。
 - 不重写全部 tool 行为，只先把边界拆干净，并保留最小 Read / Write / Edit / Bash 可运行路径。
 
@@ -230,7 +230,7 @@ packages/core          packages/adapters
 - Read / Write / Edit 单测使用 fake `FileSystemPort` 覆盖 core 生命周期。
 - Node fs/context adapter 单测覆盖真实 I/O 的 happy path。
 
-### Phase 3：让 model tool call 回到 ZCode ToolRuntime
+### Phase 3：让 model tool call 回到 Secretariat ToolRuntime
 
 目标：模型工具调用不能绕过权限、调度、审计和 trace。
 

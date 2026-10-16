@@ -1,6 +1,6 @@
 # Meta User Context
 
-ZCode context is split by injection target so stable behavior instructions can
+Secretariat context is split by injection target so stable behavior instructions can
 stay cache-friendly while volatile workspace context stays below them.
 
 ## Goals

@@ -16,7 +16,7 @@ live official request_access
   -> authority-gated CLI projection
   -> desktop-only live observation
   -> fresh Host status
-  -> ZCode confirmation
+  -> Secretariat confirmation
   -> fresh Host status
   -> existing onboarding
   -> Helper restart + refresh

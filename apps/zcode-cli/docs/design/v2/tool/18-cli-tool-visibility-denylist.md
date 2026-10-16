@@ -15,7 +15,7 @@
 - `--disallowed-tools` 与 `--disallowedTools` 共用一个 help 条目，说明从本次 prompt/TUI 的可用工具集中移除整个工具；示例使用 `"Bash Edit"` 或 `Bash,Edit`，避免暗示支持按命令内容匹配。
 - `<tools...>` 是 variadic，支持逗号或括号外普通空格分隔。兼容接收 `Bash(git *)` 等规则字符串，但过滤只使用括号前的工具名：该输入会移除整个 `Bash`，不会只限制 `git *`。
 - denylist 只作用于本次 CLI runtime，不写入持久化配置。
-- agent schema 语义是：显式 `tools` 替换默认工具集；`disallowedTools` 只从默认工具集移除，且 `tools` 存在时忽略 `disallowedTools`。ZCode CLI 主会话本阶段没有公开 `--tools` flag；内部 `toolAllowlist` 与 CLI `toolDisallowlist` 同时存在时按 deny wins 处理，避免把被 CLI deny 的默认工具重新暴露。
+- agent schema 语义是：显式 `tools` 替换默认工具集；`disallowedTools` 只从默认工具集移除，且 `tools` 存在时忽略 `disallowedTools`。Secretariat CLI 主会话本阶段没有公开 `--tools` flag；内部 `toolAllowlist` 与 CLI `toolDisallowlist` 同时存在时按 deny wins 处理，避免把被 CLI deny 的默认工具重新暴露。
 - 需要同时覆盖 headless prompt 与 TUI prompt 创建链路。
 - 需要覆盖 built-in tools、MCP tools、embedded search branch、subagent child runtime。
 - 不修改 desktop/app-server/mobile remote 协议；本阶段只做 zcode-cli runtime 范围。
@@ -47,7 +47,7 @@
 - SDK/子进程转发路径会把 `disallowedTools` 数组序列化为 `--disallowedTools` 加逗号拼接值。
 - command/skill frontmatter 里同时有 `disallowed-tools` 与规范化别名 `disallowedTools`；语义是当前文件 active 时从模型工具面移除。
 - agent schema 里 `disallowedTools` 的语义是从默认工具集移除；如果显式设置 `tools`，则忽略 `disallowedTools`。
-- ZCode 本阶段把 `-p` 作为 `--prompt` 的短别名，表达 headless prompt 入口。
+- Secretariat 本阶段把 `-p` 作为 `--prompt` 的短别名，表达 headless prompt 入口。
 
 ### 支持的 flag
 

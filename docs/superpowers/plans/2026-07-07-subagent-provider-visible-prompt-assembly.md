@@ -2,18 +2,18 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将 ZCode subagent child request 的 provider-visible system prompt 组装收敛到统一的普通 subagent 形状，同时保留 `system[0] = "You are ZCode, an interactive coding agent"`；Explore/general-purpose 的 agent-specific body 只以测试中冻结的单一文案为基线。
+**Goal:** 将 Secretariat subagent child request 的 provider-visible system prompt 组装收敛到统一的普通 subagent 形状，同时保留 `system[0] = "You are Secretariat, an interactive coding agent"`；Explore/general-purpose 的 agent-specific body 只以测试中冻结的单一文案为基线。
 
-**Architecture:** 新增一个 subagent 专用 context builder，直接生成 child runtime 的 `ContextBuildResult`，避免先跑主线程 `ContextBuilder` 再覆盖 system messages。Explore、general-purpose、自定义 agent 统一走 `ZCode prefix + agent-specific prompt + common Notes + env/model context`，其中 Explore/general-purpose 的 agent-specific prompt body 只采用单一冻结文案；common Notes 和 env/model context 按 `agentPrompt + common Notes + env/model context` 固定分段，但 env/model context 的数据来源、fallback 和格式化优先复用当前 main runtime/context builder 逻辑。
+**Architecture:** 新增一个 subagent 专用 context builder，直接生成 child runtime 的 `ContextBuildResult`，避免先跑主线程 `ContextBuilder` 再覆盖 system messages。Explore、general-purpose、自定义 agent 统一走 `Secretariat prefix + agent-specific prompt + common Notes + env/model context`，其中 Explore/general-purpose 的 agent-specific prompt body 只采用单一冻结文案；common Notes 和 env/model context 按 `agentPrompt + common Notes + env/model context` 固定分段，但 env/model context 的数据来源、fallback 和格式化优先复用当前 main runtime/context builder 逻辑。
 
 **Tech Stack:** TypeScript, Vitest, `AgentRuntime`, `MessageHistoryImpl`, provider-visible request capture through mocked `modelAdapter`.
 
 ## Global Constraints
 
 - 本计划只处理 subagent provider-visible prompt assembly；不修改父侧 `Agent` tool schema/description、child `tools[]` schema、`SendMessage`、background notification、teammate、worktree isolation、fork/repl hydration。
-- `system[0]` 必须保留现有 ZCode 产品前缀：`You are ZCode, an interactive coding agent`。
-- 强要求：Explore 和 general-purpose 的 agent-specific prompt body 只使用一套冻结文案（以 `subagent-explore.test.ts` / `subagent-prompt-assembly.test.ts` 的精确断言为准）；不按模型、provider 或渠道引入文案变体，也不混入历史版本或 ZCode 临时实验分支文案。
-- Explore/general-purpose body 的标点、换行、操作性措辞都是 provider-visible 验收内容；除 ZCode 产品名替换和 ZCode 当前工具名差异外，不要做“意思差不多”的改写。
+- `system[0]` 必须保留现有 Secretariat 产品前缀：`You are Secretariat, an interactive coding agent`。
+- 强要求：Explore 和 general-purpose 的 agent-specific prompt body 只使用一套冻结文案（以 `subagent-explore.test.ts` / `subagent-prompt-assembly.test.ts` 的精确断言为准）；不按模型、provider 或渠道引入文案变体，也不混入历史版本或 Secretariat 临时实验分支文案。
+- Explore/general-purpose body 的标点、换行、操作性措辞都是 provider-visible 验收内容；除 Secretariat 产品名替换和 Secretariat 当前工具名差异外，不要做“意思差不多”的改写。
 - 除 `system[0]` 外，普通 subagent system body 按固定结构组织：agent-specific prompt、common subagent Notes、env/model context；其中 env/model context 的字段值、fallback、shell 展示、git repo 判定、model name 格式化以当前 main runtime/context builder 已有逻辑为准。
 - 不硬造当前 main 没有的数据；只有 main 已经能提供或已经 provider-visible 的数据才能进入 subagent env/model context。
 - 不新增“你是 subagent”这类额外身份叙事；只保留已有的操作性提示，如 `Agent threads...` 和 `parent agent reads your text output...`。
@@ -28,7 +28,7 @@
 ### In Scope
 
 - child `system` messages 的顺序和内容：
-  - `system[0]`: ZCode CLI prefix
+  - `system[0]`: Secretariat CLI prefix
   - `system[1]`: agent-specific prompt
   - `system[2]`: common subagent Notes
   - `system[3]`: env/model context
@@ -66,7 +66,7 @@
 - `apps/zcode-cli/packages/core/src/agent/message-history.ts`
   - `MessageHistoryImpl.init(...)` 已支持传入 `Array<ModelInputMessage | RuntimeMessageEntry>`，可直接初始化多段 system messages。
 - `apps/zcode-cli/packages/core/tests/subagent-explore.test.ts`
-  - 当前 `exploreSystemMessages` 断言 `system[0]` 是 ZCode prefix，`system[1]` 是带 leading newline 的整块 Explore prompt。
+  - 当前 `exploreSystemMessages` 断言 `system[0]` 是 Secretariat prefix，`system[1]` 是带 leading newline 的整块 Explore prompt。
 
 目标路径：
 
@@ -131,15 +131,15 @@
 Run:
 
 ```bash
-rg -n "You are ZCode Explore|You are an agent for ZCode|buildExploreSystemPrompt|buildGeneralPurposeSystemPrompt" apps/zcode-cli/packages/core/src/subagent apps/zcode-cli/packages/core/tests/subagent-explore.test.ts
+rg -n "You are Secretariat Explore|You are an agent for Secretariat|buildExploreSystemPrompt|buildGeneralPurposeSystemPrompt" apps/zcode-cli/packages/core/src/subagent apps/zcode-cli/packages/core/tests/subagent-explore.test.ts
 ```
 
 Expected:
 
-- ZCode Explore/general-purpose body matches the exact expected text frozen in `subagent-explore.test.ts`.
-- ZCode body does not include model-specific, provider-specific, historical, or experimental copy variants.
+- Secretariat Explore/general-purpose body matches the exact expected text frozen in `subagent-explore.test.ts`.
+- Secretariat body does not include model-specific, provider-specific, historical, or experimental copy variants.
 
-If ZCode body does not match the frozen expected text, do not treat this as out of scope. Add the expected body to the failing tests in this task, then align the implementation in Task 2 before changing the system message assembly.
+If Secretariat body does not match the frozen expected text, do not treat this as out of scope. Add the expected body to the failing tests in this task, then align the implementation in Task 2 before changing the system message assembly.
 
 - [ ] **Step 2: Create a helper to capture child provider requests**
 
@@ -186,7 +186,7 @@ Add this test:
 
 ```ts
 describe("subagent provider-visible prompt assembly", () => {
-  it("assembles Explore child system messages with ZCode prefix, agent prompt, notes, and environment context", async () => {
+  it("assembles Explore child system messages with Secretariat prefix, agent prompt, notes, and environment context", async () => {
     const sessionId = createSessionId("subagent-prompt-explore");
     const eventStore = createTestSessionEventStore();
     const childRequests: any[] = [];
@@ -272,8 +272,8 @@ describe("subagent provider-visible prompt assembly", () => {
     expect(childRequests).toHaveLength(1);
     const systems = systemContents(childRequests[0]);
     expect(systems).toHaveLength(4);
-    expect(systems[0]).toBe("You are ZCode, an interactive coding agent");
-    expect(systems[1]).toContain("You are ZCode Explore");
+    expect(systems[0]).toBe("You are Secretariat, an interactive coding agent");
+    expect(systems[1]).toContain("You are Secretariat Explore");
     expect(systems[1]).toContain("READ-ONLY MODE");
     expect(systems[1]).not.toContain("Agent threads always have their cwd reset");
     expect(systems[1]).not.toContain("Here is useful information about the environment");
@@ -379,8 +379,8 @@ Add this test in the same `describe` block:
 
     const systems = systemContents(childRequests[0]);
     expect(systems).toHaveLength(4);
-    expect(systems[0]).toBe("You are ZCode, an interactive coding agent");
-    expect(systems[1]).toContain("You are an agent for ZCode");
+    expect(systems[0]).toBe("You are Secretariat, an interactive coding agent");
+    expect(systems[1]).toContain("You are an agent for Secretariat");
     expect(systems[1]).toContain("the caller will relay this to the user");
     expect(systems[1]).not.toContain("Agent threads always have their cwd reset");
     expect(systems[2]).toContain("Agent threads always have their cwd reset between bash calls");
@@ -483,7 +483,7 @@ Add this test:
 
     const systems = systemContents(childRequests[0]);
     expect(systems).toHaveLength(4);
-    expect(systems[0]).toBe("You are ZCode, an interactive coding agent");
+    expect(systems[0]).toBe("You are Secretariat, an interactive coding agent");
     expect(systems[1]).toBe("You are a focused code researcher. Return concise findings.");
     expect(systems[2]).toContain("Notes:");
     expect(systems[3]).toContain("Is directory a git repo: No");
@@ -500,7 +500,7 @@ const subagentCommonNotes = `...`;
 const subagentEnvironmentContext = `...`;
 
 const exploreSystemMessages = [
-  "You are ZCode, an interactive coding agent",
+  "You are Secretariat, an interactive coding agent",
   exploreAgentPrompt,
   subagentCommonNotes,
   subagentEnvironmentContext,
@@ -653,7 +653,7 @@ export function buildExploreAgentPrompt(options: {
     : "ls, git status, git log, git diff, find, cat, head, tail";
 
   return [
-    "You are ZCode Explore, a file search and codebase research specialist for ZCode CLI. You excel at thoroughly navigating and exploring codebases.",
+    "You are Secretariat Explore, a file search and codebase research specialist for Secretariat CLI. You excel at thoroughly navigating and exploring codebases.",
     "",
     "=== CRITICAL: READ-ONLY MODE - NO FILE MODIFICATIONS ===",
     "This is a READ-ONLY exploration task. You are STRICTLY PROHIBITED from:",
@@ -889,18 +889,18 @@ Add a section near the prompt/system context part:
 
 本轮只收敛普通 subagent child request 的 provider-visible system prompt 组装，不处理父 `Agent` tool schema、child tool surface、SendMessage、background notification、fork/repl hydration、teammate/worktree。
 
-Explore/general-purpose 的 agent-specific body 只使用一套冻结文案。本轮执行时已 double check ZCode 当前 body 与冻结文案的一致性；如发现 drift，已在本轮修正后再做 system message 拆分和组装收敛。不引入按模型、provider、历史版本或实验分支区分的文案变体。
+Explore/general-purpose 的 agent-specific body 只使用一套冻结文案。本轮执行时已 double check Secretariat 当前 body 与冻结文案的一致性；如发现 drift，已在本轮修正后再做 system message 拆分和组装收敛。不引入按模型、provider、历史版本或实验分支区分的文案变体。
 
 当前 child system message 顺序：
 
-1. `You are ZCode, an interactive coding agent`
+1. `You are Secretariat, an interactive coding agent`
 2. agent-specific prompt（Explore / general-purpose / custom profile body）
 3. common subagent Notes（cwd reset、absolute paths、no emoji、no colon before tool calls、不要写 report/summary/findings/analysis `.md`）
 4. env/model context（working directory、git repo、platform、shell、OS version、model name）
 
 第 4 段的段落位置和外层结构固定，但字段值、fallback、shell 展示、git repo 判定和 model name 格式化以当前 main runtime/context builder 逻辑为准：从 `contextSourceSnapshot.envInfo` / `config.envInfo` 继承，沿用 session shell override，并用 `formatModelRef(childModelRef)` 写入 `envInfo.currentModel`。当前 main 没有提供的数据不在本轮硬造。
 
-这保留了 ZCode 产品身份前缀，同时让后续 child prompt body 统一为 `agentPrompt + common Notes + env/model context` 结构。
+这保留了 Secretariat 产品身份前缀，同时让后续 child prompt body 统一为 `agentPrompt + common Notes + env/model context` 结构。
 ```
 
 - [ ] **Step 2: Update gap matrix entry for child system prompt**
@@ -990,7 +990,7 @@ Expected:
 Use the failing/passing test debug output only if needed. The final child request must satisfy:
 
 ```text
-system[0] === "You are ZCode, an interactive coding agent"
+system[0] === "You are Secretariat, an interactive coding agent"
 system[1] contains agent-specific prompt
 system[1] does not contain "Agent threads always have their cwd reset"
 system[2] starts with "Notes:"
@@ -1019,7 +1019,7 @@ system[3] contains Working directory / git repo / Platform / Shell / OS Version 
 In `docs/conversation-session-case-catalog.md`, add a case entry for subagent prompt assembly. Use the existing table style in that file, with this semantic content:
 
 ```md
-| <next-id> | Subagent prompt assembly | 用户从前台窗口发起一次会触发 Explore/general-purpose subagent 的对话 | 子 agent provider-visible system prompt 保留 ZCode prefix，并将 agent prompt / common Notes / env-model context 拆成独立 system messages；主线程 prompt 不回归 | covered | `conversation-session-subagent-prompt-assembly.test.ts` |
+| <next-id> | Subagent prompt assembly | 用户从前台窗口发起一次会触发 Explore/general-purpose subagent 的对话 | 子 agent provider-visible system prompt 保留 Secretariat prefix，并将 agent prompt / common Notes / env-model context 拆成独立 system messages；主线程 prompt 不回归 | covered | `conversation-session-subagent-prompt-assembly.test.ts` |
 ```
 
 Use the next valid case id according to the current catalog conventions; do not invent a new numbering family if an existing subagent/conversation family already exists.
@@ -1049,7 +1049,7 @@ The spec must:
 - Assert the child request system messages satisfy:
 
 ```text
-system[0] === "You are ZCode, an interactive coding agent"
+system[0] === "You are Secretariat, an interactive coding agent"
 system[1] contains the agent-specific prompt
 system[1] does not contain "Agent threads always have their cwd reset"
 system[2] starts with "Notes:"
@@ -1072,7 +1072,7 @@ packages/desktop/test/e2e/helpers/conversation-session-network.ts
 Run the new spec with the local foreground Electron window, not only the container runner:
 
 ```bash
-ZCODE_E2E_SPEC=./test/e2e/conversation-session/conversation-session-subagent-prompt-assembly.test.ts pnpm --filter @zcode/desktop test:e2e
+SECRETARIAT_E2E_SPEC=./test/e2e/conversation-session/conversation-session-subagent-prompt-assembly.test.ts pnpm --filter @zcode/desktop test:e2e
 ```
 
 Expected:
@@ -1101,7 +1101,7 @@ The final implementation report must include:
 
 ```text
 E2E command:
-ZCODE_E2E_SPEC=./test/e2e/conversation-session/conversation-session-subagent-prompt-assembly.test.ts pnpm --filter @zcode/desktop test:e2e
+SECRETARIAT_E2E_SPEC=./test/e2e/conversation-session/conversation-session-subagent-prompt-assembly.test.ts pnpm --filter @zcode/desktop test:e2e
 
 E2E result:
 PASS
@@ -1135,11 +1135,11 @@ If the local machine cannot run foreground Electron E2E, do not mark the task co
 - Explore/general-purpose agent-specific body has been double checked against the frozen expected text and remains or has been brought into alignment, with no model-specific/provider-specific/historical/experimental copy mixed in.
 - Explore prompt no longer embeds common Notes/env/model context.
 - Subagent env/model context uses the fixed section placement and outer shape, while field values/fallbacks follow current main runtime/context builder logic.
-- Child provider-visible system messages are split into four entries with ZCode prefix at `system[0]`.
+- Child provider-visible system messages are split into four entries with Secretariat prefix at `system[0]`.
 - Main thread prompt assembly is unchanged.
 - Focused prompt tests pass.
 - A conversation-session E2E spec covers this prompt assembly behavior.
-- The E2E spec has been run through the local foreground Electron window with `ZCODE_E2E_SPEC=./test/e2e/conversation-session/conversation-session-subagent-prompt-assembly.test.ts pnpm --filter @zcode/desktop test:e2e`, and the result is PASS.
+- The E2E spec has been run through the local foreground Electron window with `SECRETARIAT_E2E_SPEC=./test/e2e/conversation-session/conversation-session-subagent-prompt-assembly.test.ts pnpm --filter @zcode/desktop test:e2e`, and the result is PASS.
 - `pnpm audit:conversation-session-coverage` passes after catalog/matrix updates.
 - `pnpm typecheck` and `pnpm lint` have been run, with any unrelated baseline failures explicitly reported.
 - No automatic commit is created. The final state remains reviewable in the working tree until the user explicitly asks to commit.

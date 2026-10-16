@@ -17,7 +17,7 @@ import {
 } from "@zcode/provider";
 import {
   NodeZCodeBuiltinProviderConfigSource,
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
 } from "@zcode/provider-node";
 import type { ProviderFamilyDomain } from "@zcode/shared";
 
@@ -54,9 +54,9 @@ async function readStandaloneCodingPlanCatalog(
           : [];
       }),
     };
-  const filePath = env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
+  const filePath = env[SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   if (!filePath) {
-    throw new Error(`${ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required for login`);
+    throw new Error(`${SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV} is required for login`);
   }
   const source = new NodeZCodeBuiltinProviderConfigSource({
     bundledFilePath: filePath,
@@ -79,7 +79,7 @@ export async function resolveStandaloneCodingPlanProvider(
   );
   if (matches.length !== 1) {
     throw new Error(
-      `ZCode Built-in Config 必须为 ${family} 声明唯一 Individual Coding Plan Provider`,
+      `Secretariat Built-in Config 必须为 ${family} 声明唯一 Individual Coding Plan Provider`,
     );
   }
   return matches[0]!;

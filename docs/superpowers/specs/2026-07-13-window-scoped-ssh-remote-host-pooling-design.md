@@ -485,7 +485,7 @@ cleanup Promise，直接以 `1` 退出。deadline timer 必须保持 ref，确�
 共享 Remote Host 中只创建一次本地混合 ServiceCollection：
 
 - 本地权威：setting、credential、OAuth、model provider、usage stats、coding plan、broadcast 等。
-- 本地 wrapper：ZCode Task、ZCode Session、Repo Wiki 等。
+- 本地 wrapper：Secretariat Task、Secretariat Session、Repo Wiki 等。
 - 远端实现：file、git、terminal、file watcher、Agent、skills、MCP/plugin sync 等。
 
 远端 `zcode-server` 内继续按 workspaceKey 管理：
@@ -561,7 +561,7 @@ owner/lease、owner command、pending permission/elicitation/command 和 stale r
 - 新 remote session、registry revision 变化、强制刷新或 pending 重试已经明确要求下发 Provider
   Registry 时，禁止在下发前调用 `getWorkspaceRuntimeIdentity`。Registry 应用成功后再读取 runtime
   identity；只有同 session、同 revision 的 unchanged 判定才允许先探测 identity 以发现 Agent 重建。
-- Registry 应用后的 identity 探针仍返回 `ZCODE_AGENT_PROVIDER_NOT_READY` 时，保留一次有界重放保护；
+- Registry 应用后的 identity 探针仍返回 `SECRETARIAT_AGENT_PROVIDER_NOT_READY` 时，保留一次有界重放保护；
   该错误表示应用回包后 runtime 被替换，不再属于正常冷启动路径。
 - Node `ExperimentalWarning` / `DeprecationWarning` / `Warning` 由 host 结构化为一条 `warn`；默认
   stderr/console 路径不得再额外上报一条 `error`。

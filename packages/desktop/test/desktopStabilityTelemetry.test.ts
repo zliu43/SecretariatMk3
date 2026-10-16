@@ -544,7 +544,7 @@ describe("desktopStabilityTelemetry", () => {
           `Error: write EPIPE token=super-secret at ${workspacePath}`,
           "request URL contains sk-1234567890abcdefghijklmnopqrstuv",
           `    at Socket._write (${workspacePath}/child.js:10:20)`,
-          "    at open (/Users/bob/.zcode/state.db:30:40)",
+          "    at open (/Users/bob/.secretariat/state.db:30:40)",
           "    at load (/opt/zcode-private/tool.js:50:60)",
           "  code: 'EPIPE',",
           "x".repeat(1_000),
@@ -584,7 +584,7 @@ describe("desktopStabilityTelemetry", () => {
       expect(properties.error_stack).not.toContain(workspacePath);
       expect(properties.error_stack).not.toContain("/Users/bob");
       expect(properties.error_stack).not.toContain("/opt/zcode-private");
-      expect(properties.error_stack).toContain("<home>/.zcode/state.db");
+      expect(properties.error_stack).toContain("<home>/.secretariat/state.db");
       expect(properties.error_stack).toContain("<path>");
       expect(properties.error_stack).not.toContain("super-secret");
       expect(properties.error_stack).not.toContain("sk-1234567890abcdefghijklmnopqrstuv");
@@ -616,7 +616,7 @@ describe("desktopStabilityTelemetry", () => {
         name: "SQLite",
         runtimeReady: true,
         stderrTail: [
-          "Error: SQLite migration initialization failed for C:\\Users\\alice\\.zcode\\cli\\db\\db.sqlite",
+          "Error: SQLite migration initialization failed for C:\\Users\\alice\\.secretariat\\cli\\db\\db.sqlite",
         ],
         expected: {
           crash_phase: "runtime",
@@ -624,7 +624,7 @@ describe("desktopStabilityTelemetry", () => {
           error_name: "Error",
           error_code: "",
           error_message:
-            "SQLite migration initialization failed for <home>/.zcode/cli/db/db.sqlite",
+            "SQLite migration initialization failed for <home>/.secretariat/cli/db/db.sqlite",
         },
       },
       {
@@ -653,7 +653,7 @@ describe("desktopStabilityTelemetry", () => {
           "----- Native stack trace -----",
           "1: 0x00007ff6deadbeef",
           "(node:1234) ExperimentalWarning: SQLite is an experimental feature and might change at any time",
-          "(Use `ZCode --trace-warnings ...` to show where the warning was created)",
+          "(Use `Secretariat --trace-warnings ...` to show where the warning was created)",
           "},",
         ],
         expected: {
@@ -1006,7 +1006,7 @@ describe("desktopStabilityTelemetry", () => {
           stderrTail: [
             "[Object]",
             "node:events:486",
-            "EPERM: process.cwd failed at /Users/alice/.zcode/state.db:10:20",
+            "EPERM: process.cwd failed at /Users/alice/.secretariat/state.db:10:20",
           ],
         },
         logger,
@@ -1018,7 +1018,7 @@ describe("desktopStabilityTelemetry", () => {
           stderrTail: [
             "[Object]",
             "node:events:999",
-            "EPERM: process.cwd failed at /home/bob/.zcode/state.db:30:40",
+            "EPERM: process.cwd failed at /home/bob/.secretariat/state.db:30:40",
           ],
         },
         logger,
@@ -1028,8 +1028,8 @@ describe("desktopStabilityTelemetry", () => {
         .filter((call) => call[0]?.name === "perf_agent_crash")
         .map((call) => call[0].properties as Record<string, string>);
       expect(reports.map((report) => report.error_message)).toEqual([
-        "EPERM: process.cwd failed at <home>/.zcode/state.db:10:20",
-        "EPERM: process.cwd failed at <home>/.zcode/state.db:30:40",
+        "EPERM: process.cwd failed at <home>/.secretariat/state.db:10:20",
+        "EPERM: process.cwd failed at <home>/.secretariat/state.db:30:40",
       ]);
       expect(reports.map((report) => report.error_code)).toEqual(["EPERM", "EPERM"]);
       expect(reports[0]?.error_fingerprint).toBe(reports[1]?.error_fingerprint);

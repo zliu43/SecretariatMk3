@@ -32,7 +32,7 @@
 
 ## 协议
 
-新增两个 ZCode Protocol session 方法：
+新增两个 Secretariat Protocol session 方法：
 
 - `session/previewFileRewind`
 - `session/applyFileRewind`

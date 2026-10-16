@@ -24,7 +24,7 @@ describe("host RPC 日志级别映射", () => {
 
   it("provider registry 尚未就绪的 runtime identity 查询应记为 info", () => {
     const error = Object.assign(new Error("provider not ready"), {
-      code: "ZCODE_AGENT_PROVIDER_NOT_READY",
+      code: "SECRETARIAT_AGENT_PROVIDER_NOT_READY",
     });
 
     expect(

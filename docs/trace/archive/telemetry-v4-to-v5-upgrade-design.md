@@ -32,7 +32,7 @@ OpenTelemetry
   ContextManager / BatchSpanProcessor / Exporter
                     │
                     ▼
-ZCode 领域语义
+Secretariat 领域语义
   Turn / Step / Tool / Command
   Model Call / Model Attempt / Compaction
   zcode.* canonical attributes
@@ -52,7 +52,7 @@ ZCode 领域语义
 - Model Call/Attempt 在真实生命周期边界创建和结束；
 - Trace 只保留 BatchSpanProcessor 一个队列；
 - Event 表示瞬时里程碑，Span 表示持续工作，Attribute 表示事实/摘要；
-- ZCode canonical 是内部分析真相，GenAI/ARMS 由 Adapter 派生；
+- Secretariat canonical 是内部分析真相，GenAI/ARMS 由 Adapter 派生；
 - 身份按隐私类别治理，不把普通 SHA-256 称为匿名化；
 - `service.version` 来自真实 CLI 构建，产品版本和 Schema 版本分别建模；
 - 不兼容旧字段，按 Schema Version 原子切换报表。
@@ -412,7 +412,7 @@ Resource。
 OTel Context
   ├─ 当前活动 Span
   ├─ Baggage（默认无业务身份）
-  └─ ZCode private values
+  └─ Secretariat private values
        ├─ execution correlation
        └─ typed writer anchor
 ```
@@ -464,7 +464,7 @@ Baggage 会复制到下游 Header，不是 ARMS 查询列。
 
 - 不放 user/device/session/prompt；
 - 不向模型 Provider 注入；
-- 当前不启用业务 Baggage；未来即使只在受信 ZCode 进程边界传播低风险 routing value，
+- 当前不启用业务 Baggage；未来即使只在受信 Secretariat 进程边界传播低风险 routing value，
   也必须单独评审字段、传播范围和保留期；
 - 主要关联依赖 SpanContext 与受控 Attribute 投影。
 
@@ -592,7 +592,7 @@ model_call
 三类输出：
 
 1. OTel 结构：trace/span/parent/status/time/kind；
-2. ZCode canonical：`zcode.<span_name>.<property>`；
+2. Secretariat canonical：`zcode.<span_name>.<property>`；
 3. 外部兼容：GenAI、OTel semconv、ARMS alias。
 
 业务只调用 Writer：
@@ -993,8 +993,8 @@ pnpm lint
 
 迁移期建议开关：
 
-- `ZCODE_AGENT_TELEMETRY_SCHEMA=4`；
-- `ZCODE_MODEL_TELEMETRY_ENABLED=0` 总关闭；
+- `SECRETARIAT_AGENT_TELEMETRY_SCHEMA=4`；
+- `SECRETARIAT_MODEL_TELEMETRY_ENABLED=0` 总关闭；
 - Event 明细；
 - identity projection；
 - Collector/ARMS Tail Sampling Policy。

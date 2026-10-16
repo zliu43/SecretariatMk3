@@ -11,7 +11,7 @@
 默认全量 desktop E2E 不会执行 manual review spec。需要显式打开：
 
 ```bash
-ZCODE_E2E_MANUAL_REVIEW=1 \
+SECRETARIAT_E2E_MANUAL_REVIEW=1 \
 E2E_PROVIDER_API_KEY=<real-provider-key> \
 pnpm exec wdio run wdio.conf.ts \
   --spec ./test/e2e/conversation-session/conversation-session-goal-run-cases.test.ts
@@ -96,7 +96,7 @@ prompt 同时明确禁止 `Edit`、`Write`、删除、移动、安装、提交�
 可选日志观察：
 
 ```bash
-tail -f ~/.zcode/cli/log/zcode-$(date +%F).jsonl | rg "target\\.continuation|target\\.completion_verification|turn\\.started|turn\\.completed"
+tail -f ~/.secretariat/cli/log/zcode-$(date +%F).jsonl | rg "target\\.continuation|target\\.completion_verification|turn\\.started|turn\\.completed"
 ```
 
 人工观察点：

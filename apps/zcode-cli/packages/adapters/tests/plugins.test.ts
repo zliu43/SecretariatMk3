@@ -45,10 +45,10 @@ import {
 import { createNodeCustomCommandAdapter } from "../src/commands/index.js";
 import { createNodeSkillAdapter } from "../src/skills/index.js";
 import {
-  ZCODE_AGENT_CA_CERT_ENV_KEY,
-  ZCODE_HTTP_PROXY_ENV_KEY,
-  ZCODE_NO_PROXY_ENV_KEY,
-  ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
+  SECRETARIAT_AGENT_CA_CERT_ENV_KEY,
+  SECRETARIAT_HTTP_PROXY_ENV_KEY,
+  SECRETARIAT_NO_PROXY_ENV_KEY,
+  SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY,
 } from "@zcode/shared";
 
 const execFileAsync = promisify(execFile);
@@ -154,9 +154,9 @@ describe("NodePluginAdapter", () => {
           pluginCount: 0,
         },
       ]);
-      vi.stubEnv("ZCODE_HTTP_PROXY", "");
+      vi.stubEnv("SECRETARIAT_HTTP_PROXY", "");
       vi.stubEnv(
-        ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY,
+        SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY,
         JSON.stringify({ HTTP_PROXY: await listenServer(proxy) }),
       );
 
@@ -383,11 +383,11 @@ describe("NodePluginAdapter", () => {
     }
   });
 
-  it("injects explicit ZCode proxy env into marketplace Git commands", () => {
+  it("injects explicit Secretariat proxy env into marketplace Git commands", () => {
     const env = buildMarketplaceGitEnv({
-      [ZCODE_AGENT_CA_CERT_ENV_KEY]: "/tmp/root-ca.pem",
-      [ZCODE_HTTP_PROXY_ENV_KEY]: "127.0.0.1:7890",
-      [ZCODE_NO_PROXY_ENV_KEY]: "localhost,127.0.0.1",
+      [SECRETARIAT_AGENT_CA_CERT_ENV_KEY]: "/tmp/root-ca.pem",
+      [SECRETARIAT_HTTP_PROXY_ENV_KEY]: "127.0.0.1:7890",
+      [SECRETARIAT_NO_PROXY_ENV_KEY]: "localhost,127.0.0.1",
       PATH: "/usr/bin:/bin",
       http_proxy: "http://ambient-proxy:8080",
     });
@@ -681,7 +681,7 @@ describe("NodePluginAdapter", () => {
 
       const known = ensureDefaultPluginMarketplaces(storageRoot);
 
-      // 默认市场现在有两个：claude-plugins-official（已有记录不被覆盖）+ 唯一 ZCode
+      // 默认市场现在有两个：claude-plugins-official（已有记录不被覆盖）+ 唯一 Secretariat
       // 官方市场 zcode-plugins-official（缺失时补种）。
       expect(known).toHaveLength(2);
       const claude = known.find((record) => record.id === "claude-plugins-official");
@@ -808,10 +808,10 @@ describe("NodePluginAdapter", () => {
             "ios-simulator": {
               command: "bun",
               args: ["${CLAUDE_PLUGIN_ROOT}/src/mcp/server.ts"],
-              cwd: "${ZCODE_PROJECT_DIR}",
+              cwd: "${SECRETARIAT_PROJECT_DIR}",
               env: {
                 IOS_SIM_DEFAULT_DEVICE: "${user_config.default_device}",
-                IOS_SIM_PLUGIN_DATA: "${ZCODE_PLUGIN_DATA}",
+                IOS_SIM_PLUGIN_DATA: "${SECRETARIAT_PLUGIN_DATA}",
               },
             },
           },
@@ -1406,7 +1406,7 @@ describe("NodePluginAdapter", () => {
         "git",
         [
           "-c",
-          "user.name=ZCode Test",
+          "user.name=Secretariat Test",
           "-c",
           "user.email=zcode-test@example.com",
           "commit",
@@ -1430,7 +1430,7 @@ describe("NodePluginAdapter", () => {
         "git",
         [
           "-c",
-          "user.name=ZCode Test",
+          "user.name=Secretariat Test",
           "-c",
           "user.email=zcode-test@example.com",
           "commit",
@@ -1455,7 +1455,7 @@ describe("NodePluginAdapter", () => {
         "git",
         [
           "-c",
-          "user.name=ZCode Test",
+          "user.name=Secretariat Test",
           "-c",
           "user.email=zcode-test@example.com",
           "commit",
@@ -1549,7 +1549,7 @@ describe("NodePluginAdapter", () => {
         "git",
         [
           "-c",
-          "user.name=ZCode Test",
+          "user.name=Secretariat Test",
           "-c",
           "user.email=zcode-test@example.com",
           "commit",
@@ -1856,9 +1856,9 @@ describe("NodePluginAdapter", () => {
 
     try {
       const proxyBaseUrl = await listenLoopbackServer(proxy);
-      vi.stubEnv(ZCODE_HTTP_PROXY_ENV_KEY, "");
-      vi.stubEnv(ZCODE_NO_PROXY_ENV_KEY, "");
-      vi.stubEnv(ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY, JSON.stringify({ HTTP_PROXY: proxyBaseUrl }));
+      vi.stubEnv(SECRETARIAT_HTTP_PROXY_ENV_KEY, "");
+      vi.stubEnv(SECRETARIAT_NO_PROXY_ENV_KEY, "");
+      vi.stubEnv(SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY, JSON.stringify({ HTTP_PROXY: proxyBaseUrl }));
 
       const sourceUrl = "http://127.0.0.2/captured-proxy.zip";
       resolved = await resolveZipPluginSource({
@@ -1902,7 +1902,7 @@ describe("NodePluginAdapter", () => {
         response.end();
       });
       const originBaseUrl = await listenLoopbackServer(origin);
-      vi.stubEnv(ZCODE_NO_PROXY_ENV_KEY, "127.0.0.1");
+      vi.stubEnv(SECRETARIAT_NO_PROXY_ENV_KEY, "127.0.0.1");
 
       resolved = await resolveZipPluginSource({
         headers: { "x-zcode-channel": "internal" },
@@ -1927,7 +1927,7 @@ describe("NodePluginAdapter", () => {
 
     try {
       const originBaseUrl = await listenLoopbackServer(origin);
-      vi.stubEnv(ZCODE_NO_PROXY_ENV_KEY, "127.0.0.1");
+      vi.stubEnv(SECRETARIAT_NO_PROXY_ENV_KEY, "127.0.0.1");
 
       await expect(
         resolveZipPluginSource({
@@ -2405,7 +2405,7 @@ describe("NodePluginAdapter", () => {
           pluginCount: 0,
         },
       ]);
-      vi.stubEnv("ZCODE_GIT_BINARY", join(dir, "missing-git"));
+      vi.stubEnv("SECRETARIAT_GIT_BINARY", join(dir, "missing-git"));
 
       expect(await updateMarketplace({ marketplace: "credential-market", storageRoot })).toEqual(
         [],
@@ -2658,19 +2658,19 @@ describe("NodePluginAdapter", () => {
         },
       ]);
       for (const key of [
-        ZCODE_HTTP_PROXY_ENV_KEY,
+        SECRETARIAT_HTTP_PROXY_ENV_KEY,
         "HTTP_PROXY",
         "HTTPS_PROXY",
         "ALL_PROXY",
         "http_proxy",
         "https_proxy",
         "all_proxy",
-        ZCODE_AGENT_CA_CERT_ENV_KEY,
+        SECRETARIAT_AGENT_CA_CERT_ENV_KEY,
         "NODE_EXTRA_CA_CERTS",
       ]) {
         vi.stubEnv(key, "");
       }
-      vi.stubEnv(ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY, "{}");
+      vi.stubEnv(SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY, "{}");
       vi.stubGlobal(
         "fetch",
         vi.fn(async () => new Response("[]", { status: 200 })),
@@ -2842,19 +2842,19 @@ describe("NodePluginAdapter", () => {
         },
       ]);
       for (const key of [
-        ZCODE_HTTP_PROXY_ENV_KEY,
+        SECRETARIAT_HTTP_PROXY_ENV_KEY,
         "HTTP_PROXY",
         "HTTPS_PROXY",
         "ALL_PROXY",
         "http_proxy",
         "https_proxy",
         "all_proxy",
-        ZCODE_AGENT_CA_CERT_ENV_KEY,
+        SECRETARIAT_AGENT_CA_CERT_ENV_KEY,
         "NODE_EXTRA_CA_CERTS",
       ]) {
         vi.stubEnv(key, "");
       }
-      vi.stubEnv(ZCODE_TOOL_ENV_PASSTHROUGH_ENV_KEY, "{}");
+      vi.stubEnv(SECRETARIAT_TOOL_ENV_PASSTHROUGH_ENV_KEY, "{}");
       vi.stubGlobal(
         "fetch",
         vi.fn(async () => new Response("[]", { status: 200 })),
@@ -3512,7 +3512,7 @@ describe("NodePluginAdapter", () => {
             risky: {
               command: "node",
               env: {
-                TOKEN: "${ZCODE_MISSING_TOKEN}",
+                TOKEN: "${SECRETARIAT_MISSING_TOKEN}",
               },
             },
           },
@@ -3777,7 +3777,7 @@ describe("NodePluginAdapter", () => {
           local: {
             command: "node",
             env: {
-              TOKEN: "${ZCODE_PLUGIN_TOKEN}",
+              TOKEN: "${SECRETARIAT_PLUGIN_TOKEN}",
             },
           },
         },
@@ -3998,7 +3998,7 @@ describe("NodePluginAdapter", () => {
     }
   });
 
-  it("prefers Claude manifest over Codex manifest when no ZCode manifest exists", async () => {
+  it("prefers Claude manifest over Codex manifest when no Secretariat manifest exists", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-codex-plugin-"));
     const pluginRoot = join(dir, "multi-manifest");
 
@@ -4101,7 +4101,7 @@ describe("NodePluginAdapter", () => {
   });
 
   // Bugfix 回归（差一层目录）：Claude 插件规范里 manifest skills 数组项指向「技能目录本身」
-  // （项内直接是 SKILL.md），此前 ZCode 把每项当作技能根去项下找子目录，扫描恒为空。
+  // （项内直接是 SKILL.md），此前 Secretariat 把每项当作技能根去项下找子目录，扫描恒为空。
   it("discovers skills for plugin manifest skills array entries pointing at skill directories", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-plugin-array-skills-"));
     const pluginRoot = join(dir, "mattpocock");
@@ -4923,7 +4923,7 @@ async function writeTripletPluginFixture(
           command: "node",
           env: {
             PLUGIN_DATA: "${CLAUDE_PLUGIN_DATA}",
-            PROJECT_DIR: "${ZCODE_PROJECT_DIR}",
+            PROJECT_DIR: "${SECRETARIAT_PROJECT_DIR}",
           },
         },
       },

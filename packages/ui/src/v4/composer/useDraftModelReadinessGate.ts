@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   isZCodeAgentProvider,
-  ZCODE_AGENT_PROVIDER,
+  SECRETARIAT_AGENT_PROVIDER,
   type ZCodeProvider,
 } from "@zcode/shared";
 import type { IModelSelectionService, ModelSelectionView } from "@zcode/services";
@@ -60,7 +60,7 @@ export function useDraftModelReadinessGate(params: {
     modelSelectionService,
   } = params;
   const workspaceKey = workspaceIdentity?.trim() || workspacePath;
-  const displayProvider = provider ?? ZCODE_AGENT_PROVIDER;
+  const displayProvider = provider ?? SECRETARIAT_AGENT_PROVIDER;
   const enabled = sessionId === null && isZCodeAgentProvider(displayProvider);
   const gateKey = `${workspaceKey}\u0000${displayProvider}`;
   const [state, setState] = useState<DraftModelReadinessState>(() => ({

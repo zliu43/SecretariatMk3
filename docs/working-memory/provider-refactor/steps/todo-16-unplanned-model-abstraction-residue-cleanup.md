@@ -88,7 +88,7 @@ Option Spec 存在时创建该对象，并固定写入 `enabled: true`。是否�
   当前 Personal Model Config Rule；
 - 不改变 `ModelSelection.options.reasoningLevel`、Option Spec 默认值和 Adapter `reasoningMapping`。
 
-### 1.3 删除 ZCode Protocol 中零引用的旧 Provider DTO
+### 1.3 删除 Secretariat Protocol 中零引用的旧 Provider DTO
 
 `packages/shared/src/zcode-protocol/index.ts` 仍公开一套没有生产消费者的旧 Provider 输入/输出 Schema，包括：
 
@@ -233,7 +233,7 @@ Active Model
 ### 1.8 删除 Bootstrap 的 Built-in Provider 展示名硬编码
 
 `apps/zcode-cli/packages/bootstrap/src/zcode-protocol/model-mapper.ts` 仍维护 `BUILTIN_PROVIDER_LABELS`，按
-Provider ID 硬编码 Z.AI、BigModel、ZAPI 等展示名。这是 ZCode Built-in Provider Config 之外的第二份静态
+Provider ID 硬编码 Z.AI、BigModel、ZAPI 等展示名。这是 Secretariat Built-in Provider Config 之外的第二份静态
 Provider 元数据来源。
 
 裁决如下：
@@ -276,7 +276,7 @@ Todo 14
 Todo 16
 |- Core fake sentinel removal
 |- reasoning.enabled removal
-|- zero-reference ZCode Protocol Provider DTO removal
+|- zero-reference Secretariat Protocol Provider DTO removal
 |- current Model Option Protocol projection narrowing
 |- Legacy CLI Model Config privatization
 |- AgentRuntime secondary model-fact channel removal
@@ -348,7 +348,7 @@ Todo 16
 ### 3.7 Codegraph Evidence And Graph Delta
 
 - 当前环境没有可调用的 codegraph 工具；以 feature graph seed、`rg`、`dep:refs` 和 `knip` 做深度 2 的静态替代；
-- 直接路径为 Registry Provider/Model -> Bootstrap Model Mapper -> ZCode Protocol -> UI Session Projection；
+- 直接路径为 Registry Provider/Model -> Bootstrap Model Mapper -> Secretariat Protocol -> UI Session Projection；
 - `supportsTools/supportsStructuredOutput` 只有生产端写入，没有 Renderer 读取；
 - `providerSource/providerLogoUrl` 在当前 Model Option 链中没有生产者和消费者；
 - feature graph 已正确声明 Model Properties 与 Provider Registry 的权威关系，本轮没有新的产品语义节点，
@@ -407,7 +407,7 @@ Todo 16
 | RZ-02   | 测试构造不可执行 Runtime                | 显式使用 Unavailable ModelFactory，不存在 sentinel Model      |
 | RZ-03   | 模型无 Reasoning Option Spec            | Protocol/UI 中 `reasoning` 缺失，不出现 `enabled=false`       |
 | RZ-04   | 模型有 Reasoning Option Spec            | 只传 levels/defaultLevel，不出现固定 `enabled=true`           |
-| RZ-05   | Shared Protocol export scan             | 旧 ZCode Provider DTO 和仅属其字段为零                        |
+| RZ-05   | Shared Protocol export scan             | 旧 Secretariat Provider DTO 和仅属其字段为零                        |
 | RZ-06   | 读取已发布旧 CLI 配置                   | importer 私有解析并生成当前 Personal Config                   |
 | RZ-07   | 正常请求、Compact、Memory、Title、Child | context/output facts 只来自本次 Active Model                  |
 | RZ-08   | Model Config 默认 max output 更新       | 只影响后来创建的 Model，不反写旧 Selection/Runtime snapshot   |
@@ -422,7 +422,7 @@ Todo 16
 
 1. `AgentRuntimeDeps.modelFactory?`、`zcode-unconfigured/missing-model`、公共 `DEFAULT_MODEL` 为零；
 2. 当前 Protocol/Projection 中 `ZCodeModelReasoningOptions.enabled` 为零；
-3. 零引用旧 ZCode Provider Protocol DTO 和公共 Schema/export 为零；
+3. 零引用旧 Secretariat Provider Protocol DTO 和公共 Schema/export 为零；
 4. 公共 Contracts/Adapters 中 Legacy CLI `RuntimeModelConfig/ModelTargetConfig` 为零；
 5. `AgentRuntimeConfig.modelProviderOptions` 及其传递链为零；
 6. 已取得 Active Model 的执行路径对 Runtime `contextWindow/maxOutputTokens` fallback 为零；

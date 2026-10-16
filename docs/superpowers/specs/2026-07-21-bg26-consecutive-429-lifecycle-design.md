@@ -27,7 +27,7 @@
 目标链路
   BG26 worker
     -> retry = 0
-    -> ZCODE_HTTP_PROXY = 当前 replay server
+    -> SECRETARIAT_HTTP_PROXY = 当前 replay server
     -> Node http + 当前请求独立 ProxyAgent
     -> 1 次真实 429
     -> child terminal failed
@@ -40,8 +40,8 @@
 
 采用 case-local worker 隔离，不修改产品网络代码：
 
-1. WDIO `beforeSession` 根据当前 worker specs 判断 BG26，仅该 worker 设置 `ZCODE_MODEL_RETRY_MAX_RETRIES=0`。
-2. replay server 启动并获得动态端口后，仅 BG26 worker 设置 `ZCODE_HTTP_PROXY` 为该 server 的 base URL，并清空显式 `ZCODE_NO_PROXY`。`ProxyAgent` 会发送 absolute-form HTTP URL，而 replay server 已支持该格式。
+1. WDIO `beforeSession` 根据当前 worker specs 判断 BG26，仅该 worker 设置 `SECRETARIAT_MODEL_RETRY_MAX_RETRIES=0`。
+2. replay server 启动并获得动态端口后，仅 BG26 worker 设置 `SECRETARIAT_HTTP_PROXY` 为该 server 的 base URL，并清空显式 `SECRETARIAT_NO_PROXY`。`ProxyAgent` 会发送 absolute-form HTTP URL，而 replay server 已支持该格式。
 3. 非 BG26 worker 和 capture 模式恢复 WDIO 启动前的 proxy/no-proxy 配置，避免串扰其它 case 或开发者环境。
 4. BG26 fixture 保留一次真实 `429 AccountRateLimitExceeded`、原始 provider message 和 `retry-after: 0`，删除不属于本 case 合同的 retry fixture。
 5. provider message、status code、child marker、notification matcher 和 UI/restore 断言保持不变。

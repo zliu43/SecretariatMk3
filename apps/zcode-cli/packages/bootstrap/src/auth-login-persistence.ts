@@ -8,7 +8,7 @@ import {
   NodeModelSelectionConfigRepository,
   NodePersonalProviderConfigRepository,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
 } from "@zcode/provider-node";
 import { dirname, join } from "node:path";
 import type {
@@ -54,7 +54,7 @@ export async function persistStandaloneCodingPlanConnection(input: {
   });
   const path =
     input.personalProviderConfigPath ??
-    input.env[ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ??
+    input.env[SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]?.trim() ??
     join(dirname(input.credentialStore.filePath), PERSONAL_PROVIDER_CONFIG_FILE_NAME);
   // 登录与运行时共享文件和事务；首次写入仍先保留旧用户 Provider，不能仅写默认值。
   const personalRepository = new NodePersonalProviderConfigRepository({

@@ -26,7 +26,7 @@ try {
   await mkdir(dataDir, { recursive: true });
   await mkdir(workspaceDir, { recursive: true });
   await mkdir(webDistDir, { recursive: true });
-  await writeFile(join(webDistDir, "index.html"), "<!doctype html><html><body>ZCode test</body></html>\n");
+  await writeFile(join(webDistDir, "index.html"), "<!doctype html><html><body>Secretariat test</body></html>\n");
   await writeFile(agentEntry, "module.exports = {};\n");
   await writeFile(
     injectResetEntry,
@@ -42,7 +42,7 @@ try {
     backendEntry,
     `import { createServer } from "node:http";
 
-const startDelayMs = Number(process.env.ZCODE_TEST_BACKEND_START_DELAY_MS || 0);
+const startDelayMs = Number(process.env.SECRETARIAT_TEST_BACKEND_START_DELAY_MS || 0);
 
 setTimeout(() => {
   const server = createServer((req, res) => {
@@ -74,14 +74,14 @@ setTimeout(() => {
       ...process.env,
       NODE_OPTIONS: appendNodeImport(process.env.NODE_OPTIONS, injectResetEntry),
       PORT: String(publicPort),
-      ZCODE_BACKEND_PORT: String(backendPort),
-      ZCODE_DATA_BASE_DIR: dataDir,
-      ZCODE_SERVER_ENTRY: backendEntry,
-      ZCODE_AGENT_ENTRY: agentEntry,
-      ZCODE_SERVER_WORKSPACE: workspaceDir,
-      ZCODE_STORAGE_DIR: join(dataDir, ".zcode"),
-      ZCODE_TEST_BACKEND_START_DELAY_MS: "1000",
-      ZCODE_WEB_DIST_DIR: webDistDir,
+      SECRETARIAT_BACKEND_PORT: String(backendPort),
+      SECRETARIAT_DATA_BASE_DIR: dataDir,
+      SECRETARIAT_SERVER_ENTRY: backendEntry,
+      SECRETARIAT_AGENT_ENTRY: agentEntry,
+      SECRETARIAT_SERVER_WORKSPACE: workspaceDir,
+      SECRETARIAT_STORAGE_DIR: join(dataDir, ".secretariat"),
+      SECRETARIAT_TEST_BACKEND_START_DELAY_MS: "1000",
+      SECRETARIAT_WEB_DIST_DIR: webDistDir,
     },
     stdio: ["ignore", "pipe", "pipe"],
   });

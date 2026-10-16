@@ -12,7 +12,7 @@ const IAB = {
   id: "iab-runtime-1",
   generation: 1,
   type: "iab" as const,
-  name: "ZCode In-app Browser",
+  name: "Secretariat In-app Browser",
   capabilities: {},
 };
 

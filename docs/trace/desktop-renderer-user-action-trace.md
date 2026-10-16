@@ -3,7 +3,7 @@
 ## 状态
 
 - 本文是 Electron Desktop Renderer 用户语义操作 Trace 的实现规范。
-- 只新增 `ui_action` Span；Web、手机、Host、CLI、RPC 与 ZCode Protocol 不接入。
+- 只新增 `ui_action` Span；Web、手机、Host、CLI、RPC 与 Secretariat Protocol 不接入。
 - `/event/report` 保持现有事件、字段与计数，不复用本 Catalog。
 
 ## 架构

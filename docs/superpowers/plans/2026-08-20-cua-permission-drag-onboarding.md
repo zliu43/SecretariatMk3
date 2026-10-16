@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 让 ZCode CUA 首次授权全程不弹 macOS 系统权限弹窗，改为「主窗内权限清单模态 → 打开系统设置页 → 吸附浮窗把 Helper.app 拖进权限列表」的拖拽式引导。
+**Goal:** 让 Secretariat CUA 首次授权全程不弹 macOS 系统权限弹窗，改为「主窗内权限清单模态 → 打开系统设置页 → 吸附浮窗把 Helper.app 拖进权限列表」的拖拽式引导。
 
 **Architecture:** 删除 onboarding 中触发 native prompt 的 `requestHelper*PermissionViaLaunchServices` 调用，并把它承载的同步指纹终检迁移到 dragstart 前；恢复 2026-08 审计（`663f58e7e7`）删除的 `Prepare/StartCuaHelperPermissionDrag` IPC 链（预热已验证路径+指纹缓存，dragstart 只做微秒级同步比对再 `startDrag`）；新增一个 Electron 无焦点置顶浮窗承载可拖拽 tile，位置由一个常驻 Swift CLI 提供的系统设置窗口 bounds 驱动。会话协调器、验签链、授权后重启 Helper 机制全部保留。
 
@@ -56,14 +56,14 @@ Helper 是 **Node SEA + `LSUIElement=true`**（实测 `NODE_SEA_BLOB` 命中、I
 - **TOCTOU 门**：拖拽前必须同步比对 `cuaHelperBundleFingerprintUnchanged`（`ino:ctimeNs:size`，ctime 用户态不可回拨）；不符即拒拖并清缓存，绝不把可能被替换的 bundle 拖进权限列表。
 - **fail-closed vs fail-open**：验签/指纹相关一律 fail-closed（拒绝操作）；窗口 bounds 获取失败一律 fail-open（退回屏幕底部居中），吸附是增强不是可用性前提。
 - **授权后生效**：两项权限都必须重启 Helper 才生效（SR 对已运行进程不生效；accessibility 有 `AXIsProcessTrusted` 进程级缓存）。保留 `restartHelperAfterReturn` 机制。
-- **语言跟随 ZCode**：权限拖拽浮窗不得自行读取浏览器 `localStorage` 或操作系统语言；每次 `show(permission)` 都从 main 进程的 `currentApplicationLocale` 读取当前 ZCode 界面语言，并通过浮窗 state IPC 传给 renderer。renderer 只支持 shared `Locale` 已声明的 `zh-CN` / `en-US`，同步更新说明文案、拖拽 tooltip、`document.title` 与 `<html lang>`。state 必须在 `showInactive()` 前发送，避免英文界面先闪出中文 fallback。
+- **语言跟随 Secretariat**：权限拖拽浮窗不得自行读取浏览器 `localStorage` 或操作系统语言；每次 `show(permission)` 都从 main 进程的 `currentApplicationLocale` 读取当前 Secretariat 界面语言，并通过浮窗 state IPC 传给 renderer。renderer 只支持 shared `Locale` 已声明的 `zh-CN` / `en-US`，同步更新说明文案、拖拽 tooltip、`document.title` 与 `<html lang>`。state 必须在 `showInactive()` 前发送，避免英文界面先闪出中文 fallback。
 - **git**：禁用 `--no-verify`。上游 `@zcode/zcode-cua` 本次**不修改**，全部改动在下游仓库。
 - **macOS API 版本**：`CGWindowListCopyWindowInfo` 自 10.5 起可用，安全。新增任何系统命令前必须核最低支持版本（`/usr/bin/lockf` 是 15+ 曾致 macOS ≤14 全线不可用）。
 
 语言状态链路：
 
 ```text
-ZCode 设置 / System default
+Secretariat 设置 / System default
              │
              ▼
 main.currentApplicationLocale
@@ -223,12 +223,12 @@ it("绝不触发 native 权限请求（不弹系统弹窗）", async () => {
   const result = await openCuaPermissionOnboarding({
     platform: "darwin",
     requiredPermissions: ["screen_recording", "accessibility"],
-    ensureHelperInstalled: async () => "/tmp/helper/ZCode Computer Use.app",
+    ensureHelperInstalled: async () => "/tmp/helper/Secretariat Computer Use.app",
     verifyHelperInstalled: async () => {},
     resolveHelperIdentity: async (appPath) => ({
       appPath,
-      executablePath: `${appPath}/Contents/MacOS/ZCode Computer Use`,
-      displayName: "ZCode Computer Use",
+      executablePath: `${appPath}/Contents/MacOS/Secretariat Computer Use`,
+      displayName: "Secretariat Computer Use",
       bundleId: "dev.zcode.cua-helper",
     }),
     // 这两个注入点在改造后不应存在；若实现回退到调用它们，本测试立刻失败
@@ -334,7 +334,7 @@ it("验签期间 bundle 被改则拒绝预热", async () => {
     resolveHelperIdentity: async (appPath) => ({
       appPath,
       executablePath: `${appPath}/Contents/MacOS/x`,
-      displayName: "ZCode Computer Use",
+      displayName: "Secretariat Computer Use",
       bundleId: "dev.zcode.cua-helper",
     }),
   });
@@ -350,13 +350,13 @@ it("预热成功返回路径与身份，但不泄漏指纹给 renderer 形状", 
     resolveHelperIdentity: async (appPath) => ({
       appPath,
       executablePath: `${appPath}/Contents/MacOS/x`,
-      displayName: "ZCode Computer Use",
+      displayName: "Secretariat Computer Use",
       bundleId: "dev.zcode.cua-helper",
     }),
   });
   expect(result.success).toBe(true);
   expect(result.helperAppPath).toBe(helperFixturePath);
-  expect(result.helperDisplayName).toBe("ZCode Computer Use");
+  expect(result.helperDisplayName).toBe("Secretariat Computer Use");
   expect(result.helperBundleFingerprint).toBeTruthy();
 });
 ```
@@ -398,7 +398,7 @@ export async function prepareCuaHelperPermissionDrag(
 ): Promise<PrepareCuaHelperPermissionDragMainResult> {
   const platform = options.platform ?? process.platform;
   if (platform !== "darwin") {
-    return { success: false, error: "ZCode Computer Use permissions are only available on macOS." };
+    return { success: false, error: "Secretariat Computer Use permissions are only available on macOS." };
   }
   const env = options.env ?? process.env;
   const defaultInstaller = options.ensureHelperInstalled
@@ -416,13 +416,13 @@ export async function prepareCuaHelperPermissionDrag(
     const verifiedFingerprint = captureCuaHelperBundleFingerprint(helperAppPath);
     await (options.verifyHelperInstalled ?? defaultInstaller?.verifyInstalled)?.(helperAppPath);
     if (!cuaHelperBundleFingerprintUnchanged(helperAppPath, verifiedFingerprint)) {
-      throw new Error("ZCode Computer Use changed while its drag signature was being verified");
+      throw new Error("Secretariat Computer Use changed while its drag signature was being verified");
     }
     const identity = await (
       options.resolveHelperIdentity ?? resolveHelperPermissionSubjectIdentity
     )(helperAppPath);
     if (!cuaHelperBundleFingerprintUnchanged(helperAppPath, verifiedFingerprint)) {
-      throw new Error("ZCode Computer Use changed while its drag identity was being resolved");
+      throw new Error("Secretariat Computer Use changed while its drag identity was being resolved");
     }
     return {
       success: true,
@@ -860,7 +860,7 @@ win.once("ready-to-show", () => {
 
 位置由 watcher 的 `latest()` 驱动，节流到 ~150ms，仅在目标矩形变化时 `setBounds`（避免每 tick 都触发窗口移动）。`destroy()` 必须同时 `watcher.stop()`，且对已 destroyed 的窗口幂等。
 
-`renderer/permission-panel/index.html`：一个拖拽 tile + 文案（"把 ZCode Computer Use 拖到上面的列表"）。`dragstart` 里 `event.preventDefault()` 后调 `platform.startCuaHelperPermissionDrag()`；挂载时先调 `prepareCuaHelperPermissionDrag()` 预热。
+`renderer/permission-panel/index.html`：一个拖拽 tile + 文案（"把 Secretariat Computer Use 拖到上面的列表"）。`dragstart` 里 `event.preventDefault()` 后调 `platform.startCuaHelperPermissionDrag()`；挂载时先调 `prepareCuaHelperPermissionDrag()` 预热。
 
 - [ ] **Step 4: 运行测试确认通过**
 
@@ -972,7 +972,7 @@ Expected: 无输出（零条目 = 模拟全新用户）
 - [ ] **Step 2: 起 dev**
 
 ```bash
-nohup env ZCODE_CUA_DEV_MODE=1 ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/" \
+nohup env SECRETARIAT_CUA_DEV_MODE=1 ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/" \
   pnpm run dev:desktop > /tmp/zcode-desktop-dev.log 2>&1 < /dev/null & disown
 ```
 就绪判据：`grep -a "cua helper ready at" /tmp/zcode-desktop-dev.log`。**不要**用 harness 的 background 启动 dev（任务被清理会把整条 dev 链带走）；失败只认 `ELIFECYCLE` / `exited with code [1-9]`。

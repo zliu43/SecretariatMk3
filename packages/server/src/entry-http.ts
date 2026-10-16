@@ -11,9 +11,9 @@ async function main(): Promise<void> {
     content: readBundledZCodeBuiltinProviderConfig(),
   });
   const port = Number(process.env["PORT"]) || 3030;
-  const host = process.env["ZCODE_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
-  const staticRoot = process.env["ZCODE_WEB_STATIC_ROOT"]?.trim() || undefined;
-  const authToken = process.env["ZCODE_SERVER_AUTH_TOKEN"]?.trim() || undefined;
+  const host = process.env["SECRETARIAT_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
+  const staticRoot = process.env["SECRETARIAT_WEB_STATIC_ROOT"]?.trim() || undefined;
+  const authToken = process.env["SECRETARIAT_SERVER_AUTH_TOKEN"]?.trim() || undefined;
   const topicResourcePeers = createTopicResourcePeers();
   const services = createLocalServices({
     topicResourceRelayChannel: (request) => topicResourcePeers.getChannel(request),

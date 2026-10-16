@@ -2,7 +2,7 @@
 
 ## 背景
 
-ZCode 目前在首次持久化 session 时直接从用户输入截断得到 `session.title`。这个标题稳定、便宜，但对长 prompt、带上下文的需求、中文/英文混合输入和文件附件场景不够可读。
+Secretariat 目前在首次持久化 session 时直接从用户输入截断得到 `session.title`。这个标题稳定、便宜，但对长 prompt、带上下文的需求、中文/英文混合输入和文件附件场景不够可读。
 
 核心约束：
 
@@ -26,7 +26,7 @@ ZCode 目前在首次持久化 session 时直接从用户输入截断得到 `ses
 - 不给 child session、subagent session、workflow child、fork session 自动改名。
 - 不把标题生成做成 tool，也不允许调用工具。
 - 不在 TUI 层直接访问模型或数据库；TUI 只负责启用 runtime config，并消费 session projection/list/event。
-- 不给 ZCode app-server、headless `--prompt`、SDK/测试宿主默认开启标题生成。它们只有在显式传入 `runtimeConfig.titleGeneration` 时才会触发。
+- 不给 Secretariat app-server、headless `--prompt`、SDK/测试宿主默认开启标题生成。它们只有在显式传入 `runtimeConfig.titleGeneration` 时才会触发。
 - 不在第一版实现手动 `/rename` 命令，但数据库和 port 必须为 `custom` 标题保留不可覆盖语义。
 
 ## 数据契约
@@ -69,7 +69,7 @@ interface UpdateSessionInput {
 
 ## 触发规则
 
-标题生成由 core runtime 发起，但必须由外层宿主显式启用。第一版只有 CLI TUI 入口传入 `runtimeConfig.titleGeneration`；headless `--prompt`、ZCode app-server session、workflow child 和外部 SDK 宿主默认不传这个配置。
+标题生成由 core runtime 发起，但必须由外层宿主显式启用。第一版只有 CLI TUI 入口传入 `runtimeConfig.titleGeneration`；headless `--prompt`、Secretariat app-server session、workflow child 和外部 SDK 宿主默认不传这个配置。
 
 启用后仍需满足：
 
@@ -94,7 +94,7 @@ runtimeConfig: {
 }
 ```
 
-headless `--prompt` 和 `--target` 不传 `titleGeneration`，因此不会多发一个后台模型请求，也不会影响脚本输出和退出时机。app-server 会话同样不传 `titleGeneration`，避免协议客户端在一次 prompt 之外收到额外成本、事件和模型调用；未来若 ZCode protocol client 明确需要标题，可先设计协议能力和展示语义，再显式打开。
+headless `--prompt` 和 `--target` 不传 `titleGeneration`，因此不会多发一个后台模型请求，也不会影响脚本输出和退出时机。app-server 会话同样不传 `titleGeneration`，避免协议客户端在一次 prompt 之外收到额外成本、事件和模型调用；未来若 Secretariat protocol client 明确需要标题，可先设计协议能力和展示语义，再显式打开。
 
 测试或外部宿主注入自定义 `modelAdapter` 时，除非显式传入 `runtimeConfig.titleGeneration`，否则不自动发起标题请求，避免破坏宿主自定义模型调用编排。
 
@@ -171,4 +171,4 @@ interface SessionTitleUpdatedPayload {
 - 标题请求会清洗 inherited thinking/reasoning provider options；主请求仍保留原始 provider options。
 - 标题模型失败时主 turn 仍成功，session title 保留首输入 fallback。
 - TUI 显式启用后 root interactive 首 turn 触发，child/fork/workflow/subagent 不触发。
-- headless prompt 和 ZCode app-server 默认不传 `titleGeneration`，不会触发标题模型请求。
+- headless prompt 和 Secretariat app-server 默认不传 `titleGeneration`，不会触发标题模型请求。

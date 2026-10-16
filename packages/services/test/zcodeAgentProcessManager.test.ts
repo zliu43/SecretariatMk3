@@ -11,13 +11,13 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  ZCODE_AGENT_RUNTIME,
-  ZCODE_RUNTIME_ENV_KEY,
+  SECRETARIAT_AGENT_RUNTIME,
+  SECRETARIAT_RUNTIME_ENV_KEY,
   hostResponseMessageSchema,
 } from "@zcode/shared";
 import {
-  ZCODE_PROCESS_DIAGNOSTIC_PREFIX,
-  ZCODE_AGENT_LIFECYCLE_LOG_MARKER,
+  SECRETARIAT_PROCESS_DIAGNOSTIC_PREFIX,
+  SECRETARIAT_AGENT_LIFECYCLE_LOG_MARKER,
 } from "@zcode/shared/process-diagnostic";
 import {
   buildE2EAgentCoverageEnv,
@@ -51,8 +51,8 @@ describe("E2E agent coverage", () => {
     try {
       const env = buildE2EAgentCoverageEnv({
         NODE_OPTIONS: "--trace-warnings",
-        ZCODE_E2E_ARTIFACT_DIR: artifactDir,
-        ZCODE_E2E_COVERAGE: "1",
+        SECRETARIAT_E2E_ARTIFACT_DIR: artifactDir,
+        SECRETARIAT_E2E_COVERAGE: "1",
       });
       const preloadPath = join(
         artifactDir,
@@ -100,13 +100,13 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   ] as const;
 
   const originalCwd = process.cwd();
-  const originalCommand = process.env.ZCODE_AGENT_SERVER_COMMAND;
-  const originalArgsJson = process.env.ZCODE_AGENT_SERVER_ARGS_JSON;
-  const originalCwdEnv = process.env.ZCODE_AGENT_SERVER_CWD;
-  const originalBinaryEnv = process.env[ZCODE_AGENT_RUNTIME.binaryEnvVar];
+  const originalCommand = process.env.SECRETARIAT_AGENT_SERVER_COMMAND;
+  const originalArgsJson = process.env.SECRETARIAT_AGENT_SERVER_ARGS_JSON;
+  const originalCwdEnv = process.env.SECRETARIAT_AGENT_SERVER_CWD;
+  const originalBinaryEnv = process.env[SECRETARIAT_AGENT_RUNTIME.binaryEnvVar];
   const originalNodeEnv = process.env.NODE_ENV;
-  const originalRuntimeEnv = process.env[ZCODE_RUNTIME_ENV_KEY];
-  const originalBytecodeEnv = process.env.ZCODE_DESKTOP_AGENT_BYTECODE;
+  const originalRuntimeEnv = process.env[SECRETARIAT_RUNTIME_ENV_KEY];
+  const originalBytecodeEnv = process.env.SECRETARIAT_DESKTOP_AGENT_BYTECODE;
   const originalElectronVersion = Object.getOwnPropertyDescriptor(process.versions, "electron");
   const createdDirs: string[] = [];
 
@@ -119,7 +119,7 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   }
 
   beforeEach(() => {
-    delete process.env.ZCODE_DESKTOP_AGENT_BYTECODE;
+    delete process.env.SECRETARIAT_DESKTOP_AGENT_BYTECODE;
     // 修复原因：stdio tap 开关持久化在用户真实配置目录中。测试若直接读取该目录，
     // 本机开启抓包后会意外包装临时 Node agent，导致用例结果依赖用户环境。
     const dataBaseDir = mkdtempSync(join(tmpdir(), "zcode-agent-manager-data-"));
@@ -129,13 +129,13 @@ describe("resolveDefaultZCodeAgentCommand", () => {
 
   afterEach(async () => {
     process.chdir(originalCwd);
-    restoreEnv("ZCODE_AGENT_SERVER_COMMAND", originalCommand);
-    restoreEnv("ZCODE_AGENT_SERVER_ARGS_JSON", originalArgsJson);
-    restoreEnv("ZCODE_AGENT_SERVER_CWD", originalCwdEnv);
-    restoreEnv(ZCODE_AGENT_RUNTIME.binaryEnvVar, originalBinaryEnv);
+    restoreEnv("SECRETARIAT_AGENT_SERVER_COMMAND", originalCommand);
+    restoreEnv("SECRETARIAT_AGENT_SERVER_ARGS_JSON", originalArgsJson);
+    restoreEnv("SECRETARIAT_AGENT_SERVER_CWD", originalCwdEnv);
+    restoreEnv(SECRETARIAT_AGENT_RUNTIME.binaryEnvVar, originalBinaryEnv);
     restoreEnv("NODE_ENV", originalNodeEnv);
-    restoreEnv(ZCODE_RUNTIME_ENV_KEY, originalRuntimeEnv);
-    restoreEnv("ZCODE_DESKTOP_AGENT_BYTECODE", originalBytecodeEnv);
+    restoreEnv(SECRETARIAT_RUNTIME_ENV_KEY, originalRuntimeEnv);
+    restoreEnv("SECRETARIAT_DESKTOP_AGENT_BYTECODE", originalBytecodeEnv);
     if (originalElectronVersion)
       Object.defineProperty(process.versions, "electron", originalElectronVersion);
     else delete process.versions.electron;
@@ -154,9 +154,9 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   });
 
   it("内置 dist zcode-agent 通过 Electron Node 模式启动", () => {
-    delete process.env.ZCODE_AGENT_SERVER_COMMAND;
-    delete process.env.ZCODE_AGENT_SERVER_ARGS_JSON;
-    delete process.env.ZCODE_AGENT_SERVER_CWD;
+    delete process.env.SECRETARIAT_AGENT_SERVER_COMMAND;
+    delete process.env.SECRETARIAT_AGENT_SERVER_ARGS_JSON;
+    delete process.env.SECRETARIAT_AGENT_SERVER_CWD;
 
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-agent-default-command-"));
     createdDirs.push(sandboxRoot);
@@ -202,8 +202,8 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   ])(
     "字节码开关只替换 Electron 的 stdio 入口，保留存储 Worker JS 入口：electron=%s enabled=%s",
     (electron, enabled) => {
-      delete process.env.ZCODE_AGENT_SERVER_COMMAND;
-      process.env.ZCODE_DESKTOP_AGENT_BYTECODE = enabled ? "1" : "0";
+      delete process.env.SECRETARIAT_AGENT_SERVER_COMMAND;
+      process.env.SECRETARIAT_DESKTOP_AGENT_BYTECODE = enabled ? "1" : "0";
       Object.defineProperty(process.versions, "electron", {
         configurable: true,
         value: electron ? "41.0.3" : undefined,
@@ -231,8 +231,8 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   );
 
   it("字节码入口缺失时拒绝静默回退 JS", () => {
-    delete process.env.ZCODE_AGENT_SERVER_COMMAND;
-    process.env.ZCODE_DESKTOP_AGENT_BYTECODE = "1";
+    delete process.env.SECRETARIAT_AGENT_SERVER_COMMAND;
+    process.env.SECRETARIAT_DESKTOP_AGENT_BYTECODE = "1";
     Object.defineProperty(process.versions, "electron", { configurable: true, value: "41.0.3" });
     const root = mkdtempSync(join(tmpdir(), "zcode-bytecode-missing-"));
     createdDirs.push(root);
@@ -246,9 +246,9 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   });
 
   it("Desktop surface 会显式传给默认 app-server 命令", () => {
-    delete process.env.ZCODE_AGENT_SERVER_COMMAND;
-    delete process.env.ZCODE_AGENT_SERVER_ARGS_JSON;
-    delete process.env.ZCODE_AGENT_SERVER_CWD;
+    delete process.env.SECRETARIAT_AGENT_SERVER_COMMAND;
+    delete process.env.SECRETARIAT_AGENT_SERVER_ARGS_JSON;
+    delete process.env.SECRETARIAT_AGENT_SERVER_CWD;
 
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-agent-desktop-surface-"));
     createdDirs.push(sandboxRoot);
@@ -288,8 +288,8 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   it.each(desktopSurfaceArgsCases)(
     "Desktop surface 归一化 $name 时不吞掉无关参数",
     ({ input, expected }) => {
-      process.env.ZCODE_AGENT_SERVER_COMMAND = "zcode-agent";
-      process.env.ZCODE_AGENT_SERVER_ARGS_JSON = JSON.stringify(input);
+      process.env.SECRETARIAT_AGENT_SERVER_COMMAND = "zcode-agent";
+      process.env.SECRETARIAT_AGENT_SERVER_ARGS_JSON = JSON.stringify(input);
 
       const command = resolveDefaultZCodeAgentCommand({
         presentationSurface: "desktop",
@@ -305,13 +305,13 @@ describe("resolveDefaultZCodeAgentCommand", () => {
   );
 
   it("monorepo 不可达时回退到已部署原生 binary", () => {
-    delete process.env.ZCODE_AGENT_SERVER_COMMAND;
-    delete process.env.ZCODE_AGENT_SERVER_ARGS_JSON;
-    delete process.env.ZCODE_AGENT_SERVER_CWD;
+    delete process.env.SECRETARIAT_AGENT_SERVER_COMMAND;
+    delete process.env.SECRETARIAT_AGENT_SERVER_ARGS_JSON;
+    delete process.env.SECRETARIAT_AGENT_SERVER_CWD;
 
-    // Bugfix: SSH 远端把 zcode-server.cjs 部署到 ~/.zcode/server/，cwd 不在仓库内、
-    // ZCODE_AGENT_SERVER_COMMAND 也没设；旧 resolver 只识别 env 和 monorepo 源码树，
-    // 即使 zcode-agent 已部署到 ~/.zcode/server/agents/glm/，resolver 也找不到。
+    // Bugfix: SSH 远端把 zcode-server.cjs 部署到 ~/.secretariat/server/，cwd 不在仓库内、
+    // SECRETARIAT_AGENT_SERVER_COMMAND 也没设；旧 resolver 只识别 env 和 monorepo 源码树，
+    // 即使 zcode-agent 已部署到 ~/.secretariat/server/agents/glm/，resolver 也找不到。
     // 这里用 GLM_BINARY_PATH（=runtime.binaryEnvVar）模拟该部署场景，
     // 验证 resolver 复用 findZCodeAgentRuntimeBinary 命中已部署 binary。
     const sandboxRoot = mkdtempSync(join(tmpdir(), "zcode-agent-deployed-binary-"));
@@ -320,7 +320,7 @@ describe("resolveDefaultZCodeAgentCommand", () => {
     const binaryPath = join(sandboxRoot, "zcode-agent");
     writeFileSync(binaryPath, "#!/bin/sh\necho zcode-agent\n");
 
-    process.env[ZCODE_AGENT_RUNTIME.binaryEnvVar] = binaryPath;
+    process.env[SECRETARIAT_AGENT_RUNTIME.binaryEnvVar] = binaryPath;
     process.chdir(sandboxRoot);
 
     const command = resolveDefaultZCodeAgentCommand({
@@ -330,7 +330,7 @@ describe("resolveDefaultZCodeAgentCommand", () => {
 
     expect(command).toEqual({
       command: binaryPath,
-      args: ZCODE_AGENT_RUNTIME.spawnArgs,
+      args: SECRETARIAT_AGENT_RUNTIME.spawnArgs,
       cwd: "/repo/workspace",
     });
   });
@@ -414,8 +414,8 @@ describe("resolveDefaultZCodeAgentCommand", () => {
     await manager.disposeWorkspace({ workspacePath });
     gate.commitRecovery(recoveryEpoch);
 
-    await expect(starting).rejects.toThrow("ZCode agent process start was cancelled.");
-    await expect(duplicate).rejects.toThrow("ZCode agent process start was cancelled.");
+    await expect(starting).rejects.toThrow("Secretariat agent process start was cancelled.");
+    await expect(duplicate).rejects.toThrow("Secretariat agent process start was cancelled.");
     await expect(manager.getClient({ workspacePath })).resolves.toBeDefined();
 
     await manager.disposeAllAndWait();
@@ -469,7 +469,7 @@ describe("resolveDefaultZCodeAgentCommand", () => {
     expect(commandResolver).toHaveBeenCalledTimes(2);
     expect(
       errorSpy.mock.calls.some((args) =>
-        args.some((arg) => String(arg).includes("ZCode agent process cleanup failed")),
+        args.some((arg) => String(arg).includes("Secretariat agent process cleanup failed")),
       ),
     ).toBe(false);
 
@@ -488,13 +488,13 @@ describe("resolveDefaultZCodeAgentCommand", () => {
         command: process.execPath,
         args: [
           "-e",
-          `require("node:fs").writeFileSync(${JSON.stringify(markerPath)}, JSON.stringify({ official: process.env.ZCODE_BUILTIN_PROVIDER_CONFIG_FILE, personal: process.env.ZCODE_PERSONAL_PROVIDER_CONFIG_FILE })); setInterval(() => {}, 1000);`,
+          `require("node:fs").writeFileSync(${JSON.stringify(markerPath)}, JSON.stringify({ official: process.env.SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE, personal: process.env.SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE })); setInterval(() => {}, 1000);`,
         ],
         cwd: workspacePath,
       }),
       resolveSpawnEnv: () => ({
-        ZCODE_BUILTIN_PROVIDER_CONFIG_FILE: zcodeBuiltinFilePath,
-        ZCODE_PERSONAL_PROVIDER_CONFIG_FILE: personalFilePath,
+        SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE: zcodeBuiltinFilePath,
+        SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE: personalFilePath,
       }),
     });
 
@@ -520,7 +520,7 @@ describe("resolveDefaultZCodeAgentCommand", () => {
     }));
     const manager = new ZCodeAgentProcessManager({ commandResolver });
     await expect(manager.getRuntimeIdentity({ workspacePath })).rejects.toThrow(
-      "ZCode agent runtime identity is unavailable.",
+      "Secretariat agent runtime identity is unavailable.",
     );
     expect(commandResolver).not.toHaveBeenCalled();
 
@@ -674,7 +674,7 @@ setInterval(() => {}, 1000);
 
     // Bugfix: app 关闭期间 warmup 仍可能卡在 command/env resolve。
     // disposeAllAndWait 之后不允许这个启动 promise 继续 spawn，否则会绕过关闭快照留下孤儿进程。
-    await expect(starting).rejects.toThrow("ZCode agent process manager is disposed.");
+    await expect(starting).rejects.toThrow("Secretariat agent process manager is disposed.");
     expect(existsSync(markerPath)).toBe(false);
   });
 
@@ -776,12 +776,12 @@ setInterval(() => {}, 1000);
     }
   });
 
-  it("未声明 ZCODE_RUNTIME_ENV 时默认以 production 启动 agent 子进程且不传 NODE_ENV", async () => {
+  it("未声明 SECRETARIAT_RUNTIME_ENV 时默认以 production 启动 agent 子进程且不传 NODE_ENV", async () => {
     const workspacePath = mkdtempSync(join(tmpdir(), "zcode-agent-node-env-default-"));
     createdDirs.push(workspacePath);
     const nodeEnvPath = join(workspacePath, "node-env.txt");
     process.env.NODE_ENV = "development";
-    delete process.env[ZCODE_RUNTIME_ENV_KEY];
+    delete process.env[SECRETARIAT_RUNTIME_ENV_KEY];
     const manager = new ZCodeAgentProcessManager({
       commandResolver: () => ({
         command: process.execPath,
@@ -790,7 +790,7 @@ setInterval(() => {}, 1000);
           `
 require("node:fs").writeFileSync(${JSON.stringify(nodeEnvPath)}, JSON.stringify({
   nodeEnv: process.env.NODE_ENV || "<empty>",
-  runtimeEnv: process.env.ZCODE_RUNTIME_ENV || "<empty>",
+  runtimeEnv: process.env.SECRETARIAT_RUNTIME_ENV || "<empty>",
 }));
 setInterval(() => {}, 1000);
 `,
@@ -815,12 +815,12 @@ setInterval(() => {}, 1000);
     }
   });
 
-  it("显式 ZCODE_RUNTIME_ENV=development 时保留 agent 子进程开发态", async () => {
+  it("显式 SECRETARIAT_RUNTIME_ENV=development 时保留 agent 子进程开发态", async () => {
     const workspacePath = mkdtempSync(join(tmpdir(), "zcode-agent-node-env-dev-"));
     createdDirs.push(workspacePath);
     const nodeEnvPath = join(workspacePath, "node-env.txt");
     delete process.env.NODE_ENV;
-    process.env[ZCODE_RUNTIME_ENV_KEY] = "development";
+    process.env[SECRETARIAT_RUNTIME_ENV_KEY] = "development";
     const manager = new ZCodeAgentProcessManager({
       commandResolver: () => ({
         command: process.execPath,
@@ -829,7 +829,7 @@ setInterval(() => {}, 1000);
           `
 require("node:fs").writeFileSync(${JSON.stringify(nodeEnvPath)}, JSON.stringify({
   nodeEnv: process.env.NODE_ENV || "<empty>",
-  runtimeEnv: process.env.ZCODE_RUNTIME_ENV || "<empty>",
+  runtimeEnv: process.env.SECRETARIAT_RUNTIME_ENV || "<empty>",
 }));
 setInterval(() => {}, 1000);
 `,
@@ -953,7 +953,7 @@ setInterval(() => {}, 1000);
       await vi.waitFor(() => expect(cleanupAttemptCount).toBe(2));
       expect(
         errorSpy.mock.calls.some((args) =>
-          args.some((arg) => String(arg).includes("ZCode agent process cleanup failed")),
+          args.some((arg) => String(arg).includes("Secretariat agent process cleanup failed")),
         ),
       ).toBe(false);
     } finally {
@@ -1146,7 +1146,7 @@ setInterval(() => {}, 1000);
       await vi.waitFor(() =>
         expect(errorSpy).toHaveBeenCalledWith(
           expect.any(String),
-          `ZCode agent process exited unexpectedly ${ZCODE_AGENT_LIFECYCLE_LOG_MARKER}`,
+          `Secretariat agent process exited unexpectedly ${SECRETARIAT_AGENT_LIFECYCLE_LOG_MARKER}`,
           expect.objectContaining({
             workspaceKey: workspacePath,
             code: 1,
@@ -1193,7 +1193,7 @@ setInterval(() => {}, 1000);
         stack: "Error: boom\n    at run (C:\\repo\\cli.js:1:2)",
         occurredAt: Date.now(),
       };
-      const frame = ZCODE_PROCESS_DIAGNOSTIC_PREFIX + JSON.stringify(diagnostic) + "\n";
+      const frame = SECRETARIAT_PROCESS_DIAGNOSTIC_PREFIX + JSON.stringify(diagnostic) + "\n";
       const reporter = {
         onSpawn: vi.fn(),
         onExit: vi.fn(),
@@ -1291,7 +1291,7 @@ setInterval(() => {}, 1000);
       await vi.waitFor(() =>
         expect(logSpy).toHaveBeenCalledWith(
           expect.any(String),
-          "ZCode agent spawn preflight",
+          "Secretariat agent spawn preflight",
           expect.objectContaining({
             workspaceKey: workspacePath,
             spawnPreflight: expect.objectContaining({
@@ -1309,7 +1309,7 @@ setInterval(() => {}, 1000);
       await vi.waitFor(() =>
         expect(errorSpy).toHaveBeenCalledWith(
           expect.any(String),
-          "ZCode agent process error",
+          "Secretariat agent process error",
           expect.objectContaining({
             workspaceKey: workspacePath,
             errorMessage: expect.stringContaining("ENOENT"),
@@ -1331,7 +1331,7 @@ setInterval(() => {}, 1000);
     const rootDir = mkdtempSync(join(tmpdir(), "zcode-agent-fallback-cwd-"));
     createdDirs.push(rootDir);
     const workspacePath = join(rootDir, "missing-workspace");
-    const fallbackCwd = join(rootDir, ".zcode", "workspace", "default");
+    const fallbackCwd = join(rootDir, ".secretariat", "workspace", "default");
     const markerPath = join(rootDir, "effective-cwd.txt");
     mkdirSync(fallbackCwd, { recursive: true });
     const commandResolver = vi.fn(
@@ -1372,7 +1372,7 @@ setInterval(() => {}, 1000);
     const rootDir = mkdtempSync(join(tmpdir(), "zcode-agent-custom-cwd-"));
     createdDirs.push(rootDir);
     const workspacePath = join(rootDir, "missing-workspace");
-    const fallbackCwd = join(rootDir, "ZCodeProject");
+    const fallbackCwd = join(rootDir, "SecretariatProject");
     const customCwd = join(rootDir, "custom-runtime-cwd");
     const markerPath = join(rootDir, "effective-cwd.txt");
     mkdirSync(fallbackCwd);
@@ -1445,7 +1445,7 @@ setInterval(() => {}, 1000);
     mkdirSync(dirname(tapScript), { recursive: true });
     writeFileSync(tapScript, "#!/usr/bin/env node\n");
     process.chdir(sandboxRoot);
-    process.env[ZCODE_RUNTIME_ENV_KEY] = "development";
+    process.env[SECRETARIAT_RUNTIME_ENV_KEY] = "development";
     setDataBaseDir(sandboxRoot);
     setZCodeStdioTapDevEnabled(true);
 
@@ -1466,7 +1466,7 @@ setInterval(() => {}, 1000);
         "--workspace-key",
         "/repo/workspace",
         "--log-dir",
-        join(sandboxRoot, ".zcode", "v2", "dev", "stdio-traffic"),
+        join(sandboxRoot, ".secretariat", "v2", "dev", "stdio-traffic"),
         "--",
         "zcode-agent",
         "app-server",
@@ -1489,9 +1489,9 @@ setInterval(() => {}, 1000);
       mkdirSync(dirname(tapScript), { recursive: true });
       writeFileSync(tapScript, "#!/usr/bin/env node\n");
       process.chdir(sandboxRoot);
-      process.env[ZCODE_RUNTIME_ENV_KEY] = "development";
-      process.env.ZCODE_AGENT_SERVER_COMMAND = "zcode-agent";
-      process.env.ZCODE_AGENT_SERVER_ARGS_JSON = JSON.stringify(input);
+      process.env[SECRETARIAT_RUNTIME_ENV_KEY] = "development";
+      process.env.SECRETARIAT_AGENT_SERVER_COMMAND = "zcode-agent";
+      process.env.SECRETARIAT_AGENT_SERVER_ARGS_JSON = JSON.stringify(input);
       setDataBaseDir(sandboxRoot);
       setZCodeStdioTapDevEnabled(true);
 
@@ -1509,7 +1509,7 @@ setInterval(() => {}, 1000);
         "--workspace-key",
         "/repo/workspace",
         "--log-dir",
-        join(sandboxRoot, ".zcode", "v2", "dev", "stdio-traffic"),
+        join(sandboxRoot, ".secretariat", "v2", "dev", "stdio-traffic"),
         "--",
         "zcode-agent",
         ...expected,

@@ -66,7 +66,7 @@ describe("V4 Hook turn summary schema", () => {
           {
             ...row.executions[0],
             commandDisplay: "node hooks/check.mjs --token secret",
-            sourcePath: "/workspace/.zcode/config.json",
+            sourcePath: "/workspace/.secretariat/config.json",
           },
         ],
       }),

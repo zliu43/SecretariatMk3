@@ -32,7 +32,7 @@ import {
 } from "./workspaceHookSettingsModel.js";
 
 const SETTINGS_FILE = "settings.json";
-const ZCODE_CONFIG_FILE = "config.json";
+const SECRETARIAT_CONFIG_FILE = "config.json";
 const HOOK_EVENTS: readonly HookEvent[] = [
   "SessionStart",
   "UserPromptSubmit",
@@ -56,7 +56,7 @@ function resolveUserHomeDir(): string {
 function getRootDir(source: SettingsDirectorySource, workspacePath?: string): string {
   const baseDir = workspacePath ?? resolveUserHomeDir();
   if (source === "zcode") {
-    return workspacePath ? join(baseDir, ".zcode") : join(baseDir, ".zcode", "cli");
+    return workspacePath ? join(baseDir, ".secretariat") : join(baseDir, ".secretariat", "cli");
   }
   return join(baseDir, source === "agents" ? ".agents" : ".claude");
 }
@@ -64,7 +64,7 @@ function getRootDir(source: SettingsDirectorySource, workspacePath?: string): st
 function getConfigPath(source: SettingsDirectorySource, workspacePath?: string): string {
   return join(
     getRootDir(source, workspacePath),
-    source === "zcode" ? ZCODE_CONFIG_FILE : SETTINGS_FILE,
+    source === "zcode" ? SECRETARIAT_CONFIG_FILE : SETTINGS_FILE,
   );
 }
 
@@ -165,7 +165,7 @@ async function readPersistentWorkspaceHookTrustDigests(
       : isAbsolute(configured)
         ? resolve(configured)
         : resolve(home, configured)
-    : join(home, ".zcode");
+    : join(home, ".secretariat");
   const trustFilePath = join(storageRoot, "security", "workspace-hook-trust-v1.json");
 
   // 异步读取 + ENOENT 区分：不用 existsSync 预检——同步调用会阻塞服务
@@ -289,7 +289,7 @@ async function saveHooksImpl(params: {
   workspacePath: string;
   hooks: Hook[];
 }): Promise<void> {
-  const currentProjectConfigPath = resolve(params.workspacePath, ".zcode", "config.json");
+  const currentProjectConfigPath = resolve(params.workspacePath, ".secretariat", "config.json");
   const userHooks = params.hooks.filter(
     (hook) =>
       hook.editable !== false &&

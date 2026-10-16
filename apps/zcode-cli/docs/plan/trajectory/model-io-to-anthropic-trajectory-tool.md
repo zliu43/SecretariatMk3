@@ -4,13 +4,13 @@
 
 ## 背景
 
-`tools/prompt-trajectory derive` 当前只支持 prompt-trajectory 自己录制的 `trajectory.jsonl`。ZCode CLI 运行时还会在 `~/.zcode/cli/debug` 或 `~/.zcode/cli/rollout` 下输出真实 `model-io-*.jsonl`，其中 request body 可能按上一条 model-io 记录进行 delta 压缩，并包含 `session_title` 等 sidecar 请求。
+`tools/prompt-trajectory derive` 当前只支持 prompt-trajectory 自己录制的 `trajectory.jsonl`。Secretariat CLI 运行时还会在 `~/.secretariat/cli/debug` 或 `~/.secretariat/cli/rollout` 下输出真实 `model-io-*.jsonl`，其中 request body 可能按上一条 model-io 记录进行 delta 压缩，并包含 `session_title` 等 sidecar 请求。
 
 为了审阅整段主会话最终发送给 provider 的 prompt，需要把一个完整 model-io session 转成单个 Anthropic Messages 格式的 request trajectory，而不是把每条 model-io request 分别导出。
 
 ## 目标
 
-- 新增 prompt-trajectory 可复用命令，从 ZCode `model-io*.jsonl` 生成 Anthropic Messages 格式的 trajectory JSON。
+- 新增 prompt-trajectory 可复用命令，从 Secretariat `model-io*.jsonl` 生成 Anthropic Messages 格式的 trajectory JSON。
 - 默认只纳入 `querySource === "main_turn"` 的主会话请求，排除 `session_title` 等 sidecar。
 - 转换前先按原始文件顺序展开 model-io delta，再过滤 querySource，避免 sidecar 插入导致主会话误判为非增量。
 - 输出 `anthropic_trajectory.json`，用于直接审阅整段主会话最终 provider-visible messages。
@@ -26,7 +26,7 @@
 
 ```bash
 pnpm --filter @zcode/prompt-trajectory model-io -- \
-  --input ~/.zcode/cli/debug/model-io-<session>.jsonl \
+  --input ~/.secretariat/cli/debug/model-io-<session>.jsonl \
   --out tools/prompt-trajectory/out/<run>
 ```
 
@@ -70,7 +70,7 @@ pnpm --filter @zcode/prompt-trajectory model-io -- \
 - 回归覆盖完整 thinking/签名、redacted thinking、sidecar/delta、末尾 user 追加与负例；
   真实样本重新导出后逐条比较最新请求和所有已插入 reminder。
 
-- 能读取真实 ZCode model-io JSONL。
+- 能读取真实 Secretariat model-io JSONL。
 - 能正确展开 `bodyMessagesKind: "delta"` / `bodyMessageOffset` 压缩。
 - `session_title` 请求不会进入默认主 trajectory。
 - main_turn 里 append-only 的 full 续接不会被误判为 `non-incremental-change`。

@@ -69,12 +69,12 @@
 
 ## 4. 矛盾表述与裁定
 
-### C01. `Official Config` 与 `ZCode Built-in Config`
+### C01. `Official Config` 与 `Secretariat Built-in Config`
 
 **历史表述**：M2/M3 早期材料和实施日志大量使用 `Official Config`。
 **后续裁决**：Todo 10 明确进行一次性命名切换，不保留别名。
 **当前事实**：类型和文件均使用 `zcodeBuiltin*` / `zcode-builtin.json`。
-**裁定**：现行名称只有 `ZCode Built-in Provider Config` 与 `ZCode Built-in Model Config Rules`。
+**裁定**：现行名称只有 `Secretariat Built-in Provider Config` 与 `Secretariat Built-in Model Config Rules`。
 旧名称只作为历史引用。
 
 ### C02. `Config Document` 是不是领域概念
@@ -87,7 +87,7 @@
 ### C03. Provider Overlay 顺序
 
 **历史冲突**：早期图把 Personal 与 Account 顺序写反，或把 Account 当成最终覆盖。
-**明确裁决**：`ZCode Built-in -> Account -> Personal`，Personal 最后。
+**明确裁决**：`Secretariat Built-in -> Account -> Personal`，Personal 最后。
 **当前事实**：`ProviderConfigResolver` 先得到 `effectiveBuiltinProviders`，再 Overlay Personal。
 **裁定**：现行顺序固定；Account 的职责是约束 Built-in 账号 Provider，Renderer 不再额外应用它。
 

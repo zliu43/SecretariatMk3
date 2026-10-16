@@ -1,19 +1,19 @@
-# ZCode Agent Next Steps
+# Secretariat Agent Next Steps
 
 ## Current State
 
-The product path has moved from the retired multi-agent compatibility stack to a single ZCode Agent backed by ZCode Protocol.
+The product path has moved from the retired multi-agent compatibility stack to a single Secretariat Agent backed by Secretariat Protocol.
 
 - `apps/zcode-cli` is a normal workspace package and exposes `zcode app-server --stdio`.
 - The app host uses `IZCodeAgentService` and the V4 conversation command/projection surface; production code no longer has the retired protocol service/process-manager modules.
-- Desktop and remote workspace runtimes launch only the bundled GLM/ZCode Agent runtime plus required tools such as ripgrep.
+- Desktop and remote workspace runtimes launch only the bundled GLM/Secretariat Agent runtime plus required tools such as ripgrep.
 - Retired third-party runtime installers, adapter entrypoints, proxy traffic, agent switching UI, and old runtime manifests have been removed from the current product path.
 - Canonical conversation state comes from V4 snapshots/events. The renderer materializes it through `packages/ui/src/v4/conversationProjectionStore.ts` and `sessionDataLayer.ts`; `zcodeSessionStore` only retains task-shell/session metadata that is outside the transcript projection.
 
 ## Current Document Entrypoints
 
-- [ZCode Protocol](./zcode-protocol.md)
-- [ZCode Agent App Integration](./zcode-agent-app-integration.md)
+- [Secretariat Protocol](./zcode-protocol.md)
+- [Secretariat Agent App Integration](./zcode-agent-app-integration.md)
 - [Task Realtime Sync](./web-remote-control/task-realtime-sync.md)
 - [Web Remote Control Architecture](./web-remote-control/web-remote-control-architecture.md)
 - [SSH Remote App Global State Authority](./ssh-remote-app-global-state-authority.md)
@@ -31,7 +31,7 @@ The product path has moved from the retired multi-agent compatibility stack to a
 ## Remaining Work
 
 1. Continue removing legacy `sendPrompt`/task-stream consumers after the equivalent V4 command/topic path has production and recovery coverage.
-2. Keep owner/lease/queued command routing for mobile remote and bot paths until the ZCode session realtime contract has equivalent stale-run and blocking-request protection.
+2. Keep owner/lease/queued command routing for mobile remote and bot paths until the Secretariat session realtime contract has equivalent stale-run and blocking-request protection.
 3. Keep fork, compact, rewind, permission/elicitation responses, checkpoint/file-change details, usage, and structured errors on the V4 schemas; do not add new behavior to the deprecated legacy send surface.
 4. Audit any remaining legacy test names or migration fixtures before deleting the last task-wrapper compatibility surface.
 5. When a future cleanup removes the remaining task wrapper compatibility surface, update `IZCodeTaskService`, remote replay docs, bot bridge docs, and UI queue docs together.

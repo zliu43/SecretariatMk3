@@ -2,12 +2,12 @@
 
 ## 目标
 
-给 ZCode CLI 增加显式多工作区能力，让一次 session 可以同时面向一个主工作区和多个额外工作区。
+给 Secretariat CLI 增加显式多工作区能力，让一次 session 可以同时面向一个主工作区和多个额外工作区。
 
 第一目标不是“允许访问更多路径”，因为当前实现本来就没有在 core 路径层严格拦 workspace 外路径；第一目标是把多工作区变成一等状态：
 
 - 有明确的 session/runtime/permission/context 契约。
-- 有稳定的 CLI/TUI/ZCode app-server 入口。
+- 有稳定的 CLI/TUI/Secretariat app-server 入口。
 - 有可持久化、可恢复、可审计的 workspace scope。
 - 后续 sandbox、resume、skills、AGENTS.md、MCP 可以逐步接上，而不是继续把语义散落在 `cwd` 特判里。
 
@@ -18,7 +18,7 @@
 - 窄语义：“额外可写根目录”。CLI 把目录按 `cwd` 解析成绝对路径，并入 sandbox / permission profile 的 writable roots；当前有效权限不支持扩展 writable roots 时直接报错或警告，不假装生效。侵入点少，但不负责额外目录的 instruction、skills、plugin、session 归组。
 - 宽语义：“把目录加入当前 workspace scope”。目录同时并入 tool permission context 和 sandbox allowWrite，参与 instructions、rules、skills、plugin settings 的加载，交互态支持 `/add-dir` 并区分 session-only 与持久化到 local settings。语义完整，但和 trust / permission / sandbox / context 深度耦合，用户感知更像“把另一个 repo 加进当前工作台”。
 
-## 对 ZCode 的建议
+## 对 Secretariat 的建议
 
 不一次性做成宽语义，也不停留在窄语义。建议分阶段推进：
 
@@ -27,7 +27,7 @@
 
 核心判断：
 
-1. 当前 ZCode 只有单一 `workingDirectory` 一等公民。
+1. 当前 Secretariat 只有单一 `workingDirectory` 一等公民。
 2. 当前 `workspaceRoot` 只是 tool context 里的一个单值别名。
 3. 当前权限规则只会记 `allow/deny/ask`，没有“额外工作区根目录”的专门契约。
 4. 当前路径策略和测试明确允许 workspace 外路径，所以现在加一个 `--add-dir`，如果不先做状态建模，功能价值会很弱，也会误导用户以为这是权限边界。
@@ -117,7 +117,7 @@ value shape：
 - 现有 `workspace_id` 列终于有实际用途。
 - 后续如果要加 workspace title、recent root、trusted roots，也能继续走同一存储入口。
 
-## CLI / TUI / ZCode app-server 入口
+## CLI / TUI / Secretariat app-server 入口
 
 ### CLI
 
@@ -145,11 +145,11 @@ value shape：
 
 如果要兼容迁移，可以后续给 `/add-dir` 做 alias 到 `/workspace add`。
 
-### ZCode app-server
+### Secretariat app-server
 
-ZCode app-server session/new 后续建议允许客户端传 `cwd` 和 `additionalDirectories`。
+Secretariat app-server session/new 后续建议允许客户端传 `cwd` 和 `additionalDirectories`。
 
-但第一阶段可以只打通本地 CLI/TUI，ZCode app-server 先维持单工作区。
+但第一阶段可以只打通本地 CLI/TUI，Secretariat app-server 先维持单工作区。
 
 ## Core / Contracts 改动建议
 
@@ -251,12 +251,12 @@ type PermissionUpdate =
 
 第二阶段：
 
-- skills discovery 把每个 additional root 的 `.zcode/skills`、`.agents/skills`、`.claude/skills` 加入 root 列表。
+- skills discovery 把每个 additional root 的 `.secretariat/skills`、`.agents/skills`、`.claude/skills` 加入 root 列表。
 - project context 可以按 root 生成摘要，但不要把每个 root 的完整 package scripts / git status 全塞进 prompt。
 
 ### 为什么不建议第一阶段直接接入全部动态上下文
 
-因为 ZCode 当前 context builder、skills adapter、resume、permission 都还是单工作区抽象。一次性把 additional roots 接进所有动态上下文，会放大 prompt 体积、cache miss 和恢复复杂度。
+因为 Secretariat 当前 context builder、skills adapter、resume、permission 都还是单工作区抽象。一次性把 additional roots 接进所有动态上下文，会放大 prompt 体积、cache miss 和恢复复杂度。
 
 ## Resume / Session 归组
 
@@ -324,7 +324,7 @@ project permission 当前是“工具规则”，不是“工作区拓扑”。
 
 ### Phase 4: 深水区能力
 
-- ZCode app-server 多工作区注入。
+- Secretariat app-server 多工作区注入。
 - workspace-level trust / remember policy。
 - active root 切换。
 - workspace 级 MCP / plugin / memory 策略。
@@ -360,7 +360,7 @@ project permission 当前是“工具规则”，不是“工作区拓扑”。
 
 ## 结论
 
-对 ZCode 来说，`--add-dir` 不应该只是“多几个 writable roots”，否则收益太小；也不适合第一刀就做成“全系统深耦合 workspace trust”。
+对 Secretariat 来说，`--add-dir` 不应该只是“多几个 writable roots”，否则收益太小；也不适合第一刀就做成“全系统深耦合 workspace trust”。
 
 最合适的路径是：
 

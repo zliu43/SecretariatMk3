@@ -30,7 +30,7 @@ export async function createCompatibleHookStdin(input: HookInput): Promise<{
 
   if ("toolName" in input) {
 
-    // 这里只补无损 alias，继续保留 ZCode camelCase 字段作为内部主契约。
+    // 这里只补无损 alias，继续保留 Secretariat camelCase 字段作为内部主契约。
     compatible.tool_name = input.toolName;
     compatible.tool_input = input.toolInput;
     compatible.tool_use_id = input.toolCallId;
@@ -80,8 +80,8 @@ export function createPluginEnvOverlay(
     CLAUDE_CODE_SESSION_ID: input.sessionId,
     CLAUDE_PROJECT_DIR: input.cwd || workingDirectory,
     CLAUDE_SESSION_ID: input.sessionId,
-    ZCODE_PROJECT_DIR: input.cwd || workingDirectory,
-    ZCODE_SESSION_ID: input.sessionId,
+    SECRETARIAT_PROJECT_DIR: input.cwd || workingDirectory,
+    SECRETARIAT_SESSION_ID: input.sessionId,
   };
   if (!plugin) return { set };
   return {
@@ -89,10 +89,10 @@ export function createPluginEnvOverlay(
       ...set,
       CLAUDE_PLUGIN_DATA: plugin.dataPath,
       CLAUDE_PLUGIN_ROOT: plugin.rootPath,
-      ZCODE_PLUGIN_DATA: plugin.dataPath,
-      ZCODE_PLUGIN_ID: plugin.id,
-      ZCODE_PLUGIN_NAME: plugin.name,
-      ZCODE_PLUGIN_ROOT: plugin.rootPath,
+      SECRETARIAT_PLUGIN_DATA: plugin.dataPath,
+      SECRETARIAT_PLUGIN_ID: plugin.id,
+      SECRETARIAT_PLUGIN_NAME: plugin.name,
+      SECRETARIAT_PLUGIN_ROOT: plugin.rootPath,
     },
   };
 }
@@ -107,19 +107,19 @@ export function expandPluginVariables(
     CLAUDE_CODE_SESSION_ID: input.sessionId,
     CLAUDE_PROJECT_DIR: input.cwd || workingDirectory,
     CLAUDE_SESSION_ID: input.sessionId,
-    ZCODE_PROJECT_DIR: input.cwd || workingDirectory,
-    ZCODE_SESSION_ID: input.sessionId,
+    SECRETARIAT_PROJECT_DIR: input.cwd || workingDirectory,
+    SECRETARIAT_SESSION_ID: input.sessionId,
   };
   if (plugin) {
     replacements.CLAUDE_PLUGIN_DATA = plugin.dataPath;
     replacements.CLAUDE_PLUGIN_ROOT = plugin.rootPath;
-    replacements.ZCODE_PLUGIN_DATA = plugin.dataPath;
-    replacements.ZCODE_PLUGIN_ROOT = plugin.rootPath;
+    replacements.SECRETARIAT_PLUGIN_DATA = plugin.dataPath;
+    replacements.SECRETARIAT_PLUGIN_ROOT = plugin.rootPath;
   }
   return value.replace(
-    /\$\{(CLAUDE_CODE_SESSION_ID|CLAUDE_PLUGIN_DATA|CLAUDE_PLUGIN_ROOT|CLAUDE_PROJECT_DIR|CLAUDE_SESSION_ID|CLAUDE_SKILL_DIR|ZCODE_PLUGIN_DATA|ZCODE_PLUGIN_ROOT|ZCODE_PROJECT_DIR|ZCODE_SESSION_ID|ZCODE_SKILL_DIR)\}/gu,
+    /\$\{(CLAUDE_CODE_SESSION_ID|CLAUDE_PLUGIN_DATA|CLAUDE_PLUGIN_ROOT|CLAUDE_PROJECT_DIR|CLAUDE_SESSION_ID|CLAUDE_SKILL_DIR|SECRETARIAT_PLUGIN_DATA|SECRETARIAT_PLUGIN_ROOT|SECRETARIAT_PROJECT_DIR|SECRETARIAT_SESSION_ID|SECRETARIAT_SKILL_DIR)\}/gu,
     (_match, key: string) => {
-      if (key === "CLAUDE_SKILL_DIR" || key === "ZCODE_SKILL_DIR") {
+      if (key === "CLAUDE_SKILL_DIR" || key === "SECRETARIAT_SKILL_DIR") {
         // hook 运行时没有“当前 skill”语义，不能把该变量交给 shell 展开为空字符串。
         // 这里提前报错，插件诊断/日志能看到明确的上下文缺失原因。
         throw createCoreError(

@@ -58,6 +58,6 @@ provider 设置页支持编辑：
 
 ## Reasoning Metadata
 
-Catalog 中的 `reasoning.levels[level][kind]` 是 provider options patch。转换到 ZCode Protocol 时会把公开 kind `openai-compatible` 映射成运行时 provider options namespace `openaiCompatible`，并生成聊天页可选 thought level。
+Catalog 中的 `reasoning.levels[level][kind]` 是 provider options patch。转换到 Secretariat Protocol 时会把公开 kind `openai-compatible` 映射成运行时 provider options namespace `openaiCompatible`，并生成聊天页可选 thought level。
 
 没有明确 levels/patch 的模型不会伪造 reasoning 选项；聊天页只展示 agent registry 实际声明的可选值。

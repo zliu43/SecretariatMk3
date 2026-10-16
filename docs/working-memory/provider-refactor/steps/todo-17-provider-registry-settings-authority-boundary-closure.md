@@ -33,7 +33,7 @@
 Provider Config 路径
 ====================
 
-ZCode Built-in Provider Config（在线配置）
+Secretariat Built-in Provider Config（在线配置）
                     +
 Account Built-in Provider Config（只约束 Built-in）
                     |
@@ -49,7 +49,7 @@ Effective Provider Config
 Model Config 路径
 =================
 
-ZCode Built-in Model Config Rules
+Secretariat Built-in Model Config Rules
                     |
                     | 对当前 Effective Provider 中的 providerId/modelId/api.type 解析
                     v
@@ -121,7 +121,7 @@ Built-in Model Rules 必须作用于最终 `Effective Provider Config`。因此 
 Personal Model 只要能匹配 Built-in Rule，也会先得到 Built-in 默认模型配置，再叠加 Personal Rules。
 
 `Effective Built-in Model Config` 只是“Built-in Rules 对当前模型的解析结果”，不替代
-`ZCode Built-in Model Config Rules` 这个在线配置事实源。
+`Secretariat Built-in Model Config Rules` 这个在线配置事实源。
 
 ### 2.2 Settings View 返回层次，Renderer 只编辑 Personal
 
@@ -533,9 +533,9 @@ PRS-05 比较解析后 Rule 的身份、顺序、匹配条件和配置内容，�
 
 必须保持：
 
-- Provider Overlay 顺序是 ZCode Built-in -> Account Built-in -> Personal。
-- Account Built-in 只约束 ZCode Built-in Provider；Personal 始终最后覆盖。
-- Model Rules 是 ZCode Built-in Rules + Personal Rules，并作用于 Effective Provider。
+- Provider Overlay 顺序是 Secretariat Built-in -> Account Built-in -> Personal。
+- Account Built-in 只约束 Secretariat Built-in Provider；Personal 始终最后覆盖。
+- Model Rules 是 Secretariat Built-in Rules + Personal Rules，并作用于 Effective Provider。
 - Personal Config 与 Personal exact Rule 始终稀疏，不能从 Effective 反向展开。
 - `builtinModelIds` 和 `modelIds` 的所有权、冲突、顺序与 enabled 设计不变。
 - Config 更新只影响之后创建的 Model；已创建 Active Model 不被热修改。

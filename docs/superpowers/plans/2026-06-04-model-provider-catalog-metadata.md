@@ -8,7 +8,7 @@
 
 **Goal:** Implement the model provider catalog metadata design from `docs/superpowers/specs/2026-06-03-model-provider-catalog-metadata-design.md`.
 
-**Architecture:** Add shared catalog/provider v2 schemas and migration helpers first, then make the host service read/write v2 provider data, catalog sources, and display order. UI consumes object models and independent display order, while ZCode Agent registry projection remains the only runtime metadata path.
+**Architecture:** Add shared catalog/provider v2 schemas and migration helpers first, then make the host service read/write v2 provider data, catalog sources, and display order. UI consumes object models and independent display order, while Secretariat Agent registry projection remains the only runtime metadata path.
 
 **Tech Stack:** TypeScript, Zod, Vitest, React, @dnd-kit, Electron desktop dev server.
 

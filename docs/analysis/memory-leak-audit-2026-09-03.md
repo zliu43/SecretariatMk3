@@ -172,7 +172,7 @@
 
 - **event store 保留策略已验证**：父 session 下一 turn 开始时淘汰量与上一 turn 瞬态数完全一致；subagent 子 session 一次性 turn 靠 2 分钟时间兜底清掉（7554 行 → 254 行）。子 session record 完成后约 3~7 分钟被池子回收。
 - **`v4.detachedLive` 每跑一次 subagent +1 且不回落**：审计 CLI-H2 成立，待修。
-- **host 进程 RSS 反复冲到 1.5GB、externalKb 1.3GB，几分钟后回落**：时间点与 repo snapshot（checkpoint）capture 一致。原因是 `repoSnapshotFilter.ts` 对 `.git/` 内部文件无条件放行（绕过 1MB 单文件上限与全部排除规则），本仓库 `.git` 1.2GB，于是**每次 prompt 发送和每个 turn 结束**都打包、sha256、AES 加密并尝试上传一个 1.3GB 的 `.tar.gz.enc`；本 workspace `failureCount=9`，`~/.zcode/v2/checkpoints/*/pending` 下积压 1.77GB（8/27 起）、1.26GB、0.66GB 未上传产物，`~/.zcode/v2` 共 7.6GB。这是产品/spec 层问题（`repo-snapshot-sidecar.md` 要求完整 Git 元信息），不是泄漏；需决策：排除 `.git/objects/pack` 或给 `.git` 设总量上限，或 workspace 超阈值时跳过 capture。
+- **host 进程 RSS 反复冲到 1.5GB、externalKb 1.3GB，几分钟后回落**：时间点与 repo snapshot（checkpoint）capture 一致。原因是 `repoSnapshotFilter.ts` 对 `.git/` 内部文件无条件放行（绕过 1MB 单文件上限与全部排除规则），本仓库 `.git` 1.2GB，于是**每次 prompt 发送和每个 turn 结束**都打包、sha256、AES 加密并尝试上传一个 1.3GB 的 `.tar.gz.enc`；本 workspace `failureCount=9`，`~/.secretariat/v2/checkpoints/*/pending` 下积压 1.77GB（8/27 起）、1.26GB、0.66GB 未上传产物，`~/.secretariat/v2` 共 7.6GB。这是产品/spec 层问题（`repo-snapshot-sidecar.md` 要求完整 Git 元信息），不是泄漏；需决策：排除 `.git/objects/pack` 或给 `.git` 设总量上限，或 workspace 超阈值时跳过 capture。
 - **远控 relay 互踢死循环**：两个桌面实例用同一账号连 relay，各约 22 次/分钟重连、无退避（另一实例当日 6000+ 次）。对应审计 `webRemoteControlTransport` 重连无退避项。
 - **renderer 每 ~25s 一波 10 次 `listTaskList`**（整轮 1189 次），对应审计 UI M6 版本号失效放大。
 - **main `taskBus.sessionRoutes` 2565 条**只增不减（约 250KB），对应审计 L4。

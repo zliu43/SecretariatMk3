@@ -81,7 +81,7 @@ vi.mock("@modelcontextprotocol/client/stdio", () => ({
 
 import { createMcpAdapter } from "../src/mcp/index.js";
 
-const ZCODE_ORIGIN = "https://zcode.example";
+const SECRETARIAT_ORIGIN = "https://zcode.example";
 const PLUGIN_ID = "video-agent-kit@zcode-plugins-official";
 const MCP_KEY = "video-edit";
 
@@ -129,7 +129,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
     const adapter = createMcpAdapter({
       officialMcpAuth: {
         authHeadersPort: { resolveHeaders },
-        resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+        resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
         trustedOrigins: { isTrusted },
       },
       workingDirectory: "/repo",
@@ -161,7 +161,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
       expect.objectContaining({
         mcpKey: MCP_KEY,
         pluginId: PLUGIN_ID,
-        targetOrigin: ZCODE_ORIGIN,
+        targetOrigin: SECRETARIAT_ORIGIN,
         workspacePath: "/repo",
       }),
     );
@@ -173,7 +173,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
         authHeadersPort: {
           resolveHeaders: vi.fn(async () => ({ headers: IDENTITY_HEADERS, ok: true as const })),
         },
-        resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+        resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
         trustedOrigins: { isTrusted: vi.fn(async () => ({ trusted: true })) },
       },
     });
@@ -205,7 +205,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
             reason: "official_auth_plan_required" as const,
           })),
         },
-        resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+        resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
         trustedOrigins: { isTrusted: vi.fn(async () => ({ trusted: true })) },
       },
     });
@@ -280,7 +280,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
     const adapter = createMcpAdapter({
       officialMcpAuth: {
         authHeadersPort: { resolveHeaders },
-        resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+        resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
         trustedOrigins: {
           isTrusted: vi.fn(async () => {
             throw new Error("registry exploded");
@@ -323,7 +323,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
         authHeadersPort: {
           resolveHeaders: vi.fn(async () => ({ headers: IDENTITY_HEADERS, ok: true as const })),
         },
-        resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+        resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
         trustedOrigins: { isTrusted: vi.fn(async () => ({ trusted: true })) },
       },
     });
@@ -339,7 +339,7 @@ describe("official stdio MCP auth via tools/call _meta", () => {
     const adapter = createMcpAdapter({
       officialMcpAuth: {
         authHeadersPort: { resolveHeaders },
-        resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+        resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
         trustedOrigins: { isTrusted: vi.fn(async () => ({ trusted: true })) },
       },
     });

@@ -6,7 +6,7 @@
 
 **架构：**继续把 `Bash` 作为 provider-visible tool，继续让 `ExecutionPort` 作为唯一进程边界。Phase 1 只在 `command.shellProfile === "posix-bash"` 的内部执行路径上增加 shell provider 选择，优先使用外部注入的 shell override，其次自动检测 Git Bash，最后回落到现有 `ComSpec` / `cmd.exe`。Phase 2 通过 AppSettings 和 SettingsPage 把用户选择映射成 Phase 1 的 shell override，不把 UI 选择逻辑塞进 adapter。
 
-**技术栈：**TypeScript、Node.js `child_process.spawn`、`path.win32`、`path.posix`、Vitest adapter/core tests、现有 `ExecutionPort` contract、ZCode AppSettings、SettingsPage。
+**技术栈：**TypeScript、Node.js `child_process.spawn`、`path.win32`、`path.posix`、Vitest adapter/core tests、现有 `ExecutionPort` contract、Secretariat AppSettings、SettingsPage。
 
 ---
 
@@ -107,11 +107,11 @@ Windows 不设启动门槛：Git Bash 缺失时 fallback 到 `cmd.exe`，而不�
 
 - 本功能不应该改变 provider-visible `Bash` tool 名称。即使 Windows 内部使用 Git Bash 执行，模型看到的仍然是 `Bash` tool。
 - shell provider 只影响 executor，不影响 tool exposure 或 tool description 分支。
-- 如果 ZCode 后续增加 provider-visible `PowerShell` tool，则 main prompt 的 shell tool wording 需要重新评估。该能力不属于本计划。
+- 如果 Secretariat 后续增加 provider-visible `PowerShell` tool，则 main prompt 的 shell tool wording 需要重新评估。该能力不属于本计划。
 
-## 当前 ZCode 状态
+## 当前 Secretariat 状态
 
-已检查的 ZCode 文件：
+已检查的 Secretariat 文件：
 
 - `apps/zcode-cli/packages/core/src/tool/handlers/bash.ts`
 - `apps/zcode-cli/packages/contracts/src/interfaces/execution.port.ts`
@@ -355,8 +355,8 @@ WSL 后续建议：
 
 ```markdown
 - Windows `Bash` tool may best-effort use Git Bash when Git for Windows is already installed and detectable. Git Bash remains optional: if it cannot be resolved, `Bash` falls back to the existing `ComSpec` / `cmd.exe` shell path.
-- Windows `Bash` tool may accept an internal shell override from ZCode runtime settings. A valid user-configured override has higher priority than automatic Git Bash detection.
-- ZCode must not require Git Bash, MSYS2, Cygwin, or WSL to run the built-in `Bash` tool.
+- Windows `Bash` tool may accept an internal shell override from Secretariat runtime settings. A valid user-configured override has higher priority than automatic Git Bash detection.
+- Secretariat must not require Git Bash, MSYS2, Cygwin, or WSL to run the built-in `Bash` tool.
 - Generic `ExecutionPort` shell mode on Windows continues to use `ComSpec` / `cmd.exe`; Git Bash auto-detection and shell override apply only to `command.shellProfile === "posix-bash"` created by the `Bash` tool.
 ```
 
@@ -365,7 +365,7 @@ WSL 后续建议：
 加入说明：
 
 ```markdown
-ZCode does not add a Git Bash path environment variable or Windows startup gates. Missing Git Bash is a fallback condition, not a startup failure.
+Secretariat does not add a Git Bash path environment variable or Windows startup gates. Missing Git Bash is a fallback condition, not a startup failure.
 ```
 
 - [ ] **Step 3: 跑文档检查**
@@ -483,7 +483,7 @@ export interface ExecutionShellOverride {
 
 ```ts
       /**
-       * Internal shell override selected by ZCode runtime settings. This is only honored for
+       * Internal shell override selected by Secretariat runtime settings. This is only honored for
        * Bash tool commands with shellProfile === "posix-bash"; generic shell execution must ignore it.
        */
       shellOverride?: ExecutionShellOverride;

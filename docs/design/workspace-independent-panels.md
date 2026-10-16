@@ -155,7 +155,7 @@ Windows/Linux 复用同一内联窗控组件，28px 按钮、16px 图标、2px �
 
 工作区图标与名称同行，名称下方显示路径并与名称左边缘对齐。路径使用次级前景与 text-ui-sm；只有属于当前工作区所在主机的 home 目录时缩写为 `~`，未取得 home 时显示原路径。下方显示当前会话最近活动，分支前增加 border-border/50 分隔线；非 Git 工作区不显示分支或分隔线。
 
-排版验证：相关单测 7/7、macOS Electron TTL01–TTL07 7/7，路径实测 `~/ZCodeProject`；typecheck、lint 通过（46 个已有警告）。运行记录：`desktop-e2e-20260907080616432-p60066-d11800800bd11757`。
+排版验证：相关单测 7/7、macOS Electron TTL01–TTL07 7/7，路径实测 `~/SecretariatProject`；typecheck、lint 通过（46 个已有警告）。运行记录：`desktop-e2e-20260907080616432-p60066-d11800800bd11757`。
 
 - 2026-09-10 MR !2586 CR-01：修复 macOS 窗口状态查询被 hook 守卫跳过。新增两条真实 hook 回归先失败后通过；26 项相关单测、typecheck、lint（44 个既有警告、0 错误）通过。Windows Electron SPT-E2E-000 通过，运行 ID desktop-e2e-20260910-040930-907。macOS 原生视觉与手机实机未验证。
 

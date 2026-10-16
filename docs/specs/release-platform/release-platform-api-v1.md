@@ -1,4 +1,4 @@
-# ZCode 打包平台 API 与契约 v1
+# Secretariat 打包平台 API 与契约 v1
 
 - 状态：Proposed
 - 版本：`release-platform.v1`

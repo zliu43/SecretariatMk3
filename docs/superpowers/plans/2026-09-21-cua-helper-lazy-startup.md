@@ -30,17 +30,17 @@
 - `dist/` 是 git-tracked 且就是包本体：改 src 必须同一 commit 重建 dist。重建前确认 `node_modules`
   不是软链（worktree 常软链到主克隆；是则 `rm node_modules` 摘链后 `corepack pnpm install --frozen-lockfile`）。
 - producer pin 只能用脚本改：`pnpm --filter @zcode/zcode-cua-plugin bump:producer <完整40位sha>`（在 z-code 仓库跑；
-  producer worktree 场景先 `export ZCODE_CUA_REPO=/Users/dev/.codex/worktrees/cua-refactor/zcode-cua`）。
+  producer worktree 场景先 `export SECRETARIAT_CUA_REPO=/Users/dev/.codex/worktrees/cua-refactor/zcode-cua`）。
   手改 `pnpm-workspace.yaml` 的 SHA 会被 `check-cua-baseline.mjs` 拒绝；pin 目标必须已推到远端。**必须全 sha**（短前缀会造混合 sha）。
 - 两仓库都提交后立刻 push（并发会话 amend 吞 commit 的历史教训；pin 只信远端 ref）。
 
 **跨仓契约**
 
-- recipe env 键名：`ZCODE_CUA_WIN_HELPER_RECIPE`（producer helperConstants 常量 + z-code 同名字面量，两处一致）。
+- recipe env 键名：`SECRETARIAT_CUA_WIN_HELPER_RECIPE`（producer helperConstants 常量 + z-code 同名字面量，两处一致）。
 - fork argv：`[entryPath, "--socket", <稳定pipe名>, "--parent-pid", <hostPid>]`（fork 的 child 侧
   `process.argv.slice(2)` 恰为 4 元，满足 `parseWindowsDevHelperConfig` 校验）。
 - fork env：`ELECTRON_RUN_AS_NODE=1`、`[HELPER_ADDON_ENV]=addonPath`（HELPER_ADDON_ENV 即
-  `"ZCODE_CUA_HELPER_ADDON"`）、`commandEnv` 白名单合并。
+  `"SECRETARIAT_CUA_HELPER_ADDON"`）、`commandEnv` 白名单合并。
 
 ## File Structure
 
@@ -58,7 +58,7 @@
 | 文件 | 动作 | 职责 |
 | --- | --- | --- |
 | `src/tools/computer-use-runtime.ts` | Modify | `ensureStandaloneHelperLaunched` 增加 win32 fork 分支（Task 3） |
-| `src/broker/helperConstants.ts` | Modify | 新增 `ZCODE_CUA_WIN_HELPER_RECIPE_ENV` 常量（Task 3） |
+| `src/broker/helperConstants.ts` | Modify | 新增 `SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV` 常量（Task 3） |
 | `src/broker/server/cuaProductMcpResolver.ts` | Modify | 删除 `warmHelperForBuiltInPlugin` 预热（Task 3） |
 | `test/computer-use-runtime.win-fork.test.ts` | Create | win32 fork 分支单测（Task 3） |
 | `dist/**` | Rebuild | 同 commit 重建（Task 4） |
@@ -204,14 +204,14 @@ git push -u origin feat/cua-helper-lazy-startup
 - Create: `test/computer-use-runtime.win-fork.test.ts`
 
 **Interfaces:**
-- Produces: `ensureStandaloneHelperLaunched(socketPath, env, options?)` 的 win32 行为（options 形参供测试注入 fork 实现）；`ZCODE_CUA_WIN_HELPER_RECIPE_ENV = "ZCODE_CUA_WIN_HELPER_RECIPE"`（helperConstants 导出）。
+- Produces: `ensureStandaloneHelperLaunched(socketPath, env, options?)` 的 win32 行为（options 形参供测试注入 fork 实现）；`SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV = "SECRETARIAT_CUA_WIN_HELPER_RECIPE"`（helperConstants 导出）。
 
 - [ ] **Step 1: helperConstants 加常量**
 
 在 `src/broker/helperConstants.ts` 的 env 常量区（`HELPER_ADDON_ENV` 附近）加：
 
 ```ts
-export const ZCODE_CUA_WIN_HELPER_RECIPE_ENV = "ZCODE_CUA_WIN_HELPER_RECIPE";
+export const SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV = "SECRETARIAT_CUA_WIN_HELPER_RECIPE";
 ```
 
 - [ ] **Step 2: 写失败的 win32 fork 单测**
@@ -222,17 +222,17 @@ export const ZCODE_CUA_WIN_HELPER_RECIPE_ENV = "ZCODE_CUA_WIN_HELPER_RECIPE";
 import { describe, expect, it, vi } from "vitest";
 import {
   HELPER_ADDON_ENV,
-  ZCODE_CUA_WIN_HELPER_RECIPE_ENV,
+  SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV,
 } from "../src/broker/helperConstants.js";
 
 const { __testing } = await import("../src/tools/computer-use-runtime.js");
 
 const RECIPE = {
-  command: "C:\\app\\ZCode.exe",
+  command: "C:\\app\\Secretariat.exe",
   entryPath: "C:\\app\\resources\\tools\\cua-helper\\entry.cjs",
   root: "C:\\app\\resources\\tools\\cua-helper",
   addonPath: "C:\\app\\resources\\tools\\cua-helper\\addon.node",
-  commandEnv: { ZCODE_CUA_X: "1" },
+  commandEnv: { SECRETARIAT_CUA_X: "1" },
   hostPid: 4242,
 };
 
@@ -251,7 +251,7 @@ describe("ensureStandaloneHelperLaunched win32 fork", () => {
   it("no-ops on invalid recipe JSON", async () => {
     const { fork, calls } = makeForkSpy();
     await __testing.ensureStandaloneHelperLaunched("\\\\.\\pipe\\zcode-cua-x", {
-      [ZCODE_CUA_WIN_HELPER_RECIPE_ENV]: "{not-json",
+      [SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV]: "{not-json",
     }, { fork });
     expect(calls()).toHaveLength(0);
   });
@@ -259,7 +259,7 @@ describe("ensureStandaloneHelperLaunched win32 fork", () => {
   it("forks with the stable pipe, host pid and addon env", async () => {
     const { fork, calls } = makeForkSpy();
     await __testing.ensureStandaloneHelperLaunched("\\\\.\\pipe\\zcode-cua-x", {
-      [ZCODE_CUA_WIN_HELPER_RECIPE_ENV]: JSON.stringify(RECIPE),
+      [SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV]: JSON.stringify(RECIPE),
     }, { fork });
     expect(calls()).toHaveLength(1);
     const [command, argv, options] = calls()[0] as [string, string[], Record<string, unknown>];
@@ -278,14 +278,14 @@ describe("ensureStandaloneHelperLaunched win32 fork", () => {
     });
     expect((options.env as Record<string, string>)[HELPER_ADDON_ENV]).toBe(RECIPE.addonPath);
     expect((options.env as Record<string, string>).ELECTRON_RUN_AS_NODE).toBe("1");
-    expect((options.env as Record<string, string>).ZCODE_CUA_X).toBe("1");
+    expect((options.env as Record<string, string>).SECRETARIAT_CUA_X).toBe("1");
   });
 
   it("swallows fork failures so the warmup retry reports the real error", async () => {
     const fork = vi.fn(() => { throw new Error("EBUSY"); }) as never;
     await expect(
       __testing.ensureStandaloneHelperLaunched("\\\\.\\pipe\\zcode-cua-x", {
-        [ZCODE_CUA_WIN_HELPER_RECIPE_ENV]: JSON.stringify(RECIPE),
+        [SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV]: JSON.stringify(RECIPE),
       }, { fork }),
     ).resolves.toBeUndefined();
   });
@@ -326,7 +326,7 @@ async function ensureWindowsHelperForked(
   env: NodeJS.ProcessEnv,
   forkImpl?: (command: string, args: string[], opts: unknown) => { unref(): void },
 ): Promise<void> {
-  const raw = env[ZCODE_CUA_WIN_HELPER_RECIPE_ENV]?.trim();
+  const raw = env[SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV]?.trim();
   if (!raw) return;
   let recipe: {
     command: string; entryPath: string; root: string;
@@ -372,7 +372,7 @@ async function ensureWindowsHelperForked(
 }
 ```
 
-（`HELPER_ADDON_ENV`、`ZCODE_CUA_WIN_HELPER_RECIPE_ENV` 从 helperConstants 补 import。）
+（`HELPER_ADDON_ENV`、`SECRETARIAT_CUA_WIN_HELPER_RECIPE_ENV` 从 helperConstants 补 import。）
 
 - [ ] **Step 5: 跑测试确认通过**
 
@@ -412,7 +412,7 @@ feat(lazy-start): fork the Windows helper on first broker use
 
 Agent spawn no longer acquires the managed helper on win32; the SDK forks
 it on the first CUA call using a host-minted stable pipe name delivered
-via ZCODE_CUA_WIN_HELPER_RECIPE. The child is detached with
+via SECRETARIAT_CUA_WIN_HELPER_RECIPE. The child is detached with
 --parent-pid pointing at the host so its lifetime follows the host, not
 the forking agent; concurrent first calls lose the pipe-bind race
 harmlessly. warmHelperForBuiltInPlugin prewarming is removed — an eager
@@ -564,8 +564,8 @@ EOF
 - Test: `packages/services/test/agentProxyEnv.test.ts`
 
 **Interfaces:**
-- Consumes: Task 4 的 `getStableCuaPipeName` / `resolveStableCuaWinRecipe`；既有 `resolveBrokerSocketPath`、`BROKER_SOCKET_ENV`、`ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY`、`BROKER_UNAVAILABLE_ENV`、`randomBytes`。
-- Produces: win32 spawn 不再调用 `getOrCreateDefaultCuaProductHelper`；env 含 `ZCODE_CUA_BROKER_SOCKET`、`ZCODE_CUA_PLUGIN_AUTHORITY`、`ZCODE_CUA_WIN_HELPER_RECIPE`。
+- Consumes: Task 4 的 `getStableCuaPipeName` / `resolveStableCuaWinRecipe`；既有 `resolveBrokerSocketPath`、`BROKER_SOCKET_ENV`、`SECRETARIAT_CUA_PLUGIN_AUTHORITY_ENV_KEY`、`BROKER_UNAVAILABLE_ENV`、`randomBytes`。
+- Produces: win32 spawn 不再调用 `getOrCreateDefaultCuaProductHelper`；env 含 `SECRETARIAT_CUA_BROKER_SOCKET`、`SECRETARIAT_CUA_PLUGIN_AUTHORITY`、`SECRETARIAT_CUA_WIN_HELPER_RECIPE`。
 
 - [ ] **Step 1: 写失败测试（source-guard，先断言锚点非空）**
 
@@ -579,7 +579,7 @@ EOF
     expect(cuaBlock.indexOf("getStableCuaPipeName()")).toBeLessThan(
       cuaBlock.indexOf("getOrCreateDefaultCuaProductHelper(context)"),
     );
-    expect(cuaBlock).toContain("ZCODE_CUA_WIN_HELPER_RECIPE");
+    expect(cuaBlock).toContain("SECRETARIAT_CUA_WIN_HELPER_RECIPE");
   });
 ```
 
@@ -606,12 +606,12 @@ Task 1 改后，把 helper 选择与后续消费整体删除（不再有过渡�
           process.platform === "win32" ? getStableCuaPipeName() : resolveBrokerSocketPath();
         cuaProductHelperEnv = {
           [BROKER_SOCKET_ENV]: brokerSocket,
-          [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: randomBytes(16).toString("hex"),
+          [SECRETARIAT_CUA_PLUGIN_AUTHORITY_ENV_KEY]: randomBytes(16).toString("hex"),
         };
         if (process.platform === "win32") {
           const recipe = await resolveStableCuaWinRecipe();
           if (recipe) {
-            cuaProductHelperEnv["ZCODE_CUA_WIN_HELPER_RECIPE"] = JSON.stringify({
+            cuaProductHelperEnv["SECRETARIAT_CUA_WIN_HELPER_RECIPE"] = JSON.stringify({
               ...recipe,
               hostPid: process.pid,
             });
@@ -765,7 +765,7 @@ Expected: 输出远端 ref 与完整 sha（Task 3 已 push）。
 - [ ] **Step 2: 原子 bump（完整 40 位 sha）**
 
 ```bash
-export ZCODE_CUA_REPO=/Users/dev/.codex/worktrees/cua-refactor/zcode-cua
+export SECRETARIAT_CUA_REPO=/Users/dev/.codex/worktrees/cua-refactor/zcode-cua
 pnpm --filter @zcode/zcode-cua-plugin bump:producer <上一步的完整40位sha>
 ```
 
@@ -862,13 +862,13 @@ EOF
 - [ ] **Step 1: darwin 实机冷启验证（MC-1/2/3）**
 
 ```bash
-ZCODE_CUA_DEV_MODE=1 pnpm run dev:desktop
+SECRETARIAT_CUA_DEV_MODE=1 pnpm run dev:desktop
 ```
 
 按 [本地跑 CUA Helper](../../docs/cua-permission-broker/local-dev-helper-runbook.md) 验证：
-1. app 启动后 Activity Monitor 无 "ZCode Computer Use" 进程（懒启动未被触发）。
+1. app 启动后 Activity Monitor 无 "Secretariat Computer Use" 进程（懒启动未被触发）。
 2. 新开对话让模型调 computer-use → Helper 进程出现、调用成功（MC-2）。
-3. 在设置页完成一次权限授权流后再 spawn 新 agent → 新 agent env 里 `ZCODE_CUA_BROKER_SOCKET` 为稳定路径而非随机（MC-3；可用 dev 日志核对）。
+3. 在设置页完成一次权限授权流后再 spawn 新 agent → 新 agent env 里 `SECRETARIAT_CUA_BROKER_SOCKET` 为稳定路径而非随机（MC-3；可用 dev 日志核对）。
 
 - [ ] **Step 2: desktop E2E 评估**
 

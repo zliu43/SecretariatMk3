@@ -37,7 +37,7 @@ describe("ensureCliDeviceMid", () => {
 
     const deviceMid = await ensureCliDeviceMid({
       createId: () => "should-not-be-created",
-      env: { ZCODE_DATA_BASE_DIR: root },
+      env: { SECRETARIAT_DATA_BASE_DIR: root },
     });
 
     expect(deviceMid).toBe("7f1431f0-53e8-41c1-9cf9-22d11aa51d6a");
@@ -59,9 +59,9 @@ describe("ensureCliDeviceMid", () => {
     };
 
     const values = await Promise.all([
-      ensureCliDeviceMid({ createId, env: { ZCODE_DATA_BASE_DIR: root } }),
-      ensureCliDeviceMid({ createId, env: { ZCODE_DATA_BASE_DIR: root } }),
-      ensureCliDeviceMid({ createId, env: { ZCODE_DATA_BASE_DIR: root } }),
+      ensureCliDeviceMid({ createId, env: { SECRETARIAT_DATA_BASE_DIR: root } }),
+      ensureCliDeviceMid({ createId, env: { SECRETARIAT_DATA_BASE_DIR: root } }),
+      ensureCliDeviceMid({ createId, env: { SECRETARIAT_DATA_BASE_DIR: root } }),
     ]);
 
     expect(values).toEqual([
@@ -80,7 +80,7 @@ describe("ensureCliDeviceMid", () => {
     const root = await createTemporaryRoot();
 
     const deviceMid = await ensureCliDeviceMid({
-      env: { ZCODE_DATA_BASE_DIR: root },
+      env: { SECRETARIAT_DATA_BASE_DIR: root },
     });
 
     expect(deviceMid).toMatch(
@@ -100,11 +100,11 @@ describe("ensureCliDeviceMid", () => {
 
     const first = await ensureCliDeviceMid({
       createId,
-      env: { ZCODE_DATA_BASE_DIR: blockedBaseDir },
+      env: { SECRETARIAT_DATA_BASE_DIR: blockedBaseDir },
     });
     const second = await ensureCliDeviceMid({
       createId,
-      env: { ZCODE_DATA_BASE_DIR: blockedBaseDir },
+      env: { SECRETARIAT_DATA_BASE_DIR: blockedBaseDir },
     });
 
     expect(first).toBe("fallback-1");
@@ -146,7 +146,7 @@ describe("Anthropic request metadata", () => {
 
     await expect(
       resolveAnthropicRequestMetadataUserId({
-        env: { ZCODE_DATA_BASE_DIR: root },
+        env: { SECRETARIAT_DATA_BASE_DIR: root },
         providerKind: "openai-compatible",
         sessionId: "sess_openai",
       }),
@@ -214,7 +214,7 @@ describe("Anthropic request metadata", () => {
       },
     };
     const adapter = new AiSdkModelAdapter({
-      env: { ZCODE_DATA_BASE_DIR: root },
+      env: { SECRETARIAT_DATA_BASE_DIR: root },
       registry: anthropicRegistry(),
       runtime,
     });
@@ -274,12 +274,12 @@ async function createTemporaryRoot(): Promise<string> {
 }
 
 function telemetryStateFile(root: string): string {
-  return join(root, ".zcode", "v2", "telemetry-state.json");
+  return join(root, ".secretariat", "v2", "telemetry-state.json");
 }
 
 async function writeTelemetryState(root: string, state: Record<string, unknown>): Promise<string> {
   const stateFile = telemetryStateFile(root);
-  await mkdir(join(root, ".zcode", "v2"), { recursive: true });
+  await mkdir(join(root, ".secretariat", "v2"), { recursive: true });
   await writeFile(stateFile, JSON.stringify(state, null, 2), "utf-8");
   return stateFile;
 }

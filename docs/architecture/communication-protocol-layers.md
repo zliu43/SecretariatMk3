@@ -53,7 +53,7 @@
 - Renderer ↔ Window Host；
 - Window Host ↔ 远程 `zcode-server`。
 
-### ZCode Protocol JSON envelope
+### Secretariat Protocol JSON envelope
 
 Host 与 `zcode-cli` 使用的 JSON 请求/响应/通知外壳，典型结构如下（为便于阅读省略了部分身份字段）：
 
@@ -133,9 +133,9 @@ Main 与 Host 之间传递的是进程和连接控制，例如：
 | Renderer → Host | Service API、V4 命令/查询/订阅 | `@zcode/rpc` | `MessagePort` |
 | Renderer → Main | 平台操作 | Electron IPC channel | Electron IPC |
 | Main → Host | Host 控制消息 | typed `{ type, ... }` | `postMessage` |
-| Host → 本地 CLI | V4、少量 legacy 操作 | ZCode Protocol JSON | stdio NDJSON |
+| Host → 本地 CLI | V4、少量 legacy 操作 | Secretariat Protocol JSON | stdio NDJSON |
 | Host → `zcode-server` | 远程 Service API，参数可携带 V4 | `@zcode/rpc` | SSH stdio 或 WebSocket |
-| `zcode-server` → 远端 CLI | V4、少量 legacy 操作 | ZCode Protocol JSON | stdio NDJSON |
+| `zcode-server` → 远端 CLI | V4、少量 legacy 操作 | Secretariat Protocol JSON | stdio NDJSON |
 | 手机 → Relay → Main | 远控 Service/V4 调用 | relay envelope + `rpc-frame` | WebSocket |
 
 手机远控还会通过 shared-host attachment 进入已有 Window Host；Relay 和 Main 只负责鉴权、配对、心跳、frame 透传与 attachment 调度，不持有 conversation/task/stream 业务状态。
@@ -157,7 +157,7 @@ Window Host
         │
         ▼
 zcode-server
-  第 2 层：ZCode Protocol JSON，method = "v4/command"
+  第 2 层：Secretariat Protocol JSON，method = "v4/command"
   第 1 层：子进程 stdio
         │
         ▼
@@ -185,4 +185,4 @@ V4 调用 = 调用 Service API，把这条命令送到下一跳
 - [V4 transport schema](../../packages/shared/src/zcode-protocol-v4/transport.ts)
 - [远程 RPC 连接](../../packages/server/src/remote/connect.ts)
 - [zcode-server stdio RPC server](../../packages/server/src/stdio.ts)
-- [Agent ZCode Protocol client](../../packages/services/src/zcode-agent/zcodeProtocolClient.ts)
+- [Agent Secretariat Protocol client](../../packages/services/src/zcode-agent/zcodeProtocolClient.ts)

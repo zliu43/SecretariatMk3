@@ -10,7 +10,7 @@ import { offPeakSelectionView } from "./fixtures/offPeakSelection.js";
 // review CR-01：offPeak/create、offPeak/list 兜底 catch 不得把底层异常文本（路径/SQL/上游片段）
 // 跨 RPC 回传；对外固定稳定错误码 + 通用文案，原始错误只进服务端日志。
 
-const SENSITIVE = "/Users/alice/.zcode/private.db: SQLITE_BUSY database is locked";
+const SENSITIVE = "/Users/alice/.secretariat/private.db: SQLITE_BUSY database is locked";
 
 class MockProcessManagerBase {
   onRuntimeLifecycle() {

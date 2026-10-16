@@ -67,7 +67,7 @@ function createRepo() {
 
   runGit(repoPath, ["init"]);
   runGit(repoPath, ["branch", "-M", "main"]);
-  runGit(repoPath, ["config", "user.name", "ZCode Tester"]);
+  runGit(repoPath, ["config", "user.name", "Secretariat Tester"]);
   runGit(repoPath, ["config", "user.email", "tester@example.com"]);
   runGit(repoPath, ["config", "commit.gpgsign", "false"]);
   runGit(repoPath, ["config", "core.autocrlf", "false"]);
@@ -137,7 +137,7 @@ describeIfGit("gitCheckpointService", () => {
       "skip changed\n",
     );
     expect(runGit(repoPath, ["diff", "--cached", "--name-only"])).toBe(stagedBeforeRestore);
-    expect(readdirSync(join(dataBaseDir, ".zcode", "git-checkpoint-index"))).toEqual([]);
+    expect(readdirSync(join(dataBaseDir, ".secretariat", "git-checkpoint-index"))).toEqual([]);
   }, GIT_INTEGRATION_TEST_TIMEOUT_MS);
 
   it("returns conflicts when affected files drift away from the declared fromCheckpoint and supports force restore", async () => {

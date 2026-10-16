@@ -90,7 +90,7 @@ Main 不承担资源下载/解压业务。服务通过 ServiceCollection/RPC 注
 Desktop 的实际目录：
 
 ```text
-<ZCode data base>/.zcode/v2/cache/content-bundles/<host-instance-uuid>/
+<Secretariat data base>/.secretariat/v2/cache/content-bundles/<host-instance-uuid>/
   staging/<unique-attempt>/
   <sha256>/index.html
   <sha256>/.bundle.json

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  SECRETARIAT_PROTOCOL_NAME,
+  SECRETARIAT_PROTOCOL_VERSION,
   zcodeComputerUseOperationEventSchema,
   zcodeProviderRuntimeHeadersRequestParamsSchema,
   zcodeProviderRuntimeHeadersResponseSchema,
@@ -69,7 +69,7 @@ const modelProperties = {
   outputFormat: { supportsText: true },
 };
 
-describe("ZCode Protocol", () => {
+describe("Secretariat Protocol", () => {
   it("模型格式能力只接受完整的嵌套 properties 契约", () => {
     const properties = {
       inputFormat: {
@@ -1268,8 +1268,8 @@ describe("ZCode Protocol", () => {
   it("parses a server-authoritative session state snapshot", () => {
     const snapshot = zcodeSessionStateSnapshotSchema.parse({
       protocol: {
-        name: ZCODE_PROTOCOL_NAME,
-        version: ZCODE_PROTOCOL_VERSION,
+        name: SECRETARIAT_PROTOCOL_NAME,
+        version: SECRETARIAT_PROTOCOL_VERSION,
       },
       session: {
         sessionId: "sess_1",
@@ -2825,7 +2825,7 @@ describe("v4 workflowLaunch rows (direct-launch)", () => {
     toolCallId: "launch-abc",
     name: "deep-research",
     scope: "global" as const,
-    path: "/home/u/.zcode/workflows/deep-research.ts",
+    path: "/home/u/.secretariat/workflows/deep-research.ts",
     args: { topic: "adaptive concurrency", depth: 2 },
     description: "Deep-dive a topic across the web and write a brief.",
   };

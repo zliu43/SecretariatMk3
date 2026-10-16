@@ -20,7 +20,7 @@ The important part is not the UI shape. The core pattern is:
 - Do not use `/btw` as a hidden continuation mechanism for the main agent.
 - Do not treat `/btw` answers as target/goal completion evidence.
 - Do not make `/btw` a background subagent. Background subagents have task lifecycle, notifications, and child sessions; `/btw` is a short local answer.
-- Do not add a `ZCODE_*` environment variable for this feature. If a later version needs configuration, define it in this spec first.
+- Do not add a `SECRETARIAT_*` environment variable for this feature. If a later version needs configuration, define it in this spec first.
 
 ## User Semantics
 
@@ -180,7 +180,7 @@ TUI behavior:
 
 Headless `--prompt "/btw ..."` may print the side answer and exit with normal command status, but must still avoid creating a normal turn.
 
-ZCode app-server should not broadcast `/btw` as a normal available command until ZCode protocol clients have a side-result presentation. The structured future surface should be an extension method:
+Secretariat app-server should not broadcast `/btw` as a normal available command until Secretariat protocol clients have a side-result presentation. The structured future surface should be an extension method:
 
 ```text
 zcode.dev/session/sideQuestion
@@ -190,7 +190,7 @@ Request fields: `sessionId`, `question`.
 
 Response fields: `SideQuestionResult`.
 
-ZCode protocol clients that do not implement this extension can keep using normal prompts; they should not receive `/btw` in command suggestions.
+Secretariat protocol clients that do not implement this extension can keep using normal prompts; they should not receive `/btw` in command suggestions.
 
 ## Safety
 
@@ -230,7 +230,7 @@ ZCode protocol clients that do not implement this extension can keep using norma
 - Ensure side request uses a copied context snapshot and never mutates active turn state.
 - Add cancellation tests where the side request is cancelled and the main turn continues.
 
-### M4: ZCode app-server Extension
+### M4: Secretariat app-server Extension
 
 - Add `zcode.dev/session/sideQuestion`.
 - Validate `sessionId` and non-empty `question`.
@@ -248,8 +248,8 @@ ZCode protocol clients that do not implement this extension can keep using norma
 - A running normal turn can continue to stream while `/btw` is answering.
 - Side question emits started/completed/failed/cancelled events with the parent trace id.
 - Large answers are bounded or artifact-backed.
-- ZCode app-server command suggestions do not include `/btw` by default.
-- Future ZCode app-server side-question extension rejects malformed requests with structured invalid-params errors.
+- Secretariat app-server command suggestions do not include `/btw` by default.
+- Future Secretariat app-server side-question extension rejects malformed requests with structured invalid-params errors.
 
 ## Open Questions
 

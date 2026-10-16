@@ -10,9 +10,9 @@ import type {
   ZCodeSessionSettingsState,
 } from "@zcode/shared";
 import {
-  ZCODE_MODEL_REASONING_SEPARATOR,
-  ZCODE_PROTOCOL_NAME,
-  ZCODE_PROTOCOL_VERSION,
+  SECRETARIAT_MODEL_REASONING_SEPARATOR,
+  SECRETARIAT_PROTOCOL_NAME,
+  SECRETARIAT_PROTOCOL_VERSION,
   botsConfigFileSchema,
 } from "@zcode/shared";
 export { botsConfigFileSchema };
@@ -206,7 +206,7 @@ function parseModelSelectionForTest(value: string): ModelSelection {
   }
   const providerId = value.slice(0, separatorIndex);
   const rawModelId = value.slice(separatorIndex + 1);
-  const reasoningSeparatorIndex = rawModelId.indexOf(ZCODE_MODEL_REASONING_SEPARATOR);
+  const reasoningSeparatorIndex = rawModelId.indexOf(SECRETARIAT_MODEL_REASONING_SEPARATOR);
   if (reasoningSeparatorIndex <= 0 || reasoningSeparatorIndex >= rawModelId.length - 1) {
     return { providerId, modelId: rawModelId };
   }
@@ -312,8 +312,8 @@ export function createZCodeSessionService(
     initializeWorkspace: vi.fn(async () => ({
       available: true,
       workspaceKey: workspaceState.workspace.workspaceKey,
-      protocolName: ZCODE_PROTOCOL_NAME,
-      protocolVersion: ZCODE_PROTOCOL_VERSION,
+      protocolName: SECRETARIAT_PROTOCOL_NAME,
+      protocolVersion: SECRETARIAT_PROTOCOL_VERSION,
       transportKind: "stdio",
     })),
     readWorkspacePresentation: vi.fn(async () => ({
@@ -334,7 +334,7 @@ export function createBotsService(
     "zcodeSessionService" | "zcodeTaskService"
   > & {
     zcodeTaskService?: IZCodeTaskService;
-    /** 旧测试名保留为别名；真实注入的是 ZCode task service。 */
+    /** 旧测试名保留为别名；真实注入的是 Secretariat task service。 */
     legacyTaskService?: IZCodeTaskService;
     zcodeSessionService?: IZCodeSessionService;
   },

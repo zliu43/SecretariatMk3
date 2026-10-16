@@ -48,12 +48,12 @@ it("recognizes current TaskStop as task control", () => {
 
 Run: `pnpm exec vitest run packages/ui/test/toolIdentity.test.ts`
 
-Expected: FAIL because `TaskStop` is not in `ZCODE_KNOWN_TOOL_NAMES` and resolves to `unknown`.
+Expected: FAIL because `TaskStop` is not in `SECRETARIAT_KNOWN_TOOL_NAMES` and resolves to `unknown`.
 
 - [x] **Step 3: Add the canonical name and family**
 
 ```ts
-export const ZCODE_KNOWN_TOOL_NAMES = [
+export const SECRETARIAT_KNOWN_TOOL_NAMES = [
   // existing names
   "TaskStop",
 ] as const;

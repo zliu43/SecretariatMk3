@@ -49,7 +49,7 @@ describe("resolvePluginRuntimeFeatures", () => {
     expect(enabledServers.node_repl).toMatchObject({
       command: process.execPath,
       cwd: "/workspace",
-      env: { ELECTRON_RUN_AS_NODE: "1", ZCODE_PLUGIN_ROOT: "/tmp/plugin" },
+      env: { ELECTRON_RUN_AS_NODE: "1", SECRETARIAT_PLUGIN_ROOT: "/tmp/plugin" },
       timeoutMs: 600_000,
       isolation: "workspace",
       protocolVersion: "2026-07-28",
@@ -85,12 +85,12 @@ describe("resolvePluginRuntimeFeatures", () => {
       workingDirectory: "/workspace",
     });
     expect(servers.node_repl).toMatchObject({
-      env: { ZCODE_CUA_PLUGIN_ROOT: "/tmp/cua-plugin" },
+      env: { SECRETARIAT_CUA_PLUGIN_ROOT: "/tmp/cua-plugin" },
       type: "stdio",
     });
     // browser-use 不在时不注入它的 root，宿主据此知道浏览器那半边不可用。
     expect(
-      servers.node_repl?.type === "stdio" ? servers.node_repl.env?.ZCODE_PLUGIN_ROOT : undefined,
+      servers.node_repl?.type === "stdio" ? servers.node_repl.env?.SECRETARIAT_PLUGIN_ROOT : undefined,
     ).toBeUndefined();
   });
 
@@ -129,11 +129,11 @@ describe("resolvePluginRuntimeFeatures", () => {
 
     // browser-use 已停用：只注入 CUA 的 root，两个领域各自独立。
     expect(servers.node_repl).toMatchObject({
-      env: { ZCODE_CUA_PLUGIN_ROOT: "/tmp/cua-plugin" },
+      env: { SECRETARIAT_CUA_PLUGIN_ROOT: "/tmp/cua-plugin" },
       type: "stdio",
     });
     expect(
-      servers.node_repl?.type === "stdio" ? servers.node_repl.env?.ZCODE_PLUGIN_ROOT : undefined,
+      servers.node_repl?.type === "stdio" ? servers.node_repl.env?.SECRETARIAT_PLUGIN_ROOT : undefined,
     ).toBeUndefined();
   });
 

@@ -1,6 +1,6 @@
-# ZCode Domain Cross-Products
+# Secretariat Domain Cross-Products
 
-Use this reference after `zcode-feature-graph.yaml` when scanning or planning any ZCode feature. The feature graph records curated semantic relationships; this file routes the scan into deeper domains and cross-products. Neither replaces current docs, code, or live codegraph evidence. Prefer the freshest fact/spec/architecture doc and implementation when they conflict.
+Use this reference after `zcode-feature-graph.yaml` when scanning or planning any Secretariat feature. The feature graph records curated semantic relationships; this file routes the scan into deeper domains and cross-products. Neither replaces current docs, code, or live codegraph evidence. Prefer the freshest fact/spec/architecture doc and implementation when they conflict.
 
 ## How To Use
 
@@ -36,7 +36,7 @@ Use this reference after `zcode-feature-graph.yaml` when scanning or planning an
 
 | State or event | Authority | Mirrors/caches | Evidence to collect |
 | --- | --- | --- | --- |
-| Session messages and active turn | ZCode Agent runtime/session store | UI projection, task snapshot, replay mirror | protocol event, session snapshot, UI message tree |
+| Session messages and active turn | Secretariat Agent runtime/session store | UI projection, task snapshot, replay mirror | protocol event, session snapshot, UI message tree |
 | Task list metadata | Host task sqlite index | UI task list cache, optimistic overlay | `tasks-index.sqlite` row, service list result, UI list |
 | Runtime recovery fields | Host runtime response-time snapshot | Mobile replayable UI store | `getTaskSnapshot.runtime`, stream watermark, pending permission/command UI |
 | Desktop queued prompt | Renderer local store | none durable by default | UI queue item, send/drain logs |

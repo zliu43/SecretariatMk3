@@ -15,7 +15,7 @@
 
 ## 非目标
 
-- 不录制或回放 renderer IPC、ZCode Protocol event、UI store mutation。
+- 不录制或回放 renderer IPC、Secretariat Protocol event、UI store mutation。
 - 不把真实 API key 或鉴权 header 写入 artifact。
 - 不保证跨 provider 通用语义解析；本阶段只在 e2e 网络层保真 HTTP/SSE 响应节奏。
 
@@ -69,7 +69,7 @@ provider preset 时默认仍使用 DeepSeek v4 flash；只有显式设置
 capture artifact 默认写入：
 
 ```text
-packages/desktop/.e2e-home/.zcode/e2e-network-capture/upstream-provider.json
+packages/desktop/.e2e-home/.secretariat/e2e-network-capture/upstream-provider.json
 ```
 
 后续回放自定义 fixture 或 capture-derived fixture：

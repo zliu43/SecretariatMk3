@@ -172,7 +172,7 @@ cold message/part/session/goal facts -/
 - 用户 stop 导致的模型请求取消属于 `completed(interrupted)`，不是 `TurnError`。即使底层
   assistant message 为保留 provider 调试信息而持久化了 `error`，其中的 typed cancellation
   code/result 也必须在 cold hydration 时归一成 `TurnComplete(cancelled)`；历史数据中由
-  ZCode 自身生成的标准取消错误需要兼容恢复。禁止仅因存在 `assistant.info.error` 就把取消
+  Secretariat 自身生成的标准取消错误需要兼容恢复。禁止仅因存在 `assistant.info.error` 就把取消
   重建为 `phase=error` 或填充 `control.lastError`。
 - desktop `continuous` 与 mobile `replayable` 可以有不同中间帧；两端收敛后的 canonical
   facts 和终态 projection 逐字段相同。该交付差异不扩展成每条产品 case 的重复终态排列。
@@ -724,7 +724,7 @@ fork 目标只定义在 assistant message/turn 上。edit 目标只定义在 use
 | `restartDiscardRespectsDeliveryLifetime` | CLI restart 后未完成 admitted input 明确 discarded；旧 runtime 的 `queue/guide` 与无权威结论的 `unknown` 静默结算且不显示 UI 错误，只有未进入 transcript 的 `startNow` 提示确认重发，禁止自动重放 | accepted |
 | `stopButtonStableAcrossActiveWork` | assistant、compact、goal verifier、goal continuation、foreground subagent 等 active work 交接时，只要 session 仍可 stop，UI 停止按钮必须保持稳定，不因内部阶段切换而闪烁 | accepted |
 | `stopPausesActiveGoalTarget` | goal target 为 active 时，用户 stop 不管作用于 assistant、compact、goal verifier 还是 goal continuation，都必须把 target 置为非 active 的暂停态 | accepted |
-| `cancelledTurnColdHydrationParity` | 用户 stop 产生的 typed/legacy ZCode cancellation 在 live 与 cold hydration 后都必须归约为 `TurnComplete(cancelled)`；不得产生 `TurnError`、`phase=error` 或 `control.lastError` | accepted |
+| `cancelledTurnColdHydrationParity` | 用户 stop 产生的 typed/legacy Secretariat cancellation 在 live 与 cold hydration 后都必须归约为 `TurnComplete(cancelled)`；不得产生 `TurnError`、`phase=error` 或 `control.lastError` | accepted |
 | `followupInputModeExplicit` | running 中后续普通输入必须按 `queue` 或 `guide` 模式裁决；默认是 `queue` | accepted |
 | `runningPromptQueues` | `running` 且 follow-up mode 为 `queue` 时，普通文本进入 queue，不打断当前 in-flight 请求 | accepted |
 | `unfinishedSessionPromptQueues` | `sessionEnded=false` 且未命中 guide allow 时，普通文本进入 queue，不启动第二条 active turn | accepted |

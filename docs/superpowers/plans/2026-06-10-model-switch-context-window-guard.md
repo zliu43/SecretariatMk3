@@ -12,7 +12,7 @@
 
 **Architecture:** Add a pure context-window guard helper under the chat input toolbar domain, test it first, then wire it into `useToolbarModelChange` before the existing native/custom/local selection branches. Reuse the existing `/compact` send path so desktop continuous and mobile replayable semantics stay unchanged.
 
-**Tech Stack:** React 19, Zustand, Vitest, TypeScript, existing ZCode UI components, existing model provider metadata helpers.
+**Tech Stack:** React 19, Zustand, Vitest, TypeScript, existing Secretariat UI components, existing model provider metadata helpers.
 
 ---
 
@@ -823,7 +823,7 @@ In `packages/ui/src/i18n/locales/en-US.ts`, add:
 ```ts
   "chat.modelSwitch.contextWindowGuard.title": "Compress context before switching models",
   "chat.modelSwitch.contextWindowGuard.description":
-    "This conversation has used {used} tokens, which exceeds {modelName}'s context window of {target} tokens.\nCompress the current conversation with the current model first. If the compressed context fits, ZCode will continue switching models.",
+    "This conversation has used {used} tokens, which exceeds {modelName}'s context window of {target} tokens.\nCompress the current conversation with the current model first. If the compressed context fits, Secretariat will continue switching models.",
   "chat.modelSwitch.contextWindowGuard.compress": "Compress",
   "chat.modelSwitch.contextWindowGuard.runningBlocked":
     "The target model's context window is smaller than the context already used by this conversation. The conversation must be compressed before switching models, but the current task is still running and context compression cannot run now. Wait for the task to finish, then switch models again.",

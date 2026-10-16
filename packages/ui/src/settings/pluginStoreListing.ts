@@ -15,7 +15,7 @@ import {
   isPublicStoreMarketplaceId,
   resolveLocalizedText,
   resolvePluginDisplayName,
-  ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
+  SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE_ID,
 } from "@zcode/shared";
 import { DEFAULT_MARKETPLACE_ID } from "@/settings/recommendedPlugins.js";
 import { pluginSearchMatches } from "@/settings/pluginSearch.js";
@@ -161,7 +161,7 @@ export interface PersonalMarketplaceGroup {
 }
 
 const OFFICIAL_MARKETPLACE_ORDER = [
-  ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID,
+  SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE_ID,
   DEFAULT_MARKETPLACE_ID,
 ] as const;
 

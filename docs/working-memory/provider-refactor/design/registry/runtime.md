@@ -1,7 +1,7 @@
 # Registry 运行边界
 
 Provider Registry 在一个进程中维护所属 Environment 的 Provider View。调用方可以随时读取一致的当前
-视图；ZCode Built-in、Account Built-in 或 Personal Provider Config 变化后，Registry 发布新视图，已经创建的
+视图；Secretariat Built-in、Account Built-in 或 Personal Provider Config 变化后，Registry 发布新视图，已经创建的
 Model 保持不变。
 
 ```text
@@ -95,7 +95,7 @@ Core 不维护把 Session Selection 复制到 Context 再反复刷新的同步�
 
 ## 发布新 View
 
-ZCode Built-in、Account 或 Personal ProviderConfigMap 变化后，Registry 重新执行 Provider 与 Model
+Secretariat Built-in、Account 或 Personal ProviderConfigMap 变化后，Registry 重新执行 Provider 与 Model
 两轮解析：
 
 ```text
@@ -174,7 +174,7 @@ Registry 对象和内存 View 不跨进程共享；Config、Account 和 Registry
 ```text
 ProviderRuntime
 ├─ ProviderConfigRuntime
-│  ├─ ZCode Built-in Config Source
+│  ├─ Secretariat Built-in Config Source
 │  └─ Personal Config Repository
 ├─ injected Account Built-in Config Source
 ├─ ProviderRegistryService
@@ -194,7 +194,7 @@ Provider 仍能完整运行；需要 Account 进一步约束的 Built-in Provide
 └─ Config / Resolver / Registry / Facade
 
 @zcode/provider-node
-├─ ZCode Built-in file source
+├─ Secretariat Built-in file source
 ├─ Personal file repository
 ├─ Config runtime
 └─ process registry runtime
@@ -202,7 +202,7 @@ Provider 仍能完整运行；需要 Account 进一步约束的 Built-in Provide
 
 Entry 负责定位物理文件并显式注入路径；`@zcode/provider-node` 不假设 Desktop、Worker、CLI 或 TUI 的安装目录。Host 与 Worker 各自读取同一 Environment 的文件，Registry 对象和 View 不跨进程传输。
 
-ZCode Built-in 的远端同步由 Environment 组合根拥有。Local Host、Remote Host、Standalone Server 和没有
+Secretariat Built-in 的远端同步由 Environment 组合根拥有。Local Host、Remote Host、Standalone Server 和没有
 Host 的 Prompt CLI/TUI 各自为所属 Environment 建立一个同步 owner；普通 Core Worker 只读、监听 Host
 注入的同一个 `active.json`，不独立请求 `/client/configs`：
 
@@ -213,7 +213,7 @@ Remote Release ───┘                              └──────> 
 ```
 
 本地有效候选先完成 ready，远端刷新随后在后台执行。多个进程通过 Active 旁的
-`refresh-control.json`、文件锁和短期 lease 合并请求；Active 与刷新控制按规范化 ZCode 控制面 Endpoint
+`refresh-control.json`、文件锁和短期 lease 合并请求；Active 与刷新控制按规范化 Secretariat 控制面 Endpoint
 物理隔离，成功使用一小时量级 TTL，失败递增退避，Endpoint
 变化不继承旧 TTL。显式刷新可以越过 TTL，但不能越过仍有效的 lease。远端仅接受
 `/api/v1/client/configs.data.configs.zcodeBuiltin`，解析成功且 revision 更高时先原子替换 Active，再由现有
@@ -236,7 +236,7 @@ Selection 校验覆盖完整的通用选择语义：Provider 与 Model 必须存
 
 Host 的组合根先创建 Config Runtime，再用它的 Config Service 创建 Account Provider Service，最后把 Config
 Service 与 Account Source 一起装配进 Registry。`ProviderRuntime` 接受已经创建的 Config Runtime，不在
-内部隐藏第二次构造。Account Source 只以 ZCode Built-in Provider Config 为账号 Provider 的静态边界，再
+内部隐藏第二次构造。Account Source 只以 Secretariat Built-in Provider Config 为账号 Provider 的静态边界，再
 根据账号事实形成约束；它不读取或吸收 Personal Provider Config，Personal 始终在 Account 之后覆盖。
 
 ```text
@@ -303,7 +303,7 @@ Off-Peak Provider 的动态凭据只在 Model request attempt 上注入，不属
 Request Auth 时，Model 在发出网络请求前返回明确的缺凭据错误；Registry 不为它保存临时 Secret。
 
 Host 内的 `AccountProviderService` 同时是 Registry 的 Account Source。它读取 Config Service 当前的
-ZCode Built-in Provider Config，把账号、套餐和团队连接解析为 Account Built-in Provider Config。Account 的职责是
+Secretariat Built-in Provider Config，把账号、套餐和团队连接解析为 Account Built-in Provider Config。Account 的职责是
 对 Built-in 中与账号相关的 Provider 做进一步约束，不参与 Personal Overlay。远端请求通过注入的 Account
 Resolver 完成，`@zcode/provider` 中的 Service 本身不依赖网络、文件系统或 OAuth 实现。
 
@@ -312,7 +312,7 @@ Account 刷新完成前继续保留上一份完整 Registry，不能发布新 Bu
 内容未变，来源 revision 变化也必须形成新 Account Snapshot。Personal change 不触发这道等待。
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
           |
           | Account Resolver 施加账号约束
           v
@@ -321,7 +321,7 @@ Account Built-in ProviderConfigMap
 
 首次 `read()` 是账号事实的首次解析尝试；后续 Config 变化或账号事件调用 `refresh()`。刷新成功后原子替换
 Account Snapshot 并通知 Registry。刷新失败时保留上一份成功 Snapshot，并通过错误事件报告；首次刷新尚无
-成功 Snapshot 时，基于同一份 ZCode Built-in revision 发布显式 `access.entitled=false` 的 fail-closed Account Overlay，
+成功 Snapshot 时，基于同一份 Secretariat Built-in revision 发布显式 `access.entitled=false` 的 fail-closed Account Overlay，
 让普通 API Provider 与 Personal Provider 继续启动。该降级不伪造账号可用性、模型成员或 Access，后续刷新成功
 后再原子替换。
 
@@ -332,7 +332,7 @@ Registry 只接收 Source 已变化的统一信号：
 ```text
 设置保存 ───────────────┐
 外部配置变化 ────────────┤
-ZCode Built-in Config 更新 ┼─> Source invalidate ─> Registry rebuild
+Secretariat Built-in Config 更新 ┼─> Source invalidate ─> Registry rebuild
 Account Built-in Config 更新 ─┘
 ```
 

@@ -59,7 +59,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
   ) {
     this.stderrCollector = new AgentStderrCollector(child.stderr, options?.onStderrLine);
 
-    // ZCode Protocol stdio 帧边界只认 LF。Node readline 会把 U+2028/U+2029
+    // Secretariat Protocol stdio 帧边界只认 LF。Node readline 会把 U+2028/U+2029
     // 当作换行，模型文本包含这类字符时会把合法 JSON 字符串切成半帧。
     child.stdout.on("data", this.handleStdoutData);
     child.stdout.once("end", this.handleStdoutEnd);
@@ -81,7 +81,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
 
   async send(message: ZCodeProtocolMessage): Promise<void> {
     if (this.disposed || this.closed || this.child.killed || !this.child.stdin.writable) {
-      throw new Error("ZCode agent stdio transport is closed");
+      throw new Error("Secretariat agent stdio transport is closed");
     }
     const frame = `${JSON.stringify(message)}\n`;
     await new Promise<void>((resolve, reject) => {
@@ -158,7 +158,7 @@ export class ZCodeStdioTransport implements ZCodeProtocolTransport {
       // coverage CLI bundle 未压缩且带完整 source map，启动/收尾明显慢于发布包。
       // coverage 下继续保留额外写盘宽限；普通窗口覆盖 CLI 的 1500ms 退出 deadline。
       const configuredEofWaitMs =
-        process.env.ZCODE_E2E_COVERAGE === "1"
+        process.env.SECRETARIAT_E2E_COVERAGE === "1"
           ? E2E_COVERAGE_STDIO_EOF_EXIT_WAIT_MS
           : STDIO_EOF_EXIT_WAIT_MS;
       const remainingCleanupMs =

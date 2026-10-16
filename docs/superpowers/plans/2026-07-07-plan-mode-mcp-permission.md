@@ -6,7 +6,7 @@
 
 **Architecture:** 不改 MCP registry、metadata、protocol 或 UI。MCP 工具继续由 `apps/zcode-cli/packages/core/src/mcp/index.ts` 注册，权限层通过 `permission.permission === "mcp"` 形成的 `capability.permissionName` 识别 MCP；Plan mode 只新增一个 MCP 专用 permission 分支，避免把普通 unknown tool 或伪 `mcp__` 名称一起放过。
 
-**Tech Stack:** TypeScript, Vitest, `@zcode/core` permission service, MCP bridge, ZCode runtime tool loop.
+**Tech Stack:** TypeScript, Vitest, `@zcode/core` permission service, MCP bridge, Secretariat runtime tool loop.
 
 ## Global Constraints
 

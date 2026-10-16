@@ -18,7 +18,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
 import test from "node:test";
-import { ZCODE_DWF_CHILD_COMMAND } from "@zcode/contracts";
+import { SECRETARIAT_DWF_CHILD_COMMAND } from "@zcode/contracts";
 import { renderChildEntry } from "@zcode/dynamic-workflow-runtime";
 import type { RunContext } from "@zcode/shared-types";
 import { isDwfChildInvocation } from "../src/dwf-child-command.js";
@@ -74,18 +74,18 @@ const writeEntry = async (lowered: string): Promise<{ path: string; dispose: () 
 };
 
 test("recognises the dwf child subcommand only as argv[0]", () => {
-  assert.equal(isDwfChildInvocation([ZCODE_DWF_CHILD_COMMAND, "/tmp/run.mjs"]), true);
-  assert.equal(isDwfChildInvocation([ZCODE_DWF_CHILD_COMMAND]), true);
+  assert.equal(isDwfChildInvocation([SECRETARIAT_DWF_CHILD_COMMAND, "/tmp/run.mjs"]), true);
+  assert.equal(isDwfChildInvocation([SECRETARIAT_DWF_CHILD_COMMAND]), true);
   assert.equal(isDwfChildInvocation([]), false);
   assert.equal(isDwfChildInvocation(["--help"]), false);
   // 出现在别处不算：否则一个普通 prompt 里提到这个词就能改变 CLI 的行为。
-  assert.equal(isDwfChildInvocation(["-p", ZCODE_DWF_CHILD_COMMAND]), false);
+  assert.equal(isDwfChildInvocation(["-p", SECRETARIAT_DWF_CHILD_COMMAND]), false);
 });
 
 test("runs the sandbox child from the entry file and writes the NDJSON completion to stdout", async () => {
   const entry = await writeEntry('__host.log("from the sandbox");\nreturn { ok: 42 };');
   try {
-    const { ctx, stdout, stderr } = createChildContext([ZCODE_DWF_CHILD_COMMAND, entry.path]);
+    const { ctx, stdout, stderr } = createChildContext([SECRETARIAT_DWF_CHILD_COMMAND, entry.path]);
 
     const exitCode = await run(ctx);
 
@@ -107,7 +107,7 @@ test("runs the sandbox child from the entry file and writes the NDJSON completio
 test("reports a lowered-body syntax error as an error completion, not a crash", async () => {
   const entry = await writeEntry("this is not javascript(");
   try {
-    const { ctx, stdout, stderr } = createChildContext([ZCODE_DWF_CHILD_COMMAND, entry.path]);
+    const { ctx, stdout, stderr } = createChildContext([SECRETARIAT_DWF_CHILD_COMMAND, entry.path]);
 
     const exitCode = await run(ctx);
 
@@ -123,19 +123,19 @@ test("reports a lowered-body syntax error as an error completion, not a crash", 
 });
 
 test("fails with usage when the entry path argument is missing", async () => {
-  const { ctx, stdout, stderr } = createChildContext([ZCODE_DWF_CHILD_COMMAND]);
+  const { ctx, stdout, stderr } = createChildContext([SECRETARIAT_DWF_CHILD_COMMAND]);
 
   const exitCode = await run(ctx);
 
   assert.equal(exitCode, 1);
   // stdout 是父进程的 NDJSON 通道，接线错误只许走 stderr。
   assert.equal(stdout(), "");
-  assert.match(stderr(), new RegExp(`Usage: ${ZCODE_DWF_CHILD_COMMAND}`));
+  assert.match(stderr(), new RegExp(`Usage: ${SECRETARIAT_DWF_CHILD_COMMAND}`));
 });
 
 test("fails on stderr when the entry file does not exist", async () => {
   const { ctx, stdout, stderr } = createChildContext([
-    ZCODE_DWF_CHILD_COMMAND,
+    SECRETARIAT_DWF_CHILD_COMMAND,
     join(tmpdir(), "dwf-child-cmd-missing", "nope.mjs"),
   ]);
 

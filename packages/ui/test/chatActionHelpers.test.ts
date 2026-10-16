@@ -13,15 +13,15 @@ function createModeOption(currentValue: string | boolean): ZCodeConfigOption {
 }
 
 describe("chatActionHelpers", () => {
-  it("reads yolo from ZCode Agent mode config options", () => {
+  it("reads yolo from Secretariat Agent mode config options", () => {
     expect(readCurrentZCodeMode([createModeOption("yolo")])).toBe("yolo");
   });
 
-  it("reads edit from ZCode Agent mode config options", () => {
+  it("reads edit from Secretariat Agent mode config options", () => {
     expect(readCurrentZCodeMode([createModeOption("edit")])).toBe("edit");
   });
 
-  it("keeps provider-native ZCode Agent modes", () => {
+  it("keeps provider-native Secretariat Agent modes", () => {
     expect(readCurrentZCodeMode([createModeOption("bypassPermissions")])).toBe("bypassPermissions");
   });
 

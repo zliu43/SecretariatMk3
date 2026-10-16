@@ -4,9 +4,9 @@
 
 Compact 需要一组可手动运行、可定时调度的 E2E，用来验证它不只在 mock runtime 中成立，也能穿过真实 provider adapter、tool loop、message projection、compact boundary 和 session event 链路。
 
-这组 E2E 不进入默认 `npm test`，因为真实模型 case 需要外部网络、真实 API key 和模型费用。默认 CI 继续跑 mock/unit/integration；真实模型 E2E 由开发者本地、nightly 或发布前手动触发。难以稳定用真实 provider 诱发的错误路径使用 Docker 内本地 scripted OpenAI-compatible provider，仍然走真实 ZCode app、provider adapter 和 runtime 链路。
+这组 E2E 不进入默认 `npm test`，因为真实模型 case 需要外部网络、真实 API key 和模型费用。默认 CI 继续跑 mock/unit/integration；真实模型 E2E 由开发者本地、nightly 或发布前手动触发。难以稳定用真实 provider 诱发的错误路径使用 Docker 内本地 scripted OpenAI-compatible provider，仍然走真实 Secretariat app、provider adapter 和 runtime 链路。
 
-真实 provider case 会在同一进程中启动一个 OpenAI-compatible capture proxy。ZCode 临时配置里的 provider `baseURL` 指向容器内 `127.0.0.1`，proxy 记录请求/响应 payload 后再转发到真实 upstream。scripted provider case 则直接由容器内 HTTP server 生成 OpenAI-compatible 响应，并记录同样形态的 capture。这样抓包能力跟随 Docker E2E 自带，不依赖宿主机安装 Proxyman、mitmproxy 或 tcpdump。
+真实 provider case 会在同一进程中启动一个 OpenAI-compatible capture proxy。Secretariat 临时配置里的 provider `baseURL` 指向容器内 `127.0.0.1`，proxy 记录请求/响应 payload 后再转发到真实 upstream。scripted provider case 则直接由容器内 HTTP server 生成 OpenAI-compatible 响应，并记录同样形态的 capture。这样抓包能力跟随 Docker E2E 自带，不依赖宿主机安装 Proxyman、mitmproxy 或 tcpdump。
 
 ## Case Matrix
 
@@ -102,6 +102,6 @@ cases/
 
 ## 配置边界
 
-E2E 使用既有 `ZCODE_API_KEY` 作为 API key fallback，不新增新的 `ZCODE_` 环境变量。DeepSeek base URL 和 model id 默认写在 runner/config fixture 中，也可以通过 runner CLI 参数覆盖；这些覆盖只影响 E2E 进程，不进入产品配置层。scripted provider case 使用临时 fake provider 配置，`apiKeyRequired = false`，不读取真实 API key。
+E2E 使用既有 `SECRETARIAT_API_KEY` 作为 API key fallback，不新增新的 `SECRETARIAT_` 环境变量。DeepSeek base URL 和 model id 默认写在 runner/config fixture 中，也可以通过 runner CLI 参数覆盖；这些覆盖只影响 E2E 进程，不进入产品配置层。scripted provider case 使用临时 fake provider 配置，`apiKeyRequired = false`，不读取真实 API key。
 
-Docker runner 以仓库根目录为 build context，在容器内执行 `pnpm install`、`pnpm build` 和 E2E runner。默认基础镜像是 `node:24.14-alpine`，也允许通过 Docker build arg 覆盖为本地镜像或企业镜像源；npm registry 同样只通过 Docker build arg 覆盖，避免新增产品环境变量。`@mbears` scope 默认回到 npm 官方源，防止通用镜像源没有同步 scoped package。镜像可通过 `INSTALL_CA_CERTIFICATES=true` 安装系统 CA；如果当前网络或 provider 需要宿主机额外信任的根证书，运行容器时通过 Node 标准 `NODE_EXTRA_CA_CERTS` 挂载 CA 文件，不关闭 TLS 校验。容器只接收必要 API key，不挂载用户主目录或全局 ZCode 配置。
+Docker runner 以仓库根目录为 build context，在容器内执行 `pnpm install`、`pnpm build` 和 E2E runner。默认基础镜像是 `node:24.14-alpine`，也允许通过 Docker build arg 覆盖为本地镜像或企业镜像源；npm registry 同样只通过 Docker build arg 覆盖，避免新增产品环境变量。`@mbears` scope 默认回到 npm 官方源，防止通用镜像源没有同步 scoped package。镜像可通过 `INSTALL_CA_CERTIFICATES=true` 安装系统 CA；如果当前网络或 provider 需要宿主机额外信任的根证书，运行容器时通过 Node 标准 `NODE_EXTRA_CA_CERTS` 挂载 CA 文件，不关闭 TLS 校验。容器只接收必要 API key，不挂载用户主目录或全局 Secretariat 配置。

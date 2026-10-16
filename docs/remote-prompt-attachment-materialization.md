@@ -5,11 +5,11 @@
 
 ## 背景
 
-WSL/SSH/Docker remote workspace 中，桌面 renderer 和 host 仍运行在本机，ZCode Agent runtime 运行在远端。`ZCodePromptAttachment.localPath` 过去只表达“一个本地路径”，没有说明这个路径属于 desktop host 还是 remote runtime。
+WSL/SSH/Docker remote workspace 中，桌面 renderer 和 host 仍运行在本机，Secretariat Agent runtime 运行在远端。`ZCodePromptAttachment.localPath` 过去只表达“一个本地路径”，没有说明这个路径属于 desktop host 还是 remote runtime。
 
 这会让以下链路在 WSL remote 下断裂：
 
-- 长文本粘贴超过阈值后，desktop main 先写入 Windows 侧 `.zcode/tmp/paste-attachments/...`，再把 Windows `localPath` 作为 file 附件发送。
+- 长文本粘贴超过阈值后，desktop main 先写入 Windows 侧 `.secretariat/tmp/paste-attachments/...`，再把 Windows `localPath` 作为 file 附件发送。
 - 桌面文件选择、拖拽文件和大图为了避免 base64 放大，也会优先发送 `localPath`。
 - 带本地缓存路径的图片附件如果进入远端 runtime，后续工具按该路径读取时会访问错误机器的文件系统。
 
@@ -27,7 +27,7 @@ WSL/SSH/Docker remote workspace 中，桌面 renderer 和 host 仍运行在本�
 desktop host 包装远端 `zcodeTaskService.sendPrompt` 时，对 prompt 附件做 materialize：
 
 1. 扫描 `attachments` 中带 `localPath` 的附件。
-2. 将 host 可读的附件上传到 remote runtime 可读的用户私有临时目录：`~/.zcode/tmp/prompt-attachments/<trace>/<random>/...`。
+2. 将 host 可读的附件上传到 remote runtime 可读的用户私有临时目录：`~/.secretariat/tmp/prompt-attachments/<trace>/<random>/...`。
 3. 用上传后的 remote path 替换附件 `localPath`，再调用远端 `sendPrompt`。
 4. 保留 `sourceKind: "clipboard-text"`，长文本粘贴仍作为 deferred file reference，不提前塞入 prompt body。
 5. 如果 prompt 正文里包含被替换的附件路径，也同步替换成 remote path，避免缓存图片等场景提示模型读取 host 路径。
@@ -50,7 +50,7 @@ renderer composer
      ├─ SSH/WSL/Docker remote workspace
      │  -> target Remote Host IPromptAttachmentTransferService
      │  -> IRemoteBackend.upload(progress, signal)
-     │  -> ~/.zcode/tmp/prompt-attachments/<operation>/...
+     │  -> ~/.secretariat/tmp/prompt-attachments/<operation>/...
      │  -> AttachmentRef(remote path, staged=true)
      └─ Server remote workspace
         -> server-authoritative IPromptAttachmentTransferService

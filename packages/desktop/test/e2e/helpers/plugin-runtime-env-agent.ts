@@ -42,7 +42,7 @@ export async function createPluginRuntimeEnvFixture(
       "secret-verifier": {
         type: "stdio",
         command: "node",
-        args: ["${ZCODE_PLUGIN_ROOT}/server.mjs"],
+        args: ["${SECRETARIAT_PLUGIN_ROOT}/server.mjs"],
         env: {
           [PLUGIN_RUNTIME_ENV_VARIABLE]: `\${${PLUGIN_RUNTIME_ENV_VARIABLE}}`,
         },
@@ -86,7 +86,7 @@ export async function createPluginRuntimeEnvFixture(
 async function primeDefaultPluginMarketplacesForE2E(homeDir: string): Promise<void> {
   const path = join(
     homeDir,
-    ".zcode",
+    ".secretariat",
     "cli",
     "plugins",
     "known_marketplaces.json",

@@ -1,6 +1,6 @@
 /* 官方 MCP 信任判定（spec §5.1 / §5.2）。
  *
- * 规则：目标 origin 等于当前 ZCode API origin（https）。
+ * 规则：目标 origin 等于当前 Secretariat API origin（https）。
  *
  * 2026-08 决策变更：移除了「pluginId 必须以 `@zcode-plugins-official` 结尾」这道检查。
  * 它会让官方插件在发布到官方 marketplace 之前无法对真实端点自测（本地装的插件 id 是
@@ -14,7 +14,7 @@ import {
 } from "../src/official-mcp-auth.js";
 
 const OFFICIAL_PLUGIN = "zcode-tools@zcode-plugins-official";
-const ZCODE_ORIGIN = "https://zcode.z.ai";
+const SECRETARIAT_ORIGIN = "https://zcode.z.ai";
 
 function check(input: {
   devTrustedOriginsRaw?: string;
@@ -26,15 +26,15 @@ function check(input: {
     devTrustedOriginsRaw: input.devTrustedOriginsRaw,
     origin: input.origin,
     pluginId: input.pluginId ?? OFFICIAL_PLUGIN,
-    zcodeApiOrigin: "zcodeApiOrigin" in input ? input.zcodeApiOrigin : ZCODE_ORIGIN,
+    zcodeApiOrigin: "zcodeApiOrigin" in input ? input.zcodeApiOrigin : SECRETARIAT_ORIGIN,
   });
 }
 
 describe("isOfficialMcpOriginTrusted", () => {
-  it("trusts the current ZCode API origin", () => {
-    expect(check({ origin: ZCODE_ORIGIN })).toEqual({ detail: "ok", trusted: true });
+  it("trusts the current Secretariat API origin", () => {
+    expect(check({ origin: SECRETARIAT_ORIGIN })).toEqual({ detail: "ok", trusted: true });
     // 带路径的 URL 归一化到同一 origin（真实端点形态：POST /api/v1/mcp/server/:mcp_group）
-    expect(check({ origin: `${ZCODE_ORIGIN}/api/v1/mcp/server/image_search` })).toMatchObject({
+    expect(check({ origin: `${SECRETARIAT_ORIGIN}/api/v1/mcp/server/image_search` })).toMatchObject({
       trusted: true,
     });
   });
@@ -47,7 +47,7 @@ describe("isOfficialMcpOriginTrusted", () => {
       "evil@third-party",
       "zcode-tools",
     ]) {
-      expect(check({ origin: ZCODE_ORIGIN, pluginId })).toEqual({ detail: "ok", trusted: true });
+      expect(check({ origin: SECRETARIAT_ORIGIN, pluginId })).toEqual({ detail: "ok", trusted: true });
     }
   });
 
@@ -61,12 +61,12 @@ describe("isOfficialMcpOriginTrusted", () => {
     }
   });
 
-  it("rejects any origin other than the resolved ZCode API origin", () => {
+  it("rejects any origin other than the resolved Secretariat API origin", () => {
     for (const origin of [
       "https://attacker.example",
       "https://zcode.z.ai.attacker.example",
       "https://evil-zcode.z.ai",
-      `${ZCODE_ORIGIN}:8443`,
+      `${SECRETARIAT_ORIGIN}:8443`,
     ]) {
       expect(check({ origin })).toEqual({ detail: "origin_mismatch", trusted: false });
     }
@@ -80,16 +80,16 @@ describe("isOfficialMcpOriginTrusted", () => {
   it("rejects credential-bearing URLs on either side", () => {
     expect(check({ origin: `https://user:pass@zcode.z.ai` })).toMatchObject({ trusted: false });
     expect(
-      check({ origin: ZCODE_ORIGIN, zcodeApiOrigin: "https://user:pass@zcode.z.ai" }),
+      check({ origin: SECRETARIAT_ORIGIN, zcodeApiOrigin: "https://user:pass@zcode.z.ai" }),
     ).toMatchObject({ trusted: false });
   });
 
-  it("fails closed when the ZCode API origin cannot be resolved", () => {
-    expect(check({ origin: ZCODE_ORIGIN, zcodeApiOrigin: undefined })).toEqual({
+  it("fails closed when the Secretariat API origin cannot be resolved", () => {
+    expect(check({ origin: SECRETARIAT_ORIGIN, zcodeApiOrigin: undefined })).toEqual({
       detail: "zcode_origin_unresolved",
       trusted: false,
     });
-    expect(check({ origin: ZCODE_ORIGIN, zcodeApiOrigin: "not-a-url" })).toEqual({
+    expect(check({ origin: SECRETARIAT_ORIGIN, zcodeApiOrigin: "not-a-url" })).toEqual({
       detail: "zcode_origin_unresolved",
       trusted: false,
     });
@@ -99,7 +99,7 @@ describe("isOfficialMcpOriginTrusted", () => {
     expect(check({ origin: "" })).toEqual({ detail: "invalid_input", trusted: false });
     expect(check({ origin: "not-a-url" })).toMatchObject({ trusted: false });
     // 空 pluginId 不再是拒绝理由，但空 origin 是
-    expect(check({ origin: ZCODE_ORIGIN, pluginId: "" })).toMatchObject({ trusted: true });
+    expect(check({ origin: SECRETARIAT_ORIGIN, pluginId: "" })).toMatchObject({ trusted: true });
   });
 
   describe("dev loopback switch", () => {
@@ -153,15 +153,15 @@ describe("isOfficialMcpOriginTrusted", () => {
 });
 
 describe("createOfficialMcpTrustedOriginRegistry", () => {
-  it("resolves the ZCode API origin per call, so environment switches are picked up", async () => {
-    let origin = ZCODE_ORIGIN;
+  it("resolves the Secretariat API origin per call, so environment switches are picked up", async () => {
+    let origin = SECRETARIAT_ORIGIN;
     const registry = createOfficialMcpTrustedOriginRegistry({
       resolveZCodeApiOrigin: () => origin,
     });
     await expect(
       registry.isTrusted({
         mcpKey: "image-search",
-        origin: ZCODE_ORIGIN,
+        origin: SECRETARIAT_ORIGIN,
         pluginId: OFFICIAL_PLUGIN,
       }),
     ).resolves.toMatchObject({ trusted: true });
@@ -171,7 +171,7 @@ describe("createOfficialMcpTrustedOriginRegistry", () => {
     await expect(
       registry.isTrusted({
         mcpKey: "image-search",
-        origin: ZCODE_ORIGIN,
+        origin: SECRETARIAT_ORIGIN,
         pluginId: OFFICIAL_PLUGIN,
       }),
     ).resolves.toMatchObject({ trusted: false });
@@ -193,7 +193,7 @@ describe("createOfficialMcpTrustedOriginRegistry", () => {
     await expect(
       registry.isTrusted({
         mcpKey: "image-search",
-        origin: ZCODE_ORIGIN,
+        origin: SECRETARIAT_ORIGIN,
         pluginId: OFFICIAL_PLUGIN,
       }),
     ).resolves.toEqual({ detail: "zcode_origin_unresolved", trusted: false });
@@ -201,12 +201,12 @@ describe("createOfficialMcpTrustedOriginRegistry", () => {
 
   it("awaits an async origin resolver", async () => {
     const registry = createOfficialMcpTrustedOriginRegistry({
-      resolveZCodeApiOrigin: async () => ZCODE_ORIGIN,
+      resolveZCodeApiOrigin: async () => SECRETARIAT_ORIGIN,
     });
     await expect(
       registry.isTrusted({
         mcpKey: "image-search",
-        origin: ZCODE_ORIGIN,
+        origin: SECRETARIAT_ORIGIN,
         pluginId: OFFICIAL_PLUGIN,
       }),
     ).resolves.toMatchObject({ trusted: true });
@@ -214,11 +214,11 @@ describe("createOfficialMcpTrustedOriginRegistry", () => {
 
   it("ignores mcpKey entirely (no per-key allowlist any more)", async () => {
     const registry = createOfficialMcpTrustedOriginRegistry({
-      resolveZCodeApiOrigin: () => ZCODE_ORIGIN,
+      resolveZCodeApiOrigin: () => SECRETARIAT_ORIGIN,
     });
     for (const mcpKey of ["image-search", "brand-new-mcp", ""]) {
       await expect(
-        registry.isTrusted({ mcpKey, origin: ZCODE_ORIGIN, pluginId: OFFICIAL_PLUGIN }),
+        registry.isTrusted({ mcpKey, origin: SECRETARIAT_ORIGIN, pluginId: OFFICIAL_PLUGIN }),
       ).resolves.toMatchObject({ trusted: true });
     }
   });

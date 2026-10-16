@@ -185,7 +185,7 @@ impact-only，本轮不修改产品 spec/测试或自动 promotion。后续计�
 
 ### 实际 E2E
 
-所有运行均为隔离 fixture，不领取线上套餐、不执行支付。第一次构建设置 `ZCODE_E2E_COVERAGE=1`，后续复用同一覆盖率构建。
+所有运行均为隔离 fixture，不领取线上套餐、不执行支付。第一次构建设置 `SECRETARIAT_E2E_COVERAGE=1`，后续复用同一覆盖率构建。
 
 | Run ID（`packages/desktop/.e2e-artifacts/` 下） | 范围                                         | 结果            | 解释                                                                                                        |
 | ----------------------------------------------- | -------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -202,7 +202,7 @@ impact-only，本轮不修改产品 spec/测试或自动 promotion。后续计�
 复跑命令：
 
 ```sh
-ZCODE_E2E_COVERAGE=1 ZCODE_E2E_MANUAL_REVIEW=1 \
+SECRETARIAT_E2E_COVERAGE=1 SECRETARIAT_E2E_MANUAL_REVIEW=1 \
 pnpm --filter @zcode/desktop exec wdio run wdio.conf.ts \
   --spec './test/e2e/ui-shell/manual-review/pending/marketing-touch-delivery.test.ts' \
   --spec './test/e2e/ui-shell/manual-review/pending/marketing-touch-entitlement.test.ts'
@@ -228,7 +228,7 @@ Lottie runtime 36 个已映射行首轮 0 hit，Marketing 协议没有 Lottie �
 
 ### 三轮同构建 Renderer 合并结果
 
-后两轮设置 `ZCODE_E2E_SKIP_BUILD=1 ZCODE_E2E_SKIP_AGENT_BUILD=1`，保持与首轮相同源码及 instrumentation。只对这三轮 Renderer 的 `coverage/coverage-final.json` 使用 Istanbul merge；不混合 Host/Main，也不合入任何单测结果。
+后两轮设置 `SECRETARIAT_E2E_SKIP_BUILD=1 SECRETARIAT_E2E_SKIP_AGENT_BUILD=1`，保持与首轮相同源码及 instrumentation。只对这三轮 Renderer 的 `coverage/coverage-final.json` 使用 Istanbul merge；不混合 Host/Main，也不合入任何单测结果。
 
 计算方法：`git diff --unified=0 <merge-base> d0028042fe -- <file>` 提取新侧变更行，与 `getLineCoverage()` 相交；函数按声明起始行、分支按 branchMap.line（或 loc.start.line）是否在差异中选取，并保留每个分支出口计数。因此函数/分支数字是差异节点口径，不是“所在函数任意一行变更就把整个函数算进来”。字段被删除或 JSX/导入没有单独 statement 时仍须行为回归，不能因指标 0/0 免验。
 

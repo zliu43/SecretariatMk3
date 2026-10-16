@@ -656,7 +656,7 @@ describe("ProviderRuntime", () => {
     runtime.dispose();
   });
 
-  it("保存 ZCode Built-in Provider 时只写明确提交的 Personal Overlay", async () => {
+  it("保存 Secretariat Built-in Provider 时只写明确提交的 Personal Overlay", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-provider-runtime-official-save-"));
     const zcodeBuiltinFilePath = join(root, "zcode-builtin.json");
     await writeFile(

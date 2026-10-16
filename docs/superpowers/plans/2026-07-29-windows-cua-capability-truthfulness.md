@@ -355,7 +355,7 @@ const backend = createElectronNativeBackend({
   axSource,
   brokerInfo: {
     bundle_id: "dev.zcode.cua.helper",
-    display_name: "ZCode Computer Use",
+    display_name: "Secretariat Computer Use",
     permission_mode: "product",
     version: "0.0.0-test",
     platform: "win32",

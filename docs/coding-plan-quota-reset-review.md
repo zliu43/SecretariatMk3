@@ -1,7 +1,7 @@
 # Coding Plan Quota Reset 分支审查与联调记录
 
 > 分支：`codex/feat-quota-reset-ui`（基准 `staging`）
-> 审查日期：2026-08-12 ｜ 审查人：团队成员 + ZCode agent
+> 审查日期：2026-08-12 ｜ 审查人：团队成员 + Secretariat agent
 > 状态：**分支审查记录**（随联调与修复进展更新）
 
 ## 0. 范围与方法
@@ -33,7 +33,7 @@ UI 组件 (packages/ui/components/coding-plan-quota-reset/*)
 | 08-12 | `X-Bigmodel-Authorization` 由 Coding Plan API key 改传 **MaaS 登录态 JWT**（`oauth:bigmodel:access_token`，直传不套 Bearer） | `6a06e7e8dd` | 后端按 JWT 识别用户；provider 解析只剩「确认 Coding Plan 已配置 + 推导 Team scope」两个用途；Team 不再复制项目 API key |
 | 08-12 | envelope 业务错误的 error message 追加 ` (x-request-id:xxx)`                                                                 | `3cc99c4f69` | RPC FAIL 日志与 UI warn 可直接按 request-id 与后端对账；前缀契约不变；无该 header 时 message 原样                      |
 
-## 3. 联调运行时观察（`~/.zcode/v2/logs/2026-08-12.log`）
+## 3. 联调运行时观察（`~/.secretariat/v2/logs/2026-08-12.log`）
 
 - 当日 500+ 条 `[coding-plan-reset] status refresh failed`，**无一次成功**。
 - 错误演进：`bigmodel_coding_plan_api_key_required`（11-13 点，key 未就位）→ 2007（主）+ 3101/429/zcode_jwt_required 混合。

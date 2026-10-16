@@ -17,9 +17,9 @@ MCP server 名称建议配置为 `zcode_image_payload_test`，工具名为 `emit
 
 默认 preset 是 `below_limit`，约 `180 KiB` base64；`just_over_limit` 约 `210 KiB` base64，用来验证超过 `200 KiB` 后被保存为二进制 artifact 并只返回 path/URI。
 
-## 本机 ZCode 配置
+## 本机 Secretariat 配置
 
-ZCode Agent MCP 用户配置位于 `~/.zcode/cli/config.json` 的 `mcp.servers`。本地测试可加入：
+Secretariat Agent MCP 用户配置位于 `~/.secretariat/cli/config.json` 的 `mcp.servers`。本地测试可加入：
 
 ```json
 {
@@ -35,4 +35,4 @@ ZCode Agent MCP 用户配置位于 `~/.zcode/cli/config.json` 的 `mcp.servers`�
 }
 ```
 
-修改配置后，需要新建或重启 ZCode Agent session，让 MCP 列表重新加载。
+修改配置后，需要新建或重启 Secretariat Agent session，让 MCP 列表重新加载。

@@ -14,8 +14,8 @@
   user interaction pending state 和 session event 投影。
 - pending prompt 主要是内存态，session 恢复、SDK list/reply/reject、plugin API
   还没有统一接口。
-- ZCode app-server 已通过 `zcode.dev/elicitation/create` 扩展承载 `AskUserQuestion`，但官方
-  ZCode app-server elicitation 和通用 `UserInteractionPort` 仍未收口。
+- Secretariat app-server 已通过 `zcode.dev/elicitation/create` 扩展承载 `AskUserQuestion`，但官方
+  Secretariat app-server elicitation 和通用 `UserInteractionPort` 仍未收口。
 - HTML preview 已做 fragment schema 校验，TUI 只按纯文本展示，不提供 sandbox
   或富渲染。
 - 多问题导航已支持 `Tab`、`PageUp` / `PageDown`、左右方向键和数字快捷键；
@@ -38,7 +38,7 @@
   当前仍通过 permission broker resolve `modify`。
 - `packages/tui/src/app-question-panel.tsx` 渲染问题面板、review tab、完成态 tab、纯文本 preview
   和多选状态。
-- `apps/zcode-cli/packages/bootstrap/src/zcode-protocol-entrypoint.ts` 对 ZCode protocol client 使用 `zcode.dev/elicitation/create`
+- `apps/zcode-cli/packages/bootstrap/src/zcode-protocol-entrypoint.ts` 对 Secretariat protocol client 使用 `zcode.dev/elicitation/create`
   扩展，把 elicitation answer 和 annotation 转回 `modifiedInput`。
 
 已覆盖测试：
@@ -48,7 +48,7 @@
   与 unsafe HTML 拒绝。
 - `packages/tui/tests/tui.unit.test.ts` 覆盖单问题 Other、composer draft 保留、preview
   annotation、多问题 review、多选 Space、Other 输入和 `Ctrl+U` 清空 Other buffer。
-- `packages/bootstrap/tests/zcode-protocol.test.ts` 覆盖 ZCode app-server `AskUserQuestion` 走 ZCode elicitation
+- `packages/bootstrap/tests/zcode-protocol.test.ts` 覆盖 Secretariat app-server `AskUserQuestion` 走 Secretariat elicitation
   扩展并回填多问题答案。
 
 ## 设计要点

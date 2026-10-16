@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import { PermissionDialog } from "../src/PermissionDialog.js";
 import { ZCodeIntlProvider } from "../src/i18n/IntlProvider.js";
 
-const WORKSPACE_PATH = "/Users/dev/ZCodeProject/demo";
+const WORKSPACE_PATH = "/Users/dev/SecretariatProject/demo";
 const SUBAGENT_ORIGIN = {
   kind: "subagent" as const,
   agentId: "general-purpose",
@@ -378,7 +378,7 @@ describe("PermissionDialog", () => {
     expect(html).not.toContain("ExitPlanMode changes session mode");
   });
 
-  it("prefers custom ZCode Agent option names over generic kind labels", () => {
+  it("prefers custom Secretariat Agent option names over generic kind labels", () => {
     const html = renderPermissionDialog({
       type: "permission_request",
       taskId: "task-1",
@@ -493,7 +493,7 @@ describe("PermissionDialog", () => {
       ],
       raw: {
         changes: {
-          "/Users/dev/ZCodeProject/demo/README.md": {
+          "/Users/dev/SecretariatProject/demo/README.md": {
             type: "add",
             content: "\n",
           },
@@ -503,10 +503,10 @@ describe("PermissionDialog", () => {
 
     expect(html).toContain("README.md");
     expect(html).toContain("等待确认");
-    expect(html).not.toContain("/Users/dev/ZCodeProject/demo/");
+    expect(html).not.toContain("/Users/dev/SecretariatProject/demo/");
   });
 
-  it("renders ZCode protocol Write input as an existing file preview", () => {
+  it("renders Secretariat protocol Write input as an existing file preview", () => {
     const html = renderPermissionDialog({
       type: "permission_request",
       taskId: "task-1",
@@ -526,7 +526,7 @@ describe("PermissionDialog", () => {
         requestId: "request-1",
         toolName: "Write",
         input: {
-          file_path: "/Users/dev/ZCodeProject/demo/quicksort.js",
+          file_path: "/Users/dev/SecretariatProject/demo/quicksort.js",
           content: "export function quicksort(items) {\n  return items;\n}\n",
         },
       },
@@ -539,7 +539,7 @@ describe("PermissionDialog", () => {
     expect(html).not.toContain("file_path");
   });
 
-  it("renders ZCode protocol Edit input as an existing file preview", () => {
+  it("renders Secretariat protocol Edit input as an existing file preview", () => {
     const html = renderPermissionDialog({
       type: "permission_request",
       taskId: "task-1",
@@ -559,7 +559,7 @@ describe("PermissionDialog", () => {
         requestId: "request-1",
         toolName: "Edit",
         input: {
-          file_path: "/Users/dev/ZCodeProject/demo/quicksort.js",
+          file_path: "/Users/dev/SecretariatProject/demo/quicksort.js",
           old_string: "平均时间复杂度 O(n log n)",
           new_string: "平均时间复杂度 O(n log n)，最坏 O(n^2)",
         },
@@ -592,15 +592,15 @@ describe("PermissionDialog", () => {
       ],
       raw: {
         changes: {
-          "/Users/dev/ZCodeProject/demo/index.html": {
+          "/Users/dev/SecretariatProject/demo/index.html": {
             type: "update",
             content: "<html></html>",
           },
-          "/Users/dev/ZCodeProject/demo/styles.css": {
+          "/Users/dev/SecretariatProject/demo/styles.css": {
             type: "update",
             content: "body {}",
           },
-          "/Users/dev/ZCodeProject/demo/script.js": {
+          "/Users/dev/SecretariatProject/demo/script.js": {
             type: "update",
             content: "console.log('ok')",
           },
@@ -612,7 +612,7 @@ describe("PermissionDialog", () => {
     expect(html).toContain("index.html");
     expect(html).toContain("styles.css");
     expect(html).toContain("script.js");
-    expect(html).not.toContain("/Users/dev/ZCodeProject/demo/");
+    expect(html).not.toContain("/Users/dev/SecretariatProject/demo/");
   });
 
   it("不再承载聊天底部主列宽度和 summary 偏移", () => {
@@ -863,7 +863,7 @@ describe("PermissionDialog", () => {
     );
 
     expect(html).not.toContain("打开辅助功能设置");
-    expect(html).not.toContain("ZCode Computer Use.app");
+    expect(html).not.toContain("Secretariat Computer Use.app");
     expect(html).toContain("允许");
   });
 
@@ -900,7 +900,7 @@ describe("PermissionDialog", () => {
     );
 
     expect(html).not.toContain("打开辅助功能设置");
-    expect(html).not.toContain("ZCode Computer Use.app");
+    expect(html).not.toContain("Secretariat Computer Use.app");
   });
 
   it("does not offer the Computer Use Helper Accessibility action for ordinary zcode-cua tool requests", () => {
@@ -938,6 +938,6 @@ describe("PermissionDialog", () => {
     );
 
     expect(html).not.toContain("打开辅助功能设置");
-    expect(html).not.toContain("ZCode Computer Use.app");
+    expect(html).not.toContain("Secretariat Computer Use.app");
   });
 });

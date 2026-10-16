@@ -12,7 +12,7 @@ ModelFactory。
 ```text
 Desktop Environment                     Remote Environment
 ===================                     ==================
-Desktop app-global settings             Remote ZCode Built-in Config
+Desktop app-global settings             Remote Secretariat Built-in Config
 Desktop OAuth / UI state                Remote Personal Provider Config
 Local Provider Runtime                  Remote Account Provider Config
 Local Registry                          Remote Credential Store
@@ -62,7 +62,7 @@ Renderer 面对的 remote workspace ServiceCollection 可以混合本地 UI Serv
 
 ```text
 Environment Provider Sources
-├─ ZCode Built-in Config
+├─ Secretariat Built-in Config
 ├─ Personal Provider Config
 └─ Account Provider Config
           |

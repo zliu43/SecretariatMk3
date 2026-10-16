@@ -503,7 +503,7 @@ async function createFixture(options: { includeBadLine?: boolean } = {}) {
   const eventPath = join(root, "events.jsonl");
   const logPath = join(logDir, "zcode.jsonl");
   const systemPrompt = [
-    "You are ZCode.",
+    "You are Secretariat.",
     "",
     "## Skills",
     "- debug: inspect things",

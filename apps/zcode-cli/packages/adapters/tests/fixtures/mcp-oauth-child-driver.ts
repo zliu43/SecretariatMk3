@@ -24,7 +24,7 @@ interface DriverConfig {
 async function main(): Promise<void> {
   const config = JSON.parse(process.argv[2] ?? "{}") as DriverConfig;
   const credentialStore = createSharedZCodeCredentialStore({
-    env: { ZCODE_CREDENTIAL_SECRET: config.secret },
+    env: { SECRETARIAT_CREDENTIAL_SECRET: config.secret },
     filePath: config.credentialsPath,
   });
 

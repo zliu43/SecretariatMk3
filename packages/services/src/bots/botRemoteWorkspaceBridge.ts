@@ -308,7 +308,7 @@ export function createBotRemoteWorkspaceService(params: {
     }
     // Bugfix: Bot 任务以前只知道远端 identity，却继续调用本地 task service。
     // 这里把 main 转发来的远端 RPC 端口包装成一组 runtime services；
-    // task wrapper 命令走 IZCodeTaskService，session 主状态走 ZCode session facade。
+    // task wrapper 命令走 IZCodeTaskService，session 主状态走 Secretariat session facade。
     const services =
       params.createRuntimeServicesFromPort?.(result.port) ??
       createRemoteRuntimeServicesFromPort(result.port);

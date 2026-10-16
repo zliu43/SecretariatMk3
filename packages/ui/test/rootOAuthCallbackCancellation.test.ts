@@ -54,7 +54,7 @@ describe("失效 OAuth 回调", () => {
     });
     // 只挂载回调订阅；启动恢复和轮询在各自测试中验证。
     effects.at(-1)!();
-    await callback("zcode://oauth/callback?state=cancelled");
+    await callback("secretariat://oauth/callback?state=cancelled");
     expect(errorLog).not.toHaveBeenCalled();
     expect(setUser).not.toHaveBeenCalled();
     expect(setOAuthError).not.toHaveBeenCalled();

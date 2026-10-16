@@ -31,7 +31,7 @@ turnRuntimeModel: {
 Provider 重构删除了 `zcodeModelRuntimeConfigSchema` / `zcodeModelRefSchema` /
 `zcodeModelProviderInputSchema` 整族契约，取而代之的规则是**静态/动态分离**：
 
-- 端点、API 形态、模型能力等**静态事实**只能来自 ZCode Built-in Provider Config；
+- 端点、API 形态、模型能力等**静态事实**只能来自 Secretariat Built-in Provider Config；
 - 只有**单次执行的动态鉴权材料**（`apiKey` / `headers`）随发送下发。
 
 同时官方版本请求安全校验的豁免判定从「endpoint 路径白名单」收敛到共享 Adapter 按
@@ -119,7 +119,7 @@ web search，只需把这一条属性改 `false`，不影响其余迁移面。
 
 **测试环境发布包必须同步派生。** 生产文件 `config/provider/zcode-builtin.json` 是唯一编辑源，
 `config/provider/zcode-builtin.test.json` 由 `pnpm provider:config:sync-test` 机械派生
-（`ZCODE_ENV` 选择实际加载哪个）。派生脚本按端点白名单改写 `zhipu-account` 的 `baseUrl`
+（`SECRETARIAT_ENV` 选择实际加载哪个）。派生脚本按端点白名单改写 `zhipu-account` 的 `baseUrl`
 并复制站点规则，因此新增加速端点必须同时登记测试孪生端点，否则 `pnpm provider:config:check-test`
 直接抛 `Unknown account Provider endpoint`，加速卡在测试环境也拿不到 Provider：
 

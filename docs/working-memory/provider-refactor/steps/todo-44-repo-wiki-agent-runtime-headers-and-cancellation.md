@@ -35,7 +35,7 @@ Repo Wiki Service
         v
 Desktop Local Host / Services
         |
-        | ZCode Protocol over stdio
+        | Secretariat Protocol over stdio
         v
 repo-wiki Agent Process
         |
@@ -287,7 +287,7 @@ retry scheduled
 
 1. Repo Wiki Lane Services 定向测试；
 2. Account Runtime Headers Services 定向测试；
-3. Bootstrap ZCode Protocol 双向请求与真实 Transport 取消测试；
+3. Bootstrap Secretariat Protocol 双向请求与真实 Transport 取消测试；
 4. Repo Wiki Deadline、Retry、终态回收定向测试；
 5. API Key Provider 与 Account Provider 各做一次本地 Repo Wiki 纵向验证；
 6. 运行时确认 Account Provider 出现 Runtime Headers applied、模型服务 TCP/HTTP 和 SSE 首包；

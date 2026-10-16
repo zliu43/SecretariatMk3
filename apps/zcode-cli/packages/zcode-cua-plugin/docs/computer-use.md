@@ -28,8 +28,8 @@ bootstrap and the actions must be in the **same** cell:
 
 ```js
 const root =
-  process.env.ZCODE_CUA_PLUGIN_ROOT ??
-  process.env.ZCODE_PLUGIN_ROOT ??
+  process.env.SECRETARIAT_CUA_PLUGIN_ROOT ??
+  process.env.SECRETARIAT_PLUGIN_ROOT ??
   process.env.CLAUDE_PLUGIN_ROOT;
 const { join } = await import("node:path");
 const { pathToFileURL } = await import("node:url");
@@ -391,7 +391,7 @@ try {
   if (e.code === "ACTION_UNAVAILABLE") {
     await app.getAXState({ disableDiffing: true });   // the tree lists each element's actions
   } else if (e.code === "CONTROLLER_BUSY") {
-    nodeRepl.write(`another ZCode Computer Use session owns control: ${e.details.owner}`);
+    nodeRepl.write(`another Secretariat Computer Use session owns control: ${e.details.owner}`);
   } else if (e.actionSent) {
     await app.getAXState();                            // may already have landed; look first
   } else throw e;

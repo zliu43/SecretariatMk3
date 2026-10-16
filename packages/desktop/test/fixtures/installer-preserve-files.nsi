@@ -1,5 +1,5 @@
 Unicode true
-Name "ZCode preserve-files smoke"
+Name "Secretariat preserve-files smoke"
 OutFile "${OUTPUT_FILE}"
 InstallDir "$TEMP\zcode-preserve-files-smoke"
 RequestExecutionLevel user
@@ -10,23 +10,23 @@ SilentInstall silent
 !addplugindir /x86-unicode "${NSIS_PLUGIN_DIR}"
 !include "LogicLib.nsh"
 
-!define APP_FILENAME "ZCode"
+!define APP_FILENAME "Secretariat"
 !define APP_ID "dev.zcode.preserve-files-smoke"
 !define UNINSTALL_FILENAME "uninstaller.exe"
 !define isUpdated `1 == 1`
 ; This fixture has no electron-builder uninstaller.nsh section; use a normal function for log smoke coverage.
 !ifdef BUILD_UNINSTALLER
-  !define ZCODE_UNINSTALLER_FUNCTION_PREFIX ""
+  !define SECRETARIAT_UNINSTALLER_FUNCTION_PREFIX ""
 !endif
 
 Var appExe
 
-!include "${ZCODE_INSTALLER_NSH}"
+!include "${SECRETARIAT_INSTALLER_NSH}"
 
 Section
   SetOutPath "$INSTDIR"
-  File /oname=ZCode.exe "${FIXTURE_EXE}"
-  StrCpy $appExe "$INSTDIR\ZCode.exe"
+  File /oname=Secretariat.exe "${FIXTURE_EXE}"
+  StrCpy $appExe "$INSTDIR\Secretariat.exe"
   !ifndef OMIT_MANIFEST
     FileOpen $0 "$INSTDIR\.zcode-install-manifest" w
     FileWrite $0 "owned-by-zcode.txt$\r$\n"

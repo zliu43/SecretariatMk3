@@ -660,7 +660,7 @@ describe("transcript→event 合成", () => {
       name: "legacy protocol session stop",
       error: {
         name: "Error",
-        data: { message: "ZCode Protocol session stopped" },
+        data: { message: "Secretariat Protocol session stopped" },
       },
     },
   ])("cold $name restores interrupted completion instead of TurnError", ({ error }) => {
@@ -3315,7 +3315,7 @@ describe("workflow-direct-launch 启动轮冷恢复", () => {
     toolCallId: "launch-abc",
     name: "deep-research",
     scope: "global" as const,
-    path: "/home/u/.zcode/workflows/deep-research.ts",
+    path: "/home/u/.secretariat/workflows/deep-research.ts",
     args: { topic: "adaptive concurrency" },
     description: "Deep-dive a topic",
   };

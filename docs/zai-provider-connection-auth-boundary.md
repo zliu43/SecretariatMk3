@@ -4,7 +4,7 @@
 > 取代。** 文中的 `AppSettings.providerFamilyDomain`、`ModelProviderService` 和 Registry 过滤链不再
 > 是当前 Provider 事实源。当前设计见 `docs/working-memory/provider-refactor/design/`。
 
-ZCode 的 ZAI / BigModel 内置模型供应商互斥边界由用户成功连接后的 provider family domain 决定。OAuth 登录态仍记录当前登录 provider，但不再作为模型供应商运行域的唯一事实源。
+Secretariat 的 ZAI / BigModel 内置模型供应商互斥边界由用户成功连接后的 provider family domain 决定。OAuth 登录态仍记录当前登录 provider，但不再作为模型供应商运行域的唯一事实源。
 
 ## 事实源
 

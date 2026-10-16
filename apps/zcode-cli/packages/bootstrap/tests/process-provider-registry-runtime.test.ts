@@ -10,9 +10,9 @@ import {
 } from "@zcode/provider";
 import { zcodeProviderUpdateAccountConfigParamsSchema } from "@zcode/shared";
 import {
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
-  ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
-  ZCODE_BUILTIN_RELEASE_SCHEMA_VERSION,
+  SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_RELEASE_SCHEMA_VERSION,
   createNodeModelSelectionFacade,
 } from "@zcode/provider-node";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -71,12 +71,12 @@ describe("process provider registry runtime", () => {
       return new Response(JSON.stringify(builtin));
     });
     const credentialStore = createSharedZCodeCredentialStore({
-      env: { ZCODE_DATA_BASE_DIR: root },
+      env: { SECRETARIAT_DATA_BASE_DIR: root },
     });
     const env = {
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: active,
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
-      ZCODE_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE: bundled,
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: active,
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
+      SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE: bundled,
     };
     const runtime = await startProcessProviderRegistryRuntime(env, {
       standalone: {
@@ -122,12 +122,12 @@ describe("process provider registry runtime", () => {
     const filePath = join(root, "builtin.json");
     await writeFile(filePath, JSON.stringify(builtin));
     const credentialStore = createSharedZCodeCredentialStore({
-      env: { ZCODE_DATA_BASE_DIR: root },
+      env: { SECRETARIAT_DATA_BASE_DIR: root },
     });
     const runtime = await startProcessProviderRegistryRuntime(
       {
-        [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: filePath,
-        [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
+        [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: filePath,
+        [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
       },
       { standalone: { credentialStore, legacyCliUserConfigFilePath: join(root, "absent.json") } },
     );
@@ -149,10 +149,10 @@ describe("process provider registry runtime", () => {
   it("真实 Built-in 下完整状态跨协议往返；仅切 current 即更新 Worker 的有效选择", async () => {
     const root = await temporaryDirectory();
     const runtime = await startProcessProviderRegistryRuntime({
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: fileURLToPath(
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: fileURLToPath(
         new URL("../../../../../config/provider/zcode-builtin.json", import.meta.url),
       ),
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
     });
     const personal = "account:bigmodel-individual-coding-plan";
     const team = "account:bigmodel-team-coding-plan";
@@ -288,8 +288,8 @@ describe("process provider registry runtime", () => {
     );
     await writeFile(personalFilePath, "{not-json");
     const started = await startProcessProviderRegistryRuntime({
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
     });
     try {
       expect(started.configuredDefaultModelSelection).toBeUndefined();
@@ -391,8 +391,8 @@ describe("process provider registry runtime", () => {
     );
 
     const started = await startProcessProviderRegistryRuntime({
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
     });
 
     expect(started?.snapshot.registry.providers).toHaveLength(1);
@@ -441,7 +441,7 @@ describe("process provider registry runtime", () => {
     const personalFilePath = join(root, "personal.json");
     const credentialStore = createSharedZCodeCredentialStore({
       baseDir: join(root, "home"),
-      env: { ZCODE_CREDENTIAL_SECRET: "process-registry-test" },
+      env: { SECRETARIAT_CREDENTIAL_SECRET: "process-registry-test" },
     });
     const providerId = "configured-standalone-provider";
     const accountIdentity = "account-1";
@@ -514,8 +514,8 @@ describe("process provider registry runtime", () => {
 
     const started = await startProcessProviderRegistryRuntime(
       {
-        [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
-        [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+        [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+        [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
       },
       { standalone: { credentialStore } },
     );
@@ -620,8 +620,8 @@ describe("process provider registry runtime", () => {
 
     const started = await startProcessProviderRegistryRuntime(
       {
-        [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
-        [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+        [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+        [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
       },
       { standalone: { credentialStore, onAccountInitializationError } },
     );
@@ -670,15 +670,15 @@ describe("process provider registry runtime", () => {
       "utf8",
     );
     const env = {
-      [ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
+      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: zcodeBuiltinFilePath,
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: personalFilePath,
     };
 
     // Protocol 启动会创建自己的空目标文件；若与 Standalone 共用目标，就会提前消费
     // “仅目标不存在时导入”的机会，无法再证明 Standalone importer 的独立边界。
     const protocolRuntime = await startProcessProviderRegistryRuntime({
       ...env,
-      [ZCODE_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "protocol-personal.json"),
+      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "protocol-personal.json"),
     });
     expect(protocolRuntime?.snapshot.registry.providers).toEqual([]);
     expect(protocolRuntime?.configuredDefaultModelSelection).toBeUndefined();
@@ -796,7 +796,7 @@ function zcodeBuiltinRelease(input: {
   readonly models: readonly unknown[];
 }): object {
   return {
-    schemaVersion: ZCODE_BUILTIN_RELEASE_SCHEMA_VERSION,
+    schemaVersion: SECRETARIAT_BUILTIN_RELEASE_SCHEMA_VERSION,
     revision: 1,
     config: {
       providerConfigRules: {

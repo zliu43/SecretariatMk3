@@ -23,7 +23,7 @@ import {
   TID_CHAT_EMPTY,
   TID_V4_SESSION_PANE,
   testId,
-  ZCODE_AGENT_PROVIDER,
+  SECRETARIAT_AGENT_PROVIDER,
 } from "@zcode/shared";
 import type {
   ConversationShareAccessMode,
@@ -2676,7 +2676,7 @@ export function SessionPane({
   );
 
   /**
-   * 「让 ZCode 帮我提炼保存」那条用户消息的发送口（docs/dynamic-workflow/transcript-and-notifications.md
+   * 「让 Secretariat 帮我提炼保存」那条用户消息的发送口（docs/dynamic-workflow/transcript-and-notifications.md
    * 「The message the lead sends」）：与中枢的「提升为全局」同一条先例——GUI 写、自动发、用户不再确认。
    *
    * 经 ref 转一手而不是直接引 `handleSendText`：后者定义在本文件更下面，而 rowContext 的 memo
@@ -2687,7 +2687,7 @@ export function SessionPane({
     const send = sendTextRef.current;
     if (send === null) throw new Error("send path not mounted");
     const result = await send(text);
-    // 被挡下（会话忙着确认别的、队列暂停待确认）就不是「已交给 ZCode」：抛回弹层，让它留在原处。
+    // 被挡下（会话忙着确认别的、队列暂停待确认）就不是「已交给 Secretariat」：抛回弹层，让它留在原处。
     if (result !== "sent") throw new Error(`workflow save request not sent: ${result}`);
   }, []);
 
@@ -3720,7 +3720,7 @@ export function SessionPane({
         // 这里把 admission 前失败收口为 pane-local 错误横幅，不改变 desktop continuous 或
         // Web remote replayable 的发送/恢复语义，草稿仍由 Composer 原路径保留。
         setSendSubmissionError({
-          code: runtimeModelUnavailable ? "ZCODE_RUNTIME_MODEL_UNAVAILABLE" : "SEND_FAILED",
+          code: runtimeModelUnavailable ? "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE" : "SEND_FAILED",
           message: runtimeModelUnavailable
             ? detail
             : intl.formatMessage({ id: "chat.error.sendFailed" }),
@@ -4234,7 +4234,7 @@ export function SessionPane({
       if (!decoded?.providerId) {
         return;
       }
-      const displayProvider = provider ?? ZCODE_AGENT_PROVIDER;
+      const displayProvider = provider ?? SECRETARIAT_AGENT_PROVIDER;
       let modelValue = value;
       if (!decoded.modelName) {
         const fallbackModel =
@@ -5637,7 +5637,7 @@ export function SessionPane({
                   })}
                   headerSlot={
                     // unsupportedRowCount 也要开这个门：整份副本的行都被本 build 跳过时
-                    // rows 为空，但只读块必须留下来显示「需要更新 ZCode」，不能整块消失。
+                    // rows 为空，但只读块必须留下来显示「需要更新 Secretariat」，不能整块消失。
                     importedShare &&
                     (importedShare.rows.length > 0 || importedShare.unsupportedRowCount > 0) ? (
                       <ConversationShareImportNotice

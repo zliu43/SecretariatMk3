@@ -74,7 +74,7 @@ PDF、Audio 继续隐藏且在编辑其他字段时无损保留。
 “全部恢复默认”入口，并对 Built-in 成员和 Personal Provider 的模型始终展示：
 
 ```text
-ZCode Built-in Model Config Rules
+Secretariat Built-in Model Config Rules
                   |
                   v
        Personal Model Config Rule（稀疏 Overlay）

@@ -69,7 +69,7 @@ MP-UI-01/I08、OTB08–10 和 QR-E2E-09 均取得可复现证据或隔离结论�
 
 ```bash
 export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
-export ZCODE_E2E_SKIP_BUILD=1
+export SECRETARIAT_E2E_SKIP_BUILD=1
 pnpm --filter @zcode/desktop test:e2e:serial -- --spec <spec>
 ```
 

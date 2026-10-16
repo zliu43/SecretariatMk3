@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文定义 ZCode Protocol app-server 内的 session 常驻池实现合同。产品边界和 renderer 生命周期见
+本文定义 Secretariat Protocol app-server 内的 session 常驻池实现合同。产品边界和 renderer 生命周期见
 仓库根 `docs/session-idle-deactivation.md`。
 
 ## 目标

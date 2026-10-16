@@ -31,7 +31,7 @@ CUA Helper 就绪会触发 agent runtime 无条件回收（`packages/services/sr
 - `reconcile()` 在 `blockedInvalidationVersion === requestedVersion` 时直接 return（`:313-315`），**同版本不再重建**；
 - 于是 `prewarmSessionId` 永久为 null，附件卡在 `waitingSession`，即现象 1。
 
-冷启动时 `createSession` 因 `ZCode Protocol client disposed` 失败（`useDraftSessionPrewarm.ts:139-144` 只 warn、无重试）会到达同样的终态。
+冷启动时 `createSession` 因 `Secretariat Protocol client disposed` 失败（`useDraftSessionPrewarm.ts:139-144` 只 warn、无重试）会到达同样的终态。
 
 ## 方案选择
 
@@ -50,8 +50,8 @@ CUA Helper 就绪会触发 agent runtime 无条件回收（`packages/services/sr
 ```
 12:26:43.617  cua helper liveness: Helper unreachable (attempt 3); triggering resolver recovery
 12:26:44.980  cua helper ready pid=97629
-12:26:45.489  ZCode agent cleanup ... reason='workspace-dispose'
-              runtimeIdentity: /Users/dev/.zcode/workspace/default:4:57273
+12:26:45.489  Secretariat agent cleanup ... reason='workspace-dispose'
+              runtimeIdentity: /Users/dev/.secretariat/workspace/default:4:57273
 ```
 
 helper ready 后 509ms 触发回收，且该 workspace 已到 generation 4。若改从回收侧堵，需同时覆盖 `onHelperHealthy`、`onHelperCredentialsRotated` 与 liveness 恢复三条路径，改动面显著大于 renderer 侧补偿。

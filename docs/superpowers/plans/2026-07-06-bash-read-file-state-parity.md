@@ -55,7 +55,7 @@
 
 ## 背景
 
-ZCode 不依赖 `# Using your tools` 之类的 prompt 文案来要求模型先 Read，而是在 Bash runtime 内维护 read-state producer：保守识别的简单读类 Bash 命令会把文件内容写入 readFileState，使后续 Edit/Write 的 read-before-write guard 认为该文件已被读取。
+Secretariat 不依赖 `# Using your tools` 之类的 prompt 文案来要求模型先 Read，而是在 Bash runtime 内维护 read-state producer：保守识别的简单读类 Bash 命令会把文件内容写入 readFileState，使后续 Edit/Write 的 read-before-write guard 认为该文件已被读取。
 
 ## 本轮范围
 
@@ -677,7 +677,7 @@ pnpm lint
 
 ## Implementation Acceptance
 
-本计划完成后，ZCode 应满足：
+本计划完成后，Secretariat 应满足：
 
 - `Bash cat .env.example` 能让后续 `Edit .env.example` 通过 read-before-write guard。
 - `Bash head/tail/sed -n/grep` 的简单安全形态能按上述保守语义产生 read-state。

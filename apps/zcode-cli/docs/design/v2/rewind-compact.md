@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文定义 ZCode v2 中 rewind、checkpoint 与 compact 的共同状态模型。它不是 UI 设计稿，也不是文件恢复 adapter 的实现细节；它先固定三件事：
+本文定义 Secretariat v2 中 rewind、checkpoint 与 compact 的共同状态模型。它不是 UI 设计稿，也不是文件恢复 adapter 的实现细节；它先固定三件事：
 
 - compact 之后哪些 conversation rewind 是合法的。
 - compact 前的 file checkpoint 如何继续可用。
@@ -11,7 +11,7 @@
 
 Compact 管模型可见上下文；rewind 管会话和工作区状态恢复。二者共享 session event log 和 message/checkpoint 锚点，但不能互相直接篡改对方的历史。
 
-Conversation rewind 的分阶段实施计划见 [`rewind/plan.md`](./rewind/plan.md)。该计划把本文的 contract 落到 runtime、session store、TUI 和 ZCode app-server 的实现顺序，并记录了需要保留的语义边界。
+Conversation rewind 的分阶段实施计划见 [`rewind/plan.md`](./rewind/plan.md)。该计划把本文的 contract 落到 runtime、session store、TUI 和 Secretariat app-server 的实现顺序，并记录了需要保留的语义边界。
 
 ## Auto Compact 触发依据
 

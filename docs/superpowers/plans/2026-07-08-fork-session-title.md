@@ -4,7 +4,7 @@
 
 **Architecture:** Runtime resume will publish persisted session title into the current session event stream, so `ProductProjection.meta` becomes the single live title source. Bootstrap live records will preserve `parentSessionId` and expose it through `getSessionIndexMeta`, allowing sessions-index summaries to retain fork identity.
 
-**Tech Stack:** TypeScript, Vitest, ZCode runtime event store, v4 ProductProjection, sessions-index publisher.
+**Tech Stack:** TypeScript, Vitest, Secretariat runtime event store, v4 ProductProjection, sessions-index publisher.
 
 ## Global Constraints
 

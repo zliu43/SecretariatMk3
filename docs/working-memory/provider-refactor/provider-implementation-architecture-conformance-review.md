@@ -82,7 +82,7 @@
 Provider Overlay 顺序保持既有裁决：
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
               |
               v
  overlay Account Built-in Provider Config
@@ -97,7 +97,7 @@ Effective Built-in Provider Config
     Effective Provider Config
 ```
 
-`Effective Built-in Provider Config` 表示“ZCode Built-in 经当前 Account Built-in 事实解析和约束后的
+`Effective Built-in Provider Config` 表示“Secretariat Built-in 经当前 Account Built-in 事实解析和约束后的
 结果”。它是正式概念层和 Settings 只读基线，不要求新增持久化对象或独立 Source；实现可以把它保持为
 Resolver/Registry Snapshot 中的推导值。
 
@@ -147,7 +147,7 @@ saveEffectiveProvider()
 Design 内部也存在需要裁决的表述冲突：
 
 - `registry/configuration.md` 要求 Personal 保持稀疏，Effective View 不得反向污染 Personal。
-- `registry/settings.md` 写成相对 ZCode Built-in 基线计算 Personal。
+- `registry/settings.md` 写成相对 Secretariat Built-in 基线计算 Personal。
 
 候选方向，不在本文直接裁决：
 
@@ -294,7 +294,7 @@ Model Selection Repository，并在 Standalone 模式管理 Credential subscript
 [`steps/todo-10-zcode-builtin-provider-config-naming-cutover.md`](./steps/todo-10-zcode-builtin-provider-config-naming-cutover.md)。
 
 当前 `officialProviders`、`officialSource` 和 `OfficialProviderConfigSource` 仍大量存在。领域语义统一为
-ZCode Built-in Provider Config。
+Secretariat Built-in Provider Config。
 
 领域类型、服务、Source、Facade、变量、物理文件、环境变量和 SEA asset 必须在同一次切换中统一迁移到
 `zcodeBuiltin*` / `zcode-builtin` 语义。当前分支尚未上线，不保留旧字段、旧路径、alias、fallback 或 importer。
@@ -379,8 +379,8 @@ Config；缺失项继承 Built-in Rule，不能补迁移默认或形成通用 Ru
 
 ## Must-Preserve Invariants
 
-1. Provider Overlay 顺序始终是 ZCode Built-in -> Account Built-in -> Personal。
-2. Account Built-in 只读取 ZCode Built-in account Provider，不读取 Personal-only Provider。
+1. Provider Overlay 顺序始终是 Secretariat Built-in -> Account Built-in -> Personal。
+2. Account Built-in 只读取 Secretariat Built-in account Provider，不读取 Personal-only Provider。
 3. Personal 是最终用户覆盖，同时保持稀疏；未编辑的 Account 动态事实不能被意外写入 Personal。
 4. Effective Config 不独立持久化，也不能成为反向污染上游 Source 的事实源。
 5. `accessId` 是非敏感连接身份，不是模型静态能力、服务端授权结果或 UI 产品协议。

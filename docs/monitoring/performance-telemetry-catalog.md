@@ -7,7 +7,7 @@
 >
 > 数据分四条通道：
 >
-> - **ARMS（main 进程）**：`@arms/rum-electron` `sendCustom`，进程级稳定性 / 资源 / 网络；ZCode CLI 资源由 CLI 自采样后转交 main。
+> - **ARMS（main 进程）**：`@arms/rum-electron` `sendCustom`，进程级稳定性 / 资源 / 网络；Secretariat CLI 资源由 CLI 自采样后转交 main。
 > - **ARMS（renderer/UI）**：`reportArmsCustomEvent` → IPC → main `sendCustom`，`group=ui_perf`。
 > - **ARMS（CLI Agent）**：`@zcode/telemetry` → OTLP/HTTP protobuf，模型 Logical Call / Physical Attempt。
 > - **`/report`（agent_trace）**：`reportAppTelemetryEvent`，消息链路质量与耗时，**非 ARMS**。
@@ -45,7 +45,7 @@
 | 事件                       | value             | 上报内容                                                                                                                                                                                                      | 触发条件                                                                               |
 | -------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `perf_app_start`           | —                 | 冷启动计数（Crash-Free 分母，绑 `device_mid`）                                                                                                                                                                | 主窗 `did-finish-load` 后延迟 **3.2s**（`PERF_APP_START_AFTER_VIEW_MS`）               |
-| `perf_crash`               | `1`               | `crash_scope` / `crash_cause` / `crash_source=electron_callback` / `crash_id` / 兼容字段 `crash_kind`                                                                                                         | `render-process-gone` / ZCode Host `child-process-gone`；每个 Electron 回调上报一次    |
+| `perf_crash`               | `1`               | `crash_scope` / `crash_cause` / `crash_source=electron_callback` / `crash_id` / 兼容字段 `crash_kind`                                                                                                         | `render-process-gone` / Secretariat Host `child-process-gone`；每个 Electron 回调上报一次    |
 | `perf_agent_start`         | `1`               | `runtime_instance_id` / `runtime_generation` / `provider`                                                                                                                                                     | Agent 子进程成功触发 Node `spawn`                                                      |
 | `perf_agent_ready`         | `1`               | `runtime_instance_id` / `runtime_generation` / `provider` / `startup_duration_ms`                                                                                                                             | Agent runtime 首次通过 provider/model 门禁                                             |
 | `perf_agent_crash`         | `1`               | `runtime_instance_id` / `error_name` / `error_code` / `error_message` / `error_stack` / `error_fingerprint` / `exit_code` / `signal` / `uptime_ms` / `crash_phase` / `termination_class` / `diagnostic_class` | Host 管理的 Agent 无主动退出意图且未命中受控终止排除条件时 exit；每个 runtime 只报一次 |
@@ -122,9 +122,9 @@ Chromium 使用同 tick 精确合计，CLI / MCP 使用最近样本（120 / 600 
 | 状态 | `background_ratio`、`app_uptime_minutes`         | `background_ratio` 与角色事件同源；uptime 取 main 进程运行时长     |
 | 整机 | `system_cpu_percent_p95`                         | `os.cpus()` 差分                                                   |
 | 整机 | `system_free_memory_kb_min`                      | 窗口内 `os.freemem()` 最小值                                       |
-| 应用 | `app_cpu_percent_p95`                            | 全部本机 ZCode 进程合计                                            |
+| 应用 | `app_cpu_percent_p95`                            | 全部本机 Secretariat 进程合计                                            |
 | 应用 | `app_rss_kb_total_mean`、`app_rss_kb_total_peak` | Chromium 体系每 10 秒精确合计，加 CLI 与 MCP 最近一次已知样本      |
-| 应用 | `process_count_total_peak`                       | 全部本机 ZCode 进程数峰值                                          |
+| 应用 | `process_count_total_peak`                       | 全部本机 Secretariat 进程数峰值                                          |
 | 质量 | `sample_count`                                   | 首个 tick 无 CPU 基线不产生样本，5 分钟窗口预期 29                 |
 | 质量 | `telemetry_self_ms`                              | 窗口内 main 侧采样与聚合代码累计墙钟毫秒数，`performance.now()` 计 |
 
@@ -154,8 +154,8 @@ Chromium 使用同 tick 精确合计，CLI / MCP 使用最近样本（120 / 600 
 
 ### 独立资源事件
 
-`perf_resource_zcode_data_size` 保持本地 ZCode 数据根逻辑字节数口径，每台设备最多 24 小时一次，
-见[ZCode 数据目录占用 ARMS 上报](./zcode-data-size-arms-telemetry.md)。更早的 `perf_resource_cpu`
+`perf_resource_zcode_data_size` 保持本地 Secretariat 数据根逻辑字节数口径，每台设备最多 24 小时一次，
+见[Secretariat 数据目录占用 ARMS 上报](./zcode-data-size-arms-telemetry.md)。更早的 `perf_resource_cpu`
 等仅用于历史查询。MCP 的三个稳定性生命周期事件见[MCP 进程 ARMS 可观测性](./mcp-process-arms-telemetry.md)。
 
 ---

@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { buildRewardsUrl, resolveRewardsOrigin, ZCODE_ENV } from "@zcode/shared";
+import { buildRewardsUrl, resolveRewardsOrigin, SECRETARIAT_ENV } from "@zcode/shared";
 import { usePlatform } from "@/hooks/usePlatform.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { useZCodeStore } from "@/store/StoreProvider.js";
@@ -38,7 +38,7 @@ export function RewardsProvider({
     else
       await platform.openExternal(
         buildRewardsUrl(
-          resolveRewardsOrigin({ env: ZCODE_ENV }),
+          resolveRewardsOrigin({ env: SECRETARIAT_ENV }),
           locale,
           resolveTheme(theme) === "dark" ? "zai-dark" : "zai-light",
         ),

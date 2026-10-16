@@ -2,7 +2,7 @@
 
 > 状态：已实现。
 > 上位：`2026-07-07-browser-use-cdp-node-repl-spec.md`；依赖 T3 的 `BrowserControlPort` + `interaction/browserExecute` 协议。
-> 范围：打通 agent 的 `BrowserControlPort.execute` → ZCode Protocol → host router → parentPort → main 的三腿通道。T4 不含 main 侧 CDP 执行（T5 提供 executor，T4 桥先返回 stub/透传到一个可注入的 main handler）。
+> 范围：打通 agent 的 `BrowserControlPort.execute` → Secretariat Protocol → host router → parentPort → main 的三腿通道。T4 不含 main 侧 CDP 执行（T5 提供 executor，T4 桥先返回 stub/透传到一个可注入的 main handler）。
 
 ## 1. 三腿链路
 

@@ -24,20 +24,20 @@ describe("resolveBundledAgentWiring", () => {
 
     const wiring = await resolveBundledAgentWiring(entryDir, {});
     expect(wiring).not.toBeNull();
-    expect(wiring?.ZCODE_AGENT_SERVER_COMMAND).toBe(process.execPath);
-    expect(JSON.parse(wiring?.ZCODE_AGENT_SERVER_ARGS_JSON ?? "[]")).toEqual([
+    expect(wiring?.SECRETARIAT_AGENT_SERVER_COMMAND).toBe(process.execPath);
+    expect(JSON.parse(wiring?.SECRETARIAT_AGENT_SERVER_ARGS_JSON ?? "[]")).toEqual([
       bundlePath,
       "app-server",
       "--stdio",
     ]);
   });
 
-  it("keeps an explicit ZCODE_AGENT_SERVER_COMMAND untouched", async () => {
+  it("keeps an explicit SECRETARIAT_AGENT_SERVER_COMMAND untouched", async () => {
     const entryDir = await makeTempDir();
     await writeFile(join(entryDir, "zcode.cjs"), "// bundle\n", "utf8");
 
     const wiring = await resolveBundledAgentWiring(entryDir, {
-      ZCODE_AGENT_SERVER_COMMAND: "/custom/agent",
+      SECRETARIAT_AGENT_SERVER_COMMAND: "/custom/agent",
     });
     expect(wiring).toBeNull();
   });
@@ -52,18 +52,18 @@ describe("resolveBundledAgentWiring", () => {
     const newRuntime = "/releases/new/runtime";
 
     expect(createReleaseAgentWiring(oldRuntime, join(oldRuntime, "node"), {})).toEqual({
-      ZCODE_AGENT_SERVER_COMMAND: join(oldRuntime, "node"),
-      ZCODE_AGENT_SERVER_ARGS_JSON: JSON.stringify([join(oldRuntime, "zcode.cjs"), "app-server", "--stdio"]),
+      SECRETARIAT_AGENT_SERVER_COMMAND: join(oldRuntime, "node"),
+      SECRETARIAT_AGENT_SERVER_ARGS_JSON: JSON.stringify([join(oldRuntime, "zcode.cjs"), "app-server", "--stdio"]),
     });
     expect(createReleaseAgentWiring(newRuntime, join(newRuntime, "node"), {})).toEqual({
-      ZCODE_AGENT_SERVER_COMMAND: join(newRuntime, "node"),
-      ZCODE_AGENT_SERVER_ARGS_JSON: JSON.stringify([join(newRuntime, "zcode.cjs"), "app-server", "--stdio"]),
+      SECRETARIAT_AGENT_SERVER_COMMAND: join(newRuntime, "node"),
+      SECRETARIAT_AGENT_SERVER_ARGS_JSON: JSON.stringify([join(newRuntime, "zcode.cjs"), "app-server", "--stdio"]),
     });
   });
 
   it("does not replace an explicit agent command while computing release wiring", () => {
     expect(createReleaseAgentWiring("/release/runtime", "/release/runtime/node", {
-      ZCODE_AGENT_SERVER_COMMAND: "/custom/agent",
+      SECRETARIAT_AGENT_SERVER_COMMAND: "/custom/agent",
     })).toBeNull();
   });
 });

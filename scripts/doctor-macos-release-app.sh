@@ -2,31 +2,31 @@
 
 set -euo pipefail
 
-APP_PATH="${1:-${ZCODE_MACOS_RELEASE_APP_PATH:-/Applications/ZCode.app}}"
-ZCODE_HOME_DIR="${ZCODE_HOME:-${HOME:+$HOME/.zcode}}"
-CUA_HELPER_INSTALL_VARIANT="${ZCODE_CUA_HELPER_INSTALL_VARIANT:-}"
-# 安装包身份与后端环境分轴：ZCODE_PREVIEW_IDENTITY=1 让生产后端的构建仍是 ZCode Preview。
+APP_PATH="${1:-${SECRETARIAT_MACOS_RELEASE_APP_PATH:-/Applications/Secretariat.app}}"
+SECRETARIAT_HOME_DIR="${SECRETARIAT_HOME:-${HOME:+$HOME/.secretariat}}"
+CUA_HELPER_INSTALL_VARIANT="${SECRETARIAT_CUA_HELPER_INSTALL_VARIANT:-}"
+# 安装包身份与后端环境分轴：SECRETARIAT_PREVIEW_IDENTITY=1 让生产后端的构建仍是 Secretariat Preview。
 # 只认 "1"，与 CI workflow / release 门的精确比较同一套语义（其它拼写由 resolve_zcode_env 拒绝）。
 is_preview_identity_requested() {
-  [[ "${ZCODE_PREVIEW_IDENTITY:-}" = "1" ]]
+  [[ "${SECRETARIAT_PREVIEW_IDENTITY:-}" = "1" ]]
 }
-if [ -z "$CUA_HELPER_INSTALL_VARIANT" ] && { [ "${ZCODE_ENV:-production}" = "test" ] || is_preview_identity_requested; }; then
+if [ -z "$CUA_HELPER_INSTALL_VARIANT" ] && { [ "${SECRETARIAT_ENV:-production}" = "test" ] || is_preview_identity_requested; }; then
   CUA_HELPER_INSTALL_VARIANT="preview"
 fi
 if [ -n "$CUA_HELPER_INSTALL_VARIANT" ] && [[ ! "$CUA_HELPER_INSTALL_VARIANT" =~ ^[A-Za-z0-9_-]+$ ]]; then
-  echo "[macos-release-doctor] invalid ZCODE_CUA_HELPER_INSTALL_VARIANT: $CUA_HELPER_INSTALL_VARIANT" >&2
+  echo "[macos-release-doctor] invalid SECRETARIAT_CUA_HELPER_INSTALL_VARIANT: $CUA_HELPER_INSTALL_VARIANT" >&2
   exit 1
 fi
 CUA_HELPER_INSTALL_SUBDIR="${CUA_HELPER_INSTALL_VARIANT:+$CUA_HELPER_INSTALL_VARIANT/}"
 # Shell cannot import producer TS constants. macosReleaseAppDoctor.test.ts locks these literals to
 # @zcode/zcode-cua/broker/helperConstants so a future producer rename fails loudly.
-ZCODE_HOME_HELPER_APP_PATH="${ZCODE_HOME_DIR:+$ZCODE_HOME_DIR/computer-use/${CUA_HELPER_INSTALL_SUBDIR}ZCode Computer Use.app}"
-HELPER_APP_PATH="${ZCODE_CUA_HELPER_APP_PATH:-$ZCODE_HOME_HELPER_APP_PATH}"
+SECRETARIAT_HOME_HELPER_APP_PATH="${SECRETARIAT_HOME_DIR:+$SECRETARIAT_HOME_DIR/computer-use/${CUA_HELPER_INSTALL_SUBDIR}Secretariat Computer Use.app}"
+HELPER_APP_PATH="${SECRETARIAT_CUA_HELPER_APP_PATH:-$SECRETARIAT_HOME_HELPER_APP_PATH}"
 APP_BUNDLE_NAME="$(basename "$APP_PATH")"
 APP_DISPLAY_NAME="${APP_BUNDLE_NAME%.app}"
-APP_EXECUTABLE_NAME="${ZCODE_APP_EXECUTABLE_NAME:-$APP_DISPLAY_NAME}"
-HELPER_EXECUTABLE_NAME="${ZCODE_CUA_HELPER_EXECUTABLE_NAME:-ZCode Computer Use}"
-REQUIRE_CUA_HELPER="${ZCODE_CUA_REQUIRE_HELPER:-0}"
+APP_EXECUTABLE_NAME="${SECRETARIAT_APP_EXECUTABLE_NAME:-$APP_DISPLAY_NAME}"
+HELPER_EXECUTABLE_NAME="${SECRETARIAT_CUA_HELPER_EXECUTABLE_NAME:-Secretariat Computer Use}"
+REQUIRE_CUA_HELPER="${SECRETARIAT_CUA_REQUIRE_HELPER:-0}"
 REQUIRE_CUA_HELPER_STAPLE=0
 if [[ "$REQUIRE_CUA_HELPER" =~ ^(1|true|on)$ ]]; then
   REQUIRE_CUA_HELPER_STAPLE=1
@@ -35,25 +35,25 @@ fi
 if [ "${APP_PATH:-}" = "--help" ] || [ "${APP_PATH:-}" = "-h" ]; then
   cat <<'USAGE'
 Usage:
-  bash scripts/doctor-macos-release-app.sh /Applications/ZCode.app
-  ZCODE_CUA_REQUIRE_HELPER=1 bash scripts/doctor-macos-release-app.sh /Applications/ZCode.app
-  ZCODE_CUA_HELPER_APP_PATH=/path/to/ZCode\ Computer\ Use.app ZCODE_CUA_REQUIRE_HELPER=1 bash scripts/doctor-macos-release-app.sh /Applications/ZCode.app
-  ZCODE_MACOS_RELEASE_APP_PATH=/Applications/ZCode.app pnpm run doctor:macos-release
+  bash scripts/doctor-macos-release-app.sh /Applications/Secretariat.app
+  SECRETARIAT_CUA_REQUIRE_HELPER=1 bash scripts/doctor-macos-release-app.sh /Applications/Secretariat.app
+  SECRETARIAT_CUA_HELPER_APP_PATH=/path/to/Secretariat\ Computer\ Use.app SECRETARIAT_CUA_REQUIRE_HELPER=1 bash scripts/doctor-macos-release-app.sh /Applications/Secretariat.app
+  SECRETARIAT_MACOS_RELEASE_APP_PATH=/Applications/Secretariat.app pnpm run doctor:macos-release
 
 Always validates the installed macOS release app with:
   codesign --verify --deep --strict <app>
   spctl -a -vv -t exec <app>
 
-Set ZCODE_CUA_REQUIRE_HELPER=1 for CUA/Helper release gates. In that mode this
+Set SECRETARIAT_CUA_REQUIRE_HELPER=1 for CUA/Helper release gates. In that mode this
 also validates the independently signed Helper bundle selected below with the
 same codesign/spctl checks and a local notarization staple check.
 
 Helper lookup order:
-  1. ZCODE_CUA_HELPER_APP_PATH (CI passes the Helper bundled inside ZCode.app)
-  2. ${ZCODE_HOME:-$HOME/.zcode}/computer-use/<optional variant>/ZCode Computer Use.app
+  1. SECRETARIAT_CUA_HELPER_APP_PATH (CI passes the Helper bundled inside Secretariat.app)
+  2. ${SECRETARIAT_HOME:-$HOME/.secretariat}/computer-use/<optional variant>/Secretariat Computer Use.app
 
 CI release acceptance validates the copy actually shipped at
-ZCode.app/Contents/Resources/cua-helper/ZCode Computer Use.app. Post-install checks
+Secretariat.app/Contents/Resources/cua-helper/Secretariat Computer Use.app. Post-install checks
 may omit the override to validate the user-level installed copy. A missing selected
 Helper.app fails closed.
 USAGE
@@ -72,7 +72,7 @@ assert_bundle_dir() {
   local label="$1"
   local bundle_path="$2"
   if [ -z "$bundle_path" ]; then
-    echo "[macos-release-doctor] ${label} missing: <no product helper path; set ZCODE_HOME or HOME>" >&2
+    echo "[macos-release-doctor] ${label} missing: <no product helper path; set SECRETARIAT_HOME or HOME>" >&2
     exit 1
   fi
   if [ ! -d "$bundle_path" ]; then
@@ -143,7 +143,7 @@ require_command spctl
 # Bugfix: 过去 release/notarization 成功只说明 DMG 通过了 gate，不能证明安装后的主 app
 # 和 Computer Use Helper.app 都能被 Gatekeeper 以 exec 类型放行。这里先 fail-closed 检查 bundle
 # 结构，再分别跑 codesign/spctl，避免 helper 缺失或未独立签名时误报发布成功。
-# CI 显式传入最终 ZCode.app 内的 Helper；安装后验收则默认检查用户级复制品。
+# CI 显式传入最终 Secretariat.app 内的 Helper；安装后验收则默认检查用户级复制品。
 assert_bundle_dir "$APP_BUNDLE_NAME" "$APP_PATH"
 assert_executable "$APP_BUNDLE_NAME" "$APP_PATH/Contents/MacOS/$APP_EXECUTABLE_NAME"
 validate_release_bundle "$APP_BUNDLE_NAME" "$APP_PATH"
@@ -152,7 +152,7 @@ if [ "$REQUIRE_CUA_HELPER" != "1" ] && [ "$REQUIRE_CUA_HELPER" != "true" ] && [ 
   if [ -d "$HELPER_APP_PATH" ]; then
     echo "[macos-release-doctor] standalone Computer Use Helper.app present; validating optional helper: $HELPER_APP_PATH"
   else
-    echo "[macos-release-doctor] standalone Computer Use Helper.app not required; set ZCODE_CUA_REQUIRE_HELPER=1 for CUA release gates"
+    echo "[macos-release-doctor] standalone Computer Use Helper.app not required; set SECRETARIAT_CUA_REQUIRE_HELPER=1 for CUA release gates"
     echo "[macos-release-doctor] done"
     exit 0
   fi

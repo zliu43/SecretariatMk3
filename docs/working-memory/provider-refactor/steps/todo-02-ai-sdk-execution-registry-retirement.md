@@ -247,9 +247,9 @@ Provider/Model 查询。
 - 网络、签名、Endpoint Routing、runtime 和 env 等执行基础设施可以保留并改为准确命名；
 - Probe/E2E helper 改为显式创建测试 Model，而不是先造一整个 Registry。
 
-### 4.5 Reasoning 差异归入 ZCode Built-in Model Config Rules
+### 4.5 Reasoning 差异归入 Secretariat Built-in Model Config Rules
 
-所有正式模型和 API 类型的 Reasoning 差异事实统一由 ZCode Built-in Model Config Rules 声明：
+所有正式模型和 API 类型的 Reasoning 差异事实统一由 Secretariat Built-in Model Config Rules 声明：
 
 - `optionSpecs.reasoningLevel.values/default` 声明公开档位；
 - `reasoningMapping[level]` 声明该档位对应的 Provider 请求参数；

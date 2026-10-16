@@ -81,7 +81,7 @@ App Recent 保存结构化且稀疏的 `ModelSelection`，只在 App 接受普�
 ### 1.3 Host View 原子返回候选与首选 Selection
 
 - Configured Default 继续属于目标 Workspace；
-- Desktop/Web Renderer 不直接读取 `.zcode/v2/model-selection.json`；
+- Desktop/Web Renderer 不直接读取 `.secretariat/v2/model-selection.json`；
 - 目标 Host 读取 Workspace 自己的 Configured Default，并与当前用户可见 View 原子解析首选 Selection；
 - Prompt CLI 与 TUI 不需要启动 Host/RPC，但必须复用同一 provider-domain preferred resolver 和 Workspace
   repository；
@@ -277,7 +277,7 @@ Host View 已经包含 Model Config 与 Option Specs，不应再启动 Agent App
 
 - Renderer 全局 `localStorage` 模型与 thought 偏好；
 - Agent Server `workspaceModelPreferences.defaultModel/lastUsedModel/defaultThoughtLevel`；
-- Environment `.zcode/v2/model-selection.json` Configured Default；
+- Environment `.secretariat/v2/model-selection.json` Configured Default；
 - Active/temporary App 当前模型投影。
 
 这些状态分别模拟 App Recent、Configured Default 和 Session Selection，导致初始化优先级、远程隔离和恢复

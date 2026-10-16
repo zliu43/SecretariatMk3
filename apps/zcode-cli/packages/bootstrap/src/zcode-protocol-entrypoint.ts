@@ -40,7 +40,7 @@ import {
 import {
   createOfficialMcpTrustedOriginRegistry,
   OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV,
-  ZCODE_WORKSPACE_IDENTITY_ENV,
+  SECRETARIAT_WORKSPACE_IDENTITY_ENV,
   resolveRuntimeZCodeEndpointOrigin,
 } from "@zcode/shared";
 import { ZCodeProtocolAgentServer } from "./zcode-protocol/server.js";
@@ -117,7 +117,7 @@ export async function runZCodeProtocolAgent(
     },
     startupStartedAt,
   );
-  startupTimer.start("ZCode Protocol agent startup started", {
+  startupTimer.start("Secretariat Protocol agent startup started", {
     context: { version: options.version },
     event: "zcode_protocol.startup.started",
     stage: "start",
@@ -177,11 +177,11 @@ export async function runZCodeProtocolAgent(
       create: () =>
         prepareZCodeTelemetryEnv(runtimeEnv, {
           cliVersion: options.version,
-          productVersion: options.env?.ZCODE_APP_VERSION,
+          productVersion: options.env?.SECRETARIAT_APP_VERSION,
           runtimeSurface,
         }),
     });
-    const telemetryDeviceMid = telemetryEnv.ZCODE_TELEMETRY_DEVICE_MID;
+    const telemetryDeviceMid = telemetryEnv.SECRETARIAT_TELEMETRY_DEVICE_MID;
     mcpTelemetryTracker =
       configResult.config.features.mcp === false
         ? undefined
@@ -207,7 +207,7 @@ export async function runZCodeProtocolAgent(
     // 与下面 trustedOrigins 的 resolveZCodeApiOrigin 必须是同一个表达式，否则两侧判定分叉。
     const resolveZCodeApiOrigin = (): string =>
       resolveRuntimeZCodeEndpointOrigin(options.env ?? process.env);
-    const workspaceIdentity = (options.env ?? process.env)[ZCODE_WORKSPACE_IDENTITY_ENV]?.trim();
+    const workspaceIdentity = (options.env ?? process.env)[SECRETARIAT_WORKSPACE_IDENTITY_ENV]?.trim();
     const officialMcpAuth = {
       authHeadersPort: createOfficialMcpAuthHeadersPort({
         resolveContext: () => officialMcpAuthContext,
@@ -228,7 +228,7 @@ export async function runZCodeProtocolAgent(
       }),
       resolveZCodeApiOrigin,
       ...(workspaceIdentity ? { workspaceIdentity } : {}),
-      // 信任判定只看一条：目标 origin 等于当前 ZCode API origin（https）。pluginId 不参与。
+      // 信任判定只看一条：目标 origin 等于当前 Secretariat API origin（https）。pluginId 不参与。
       // origin 运行时解析（跟随 production/test 与自建环境），不硬编码域名。
       trustedOrigins: createOfficialMcpTrustedOriginRegistry({
         devTrustedOriginsRaw: (options.env ?? process.env)[OFFICIAL_MCP_DEV_TRUSTED_ORIGINS_ENV],
@@ -292,7 +292,7 @@ export async function runZCodeProtocolAgent(
           env: {
             ...telemetryEnv,
             ...appOptions.env,
-            ...(telemetryDeviceMid ? { ZCODE_TELEMETRY_DEVICE_MID: telemetryDeviceMid } : {}),
+            ...(telemetryDeviceMid ? { SECRETARIAT_TELEMETRY_DEVICE_MID: telemetryDeviceMid } : {}),
           },
           ...(nodeReplBrowserBroker ? { nodeReplBrowserBroker } : {}),
           ...(mcpConnectionPool
@@ -367,7 +367,7 @@ export async function runZCodeProtocolAgent(
       (message) => connection.send(message),
       logger,
     );
-    startupTimer.complete("ZCode Protocol agent startup completed", {
+    startupTimer.complete("Secretariat Protocol agent startup completed", {
       event: "zcode_protocol.startup.completed",
       stage: "total",
     });
@@ -377,7 +377,7 @@ export async function runZCodeProtocolAgent(
     options.lifecycle?.requestShutdown(
       error instanceof Error ? error : new Error("Protocol runtime failed", { cause: error }),
     );
-    startupTimer.fail("ZCode Protocol agent startup failed", error, {
+    startupTimer.fail("Secretariat Protocol agent startup failed", error, {
       event: "zcode_protocol.startup.failed",
       stage: "total",
     });
@@ -396,7 +396,7 @@ export async function runZCodeProtocolAgent(
       sessionStore,
       providerRegistryRuntime,
     });
-    logger.info("ZCode Protocol agent shutdown completed", {
+    logger.info("Secretariat Protocol agent shutdown completed", {
       ...traceContextToLogContext(traceContext),
       event: "zcode_protocol.shutdown.completed",
       module: "bootstrap.zcode_protocol",
@@ -409,7 +409,7 @@ function resolveProtocolRuntimeSurface(
   env: NodeJS.ProcessEnv,
 ): "desktop_local_host" | "remote_workspace_host" {
   // Bug 根因：入口曾无条件覆盖 Host 注入值，远程 SSH/WSL/容器 Trace 被归入本地 Desktop。
-  return env.ZCODE_TELEMETRY_RUNTIME_SURFACE?.trim() === "remote_workspace_host"
+  return env.SECRETARIAT_TELEMETRY_RUNTIME_SURFACE?.trim() === "remote_workspace_host"
     ? "remote_workspace_host"
     : "desktop_local_host";
 }

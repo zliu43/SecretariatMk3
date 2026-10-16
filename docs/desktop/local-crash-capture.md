@@ -6,8 +6,8 @@ Desktop 主进程在启动早期配置 crash dump 路径，并同时保留两条
 - 本地额外归档一份原始 minidump，方便用户或开发排查（`desktopCrashCapture.ts`）
 
 ARMS crash collector 会扫描 `live` 目录中的全部 dump。为避免后代或外部程序继承
-Crashpad 后把 `hdc`、`plugin-container`、`chrome-headless-shell` 等 dump 混入 ZCode
-健康度，`beforeReport` 先保留 `binary_images` 中含当前 ZCode 产品可执行文件的事件；但仅有
+Crashpad 后把 `hdc`、`plugin-container`、`chrome-headless-shell` 等 dump 混入 Secretariat
+健康度，`beforeReport` 先保留 `binary_images` 中含当前 Secretariat 产品可执行文件的事件；但仅有
 二进制命中不能证明是主进程崩溃。没有明确 `native_dump_process_role=main` 的 dump 会标记为
 `native_dump_unattributed`，继续保留原始诊断事件但不进入 App Crash / Crash-Free，避免
 Linux/Windows 共用 executable 的 helper/utility crash loop 污染产品稳定性指标。
@@ -28,10 +28,10 @@ Linux/Windows 共用 executable 的 helper/utility crash loop 污染产品稳定
 ```
 <appConfigDir>/crash/
   ├── live/        ← Electron / Crashpad 实时写入目录（`app.setPath("crashDumps")`）
-  └── archive/     ← ZCode 额外保留的本地副本
+  └── archive/     ← Secretariat 额外保留的本地副本
 ```
 
-`appConfigDir` 默认 `~/.zcode/v2/`；用户配置了自定义 `dataBaseDir` 时，路径为 `<dataBaseDir>/.zcode/v2/crash/`（依赖 `desktopEarlyDataBaseDirBootstrap` 在 crash 初始化前注入 `dataBaseDir`）。
+`appConfigDir` 默认 `~/.secretariat/v2/`；用户配置了自定义 `dataBaseDir` 时，路径为 `<dataBaseDir>/.secretariat/v2/crash/`（依赖 `desktopEarlyDataBaseDirBootstrap` 在 crash 初始化前注入 `dataBaseDir`）。
 
 ## 本地归档保留策略
 

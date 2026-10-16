@@ -64,10 +64,10 @@ function verifyBashEmbeddedSearch(plan) {
       cwd: repoRoot,
       env: {
         ...process.env,
-        ...(plan.bfsPath ? { ZCODE_BFS_BINARY: plan.bfsPath } : {}),
-        ZCODE_REQUIRE_NATIVE_SEARCH_E2E: "1",
-        ZCODE_RG_BINARY: plan.rgPath,
-        ZCODE_UGREP_BINARY: plan.ugrepPath,
+        ...(plan.bfsPath ? { SECRETARIAT_BFS_BINARY: plan.bfsPath } : {}),
+        SECRETARIAT_REQUIRE_NATIVE_SEARCH_E2E: "1",
+        SECRETARIAT_RG_BINARY: plan.rgPath,
+        SECRETARIAT_UGREP_BINARY: plan.ugrepPath,
       },
     },
   );
@@ -80,11 +80,11 @@ function verifyBashEmbeddedSearch(plan) {
 }
 
 async function resolveNativeSearchPlan(outputDir) {
-  const targetPlatform = process.env.ZCODE_TARGET_OS?.trim() || process.platform;
-  const targetArch = process.env.ZCODE_TARGET_ARCH?.trim() || process.arch;
-  const bfsPath = process.env.ZCODE_BFS_BINARY?.trim();
-  const rgPath = process.env.ZCODE_RG_BINARY?.trim();
-  const ugrepPath = process.env.ZCODE_UGREP_BINARY?.trim();
+  const targetPlatform = process.env.SECRETARIAT_TARGET_OS?.trim() || process.platform;
+  const targetArch = process.env.SECRETARIAT_TARGET_ARCH?.trim() || process.arch;
+  const bfsPath = process.env.SECRETARIAT_BFS_BINARY?.trim();
+  const rgPath = process.env.SECRETARIAT_RG_BINARY?.trim();
+  const ugrepPath = process.env.SECRETARIAT_UGREP_BINARY?.trim();
   const normalizedPlatform = normalizeNativeSearchPlatform(targetPlatform);
   const requiresBfs = normalizedPlatform !== "win32";
   if (!requiresBfs) {
@@ -101,8 +101,8 @@ async function resolveNativeSearchPlan(outputDir) {
       Boolean(bfsPath || rgPath || ugrepPath),
       false,
       requiresBfs
-        ? "ZCODE_BFS_BINARY, ZCODE_RG_BINARY, and ZCODE_UGREP_BINARY must be provided together"
-        : "ZCODE_RG_BINARY and ZCODE_UGREP_BINARY must be provided together",
+        ? "SECRETARIAT_BFS_BINARY, SECRETARIAT_RG_BINARY, and SECRETARIAT_UGREP_BINARY must be provided together"
+        : "SECRETARIAT_RG_BINARY and SECRETARIAT_UGREP_BINARY must be provided together",
     );
     buildNativeSearchTools({
       platform: targetPlatform,

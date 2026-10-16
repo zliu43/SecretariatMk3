@@ -6,7 +6,7 @@
 > `TaskRealtimeBus` 继续承担 owner lease、stale-run 与跨 host 命令路由；它不保存第二份
 > conversation queue、projection 或 replayable 业务状态。
 
-本文描述 ZCode task/session 的实时订阅、snapshot/resync、跨端输入和断线恢复边界。
+本文描述 Secretariat task/session 的实时订阅、snapshot/resync、跨端输入和断线恢复边界。
 
 ## 核心不变量
 

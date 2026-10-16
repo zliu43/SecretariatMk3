@@ -428,7 +428,7 @@ describe("createUsageStatsService", () => {
     ).toThrow("coding_plan_usage_custom_range_too_long");
   });
 
-  it("App Usage 经 ZCode Protocol 读取 agent 数据库统计", async () => {
+  it("App Usage 经 Secretariat Protocol 读取 agent 数据库统计", async () => {
     const getAppUsageStats = vi.fn(async () => createAppUsageSnapshot());
     const apiClient: ApiClient = {
       request: vi.fn(),
@@ -645,7 +645,7 @@ describe("createUsageStatsService", () => {
         }),
       ],
       env: {
-        ZCODE_BIGMODEL_USAGE_API_KEY: "env-usage-key",
+        SECRETARIAT_BIGMODEL_USAGE_API_KEY: "env-usage-key",
       },
     });
 

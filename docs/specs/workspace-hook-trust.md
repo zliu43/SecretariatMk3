@@ -14,8 +14,8 @@
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 状态      | 已实施；当前交互为 persistent-only + soft-gate，静态与自动化检查完成，最终真实 Desktop 人工验收由产品方执行                                                                                                         |
 | 日期      | 2026-08-07                                                                                                                                                                                                          |
-| 适用范围  | ZCode CLI Runtime、ZCode Protocol v4、Desktop/Web UI、Remote Workspace、Headless CLI                                                                                                                                |
-| 主要对象  | workspace/project 级 `zcode.json` 与 `.zcode/config.json` Hooks                                                                                                                                                     |
+| 适用范围  | Secretariat CLI Runtime、Secretariat Protocol v4、Desktop/Web UI、Remote Workspace、Headless CLI                                                                                                                                |
+| 主要对象  | workspace/project 级 `zcode.json` 与 `.secretariat/config.json` Hooks                                                                                                                                                     |
 | 安全基线  | 默认拒绝、显式授权、声明变化按条失效、策略拒绝优先                                                                                                                                                                  |
 | 关联文档  | `docs/security/deep-link-project-trust-boundary.md`；`docs/web-remote-control/web-remote-control-architecture.md`；`docs/web-remote-control/task-realtime-sync.md`；`docs/web-remote-control-task-command-queue.md` |
 | 交互方案  | `设置 → 钩子 → 工作区` 内完成审核；不使用任务页独立 Trust Dialog                                                                                                                                                    |
@@ -103,14 +103,14 @@ effectiveRunnable  本次上下文中是否实际允许执行
 
 ```text
 <dir>/zcode.json
-<dir>/.zcode/config.json
+<dir>/.secretariat/config.json
 ```
 
 并按 root 到 cwd 的顺序合并；显式 `projectConfigPath`（目前主要由测试和少数构造链路透传）在 discovery files 之后追加，属于前向兼容能力，不作为 V1 UI 主路径。
 
 **非 Git 目录的现有行为不同：** `getProjectConfigDirectories()` 最终只返回 `cwd`，不会把途中父目录加入发现范围。Snapshot builder 必须复用这一行为，不能自行实现“非 Git 也向父目录扫描”的另一套规则。
 
-因此 discovery snapshot 不能只代表某一个 `.zcode/config.json` 文件，也不能只 hash 最终 UI 展示文本。完整 bundle 必须覆盖真实发现范围、来源、相对顺序和合并结果；逐条 Trust 的 declaration digest 也必须包含该 Hook 的 source、event、matcher、位置和全部已知执行语义。
+因此 discovery snapshot 不能只代表某一个 `.secretariat/config.json` 文件，也不能只 hash 最终 UI 展示文本。完整 bundle 必须覆盖真实发现范围、来源、相对顺序和合并结果；逐条 Trust 的 declaration digest 也必须包含该 Hook 的 source、event、matcher、位置和全部已知执行语义。
 
 ### 2.4 Draft prewarm 与真实执行时机不同
 
@@ -131,7 +131,7 @@ V4 composer 会提前创建 draft session，但 draft prewarm 不执行 Hook。
 
 ### 3.1 Workspace Hook / Project Hook
 
-来源于 workspace 项目配置发现范围内 `zcode.json`、`.zcode/config.json` 或显式 `projectConfigPath` 的 Hook。
+来源于 workspace 项目配置发现范围内 `zcode.json`、`.secretariat/config.json` 或显式 `projectConfigPath` 的 Hook。
 
 本文统一称为 **Workspace Hook**；代码来源枚举建议使用 `project`，以保持与现有 `ConfigScope.Project` 一致。
 
@@ -290,7 +290,7 @@ flowchart TD
 
 ### 7.2 审核中 Toggle 的原子替换
 
-审核中的 toggle 不修改旧 immutable snapshot。对于 `editable=true` 的当前 workspace `.zcode/config.json`：
+审核中的 toggle 不修改旧 immutable snapshot。对于 `editable=true` 的当前 workspace `.secretariat/config.json`：
 
 ```text
 acquire workspace review mutation lock
@@ -449,7 +449,7 @@ V1 不提供 `Always trust this workspace`，也不提供对未来新增 Hook �
 建议逻辑位置：
 
 ```text
-~/.zcode/security/workspace-hook-trust.json
+~/.secretariat/security/workspace-hook-trust.json
 ```
 
 实际路径必须通过现有用户数据目录/CLI storage root resolver 生成，不能在业务代码中直接硬编码 `$HOME`。
@@ -630,7 +630,7 @@ workspace 级“不要再提示”能力，应作为可见、可撤销的用户�
 | Headless          | 未信任时自动临时放行                        | automation 会成为绕过交互安全边界的通道                                                                              | 仅在 managed policy 控制的封闭环境                      |
 | Headless          | 环境变量永久信任                            | 容易由父进程或 CI 模板静默扩权，审计弱                                                                               | 受保护的短期签名 token                                  |
 | Remote            | 仅按 remote path                            | 不同主机或 container 的相同路径会冲突                                                                                | 永远不建议；至少需要 host/workspace identity            |
-| 持久化            | 写入 `.zcode/config.json`                   | 仓库可以提交自我信任                                                                                                 | 永远不建议                                              |
+| 持久化            | 写入 `.secretariat/config.json`                   | 仓库可以提交自我信任                                                                                                 | 永远不建议                                              |
 | 持久化            | 复用普通 settings store 并云同步            | 授权可能扩散到未审核机器，安全记录与偏好混合                                                                         | 有设备绑定、加密和跨设备授权设计                        |
 | Digest            | 只 hash command 字符串                      | 忽略 event、matcher、timeout、source、顺序等执行语义                                                                 | 无                                                      |
 | Digest            | hash 整个配置文件原始字节                   | 无关格式或非 Hook 设置变化会重复询问，多文件合并语义不清                                                             | 产品希望任何项目字节变化都重审                          |
@@ -759,7 +759,7 @@ interface WorkspaceHookBundleSnapshot {
     canonicalPath: string;
     baseDir: string;
     discoveryOrder: number;
-    configFileKind: "zcode.json" | ".zcode/config.json" | "explicit";
+    configFileKind: "zcode.json" | ".secretariat/config.json" | "explicit";
     explicitProjectConfig: boolean;
     editable: boolean;
     hooksRoot: {
@@ -1525,7 +1525,7 @@ Trust”以及按钮/开关展示，不得形成第二套安全语义：
 | Config    | Runtime enabled / Source enabled / Hook enabled / Read-only source      |
 | Trust     | Pending persistent Trust / Trusted persistent / Policy denied / Changed |
 | Effective | 仅用于锁定开关，不渲染“将运行/不会运行”徽章                             |
-| Source    | `zcode.json`、`.zcode/config.json`、user、plugin、internal              |
+| Source    | `zcode.json`、`.secretariat/config.json`、user、plugin、internal              |
 
 若当前没有 task/session，Hooks service 可通过只读 Agent control plane 使用同一 discovery resolver
 获取静态 snapshot；点击 Trust 时必须再由 Agent 重验 identity、bundle 与 declaration digest，
@@ -1533,7 +1533,7 @@ Trust”以及按钮/开关展示，不得形成第二套安全语义：
 `user_decides` 可执行 mutation，`deny` / `allow_trusted_only` 必须在任何 Trust store mutation 前
 分别返回 `workspace_hooks_blocked_by_policy` / `workspace_hooks_policy_requires_pretrust`。
 不能由 UI 或 services 直接写 Trust store。UI 必须使用服务层返回的 `editable` 和复合
-`configuredEnabled`。所有 `.zcode/config.json` mutation 使用 temp + fsync/close + atomic rename；
+`configuredEnabled`。所有 `.secretariat/config.json` mutation 使用 temp + fsync/close + atomic rename；
 写入后由 Runtime discovery 重建权威 snapshot。Compatibility rows 可在普通设置列表中展示，
 但不计入待审核数量。
 
@@ -1597,8 +1597,8 @@ zcode hooks trust revoke --workspace <path-or-identity> [--hook-digest <sha256>|
 V1 不支持：
 
 ```text
-ZCODE_TRUST_WORKSPACE_HOOKS=1
-ZCODE_ALWAYS_ALLOW_PROJECT_HOOKS=1
+SECRETARIAT_TRUST_WORKSPACE_HOOKS=1
+SECRETARIAT_ALWAYS_ALLOW_PROJECT_HOOKS=1
 ```
 
 如果未来引入 automation token，必须是短期、绑定 workspace identity 与精确 declaration digest set、可撤销且可审计的能力，而不是全局布尔值。
@@ -1950,7 +1950,7 @@ apps/zcode-cli/packages/core/src/hooks/workspace-hook-admission.ts
 - 删除独立 settings review panel、批量选择与状态徽章；
 - 未信任行只在有效运行开关左侧显示逐条 `信任`；无 session 时走 workspace Agent pretrust RPC；
 - 未信任开关显示关闭且锁定，不改写原始配置；信任成功后按真实 configured 状态恢复；
-- 祖先 `zcode.json`、上游 `.zcode/config.json`、显式 projectConfigPath 等不可安全回写来源显示只读 toggle 与 `Open source config`；
+- 祖先 `zcode.json`、上游 `.secretariat/config.json`、显式 projectConfigPath 等不可安全回写来源显示只读 toggle 与 `Open source config`；
 - `.agents/.claude` compatibility rows 保持 disabled/read-only，且不进入 Trust snapshot；
 - draft pending/invalidation、policy deny、execution status 和 provenance；
 - Desktop 与手机 Web 均实现响应式审核 UI，复用现有设置页 design tokens，避免独立视觉系统。
@@ -2115,7 +2115,7 @@ HookRunBlocked
 | CFG13 | 仅 configured gates 变化                                | declaration digest 不变，bundle digest 变化                                          |
 | CFG14 | Settings `hooks.enabled` 缺省                           | 与 Runtime `enabled !== false` 的权威 resolver 一致                                  |
 | CFG15 | root 与 cwd 多配置文件                                  | source 顺序、provenance 与 digest 稳定                                               |
-| CFG16 | 祖先 `zcode.json` / 上游 `.zcode/config.json`           | 进入 snapshot；Settings row `editable=false`                                         |
+| CFG16 | 祖先 `zcode.json` / 上游 `.secretariat/config.json`           | 进入 snapshot；Settings row `editable=false`                                         |
 | CFG17 | `.claude/.agents` compatibility Hook                    | disabled/read-only，不进入 Trust snapshot/pending count                              |
 | CFG18 | 非 Git workspace                                        | 只扫描 cwd，不纳入父目录                                                             |
 | CFG19 | JSON 空白/key 排列变化                                  | digest 不变                                                                          |
@@ -2300,7 +2300,7 @@ Phase 0 安全结论：
 - 复用 timeout/max-output resolver；
 - 将 Runtime discovery resolver 作为 Settings configured state 权威来源；
 - `.agents/.claude` compatibility rows 与 Trust snapshot 隔离；
-- `.zcode/config.json` 原子 mutation primitive。
+- `.secretariat/config.json` 原子 mutation primitive。
 
 **退出条件：** Settings 与 Runtime 对 `hooks.enabled` 默认值、source、editable、configured gates 完全一致；unknown passthrough 不被 Runtime 消费；项目 Hook 仍不执行。
 
@@ -2309,15 +2309,15 @@ Phase 0 安全结论：
 已完成：
 
 - 新增 Node-only `@zcode/shared/workspace-hook-discovery` subpath，CLI Adapter 与 Settings Service 共用配置路径发现、Hook schema、configured gate、timeout/max-output 归一与 digest/snapshot builder；主 `@zcode/shared` browser-safe 入口不导出 Node-only 实现；
-- 自动发现继续遵循现有 root-to-cwd 语义，支持 `zcode.json`、`.zcode/config.json` 与末尾追加的显式 `projectConfigPath`；非 Git workspace 只扫描 cwd，不自行扩大父目录发现范围；
+- 自动发现继续遵循现有 root-to-cwd 语义，支持 `zcode.json`、`.secretariat/config.json` 与末尾追加的显式 `projectConfigPath`；非 Git workspace 只扫描 cwd，不自行扩大父目录发现范围；
 - `loadProjectConfigFile()` 将合法 project Hook 声明保存在独立 `hookCandidate` 通道，并产生 `config_project_hooks_pending_trust`；`normalizeProjectConfig()` 继续从 executable patch 剥离 `hooks`，candidate 不进入 `mergeConfigs()`、configured runner 或 callback construction；
 - 实现 versioned `hookDeclarationDigest` 与 `bundleDigest`：declaration digest 覆盖 source identity/order、event、matcher/order、command/process args、command async/shell、resolved timeout 与 max output；`statusMessage`、unknown passthrough 和 configured gates 不进入 declaration digest；configured gates 与 source root 原始值进入 bundle digest；
 - snapshot 通过 contracts schema 二次校验并深冻结；JSON 空白与 key 排列不影响 digest，`timeout`/`timeoutMs` 经相同 resolver 归一后语义等价；
 - configured gate 固化为 `sourceRootEnabled = source.enabled !== false`、`declarationEnabled = hook.enabled !== false`、`runtimeHooksEnabled = merged hooks.enabled === true`，三者共同决定 `configuredEnabled`；仅 gate 变化保持 declaration digest 不变并改变 bundle digest；
 - Core configured runner 复用同一 `resolveWorkspaceHookTimeoutMs()` 与 `resolveWorkspaceHookMaxOutputBytes()`，避免 Trust canonicalization 和真实 runner 的数值边界分叉；
-- Settings `loadHooks()` 返回同一 canonical `workspaceHookSnapshot`，Hook row 暴露 `configuredState`、`workspaceHook` 与 `editable`；只有当前 workspace 的 `.zcode/config.json` 可编辑，ancestor config、`zcode.json` 和显式配置只读；
-- `.agents/.claude` compatibility rows 保持 disabled/read-only，不进入 Trust snapshot、bundle digest 或 pending 数量；保存设置时只写 user config 与当前 workspace `.zcode/config.json`，不会把只读 ancestor/project 声明复制到当前文件；
-- 新增 `.zcode/config.json` 原子 mutation primitive：同目录 temp file 写入、`fsync`、`close` 后 atomic rename；rename 前失败时保留原文件并清理 temp file；
+- Settings `loadHooks()` 返回同一 canonical `workspaceHookSnapshot`，Hook row 暴露 `configuredState`、`workspaceHook` 与 `editable`；只有当前 workspace 的 `.secretariat/config.json` 可编辑，ancestor config、`zcode.json` 和显式配置只读；
+- `.agents/.claude` compatibility rows 保持 disabled/read-only，不进入 Trust snapshot、bundle digest 或 pending 数量；保存设置时只写 user config 与当前 workspace `.secretariat/config.json`，不会把只读 ancestor/project 声明复制到当前文件；
+- 新增 `.secretariat/config.json` 原子 mutation primitive：同目录 temp file 写入、`fsync`、`close` 后 atomic rename；rename 前失败时保留原文件并清理 temp file；
 - 本地 Phase 1 identity 暂沿用现有 `workspaceIdentity?.trim() || workspacePath` 语义，并明确不调用 `realpath`。
 
 Phase 1 安全结论：
@@ -2528,7 +2528,7 @@ generation n + bundle Bn
 - `WorkspaceHookRuntimeAdmission` 支持按需 review port 与动态 snapshot replacement/invalidation；activation 不等待 review，无 review port 时继续 blocked-and-continue；
 - Bootstrap 组合单例 Trust store、coordinator、admission、review controller 与 mutation port；Review lifecycle 先落 `SessionEventStore` 再进入 projection；
 - persistent Trust 采用 store-first、memory-second 顺序；关闭、超时或断连不创建授权记录；
-- 共享层新增 exact declaration digest helper 与原子 `.zcode/config.json` toggle primitive，只允许修改 reviewed snapshot 中 editable declaration 的 `enabled` gate，并执行 temp write → fsync/close → atomic rename；
+- 共享层新增 exact declaration digest helper 与原子 `.secretariat/config.json` toggle primitive，只允许修改 reviewed snapshot 中 editable declaration 的 `enabled` gate，并执行 temp write → fsync/close → atomic rename；
 - Bootstrap 新增 process-global workspace mutation lock，在锁内执行 disk rebuild、`Bn` exact compare、原子写与 `Bn+1` rebuild；并发旧 bundle mutation 在首个 commit 后被拒绝；
 - toggle write commit 后旧 admission 立即 invalidated，旧 generation superseded；rebuild 失败发布 configuration-error，旧 callback 和旧 response 均不能恢复执行；
 - Contracts/Protocol v4 新增 `WorkspaceHookReviewRequested/Settled/Superseded` SessionEvent、专用 pending projection，以及 `respondWorkspaceHookReview`、`toggleWorkspaceHookReviewItem`、`revokeWorkspaceHookTrust` 三条独立命令；不复用通用 Dialog 或 `resolveInteraction`；
@@ -2603,7 +2603,7 @@ Phase 5 安全结论：
 
 #### Phase 6 实现记录（2026-08-06）
 
-- `ZCodeAppOptions.workspaceHookTrustEnabled` 成为 trusted bootstrap rollout gate；通用 App 缺省为 false，ZCode Protocol 的 Desktop/Web/Mobile workspace Host 在受信边界显式传 true；workspace/project 配置和环境变量不能设置该值。
+- `ZCodeAppOptions.workspaceHookTrustEnabled` 成为 trusted bootstrap rollout gate；通用 App 缺省为 false，Secretariat Protocol 的 Desktop/Web/Mobile workspace Host 在受信边界显式传 true；workspace/project 配置和环境变量不能设置该值。
 - flag 关闭时 Runtime 仍保留 project Hook snapshot/blocked lifecycle，但不创建 Trust store adapter、不读取已有 records、不创建 review request，所有 dispatch 返回 `workspace_hooks_feature_disabled`；Trust 文件原样保留。
 - flag 开启时沿用 Phase 3-5 admission；managed `deny` 继续高于 persistent Trust，并通过 security revision 在下一次 dispatch gate 生效。
 - 使用现有 `Logger` Port 增加稳定 `workspace_hook.*` 结构化 telemetry：review created、selected persistent Trust、timeout、stale/superseded、snapshot mismatch、policy blocked、Trust store failure、toggle/write/rebuild failure 与 feature disabled。
@@ -2630,7 +2630,7 @@ Phase 6 安全结论：关闭 rollout gate 是可逆的 hard block，不会把 f
 
 ### 26.1 Feature flag
 
-使用 trusted runtime feature flag 控制“是否允许进入用户 Trust 流程”。通用 App 工厂默认 false；ZCode Protocol workspace Host 当前在 trusted bootstrap 边界显式开启：
+使用 trusted runtime feature flag 控制“是否允许进入用户 Trust 流程”。通用 App 工厂默认 false；Secretariat Protocol workspace Host 当前在 trusted bootstrap 边界显式开启：
 
 ```text
 workspaceHookTrustEnabled = false

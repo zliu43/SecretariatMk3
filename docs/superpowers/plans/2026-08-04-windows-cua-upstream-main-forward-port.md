@@ -195,7 +195,7 @@ Expected: build 和测试 exit 0；pack 内容来自当前源码生成物。
 expect(
   parseWindowsDevHelperConfig({
     argv: ["node", "entry", "--socket", SOCKET, "--parent-pid", "12"],
-    env: { ZCODE_CUA_PERMISSION_BROKER_TOKEN: TOKEN },
+    env: { SECRETARIAT_CUA_PERMISSION_BROKER_TOKEN: TOKEN },
     platform: "win32",
   }),
 ).toEqual({ socketPath: SOCKET, parentPid: 12, token: TOKEN });
@@ -440,7 +440,7 @@ Write-Output $producerCommit
 ```
 
 用户明确要求不 push，因此该 SHA 暂时不能被 Git URL clean checkout 获取。实现和本地产品
-验证使用显式 `ZCODE_CUA_HELPER_RUNTIME_PACKAGE_DIR=C:\Users\dev\zcode-cua`；
+验证使用显式 `SECRETARIAT_CUA_HELPER_RUNTIME_PACKAGE_DIR=C:\Users\dev\zcode-cua`；
 `pnpm-workspace.yaml` 和 `pnpm-lock.yaml` 在 producer commit 可从 remote 获取前保持当前
 上游 pin，禁止提交不可获取的 SHA 或 `file:` 本地路径。最终 Git URL pin/clean-install gate
 标记为待用户 push 后执行，不能伪造成功。
@@ -546,7 +546,7 @@ Expected: 全部 exit 0。
 - [ ] **Step 1: 在独立临时目录验证无 ignored 资源依赖**
 
 从当前 tracked tree 创建临时 checkout，确认 `packages/desktop/bundled-tools` 初始不存在；
-显式把 `ZCODE_CUA_HELPER_RUNTIME_PACKAGE_DIR` 指向 Task 6 本地 producer，执行 staging，
+显式把 `SECRETARIAT_CUA_HELPER_RUNTIME_PACKAGE_DIR` 指向 Task 6 本地 producer，执行 staging，
 然后检查 manifest/entry/native digests。
 
 Expected: 不复制当前工作区历史 `bundled-tools` 也能生成资源。由于 producer commit 未 push，

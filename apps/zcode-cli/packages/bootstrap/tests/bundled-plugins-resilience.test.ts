@@ -259,7 +259,7 @@ describe("bundled official plugin cache resilience", () => {
       "Official plugin cache operation degraded",
       expect.objectContaining({
         degraded: true,
-        errorCode: "ZCODE_PLUGIN_SEED_INCOMPLETE",
+        errorCode: "SECRETARIAT_PLUGIN_SEED_INCOMPLETE",
         // browser-use 不再携带 node_repl 宿主产物（那是 node-repl-host 的），
         // 它自己必需的运行时资产是 browser-client。
         missingSeedPaths: expect.arrayContaining(["scripts/browser-client.mjs"]),
@@ -314,7 +314,7 @@ describe("bundled official plugin cache resilience", () => {
     expect(logger.warn).toHaveBeenCalledWith(
       "Official plugin cache operation degraded",
       expect.objectContaining({
-        errorCode: "ZCODE_PLUGIN_SEED_INCOMPLETE",
+        errorCode: "SECRETARIAT_PLUGIN_SEED_INCOMPLETE",
         operation: "seed_plugin",
         pluginId: "browser-use@zcode-plugins-official",
       }),
@@ -348,7 +348,7 @@ describe("bundled official plugin cache resilience", () => {
       "Official plugin cache operation degraded",
       expect.objectContaining({
         degraded: true,
-        errorCode: "ZCODE_PLUGIN_SEED_LOCK_TIMEOUT",
+        errorCode: "SECRETARIAT_PLUGIN_SEED_LOCK_TIMEOUT",
         operation: "seed_plugin",
         pluginId: "browser-use@zcode-plugins-official",
       }),
@@ -403,7 +403,7 @@ describe("bundled official plugin cache resilience", () => {
     expect(logger.warn).toHaveBeenCalledWith(
       "Official plugin cache operation degraded",
       expect.objectContaining({
-        errorCode: "ZCODE_PLUGIN_SEED_LOCK_TIMEOUT",
+        errorCode: "SECRETARIAT_PLUGIN_SEED_LOCK_TIMEOUT",
         operation: "seed_plugin",
         pluginId: "browser-use@zcode-plugins-official",
       }),

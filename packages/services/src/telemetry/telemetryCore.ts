@@ -1,9 +1,9 @@
 /* oxlint-disable eslint(max-lines) -- telemetry state lock、deviceMid 编排和上报路径共享同一状态文件，拆分会增加锁语义漂移风险。 */
 import {
   createUuid,
-  ZCODE_VERSION,
-  ZCODE_ENV,
-  ZCODE_TELEMETRY_REPORT_ENDPOINT,
+  SECRETARIAT_VERSION,
+  SECRETARIAT_ENV,
+  SECRETARIAT_TELEMETRY_REPORT_ENDPOINT,
   buildZCodeSourceHeadersFromContext,
   rewriteZCodeEndpointUrl,
   sanitizeTelemetryEventDetail,
@@ -18,7 +18,7 @@ import { dirname, join } from "node:path";
 import { createServiceLogger } from "#src/logger/serviceLogger.js";
 import { getAppConfigDir } from "../paths.js";
 
-const REPORT_ENDPOINT = ZCODE_TELEMETRY_REPORT_ENDPOINT;
+const REPORT_ENDPOINT = SECRETARIAT_TELEMETRY_REPORT_ENDPOINT;
 
 function sessionCreateEventId(userId: string, sessionId: string): string {
   const bytes = createHash("sha256")
@@ -125,14 +125,14 @@ function toLocalDateKey(timestamp: number, timeZone: string): string {
 
 function resolveTelemetryStateFile(homeDir?: string): string {
   if (homeDir) {
-    return join(homeDir, ".zcode", "v2", "telemetry-state.json");
+    return join(homeDir, ".secretariat", "v2", "telemetry-state.json");
   }
   return join(getAppConfigDir(), "telemetry-state.json");
 }
 
 function resolveTelemetryLockFile(homeDir?: string): string {
   if (homeDir) {
-    return join(homeDir, ".zcode", "v2", "telemetry-state.lock");
+    return join(homeDir, ".secretariat", "v2", "telemetry-state.lock");
   }
   return join(getAppConfigDir(), "telemetry-state.lock");
 }
@@ -304,7 +304,7 @@ async function ensureDeviceMidInLockedState(
  * 确保 telemetry-state.json 里存在 deviceMid 并返回它。
  *
  * Bug 根因：远端 zcode-server 所在主机没有 Desktop main 进程，过去没有任何进程会在那里写
- * telemetry-state.json；buildZCodeSourceHeaders() 又只读不生成，于是远端发往 ZCode endpoint 的
+ * telemetry-state.json；buildZCodeSourceHeaders() 又只读不生成，于是远端发往 Secretariat endpoint 的
  * 请求永远缺 X-Device-Mid，billing/balance 被服务端拒绝为 parameter error，Start Plan 在远程
  * 工作区被判成未开通。这里把 telemetry 上报内部的 ensure 逻辑抽成独立入口，供远端 server 启动时
  * 调用：同一个文件、同一个字段、同一把 telemetry-state.lock，与同机 CLI 得到同一个设备身份。
@@ -342,7 +342,7 @@ export function createTelemetryCore(dependencies: TelemetryCoreDependencies = {}
   let didWarnMarketingParamsLoadFailure = false;
   const randomUUID = dependencies.randomUUID ?? (() => createUuid());
   const now = dependencies.now ?? Date.now;
-  const appVersion = dependencies.appVersion ?? ZCODE_VERSION;
+  const appVersion = dependencies.appVersion ?? SECRETARIAT_VERSION;
   const platform = dependencies.platform ?? process.platform;
   const osVersion = dependencies.osVersion ?? version();
   const requestTimeoutMs = dependencies.requestTimeoutMs ?? REPORT_REQUEST_TIMEOUT_MS;
@@ -466,7 +466,7 @@ export function createTelemetryCore(dependencies: TelemetryCoreDependencies = {}
       platform,
       arch: dependencies.arch ?? process.arch,
       osVersion,
-      releaseChannel: dependencies.releaseChannel ?? ZCODE_ENV,
+      releaseChannel: dependencies.releaseChannel ?? SECRETARIAT_ENV,
       clientLanguage: context.clientLanguage,
       clientTimezone: context.clientTimezone,
       deviceMid,

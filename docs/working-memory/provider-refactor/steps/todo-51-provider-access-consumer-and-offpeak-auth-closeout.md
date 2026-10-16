@@ -11,7 +11,7 @@
 本轮不再改变 Provider Config 的核心结构，而是让所有消费方真正遵守已经确定的唯一事实：
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
 Account Provider Config
 Personal Provider Config Overlay
               |
@@ -33,7 +33,7 @@ Settings View                  Provider Registry
 
 - Welcome 手填 API Key 只为固定 Built-in API Provider 保存稀疏 Personal Overlay，不建立自定义 Provider、不复制
   Built-in 事实，也不暗中修改 Family Connection Selection；
-- Off-Peak 继续使用 ZCode JWT、Coding Plan 项目 Key 和 Off-Peak Ticket 三份既有请求材料，但 Provider/账号选择与
+- Off-Peak 继续使用 Secretariat JWT、Coding Plan 项目 Key 和 Off-Peak Ticket 三份既有请求材料，但 Provider/账号选择与
   Request Auth 只解析一次，Desktop Host 不再扫描 Settings View 猜测当前 Coding Plan。
 
 ## 2. 已确认边界
@@ -85,7 +85,7 @@ Effective Config / Registry 刷新
 ### 2.3 Off-Peak 三份请求材料与单一解析来源
 
 ```text
-ZCode JWT                  当前登录身份
+Secretariat JWT                  当前登录身份
 Coding Plan Project Key    当前 Individual/Team 套餐的模型请求材料
 Off-Peak Ticket            本次闲时执行的调度准入
           \                   |                   /

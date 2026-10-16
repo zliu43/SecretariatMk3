@@ -65,7 +65,7 @@ async function setup() {
         {
           providerId: BIGMODEL_PROVIDER_ID,
           meta: { id: BIGMODEL_PROVIDER_ID, displayName: "BigModel", enabled: true, order: 1 },
-          redirectUri: "zcode://oauth/callback",
+          redirectUri: "secretariat://oauth/callback",
           buildAuthorizeUrl: () => "",
           parseCallbackParams: parse,
           exchangeToken,
@@ -79,7 +79,7 @@ async function setup() {
   const started = await service.startOAuthWithPolling(BIGMODEL_PROVIDER_ID);
   expect(new URL(started.authorizeUrl).searchParams.get("channel_id")).toBe("launch");
   const callback =
-    "zcode://oauth/callback?state=race-state&code=code&channel_id=desktop&utm_source=site&utm_campaign=launch";
+    "secretariat://oauth/callback?state=race-state&code=code&channel_id=desktop&utm_source=site&utm_campaign=launch";
   const ready = () =>
     pollResponse.resolve(
       Response.json({

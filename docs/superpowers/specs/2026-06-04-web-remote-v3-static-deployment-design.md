@@ -164,10 +164,10 @@ commit and push MR branch
 https://zcode.z.ai/remote/v3
 ```
 
-`ZCODE_WEB_REMOTE_CONTROL_URL` 环境变量继续保留最高优先级，用于本地调试或临时回退：
+`SECRETARIAT_WEB_REMOTE_CONTROL_URL` 环境变量继续保留最高优先级，用于本地调试或临时回退：
 
 ```bash
-ZCODE_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote pnpm dev:desktop
+SECRETARIAT_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote pnpm dev:desktop
 ```
 
 这样新桌面版本默认扫码进入 v3，老桌面版本仍然使用自己构建时的旧默认 `/remote`。

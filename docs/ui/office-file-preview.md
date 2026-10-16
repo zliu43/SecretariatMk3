@@ -42,7 +42,7 @@ URL 原样交给主 renderer 的 DOM 导航或脚本执行路径。
 | 文件读取   | 所有 Office 类型使用同一受限二进制读取和 base64 RPC 返回           | 无                                                                              | 不修改 file service、workspace identity 或 25 MB 上限 |
 | 路由与错误 | `PreviewPaneOfficeContent` 统一懒加载、空白 loading 和本地化错误态 | `.xlsx`、`.docx`、`.doc` 进入独立 renderer chunk                                | `.docx` 可替换实现而不影响 Excel 或旧 `.doc`          |
 | 渲染       | 都是只读 Preview Pane 内容                                         | `.docx` 用 `docx-preview`；`.doc` 用 legacy `react-docx`；Excel 用 `react-xlsx` | `docx-preview` 不支持 OLE `.doc`，必须显式分流        |
-| Excel 多表 | Excel workbook 共用同一个只读 controller                          | ZCode 自定义 sheet 导航只展示可见 workbook tab，不启用库的编辑/导出 toolbar   | 多表切换不能以重新解析文件或开放写入能力为代价        |
+| Excel 多表 | Excel workbook 共用同一个只读 controller                          | Secretariat 自定义 sheet 导航只展示可见 workbook tab，不启用库的编辑/导出 toolbar   | 多表切换不能以重新解析文件或开放写入能力为代价        |
 | DOCX 分页  | 页面必须保留 OOXML section 边界及各自页边距                        | 使用 `docx-preview` 官方默认的 section 分组行为；不额外启用 `lastRenderedPageBreak` | 同尺寸 section 也可能拥有不同页边距，禁止合并        |
 | 响应式     | Word 预览共用 `calculateDocxPreviewFit` 的只缩小不放大规则         | DOCX 测量生成的 HTML wrapper；legacy `.doc` 测量 editor 画布                    | 保持桌面窄侧栏和小屏布局语义                          |
 | 生命周期   | source 切换时清理当前可见内容                                      | DOCX 的 `renderAsync` 无取消 API，使用 detached DOM + active guard              | 旧异步结果不能覆盖最新文件                            |

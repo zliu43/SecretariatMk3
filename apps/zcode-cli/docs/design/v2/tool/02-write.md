@@ -64,7 +64,7 @@
 8. 创建父目录。
 9. 可选记录 file history，用于撤销或审计。
 10. 再次同步读取当前文件并确认没有被并发修改。
-11. 以原编码写入完整内容；ZCode 当前会把已有文件的 `lineEndings` metadata 传回 adapter 以保留既有换行风格。无法编码到原编码时失败，不降级成有损替换。
+11. 以原编码写入完整内容；Secretariat 当前会把已有文件的 `lineEndings` metadata 传回 adapter 以保留既有换行风格。无法编码到原编码时失败，不降级成有损替换。
 12. 通知 LSP 和 IDE 文件已更新。
 13. 更新 `readFileState` 为新内容和新 mtime。
 14. 返回 create/update 结果和展示用 diff。
@@ -83,7 +83,7 @@
 - explicit edit allow 可 allow。
 - 默认 ask，并提供 `acceptEdits` 或新增工作目录建议。
 
-ZCode 应把 create/update 都归入 `workspace` side effect，并显式声明可能覆盖已有文件。
+Secretariat 应把 create/update 都归入 `workspace` side effect，并显式声明可能覆盖已有文件。
 
 ## 校验与错误
 
@@ -106,7 +106,7 @@ ZCode 应把 create/update 都归入 `workspace` side effect，并显式声明�
 - `secret_detected`
 - `io_error`
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 ## 实现状态（2026-05-08）
 
@@ -129,7 +129,7 @@ ZCode 应把 create/update 都归入 `workspace` side effect，并显式声明�
 - 业务层只提交 `WriteFileIntent`。
 - `FileMutationService` 负责读缓存校验、mtime/content 比对、diff 生成、history 和 LSP 通知。
 - `FileSystemPort` 负责 mkdir、stat、read、atomic write。
-- `FileSystemPort` 是写入能力边界；Node 本地写入和 ZCode app-server `fs/write_text_file` 都必须实现同一契约。
+- `FileSystemPort` 是写入能力边界；Node 本地写入和 Secretariat app-server `fs/write_text_file` 都必须实现同一契约。
 - `PermissionPort` 负责 workspace、dangerous path、mode 和 rule 判断。
 - 写入成功后必须更新 read cache，否则下一次 `Edit` 会误判 stale。
 - 测试必须覆盖未读写入、partial read、mtime 假阳性、文件不存在创建、路径权限和换行保持。

@@ -124,7 +124,7 @@ SSH online cache cancel ----------------------> 保持 window cache，不销毁�
 ```
 
 取消期间可能已经创建 SSH 远端 owner staging。旧 backend 一旦进入 dispose barrier 不得为 cleanup
-重新连接；下一次使用新 backend 的 SSH 部署会在写入前执行 best-effort janitor，只删除 ZCode 自己的
+重新连接；下一次使用新 backend 的 SSH 部署会在写入前执行 best-effort janitor，只删除 Secretariat 自己的
 UUID staging 命名且已超过 24 小时的项。当前 owner、正式路径、WSL/Docker/Server staging 均不在本次
 清理边界内。
 

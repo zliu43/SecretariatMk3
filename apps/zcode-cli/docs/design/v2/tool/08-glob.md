@@ -20,9 +20,9 @@ description 固定为：
 
 `Fast file pattern matching. Supports glob patterns like "**/*.js" or "src/**/*.ts". Returns matching file paths sorted by modification time.`
 
-当前 ZCode 不按 model 动态切换 `Glob` description，所有模型使用同一份短文案。
+当前 Secretariat 不按 model 动态切换 `Glob` description，所有模型使用同一份短文案。
 
-开放式多轮搜索不在 `Glob` description 中引导。ZCode 当前按 branch 切换 provider-visible
+开放式多轮搜索不在 `Glob` description 中引导。Secretariat 当前按 branch 切换 provider-visible
 search surface：embedded branch 通过 Bash `find` / `grep` 接管；direct fallback branch 才保留
 `Glob`、`Grep`、`Read` 组合完成多轮搜索。
 

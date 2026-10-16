@@ -2,11 +2,11 @@
 
 ## 背景
 
-MCP 设置页打开开关后，曾出现不可连接 server 初始显示为绿色，随后真实连接失败才变红的状态流转。为了稳定复现该问题，需要默认启用、但不会连通的 ZCode Agent MCP server，分别覆盖 HTTP 连接失败和 STDIO 进程启动失败。
+MCP 设置页打开开关后，曾出现不可连接 server 初始显示为绿色，随后真实连接失败才变红的状态流转。为了稳定复现该问题，需要默认启用、但不会连通的 Secretariat Agent MCP server，分别覆盖 HTTP 连接失败和 STDIO 进程启动失败。
 
 ## 配置位置
 
-测试配置写入用户级 ZCode Agent MCP 配置：
+测试配置写入用户级 Secretariat Agent MCP 配置：
 
 ```json
 {
@@ -38,7 +38,7 @@ MCP 设置页打开开关后，曾出现不可连接 server 初始显示为绿�
 ## 预期验证
 
 1. 启动桌面端后打开 Settings -> MCP Servers。
-2. `zcode-unreachable-http-test` 和 `zcode-unreachable-stdio-test` 应出现在 ZCode Agent MCP 列表中。
+2. `zcode-unreachable-http-test` 和 `zcode-unreachable-stdio-test` 应出现在 Secretariat Agent MCP 列表中。
 3. 打开任一 server 开关或刷新 MCP 状态时，不应长期保持绿色 connected。
 4. 真实连接完成后应展示 failed/error，并保留错误信息；STDIO 测试项的错误应指向命令无法启动或找不到。
 

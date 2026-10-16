@@ -18,7 +18,7 @@ import type {
   ZCodeTaskMeta,
   ZCodeWorkspaceEvent,
 } from "@zcode/shared";
-import { elideSessionSnapshotForIndex, ZCODE_AGENT_PROVIDER_NOT_READY_CODE } from "@zcode/shared";
+import { elideSessionSnapshotForIndex, SECRETARIAT_AGENT_PROVIDER_NOT_READY_CODE } from "@zcode/shared";
 import type {
   SessionSummary,
   ErrorAttribution,
@@ -362,7 +362,7 @@ function snapshotWith(
     });
   }
   return {
-    protocol: { name: "ZCode Protocol", version: 1 },
+    protocol: { name: "Secretariat Protocol", version: 1 },
     session: {
       sessionId,
       workspace: { workspacePath, workspaceKey: workspacePath },
@@ -2967,7 +2967,7 @@ describe("createZCodeTaskIndexSyncer", () => {
     const env = setupEnv();
     const providerNotReadyError = Object.assign(
       new Error("当前没有可用的模型供应商和模型，请先登录或配置 API Key。"),
-      { code: ZCODE_AGENT_PROVIDER_NOT_READY_CODE },
+      { code: SECRETARIAT_AGENT_PROVIDER_NOT_READY_CODE },
     );
     vi.mocked(env.agent.subscribeSessionsIndexV4).mockRejectedValueOnce(providerNotReadyError);
     vi.mocked(env.agent.subscribeWorkspaceConfigV4).mockRejectedValueOnce(providerNotReadyError);

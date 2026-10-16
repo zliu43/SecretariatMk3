@@ -10,7 +10,7 @@ const retiredProtocolPrefix = `${"a"}${"cp"}`;
 const retiredProxyRuntimePackageId = `${retiredProtocolPrefix}-proxy-runtime`;
 
 describe("remote resource packages", () => {
-  it("defaults to active ZCode remote resource packages", () => {
+  it("defaults to active Secretariat remote resource packages", () => {
     expect(REMOTE_RESOURCE_PACKAGE_IDS).toEqual([
       "server-bundle",
       "node-runtime",

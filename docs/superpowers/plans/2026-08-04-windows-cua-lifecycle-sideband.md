@@ -6,7 +6,7 @@
 
 **Architecture:** CLI 在原始 `SessionEvent` 进入协议投影时额外发送严格、精简、不可重放的 `computer-use/operation-event` 通知；通知与 v4 conversation frame 并行，且位于 `record.deliveryKind` 判断之前。Services 只用该通知驱动 `CuaOperationTurnTracker`，再沿既有 Host→Main `cua-operation-state` 链路显示浮层；旧 `session/event`、Renderer、snapshot 和 relay 都不拥有提示状态。
 
-**Tech Stack:** TypeScript 6、Zod、Vitest 4、ZCode Protocol NDJSON、Electron UtilityProcess/BrowserWindow、pnpm。
+**Tech Stack:** TypeScript 6、Zod、Vitest 4、Secretariat Protocol NDJSON、Electron UtilityProcess/BrowserWindow、pnpm。
 
 ## Global Constraints
 

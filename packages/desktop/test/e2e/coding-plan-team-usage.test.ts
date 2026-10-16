@@ -32,7 +32,7 @@ import { skipOccupationOnboardingIfPresent } from "./helpers/occupation-onboardi
 
 // 修复原因：WDIO 为每个 run 注入隔离 HOME，但 os.homedir() 在 Node 进程中不会
 // 随环境变量动态变化。沿用 homedir() 会把场景设置和 provider seed 写到开发机的
-// ~/.zcode，Electron 读取的却是本轮隔离 HOME；同时新版 Personal Config 文件名是
+// ~/.secretariat，Electron 读取的却是本轮隔离 HOME；同时新版 Personal Config 文件名是
 // provider_config.json，不是旧的 config.json。统一复用 desktop-app 的路径合同，确保
 // 测试写入和应用读取的是同一份 fixture。
 const E2E_APP_DATA_PATHS = getE2EAppDataPaths();
@@ -72,7 +72,7 @@ describe("Team Plan 设置与使用统计 E2E", () => {
   it("CTP-13: Start balance 限流显示重试，恢复后展示套餐", async function () {
     this.timeout(120000);
     const evidenceDir =
-      process.env.ZCODE_E2E_ARTIFACT_DIR || join(process.cwd(), ".e2e-artifacts", "coding-plan");
+      process.env.SECRETARIAT_E2E_ARTIFACT_DIR || join(process.cwd(), ".e2e-artifacts", "coding-plan");
     await mkdir(evidenceDir, { recursive: true });
     await prepareScenario(
       "personalOnly",
@@ -1469,9 +1469,9 @@ async function readMockRequests(): Promise<MockRequest[]> {
 }
 
 function getMockBaseUrl() {
-  const baseUrl = process.env.ZCODE_E2E_CODING_PLAN_MOCK_URL?.trim();
+  const baseUrl = process.env.SECRETARIAT_E2E_CODING_PLAN_MOCK_URL?.trim();
   if (!baseUrl) {
-    throw new Error("ZCODE_E2E_CODING_PLAN_MOCK_URL 未配置");
+    throw new Error("SECRETARIAT_E2E_CODING_PLAN_MOCK_URL 未配置");
   }
   return baseUrl;
 }

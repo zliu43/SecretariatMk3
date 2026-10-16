@@ -1,6 +1,6 @@
 import armsRum from "@arms/rum-electron";
 import {
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   type DatabaseStartupState,
   type ArmsCustomEventPayload,
 } from "@zcode/shared";
@@ -38,7 +38,7 @@ function send(
       context: {
         deviceMid,
         platform: process.platform,
-        appVersion: ZCODE_VERSION,
+        appVersion: SECRETARIAT_VERSION,
         armsEnv: armsRum.getConfig().env === "prod" ? "prod" : "local",
         rendererId: 0,
       },

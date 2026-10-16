@@ -261,7 +261,7 @@ UI action
 ## 关联文档
 
 - [V4 重构 README](./README.md)
-- [ZCode Protocol v4 字段级规范](./10-protocol-spec.md)
+- [Secretariat Protocol v4 字段级规范](./10-protocol-spec.md)
 - [订阅与恢复](./04-sync-and-recovery.md)
 - [传输与背压](./05-transport-and-backpressure.md)
 - [V4 重构设计 Review](./design-review.md)

@@ -2,16 +2,16 @@
 
 ## Goal
 
-ZCode should support executing completed tool calls while the model stream is
+Secretariat should support executing completed tool calls while the model stream is
 still open, then use the same state boundaries to recover from retryable
 mid-stream provider failures without double-running tools.
 
 This spec covers two linked capabilities:
 
 - Streaming tool execution: once a complete tool call input has streamed in,
-  ZCode may schedule the tool before the model response finishes.
+  Secretariat may schedule the tool before the model response finishes.
 - Streaming failure recovery: when the provider stream fails after partial
-  output, ZCode may discard uncommitted assistant output and start a new SSE
+  output, Secretariat may discard uncommitted assistant output and start a new SSE
   request from the latest committed recovery anchor.
 
 The core rule is:
@@ -27,13 +27,13 @@ The core rule is:
   workspace/system rollback are separate capabilities.
 - Do not infer recovery state from UI text. Recovery uses session events,
   message history, tool parts, and ledger records.
-- Do not add a new `ZCODE_` environment variable for this feature without a
+- Do not add a new `SECRETARIAT_` environment variable for this feature without a
   separate config spec. Initial rollout should use an existing capability gate or
   typed config/session option.
 
 ## Current Baseline
 
-Current ZCode starts eligible read-only client tools before the model stream
+Current Secretariat starts eligible read-only client tools before the model stream
 finishes. Other tools wait until the full step returns. The streaming callback
 returns synchronously; pending persistence stays inside the existing early
 execution error boundary. Cancellation aborts the active request and does not retry.
@@ -84,7 +84,7 @@ Read snapshots and subsequent Edit after cold resume and rewind.
 
 Tools may start once a streamed `tool_use` block is closed, and orphaned tool
 calls are repaired with synthetic tool results on abort/error paths. The key
-risk is that a mid-stream non-streaming fallback can double-run tools. ZCode
+risk is that a mid-stream non-streaming fallback can double-run tools. Secretariat
 avoids this by making tool execution state durable and using committed tool
 results as recovery anchors.
 
@@ -183,7 +183,7 @@ interface StreamingToolLedgerRecord {
 ```
 
 Contracts should live in `packages/contracts` before implementation reaches
-core, TUI, ZCode app-server, debug, compact, or resume.
+core, TUI, Secretariat app-server, debug, compact, or resume.
 
 ## Recovery Anchors
 
@@ -234,7 +234,7 @@ scheduling sees them:
 6. Core must still deduplicate `tool_call` by id as a defensive boundary because
    provider and adapter behavior can differ across transports.
 
-This assembly lives in the model adapter, not in UI projection. ZCode Protocol
+This assembly lives in the model adapter, not in UI projection. Secretariat Protocol
 and app-server replay should not expose every raw `tool_input_delta` to desktop
 or remote clients; high-frequency argument bytes stay in the agent event store
 and debug path, while UI receives stable `tool.updated` lifecycle events once a
@@ -383,7 +383,7 @@ anchor:
   request should not assume it was said.
 - Retry from the previous anchor only if the failure is retryable and retry
   budget remains.
-- The retry request should keep streaming mode enabled. ZCode does not downgrade
+- The retry request should keep streaming mode enabled. Secretariat does not downgrade
   this path to non-streaming fallback because long agent responses should keep
   incremental UX.
 - The new attempt must use a new assistant message id. Clients should treat the
@@ -415,7 +415,7 @@ Payloads should include attempt ids, assistant message id, selected anchor,
 discarded text/tool ids, committed tool ids, blocked tool id/reason, retry
 attempt/max retries, and `traceId` / `sessionId` / `turnId`.
 
-TUI and ZCode app-server should consume events instead of inferring recovery from final error
+TUI and Secretariat app-server should consume events instead of inferring recovery from final error
 text.
 
 ## Persistence And Resume
@@ -483,7 +483,7 @@ First implementation should not require every tool to support rollback. Instead:
 - Allow non-concurrent side-effecting tools to start before stream finish when
   scheduler has exclusive access and permission is resolved.
 - Add sibling/dependent cancellation policy for failures.
-- Ensure TUI/ZCode app-server/debug show interleaved model and tool progress deterministically.
+- Ensure TUI/Secretariat app-server/debug show interleaved model and tool progress deterministically.
 
 ### Phase 4: Stream Failure Recovery
 
@@ -518,8 +518,8 @@ First implementation should not require every tool to support rollback. Instead:
 - Persistence: ledger hydrate, abandoned attempts excluded from provider
   context, committed results kept exactly once, and interrupted tool calls
   hydrated as synthetic error results.
-- TUI/ZCode app-server/Debug: interleaved model/tool progress, recovery events that clear or
-  mark partial text, stable ZCode app-server statuses, and trace visibility for attempt,
+- TUI/Secretariat app-server/Debug: interleaved model/tool progress, recovery events that clear or
+  mark partial text, stable Secretariat app-server statuses, and trace visibility for attempt,
   tool lifecycle, anchor selection, and retry.
 - Regression: no duplicate tool execution, orphan tool result, missing tool
   result after cancellation, or provider-visible invalid message ordering.

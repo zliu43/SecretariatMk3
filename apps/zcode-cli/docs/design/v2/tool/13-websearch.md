@@ -3,8 +3,8 @@
 ## 结论
 
 `WebSearch` 是主模型可见的普通 client-side tool。模型调用 `WebSearch`
-后，ZCode 在 tool handler 内部发起一个只包含 provider-native `web_search`
-的 model request。内部 request 返回后，ZCode 把 links/sources 格式化为
+后，Secretariat 在 tool handler 内部发起一个只包含 provider-native `web_search`
+的 model request。内部 request 返回后，Secretariat 把 links/sources 格式化为
 普通 tool result，回灌给主模型继续生成最终答案。
 
 主模型请求不得直接暴露 provider-native `web_search`。

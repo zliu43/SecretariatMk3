@@ -39,7 +39,7 @@ vi.mock("@/logger.js", () => ({
 
 const WORKSPACE_PATH = "/repo";
 const SESSION_ID = "sess-a";
-const REPORT_URL = "file:///repo/.zcode/workflow-runs/run-1/report.html";
+const REPORT_URL = "file:///repo/.secretariat/workflow-runs/run-1/report.html";
 
 function renderPanels(options?: { supportsEmbeddedBrowser?: boolean; sidePaneOwnerId?: string }) {
   return renderHook(() =>
@@ -130,7 +130,7 @@ describe("useAppPanels 打开工作流产物", () => {
 
   it("html 产物直接开 browser tab，不再开产物 tab", async () => {
     conversationWorkflowRunArtifactsV4.mockResolvedValue(
-      journalResult(".zcode/workflow-runs/run-1/report.html"),
+      journalResult(".secretariat/workflow-runs/run-1/report.html"),
     );
     const { result, unmount } = renderPanels();
 
@@ -159,7 +159,7 @@ describe("useAppPanels 打开工作流产物", () => {
 
   it("再点一次复用同一个 browser tab，并重新发导航请求", async () => {
     conversationWorkflowRunArtifactsV4.mockResolvedValue(
-      journalResult(".zcode/workflow-runs/run-1/report.html"),
+      journalResult(".secretariat/workflow-runs/run-1/report.html"),
     );
     const { result, unmount } = renderPanels();
 
@@ -290,7 +290,7 @@ describe("useAppPanels 打开工作流产物", () => {
 
     act(() => {
       result.current.handleOpenWorkflowArtifact(
-        artifactRequest({ sourcePath: ".zcode/workflow-runs/run-1/report.html" }),
+        artifactRequest({ sourcePath: ".secretariat/workflow-runs/run-1/report.html" }),
       );
     });
     await flush();
@@ -314,7 +314,7 @@ describe("useAppPanels 打开工作流产物", () => {
 
     act(() => {
       result.current.handleOpenWorkflowArtifact(
-        artifactRequest({ sourcePath: ".zcode/workflow-runs/run-1/report.html" }),
+        artifactRequest({ sourcePath: ".secretariat/workflow-runs/run-1/report.html" }),
       );
     });
     await flush();

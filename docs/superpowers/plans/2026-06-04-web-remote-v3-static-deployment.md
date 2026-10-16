@@ -626,7 +626,7 @@ Add this test:
 ```ts
 it("desktop 新版本默认二维码 URL 应指向 /remote/v3", () => {
   expect(desktopMainIndexSource).toContain(
-    'process.env["ZCODE_WEB_REMOTE_CONTROL_URL"]?.trim() || "https://zcode.z.ai/remote/v3"',
+    'process.env["SECRETARIAT_WEB_REMOTE_CONTROL_URL"]?.trim() || "https://zcode.z.ai/remote/v3"',
   );
 });
 ```
@@ -667,7 +667,7 @@ In `packages/desktop/src/main/index.ts`, update the fallback:
 
 ```ts
 mobileRemoteControlUrl:
-  process.env["ZCODE_WEB_REMOTE_CONTROL_URL"]?.trim() || "https://zcode.z.ai/remote/v3",
+  process.env["SECRETARIAT_WEB_REMOTE_CONTROL_URL"]?.trim() || "https://zcode.z.ai/remote/v3",
 ```
 
 - [ ] **Step 5: Run focused desktop tests and confirm pass**

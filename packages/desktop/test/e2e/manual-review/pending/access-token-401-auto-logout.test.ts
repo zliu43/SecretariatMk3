@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { DesktopCommandIds, PlatformChannels } from "@zcode/shared";
 import { clearAppData, getE2EAppDataPaths } from "../../helpers/desktop-app.js";
 
-const responseStatus = process.env.ZCODE_E2E_AUTH_EXPIRY_HTTP_STATUS === "200" ? 200 : 401;
+const responseStatus = process.env.SECRETARIAT_E2E_AUTH_EXPIRY_HTTP_STATUS === "200" ? 200 : 401;
 
 describe("用户资料 access token 登录过期", () => {
   after(async () => {
@@ -11,7 +11,7 @@ describe("用户资料 access token 登录过期", () => {
   });
 
   it(`AUTH-06: 真实 Host 请求 HTTP ${responseStatus} + 业务 401 后清理当前登录并复用过期弹窗`, async () => {
-    const baseUrl = process.env.ZCODE_E2E_ACCESS_TOKEN_401_URL;
+    const baseUrl = process.env.SECRETARIAT_E2E_ACCESS_TOKEN_401_URL;
     if (!baseUrl) throw new Error("缺少隔离 userinfo HTTP fixture");
 
     await browser.waitUntil(

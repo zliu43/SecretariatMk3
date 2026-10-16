@@ -14,28 +14,28 @@ describe("shared runtime env", () => {
     const env = await importFreshEnvModule();
 
     // 单测不注入 ARMS 与自动更新；事件上报端点由 vitest.config.ts 固定注入。
-    expect(env.ZCODE_ARMS_RUM_ENDPOINT).toBe("");
-    expect(env.ZCODE_AUTO_UPDATE_ENABLED).toBe(false);
-    expect(env.ZCODE_TELEMETRY_REPORT_ENDPOINT).toBe("https://zcode.z.ai/api/v1/event/report");
+    expect(env.SECRETARIAT_ARMS_RUM_ENDPOINT).toBe("");
+    expect(env.SECRETARIAT_AUTO_UPDATE_ENABLED).toBe(false);
+    expect(env.SECRETARIAT_TELEMETRY_REPORT_ENDPOINT).toBe("https://zcode.z.ai/api/v1/event/report");
   });
 
-  it("未注入 ZCODE_ENV 时默认 test 并映射为 local", async () => {
+  it("未注入 SECRETARIAT_ENV 时默认 test 并映射为 local", async () => {
     vi.stubGlobal("__ZCODE_ENV__", undefined);
 
     const env = await importFreshEnvModule();
 
-    expect(env.ZCODE_ENV).toBe("test");
+    expect(env.SECRETARIAT_ENV).toBe("test");
     expect(env.normalizeZCodeEnv("development")).toBe("test");
     expect(env.mapZCodeEnvToArmsRumEnv("production")).toBe("local");
   });
 
-  it("未注入身份 define 时 flavor 跟随 ZCODE_ENV", async () => {
+  it("未注入身份 define 时 flavor 跟随 SECRETARIAT_ENV", async () => {
     vi.stubGlobal("__ZCODE_ENV__", "production");
     vi.stubGlobal("__ZCODE_PRODUCT_FLAVOR__", undefined);
 
     const env = await importFreshEnvModule();
 
-    expect(env.ZCODE_PRODUCT_FLAVOR).toBe("production");
+    expect(env.SECRETARIAT_PRODUCT_FLAVOR).toBe("production");
     expect(env.normalizeZCodeProductFlavor(undefined, "test")).toBe("preview");
     expect(env.normalizeZCodeProductFlavor("bogus", "production")).toBe("production");
   });
@@ -46,8 +46,8 @@ describe("shared runtime env", () => {
 
     const env = await importFreshEnvModule();
 
-    expect(env.ZCODE_ENV).toBe("production");
-    expect(env.ZCODE_PRODUCT_FLAVOR).toBe("preview");
+    expect(env.SECRETARIAT_ENV).toBe("production");
+    expect(env.SECRETARIAT_PRODUCT_FLAVOR).toBe("preview");
   });
 
   it("mapZCodeEnvToArmsRumEnv 将非本地 production 映射为 prod", async () => {

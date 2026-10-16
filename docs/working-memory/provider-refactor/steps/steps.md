@@ -129,7 +129,7 @@ steps/
 ├─ todo-09-off-peak-model-selection-legacy-projection-retirement.md
 │  └─ Off-Peak 旧模型投影退役并统一 scoped Selection View
 ├─ todo-10-zcode-builtin-provider-config-naming-cutover.md
-│  └─ Provider Config 的 official 命名一次性切换为 ZCode Built-in
+│  └─ Provider Config 的 official 命名一次性切换为 Secretariat Built-in
 ├─ todo-11-provider-runtime-composition-boundary-cleanup.md
 │  └─ Provider Runtime 组合边界、资源 owner 与进程组合根清理的待裁决草案
 ├─ todo-11a-provider-runtime-disposal-functional-fix.md
@@ -145,11 +145,11 @@ steps/
 ├─ todo-17-provider-registry-settings-authority-boundary-closure.md
 │  └─ Resolver、Registry 与 Settings 权威边界收口
 ├─ todo-18-zcode-builtin-client-config-sync-and-lkg.md
-│  └─ ZCode Built-in Release 的远端同步、Environment Active Cache 与刷新消抖
+│  └─ Secretariat Built-in Release 的远端同步、Environment Active Cache 与刷新消抖
 ├─ todo-20-account-overlay-atomicity-and-review-closeout.md
 │  └─ Account Overlay 原子发布与 Endpoint Active 隔离；其中 enabled 旧语义已由 Todo 50 取代
 ├─ todo-21-zcode-builtin-config-ownership-and-model-activation-order.md
-│  └─ Built-in 配置职责、Model Config 启停、Provider/Model 顺序、设置页与 ZCode V4 Access 归位
+│  └─ Built-in 配置职责、Model Config 启停、Provider/Model 顺序、设置页与 Secretariat V4 Access 归位
 ├─ todo-22-additional-builtin-providers-and-cloud-access.md
 │  └─ OpenRouter、OpenCode Zen、Azure、Volcano Ark 与 AWS Bedrock 的独立接入草案
 ├─ todo-23-provider-refactor-decision-gap-closure.md
@@ -248,7 +248,7 @@ steps/
 - [`todo-07-account-connection-selection-and-access-context-cutover.md`](./todo-07-account-connection-selection-and-access-context-cutover.md) 记录账号连接结构化选择、Account Built-in Provider Access、Request Auth、Off-Peak 与 Official MCP 的统一收口。
 - [`todo-08-legacy-model-catalog-retirement.md`](./todo-08-legacy-model-catalog-retirement.md) 删除 Legacy Model Catalog、override 与 Reasoning State，并以 Config 驱动保留的请求投影。
 - [`todo-09-off-peak-model-selection-legacy-projection-retirement.md`](./todo-09-off-peak-model-selection-legacy-projection-retirement.md) 删除 Off-Peak 旧模型 DTO 投影，统一使用 scoped Registry Selection View。
-- [`todo-10-zcode-builtin-provider-config-naming-cutover.md`](./todo-10-zcode-builtin-provider-config-naming-cutover.md) 将 Provider Config 的 `official` 领域、代码和物理命名一次性切换为 ZCode Built-in，不保留兼容入口。
+- [`todo-10-zcode-builtin-provider-config-naming-cutover.md`](./todo-10-zcode-builtin-provider-config-naming-cutover.md) 将 Provider Config 的 `official` 领域、代码和物理命名一次性切换为 Secretariat Built-in，不保留兼容入口。
 - [`todo-11-provider-runtime-composition-boundary-cleanup.md`](./todo-11-provider-runtime-composition-boundary-cleanup.md) 保存 Provider Runtime 多层包装、Node Config 资源边界和 Host/Agent 两个组合根的现状证据与候选方案；当前仍是不得实施的待裁决草案。
 - [`todo-11a-provider-runtime-disposal-functional-fix.md`](./todo-11a-provider-runtime-disposal-functional-fix.md) 独立修复 Provider Runtime 释放未贯穿 Protocol Agent 生命周期的问题，不等待 Todo 11 的架构裁决。
 - [`todo-12-model-selection-validation-boundary-cutover.md`](./todo-12-model-selection-validation-boundary-cutover.md) 删除用户 Model Selection Facade 的内部执行校验入口，将权威校验归位到 Registry/ModelFactory，并保留 Off-Peak 窄提前检查。

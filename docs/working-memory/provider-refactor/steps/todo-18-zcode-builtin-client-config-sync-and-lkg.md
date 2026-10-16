@@ -1,10 +1,10 @@
-# 18 ZCode Built-in Config 远端同步与 LKG 兜底
+# 18 Secretariat Built-in Config 远端同步与 LKG 兜底
 
 > 状态：已完成
 >
 > 日期：2026-08-25
 >
-> 来源讨论：Provider Refactor 完成后的 ZCode Built-in Provider/Model 配置发布方式收口
+> 来源讨论：Provider Refactor 完成后的 Secretariat Built-in Provider/Model 配置发布方式收口
 >
 > 相关任务：[`10`](./todo-10-zcode-builtin-provider-config-naming-cutover.md)、
 > [`13`](./todo-13-target-host-model-selection-authority.md)、
@@ -19,7 +19,7 @@
 
 ## 0. 任务定位
 
-ZCode Built-in Provider Config 与 ZCode Built-in Model Config Rules 当前只从随仓库和安装包发布的
+Secretariat Built-in Provider Config 与 Secretariat Built-in Model Config Rules 当前只从随仓库和安装包发布的
 `config/provider/zcode-builtin.json` 读取。本 Todo 将 `/api/v1/client/configs` 增加为这同一份 Built-in
 事实的远端优先发布通道，并为每个 Environment 保存最近一次确认可用的远端配置（Last Known Good，LKG）。
 
@@ -31,10 +31,10 @@ ZCode Built-in Provider Config 与 ZCode Built-in Model Config Rules 当前只�
 - 不改变 Coding Plan、官方版本安全校验、Off-Peak 或 `modelContextBudget.strategy` 的现有配置所有权；
 - 允许本阶段为 Built-in Config 增加一条独立的 `/client/configs` 请求；公共 Client Config 收口另立任务。
 
-本 Todo 只改变 ZCode Built-in Config 的 Source 与发布时序，不改变 Provider 领域主链：
+本 Todo 只改变 Secretariat Built-in Config 的 Source 与发布时序，不改变 Provider 领域主链：
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
               |
               v
     Account Provider Config
@@ -45,7 +45,7 @@ ZCode Built-in Provider Config
               v
  Effective Provider Config
 
-ZCode Built-in Model Config Rules
+Secretariat Built-in Model Config Rules
               +
  Personal Model Config Rules
               |
@@ -56,7 +56,7 @@ Effective Model Config Rules
         Registry / ModelFactory
 ```
 
-远端、LKG 与安装包配置是同一份 ZCode Built-in Source 的三个候选，不是新的 Overlay 层。
+远端、LKG 与安装包配置是同一份 Secretariat Built-in Source 的三个候选，不是新的 Overlay 层。
 
 ## 1. 已确认裁决
 
@@ -66,9 +66,9 @@ Effective Model Config Rules
 
 ```ts
 interface ZCodeBuiltinConfigContent {
-  /** 现有 ZCode Built-in Provider Config 的纯内容。 */
+  /** 现有 Secretariat Built-in Provider Config 的纯内容。 */
   readonly providers: Record<string, ProviderConfigObject>;
-  /** 现有 ZCode Built-in Model Config Rules 的纯内容。 */
+  /** 现有 Secretariat Built-in Model Config Rules 的纯内容。 */
   readonly modelConfigRules: readonly ModelConfigRuleObject[];
 }
 
@@ -120,13 +120,13 @@ interface ClientConfigFields {
 
 ### 1.2 远端配置是完整替换，不是相对 Bundled 的补丁
 
-远端 `config.providers` 是当前 ZCode Built-in Provider 的完整有序集合，`config.modelConfigRules` 是当前完整、有序的
+远端 `config.providers` 是当前 Secretariat Built-in Provider 的完整有序集合，`config.modelConfigRules` 是当前完整、有序的
 Built-in Rule 数组。服务端删除 Provider、模型成员或 Rule 时，客户端必须在新快照中同样删除，不能继续从
 Bundled Config 补回。
 
 ```text
 Bundled Release ─────┐
-Active Cache Release ┼─> 选择一个兼容候选 ─> ZCode Built-in Source
+Active Cache Release ┼─> 选择一个兼容候选 ─> Secretariat Built-in Source
 Remote Release ──────┘
 ```
 
@@ -259,7 +259,7 @@ Provider Config Source 反向依赖 Subscription Service。
 Environment composition root existing ApiClient
               |
               v
-ZCode Built-in remote fetch/synchronizer
+Secretariat Built-in remote fetch/synchronizer
               |
               v
 Built-in active Source file（同时承担 LKG）

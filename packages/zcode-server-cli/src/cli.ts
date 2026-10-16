@@ -3,7 +3,7 @@ import { fork } from "node:child_process";
 import { access, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, join } from "node:path";
-import { ZCODE_VERSION } from "@zcode/shared";
+import { SECRETARIAT_VERSION } from "@zcode/shared";
 import {
   controlRequestSchema,
   createStoppedServerStatus,
@@ -52,7 +52,7 @@ const stderr = (io: CliIO, value: unknown): void =>
   io.stderr?.write(`${value instanceof Error ? value.message : String(value)}\n`);
 
 export function serviceRegistrationEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.ZCODE_SERVER_SKIP_SERVICE_REGISTRATION !== "1";
+  return env.SECRETARIAT_SERVER_SKIP_SERVICE_REGISTRATION !== "1";
 }
 
 export function daemonStartupMode(env: NodeJS.ProcessEnv = process.env): "service" | "fallback" {
@@ -154,7 +154,7 @@ async function runServe(
         else
           stdout(
             io,
-            `ZCode Server ${existing.state} at ${existing.host ?? ""}:${existing.port ?? ""}`,
+            `Secretariat Server ${existing.state} at ${existing.host ?? ""}:${existing.port ?? ""}`,
           );
         return 0;
       }
@@ -203,8 +203,8 @@ async function runServe(
           stdio: "ignore",
           env: {
             ...process.env,
-            ZCODE_DATA_BASE_DIR: layout.dataBaseDir,
-            ZCODE_SERVER_ROOT: layout.serverRoot,
+            SECRETARIAT_DATA_BASE_DIR: layout.dataBaseDir,
+            SECRETARIAT_SERVER_ROOT: layout.serverRoot,
           },
         },
       );
@@ -225,14 +225,14 @@ async function runServe(
       () => {
         if (childEarlyExit) {
           throw new Error(
-            `ZCode Server daemon exited before ready (code=${childEarlyExit.code ?? "null"} signal=${childEarlyExit.signal ?? "none"}); check ${layout.statusFile} for details`,
+            `Secretariat Server daemon exited before ready (code=${childEarlyExit.code ?? "null"} signal=${childEarlyExit.signal ?? "none"}); check ${layout.statusFile} for details`,
           );
         }
       },
       serviceStarted,
     );
     if (json) stdout(io, started);
-    else stdout(io, `ZCode Server ${started.state} at ${started.host ?? ""}:${started.port ?? ""}`);
+    else stdout(io, `Secretariat Server ${started.state} at ${started.host ?? ""}:${started.port ?? ""}`);
     process.stdin.pause();
     process.stdin.destroy();
     return 0;
@@ -254,8 +254,8 @@ async function runServe(
           : process.execPath;
         const inheritedEnv = {
           ...process.env,
-          ZCODE_DATA_BASE_DIR: layout.dataBaseDir,
-          ZCODE_SERVER_ROOT: layout.serverRoot,
+          SECRETARIAT_DATA_BASE_DIR: layout.dataBaseDir,
+          SECRETARIAT_SERVER_ROOT: layout.serverRoot,
         };
         const releaseWiring = runtimeRoot
           ? createReleaseAgentWiring(runtimeRoot, runtimeNode, inheritedEnv)
@@ -265,13 +265,13 @@ async function runServe(
           env: {
             ...inheritedEnv,
             ...releaseWiring,
-            ...(runtimeRoot ? { ZCODE_SERVER_RUNTIME_ROOT: runtimeRoot } : {}),
+            ...(runtimeRoot ? { SECRETARIAT_SERVER_RUNTIME_ROOT: runtimeRoot } : {}),
           },
           stdio: ["ignore", "ignore", "ignore", "ipc"],
         });
       },
     },
-    version: ZCODE_VERSION,
+    version: SECRETARIAT_VERSION,
     serviceRegistered,
     onStopped: () => {
       process.stdin.pause();
@@ -292,7 +292,7 @@ async function runServe(
     throw error;
   }
   if (json) stdout(io, status);
-  else stdout(io, `ZCode Server ${status.state} at ${status.host ?? ""}:${status.port ?? ""}`);
+  else stdout(io, `Secretariat Server ${status.state} at ${status.host ?? ""}:${status.port ?? ""}`);
   await new Promise<void>((resolve) => {
     foregroundStopped = resolve;
     if (!daemon) {
@@ -330,7 +330,7 @@ async function runControl(
   } catch (error: unknown) {
     if (command === "status") {
       const persisted = await readPersistedStatusDetailed(layout);
-      result = persisted.status ?? createStoppedServerStatus(ZCODE_VERSION);
+      result = persisted.status ?? createStoppedServerStatus(SECRETARIAT_VERSION);
     } else if (command === "stop" && isControlEndpointUnavailable(error)) {
       const persisted = await readPersistedStatusDetailed(layout);
       if (persisted.state === "invalid" || persisted.state === "unreadable") {
@@ -345,7 +345,7 @@ async function runControl(
       }
       // Supervisor 停止时会先关闭 control socket，再由 CLI 落盘 stopped 状态。
       // 重复 stop 发生在这个窗口后不应因为 socket 不存在而变成失败。
-      result = persisted.status ?? createStoppedServerStatus(ZCODE_VERSION);
+      result = persisted.status ?? createStoppedServerStatus(SECRETARIAT_VERSION);
     } else {
       throw error;
     }
@@ -365,7 +365,7 @@ async function runUninstall(
   json: boolean,
   layout: ReturnType<typeof resolveServerLayout>,
 ): Promise<number> {
-  const first = await (io.confirm?.("Type DELETE to uninstall ZCode Server: ") ??
+  const first = await (io.confirm?.("Type DELETE to uninstall Secretariat Server: ") ??
     Promise.resolve(""));
   if (first !== "DELETE") throw new Error("Uninstall cancelled");
   const second = await (io.confirm?.("Type DELETE again to confirm: ") ?? Promise.resolve(""));
@@ -435,11 +435,11 @@ async function finishUninstall(
       .filter((entry) => entry !== "run")
       .sort();
     // server root 允许用户显式指定，不能递归删除未知内容。卸载只清理上面的
-    // ZCode allowlist，并把保留项写入结果供用户审计。先落盘 marker，再释放 lock，
+    // Secretariat allowlist，并把保留项写入结果供用户审计。先落盘 marker，再释放 lock，
     // 让并发 Supervisor 在删除 run 目录的最后窗口也会 fail-closed。
     await writeFile(
       layout.uninstalledFile,
-      `${JSON.stringify({ uninstalled: true, uninstalledAt: Date.now(), version: ZCODE_VERSION, preservedPaths }, null, 2)}\n`,
+      `${JSON.stringify({ uninstalled: true, uninstalledAt: Date.now(), version: SECRETARIAT_VERSION, preservedPaths }, null, 2)}\n`,
       { encoding: "utf8", mode: 0o600 },
     );
     await uninstallLock.release();
@@ -504,12 +504,12 @@ async function readControlStatus(
 
 async function delegateLegacyCli(argv: readonly string[], io: CliIO): Promise<number> {
   const candidate =
-    process.env.ZCODE_LEGACY_CLI_ENTRY?.trim() ||
+    process.env.SECRETARIAT_LEGACY_CLI_ENTRY?.trim() ||
     join(dirname(fileURLToPath(import.meta.url)), "zcode.cjs");
   try {
     await access(candidate);
   } catch {
-    stdout(io, argv.length ? `Unknown command: ${argv[0]}` : "ZCode TUI");
+    stdout(io, argv.length ? `Unknown command: ${argv[0]}` : "Secretariat TUI");
     return argv.length ? 1 : 0;
   }
   const child = fork(candidate, [...argv], { stdio: "inherit" });

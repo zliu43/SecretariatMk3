@@ -29,7 +29,7 @@ fetch 边界。`packages/adapters/src/model/registry.ts` 只在
 - Anthropic function tool 投影默认显式关闭 AI SDK 的 eager input streaming，
   使请求体不携带 per-tool `eager_input_streaming` 字段。这个字段属于 provider
   兼容敏感能力，部分 Anthropic-compatible 后端、协议转换代理和 gateway 路由会把它当
-  unknown tool schema field 拒绝；ZCode 当前先采用稳定兼容优先策略。
+  unknown tool schema field 拒绝；Secretariat 当前先采用稳定兼容优先策略。
 
 测试覆盖在 `packages/adapters/tests/registry.test.ts`，包括裸 `tool_result`
 过滤、typed result 保留、thinking start 签名补全、原生 signature delta 去重、
@@ -37,7 +37,7 @@ fetch 边界。`packages/adapters/src/model/registry.ts` 只在
 
 ## 背景
 
-ZCode 图片输入经由 Anthropic-compatible provider 时，部分后端会在 assistant
+Secretariat 图片输入经由 Anthropic-compatible provider 时，部分后端会在 assistant
 SSE 中暴露 provider 内部工具结果。例如图片分析后端可能先返回
 `server_tool_use`，随后在同一 assistant stream 中返回裸 `tool_result`。
 
@@ -49,7 +49,7 @@ client-side `tool_use` 的响应，不应作为 assistant stream content block �
 
 ## 兼容策略
 
-ZCode 不 patch `@ai-sdk/anthropic`，也不改变 ZCode 图片输入格式。兼容逻辑收敛在
+Secretariat 不 patch `@ai-sdk/anthropic`，也不改变 Secretariat 图片输入格式。兼容逻辑收敛在
 model adapter 的 Anthropic provider fetch 边界：
 
 - 仅处理 `content-type` 为 `text/event-stream` 的响应。
@@ -81,12 +81,12 @@ thinking/text 继续进入 AI SDK。若后端修正为标准 Anthropic-compatibl
 ### Tool Input Streaming 字段策略
 
 `@ai-sdk/anthropic` 默认会在 streaming Anthropic 请求的每个 function tool 上注入
-`eager_input_streaming: true`。ZCode 的 provider adapter 必须默认关闭该注入：
+`eager_input_streaming: true`。Secretariat 的 provider adapter 必须默认关闭该注入：
 
 - 普通 client-side function tool 转成 AI SDK tool 时，设置
   `providerOptions.anthropic.eagerInputStreaming = false`。
 - 这个 provider option 只用于影响 AI SDK 的 Anthropic 请求体序列化，不进入
-  ZCode 的 `ModelToolContract`、tool runtime schema、session event 或 UI 投影。
+  Secretariat 的 `ModelToolContract`、tool runtime schema、session event 或 UI 投影。
 - Provider-native tools 不追加该 option；它们按各自 provider-native contract 处理。
 - 后续若重新启用 fine-grained tool input streaming，必须先补 provider capability
   contract，按 provider/baseURL/model allowlist 或显式配置开启，并覆盖代理拒绝字段、

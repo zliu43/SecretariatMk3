@@ -876,7 +876,7 @@ caseSeeds:
 
   - id: MSR-REG-004
     status: accepted
-    state: Account snapshot revision does not match ZCode Built-in revision
+    state: Account snapshot revision does not match Secretariat Built-in revision
     event: provider-refresh
     target: provider-settings -> chat-draft
     guard: revision pair mismatch

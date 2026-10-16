@@ -33,7 +33,7 @@
 
 - [x] Fixed scope to already-background `local_bash` / `local_agent` stop control plus provider-visible `TaskStop`.
 - [x] Kept foreground-to-background controls, `TaskOutput`, and non-shared task types out of this round.
-- [x] Recorded code anchors and current ZCode starting points.
+- [x] Recorded code anchors and current Secretariat starting points.
 
 ### Phase 1 - Runtime Stop Dispatcher
 
@@ -125,7 +125,7 @@ These are known adjacent capabilities, but they were intentionally not implement
 
 ## Final Self-Review
 
-- [x] Changed behavior traces back to the spec scope above or current ZCode behavior.
+- [x] Changed behavior traces back to the spec scope above or current Secretariat behavior.
 - [x] No generic background manager was added.
 - [x] `local_bash` and `local_agent` stop through one runtime dispatcher.
 - [x] Stop lifecycle is registry-first rather than projection-first.

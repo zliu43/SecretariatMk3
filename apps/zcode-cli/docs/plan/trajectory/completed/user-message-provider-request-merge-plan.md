@@ -7,7 +7,7 @@
 在不改 session store / UI transcript / replay 存储 schema 的前提下，让最终发给 model provider 的 user messages 满足当前已确认的 provider-visible ordering 规则：
 
 - attachment-like / system-reminder user context 在 request-local projection 中 bubble 到对应 real user prompt 前；
-- 同一真实 user turn 内 ZCode 已支持的 file / image / url prompt attachments 位于真实 prompt 前；首轮 attachment 是否应越过 request-level userContext 进入 prompt 前方，作为 postponed TODO 单独跟进；
+- 同一真实 user turn 内 Secretariat 已支持的 file / image / url prompt attachments 位于真实 prompt 前；首轮 attachment 是否应越过 request-level userContext 进入 prompt 前方，作为 postponed TODO 单独跟进；
 - direct pasted image 如果已经是同一条 real user `content[]` 里的 block，则保持原始 block 顺序，不按 attachment bubble-up 处理；
 - 不做相邻 `role: "user"` messages 的通用合并；该能力保留为 postponed/future phase；
 - provider request 输出前 strip runtime metadata，并只在最后一条非 system message 上 finalize cache-control marker。
@@ -31,13 +31,13 @@
 - 修改 UI/session transcript 展示顺序；
 - 新增 system-reminder source 文案；
 - ToolSearch/deferred tools、MCP instructions/resources、skill discovery；
-- exact wording，或 ZCode 当前没有 producer 的 attachment 类型。
+- exact wording，或 Secretariat 当前没有 producer 的 attachment 类型。
 
 ## Ordering Rules
 
 - attachment-like message 在 request-local projection 中自底向上 bubble，直到遇到 assistant 或 tool-result user boundary。
 - direct pasted image 属于 user message 自身 content block，不是 attachment message；其 block 顺序由原 user content 决定。
-- ZCode 当前没有独立的 attachment message taxonomy；参与排序的 provider-visible producer 是 file / image / url prompt attachments，以及 runtime metadata 标记的 provider-visible synthetic user context。
+- Secretariat 当前没有独立的 attachment message taxonomy；参与排序的 provider-visible producer 是 file / image / url prompt attachments，以及 runtime metadata 标记的 provider-visible synthetic user context。
 - 用户真实 prompt 即使以 `<system-reminder>` 开头，也必须依赖 runtime metadata/source 判定为 real user，不能靠文本 tag heuristic。
 
 ## Stability Requirement
@@ -96,7 +96,7 @@
 - [x] text file/source attachment 继续使用 SR12 synthetic Read reminder text。
 - [x] image attachment 保留 image block，并位于 prompt 前。
 - [x] URL/resource attachment 保留 resource block，并位于 prompt 前。
-- [x] direct pasted image 不纳入 attachment sorting；如果未来 ZCode 支持 paste image 独立入口，应单独建 producer 分支。
+- [x] direct pasted image 不纳入 attachment sorting；如果未来 Secretariat 支持 paste image 独立入口，应单独建 producer 分支。
 
 ### Phase A4: Validation
 
@@ -117,7 +117,7 @@ Validation note: package-level `pnpm --filter @zcode/core lint` still fails on p
 | --- | --- |
 | Adjacent user-message merge | 暂时移除，避免 provider-visible shape churn 和 cache instability；未来如果重新启用，需要单独 phase、单独 cache-stability E2E 和 Anthropic Messages 请求形态 review。 |
 | First-turn attachment vs request-level userContext ordering | 暂时不改；当前同一 real user `content[]` 内的 file/url/local-image attachment 可以位于真实 prompt 前，但无法越过前置 request-level userContext。仅调转 push order 会变成 `userContext -> prompt -> attachment`，更不对；未来需要独立 provider-only split 或 request-local content projection 方案。 |
-| 完整 attachment taxonomy | 只处理当前 ZCode-supported file/image/url/system-reminder context；其他 attachment 类型等有对应 producer 后再纳入。 |
+| 完整 attachment taxonomy | 只处理当前 Secretariat-supported file/image/url/system-reminder context；其他 attachment 类型等有对应 producer 后再纳入。 |
 | Native session store content[] refactor | 当前目标是 request-local provider projection，不改持久化/UI transcript。 |
 
 ## Prompt-trajectory Evidence

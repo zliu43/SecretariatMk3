@@ -62,9 +62,9 @@ export async function startAgent(
     cwd: data,
     env: {
       PATH: process.env.PATH,
-      ZCODE_DATA_BASE_DIR: data,
-      ZCODE_SESSION_DB: join(data, "session.sqlite"),
-      ZCODE_STORAGE_DIR: data,
+      SECRETARIAT_DATA_BASE_DIR: data,
+      SECRETARIAT_SESSION_DB: join(data, "session.sqlite"),
+      SECRETARIAT_STORAGE_DIR: data,
       LANG: "en_US.UTF-8",
       ...providerEnv,
     },

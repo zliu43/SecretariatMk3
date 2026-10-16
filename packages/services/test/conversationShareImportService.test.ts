@@ -884,7 +884,7 @@ describe("ConversationShareService import", () => {
     // 未显式指定时按环境推导：origin 必须与 API base 用的同一个解析器一致，
     // 路径仍是规范 /cn/share/<code>（sharedContextImport schema 要求）。
     // 必须真的切一个非生产 endpoint，否则推导值与旧的写死值恰好相同，测不出回归。
-    vi.stubEnv("ZCODE_BASE_URL", "https://zcode.z.ai");
+    vi.stubEnv("SECRETARIAT_BASE_URL", "https://zcode.z.ai");
     const derived = build();
     const secondShare = await derived.publish(
       {

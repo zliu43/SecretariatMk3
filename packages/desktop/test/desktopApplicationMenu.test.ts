@@ -14,7 +14,7 @@ vi.mock("electron", () => ({
   app: {
     getLocale: vi.fn(() => envMock.locale),
     getPreferredSystemLanguages: vi.fn(() => envMock.preferredSystemLanguages),
-    name: "ZCode",
+    name: "Secretariat",
     get isPackaged() {
       return envMock.isPackaged;
     },
@@ -28,7 +28,7 @@ vi.mock("electron", () => ({
 }));
 
 // Bugfix: 这个用例只验证菜单模板，不能通过 importActual 拉完整 shared/services/main 依赖。
-// 全量 pre-push 并发时真实依赖加载会撞 5s 超时，并让 ZCODE_ENV 的模块缓存污染后续断言。
+// 全量 pre-push 并发时真实依赖加载会撞 5s 超时，并让 SECRETARIAT_ENV 的模块缓存污染后续断言。
 vi.mock("@zcode/shared", () => ({
   DesktopCommandIds: {
     NewTask: "newTask",
@@ -95,16 +95,16 @@ vi.mock("@zcode/shared", () => ({
     helpExportLogs: "titleBar.menu.help.exportLogs",
     helpClearAllData: "titleBar.menu.help.clearAllData",
   },
-  get ZCODE_ENV() {
+  get SECRETARIAT_ENV() {
     return envMock.value;
   },
   // 身份跟随后端环境的旧单轴语义：test → preview，production → production。
-  get ZCODE_PRODUCT_FLAVOR() {
+  get SECRETARIAT_PRODUCT_FLAVOR() {
     return envMock.value === "production" ? "production" : "preview";
   },
   getDesktopMenuMessage: (_locale: string, id: string) => {
     const enLabels: Record<string, string> = {
-      "titleBar.menu.help.zcodeEndpoint": "ZCode Endpoint",
+      "titleBar.menu.help.zcodeEndpoint": "Secretariat Endpoint",
       "titleBar.menu.help.zcodeEndpoint.production": "Production (default)",
       "titleBar.menu.help.zcodeEndpoint.test": "Test",
       "titleBar.menu.help.zcodeEndpoint.custom": "Custom...",
@@ -198,7 +198,7 @@ describe("desktopApplicationMenu endpoint submenu", () => {
 
     const template = buildFromTemplateMock.mock
       .calls[0]?.[0] as Electron.MenuItemConstructorOptions[];
-    const endpointItem = findMenuItem(template, "ZCode Endpoint");
+    const endpointItem = findMenuItem(template, "Secretariat Endpoint");
     const testItem = findMenuItem(template, undefined, HELP_ZCODE_ENDPOINT_TEST_MENU_ID);
     expect(endpointItem).toBeTruthy();
     expect(testItem?.checked).toBe(true);
@@ -216,7 +216,7 @@ describe("desktopApplicationMenu endpoint submenu", () => {
 
     const template = buildFromTemplateMock.mock
       .calls[0]?.[0] as Electron.MenuItemConstructorOptions[];
-    expect(findMenuItem(template, "ZCode Endpoint")).toBeUndefined();
+    expect(findMenuItem(template, "Secretariat Endpoint")).toBeUndefined();
   });
 
   it("Preview 隐藏更新入口，生产版继续显示", async () => {
@@ -317,7 +317,7 @@ describe("desktopApplicationMenu endpoint submenu", () => {
     expect(findMenuItem(template, "粘贴")?.role).toBe("paste");
     expect(findMenuItem(template, "最小化")?.role).toBe("minimize");
     if (process.platform === "darwin") {
-      expect(findMenuItem(template, "隐藏 ZCode")?.role).toBe("hide");
+      expect(findMenuItem(template, "隐藏 Secretariat")?.role).toBe("hide");
     }
   });
 

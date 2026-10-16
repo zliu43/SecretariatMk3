@@ -54,7 +54,7 @@
   - 新增 `ZCodeSessionRuntimeSnapshot.mainActive?: boolean`。
 
 - `apps/zcode-cli/packages/bootstrap/src/zcode-protocol/session-mapper.ts`
-  - 将 agent runtime projection / active turn 转成 ZCode protocol snapshot。
+  - 将 agent runtime projection / active turn 转成 Secretariat protocol snapshot。
   - 负责设置 `mainActive: Boolean(input.activeTurn)`。
 
 - `apps/zcode-cli/packages/bootstrap/tests/zcode-protocol.test.ts`

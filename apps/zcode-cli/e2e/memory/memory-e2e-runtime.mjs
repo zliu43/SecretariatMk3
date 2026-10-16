@@ -35,7 +35,7 @@ export async function createScenarioPaths(runRoot, modules) {
   await writeFile(project.indexFile, initialProjectMemoryIndex(), "utf8");
   await writeFile(project.existingFile, existingMemoryFile(), "utf8");
 
-  custom.memoryRoot = join(custom.workspace, ".zcode", "agent-memory", "memory-curator");
+  custom.memoryRoot = join(custom.workspace, ".secretariat", "agent-memory", "memory-curator");
   custom.memoryFile = join(custom.memoryRoot, "review-convention.md");
   await mkdir(custom.memoryRoot, { recursive: true });
   await writeFile(
@@ -104,7 +104,7 @@ export async function loadZCodeModules() {
     };
   } catch (error) {
     throw new Error(
-      "Unable to load built ZCode packages. Run the Memory E2E e2e:build script first.",
+      "Unable to load built Secretariat packages. Run the Memory E2E e2e:build script first.",
       { cause: error },
     );
   }
@@ -299,8 +299,8 @@ async function runCloseCancellationScenario({ closeBarrier, modules, paths, prov
 function createApp(input) {
   const env = {
     ...process.env,
-    ZCODE_ENV: "test",
-    ZCODE_STORAGE_DIR: input.storageRoot,
+    SECRETARIAT_ENV: "test",
+    SECRETARIAT_STORAGE_DIR: input.storageRoot,
   };
   const target = {
     apiKey: "memory-e2e-key",

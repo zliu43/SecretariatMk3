@@ -14,11 +14,11 @@ import type { AppSettings } from "@zcode/shared";
 import type { ISettingService } from "../src/setting/setting.js";
 
 const originalHome = process.env.HOME;
-const originalDesktopHome = process.env.ZCODE_DESKTOP_HOME_DIR;
-const originalZCodeEnv = process.env.ZCODE_ENV;
-const originalFsFaults = process.env.ZCODE_E2E_FS_FAULTS;
-const originalFsFaultsAllow = process.env.ZCODE_E2E_FS_FAULTS_ALLOW;
-const originalSettingWriteQueueTimeout = process.env.ZCODE_SETTING_WRITE_QUEUE_TIMEOUT_MS;
+const originalDesktopHome = process.env.SECRETARIAT_DESKTOP_HOME_DIR;
+const originalZCodeEnv = process.env.SECRETARIAT_ENV;
+const originalFsFaults = process.env.SECRETARIAT_E2E_FS_FAULTS;
+const originalFsFaultsAllow = process.env.SECRETARIAT_E2E_FS_FAULTS_ALLOW;
+const originalSettingWriteQueueTimeout = process.env.SECRETARIAT_SETTING_WRITE_QUEUE_TIMEOUT_MS;
 const tempHomes: string[] = [];
 
 function restoreEnvValue(key: string, value: string | undefined): void {
@@ -46,11 +46,11 @@ afterEach(() => {
   vi.doUnmock("node:fs/promises");
   vi.restoreAllMocks();
   restoreEnvValue("HOME", originalHome);
-  restoreEnvValue("ZCODE_DESKTOP_HOME_DIR", originalDesktopHome);
-  restoreEnvValue("ZCODE_ENV", originalZCodeEnv);
-  restoreEnvValue("ZCODE_E2E_FS_FAULTS", originalFsFaults);
-  restoreEnvValue("ZCODE_E2E_FS_FAULTS_ALLOW", originalFsFaultsAllow);
-  restoreEnvValue("ZCODE_SETTING_WRITE_QUEUE_TIMEOUT_MS", originalSettingWriteQueueTimeout);
+  restoreEnvValue("SECRETARIAT_DESKTOP_HOME_DIR", originalDesktopHome);
+  restoreEnvValue("SECRETARIAT_ENV", originalZCodeEnv);
+  restoreEnvValue("SECRETARIAT_E2E_FS_FAULTS", originalFsFaults);
+  restoreEnvValue("SECRETARIAT_E2E_FS_FAULTS_ALLOW", originalFsFaultsAllow);
+  restoreEnvValue("SECRETARIAT_SETTING_WRITE_QUEUE_TIMEOUT_MS", originalSettingWriteQueueTimeout);
 
   while (tempHomes.length > 0) {
     const home = tempHomes.pop();
@@ -64,12 +64,12 @@ describe("settingService", () => {
   it("显式桌面 home 覆盖只写隔离实例设置，不污染普通 home", async () => {
     const ordinaryHome = makeTempHome();
     const desktopHome = makeTempHome();
-    process.env.ZCODE_DESKTOP_HOME_DIR = desktopHome;
-    process.env.ZCODE_ENV = "production";
+    process.env.SECRETARIAT_DESKTOP_HOME_DIR = desktopHome;
+    process.env.SECRETARIAT_ENV = "production";
     const service = await createSettingServiceInHome(ordinaryHome);
     await service.update({ providerFamilyDomain: "bigmodel" });
-    expect(existsSync(join(desktopHome, ".zcode", "v2", "setting.json"))).toBe(true);
-    expect(existsSync(join(ordinaryHome, ".zcode", "v2", "setting.json"))).toBe(false);
+    expect(existsSync(join(desktopHome, ".secretariat", "v2", "setting.json"))).toBe(true);
+    expect(existsSync(join(ordinaryHome, ".secretariat", "v2", "setting.json"))).toBe(false);
     expect((await service.get()).providerFamilyDomain).toBe("bigmodel");
   });
   it("账号查询的迟到保存不能覆盖用户手动切换的连接", async () => {
@@ -100,7 +100,7 @@ describe("settingService", () => {
   });
   it("迁移旧账号连接并保留回滚字段，新版选择不再被旧字段覆盖", async () => {
     const home = makeTempHome();
-    const dir = join(home, ".zcode", "v2");
+    const dir = join(home, ".secretariat", "v2");
     mkdirSync(dir, { recursive: true });
     const file = join(dir, "setting.json");
     const legacy = {
@@ -137,7 +137,7 @@ describe("settingService", () => {
 
   it("旧个人连接可迁移，API 模式和缺组织的 Team 不猜成个人套餐", async () => {
     const home = makeTempHome();
-    const dir = join(home, ".zcode", "v2");
+    const dir = join(home, ".secretariat", "v2");
     mkdirSync(dir, { recursive: true });
     const file = join(dir, "setting.json");
     writeFileSync(
@@ -186,7 +186,7 @@ describe("settingService", () => {
 
   it("旧配置默认开启提问自动继续，并持久化显式关闭", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(join(settingsDir, "setting.json"), JSON.stringify({ locale: "zh-CN" }), "utf-8");
 
@@ -203,7 +203,7 @@ describe("settingService", () => {
 
   it("首次读取旧关闭到托盘配置时统一开启并持久化，之后保留用户关闭选择", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(
@@ -235,7 +235,7 @@ describe("settingService", () => {
 
   it("首次读取旧 reasoning 配置时统一开启并持久化，之后保留用户关闭选择", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(
@@ -272,7 +272,7 @@ describe("settingService", () => {
 
   it("一次性设置迁移写盘会进入设置更新队列，避免覆盖并发设置更新", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(
@@ -337,7 +337,7 @@ describe("settingService", () => {
 
   it("设置进入原子提交后会等待 rename 收口再保存后续语言偏好", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     let firstSettingsRenameStarted: (() => void) | undefined;
     let releaseFirstSettingsWrite: (() => void) | undefined;
@@ -351,7 +351,7 @@ describe("settingService", () => {
     const firstSettingsRenameFinishedPromise = new Promise<void>((resolve) => {
       firstSettingsRenameFinished = resolve;
     });
-    process.env.ZCODE_SETTING_WRITE_QUEUE_TIMEOUT_MS = "100";
+    process.env.SECRETARIAT_SETTING_WRITE_QUEUE_TIMEOUT_MS = "100";
 
     vi.doMock("node:fs/promises", async () => {
       const actual = await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
@@ -399,7 +399,7 @@ describe("settingService", () => {
 
     // Bugfix: 100ms 超时只为证明 rename 提交阶段会压制超时；后续写继承同一超时的话，
     // 高负载下会在等待临界区收口时先超时导致偶发失败，这里放宽回默认量级。
-    process.env.ZCODE_SETTING_WRITE_QUEUE_TIMEOUT_MS = "30000";
+    process.env.SECRETARIAT_SETTING_WRITE_QUEUE_TIMEOUT_MS = "30000";
     const latestUpdate = service.update({
       locale: "zh-CN",
       localePreference: "system",
@@ -439,7 +439,7 @@ describe("settingService", () => {
 
   it("设置提交前写入超时会释放队列且晚到旧写不能覆盖语言偏好", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     let firstSettingsWriteStarted: (() => void) | undefined;
     let releaseFirstSettingsWrite: (() => void) | undefined;
@@ -449,7 +449,7 @@ describe("settingService", () => {
     const firstSettingsWriteReleasePromise = new Promise<void>((resolve) => {
       releaseFirstSettingsWrite = resolve;
     });
-    process.env.ZCODE_SETTING_WRITE_QUEUE_TIMEOUT_MS = "50";
+    process.env.SECRETARIAT_SETTING_WRITE_QUEUE_TIMEOUT_MS = "50";
 
     vi.doMock("node:fs/promises", async () => {
       const actual = await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
@@ -497,7 +497,7 @@ describe("settingService", () => {
 
     // Bugfix: 后续写继承 50ms 超时的话，全量跑测试的高负载会让它在拿到文件锁前先超时，
     // 造成偶发失败；本用例只需第一笔写超时，第二笔写放宽到默认量级避免计时抖动。
-    process.env.ZCODE_SETTING_WRITE_QUEUE_TIMEOUT_MS = "30000";
+    process.env.SECRETARIAT_SETTING_WRITE_QUEUE_TIMEOUT_MS = "30000";
     const latestUpdate = service.update({
       locale: "zh-CN",
       localePreference: "system",
@@ -521,7 +521,7 @@ describe("settingService", () => {
 
   it("读取会等待已入队的设置更新，Session 启动偏好不会拿到旧值", async () => {
     const home = makeTempHome();
-    const settingsFile = join(home, ".zcode", "v2", "setting.json");
+    const settingsFile = join(home, ".secretariat", "v2", "setting.json");
     let releaseSettingsWrite: (() => void) | undefined;
     let settingsWriteStarted: (() => void) | undefined;
     const settingsWriteStartedPromise = new Promise<void>((resolve) => {
@@ -579,7 +579,7 @@ describe("settingService", () => {
 
   it("setting.json 不是合法 JSON 时会隔离坏文件并在后续写回合法配置", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(settingsFile, ":wq\n", "utf-8");
@@ -608,7 +608,7 @@ describe("settingService", () => {
 
   it("读取 setting.json 遇到短暂 JSON parse fail 时会重试并保留会话配置", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(settingsFile, '{"lastWorkspaceSession":[', "utf-8");
@@ -677,9 +677,9 @@ describe("settingService", () => {
     });
   });
 
-  it("支持清空非生产 ZCode endpoint override", async () => {
+  it("支持清空非生产 Secretariat endpoint override", async () => {
     const home = makeTempHome();
-    const settingsFile = join(home, ".zcode", "v2", "setting.json");
+    const settingsFile = join(home, ".secretariat", "v2", "setting.json");
     const service = await createSettingServiceInHome(home);
 
     await service.update({ zcodeEndpointOrigin: "https://zcode.z.ai/path" });
@@ -695,9 +695,9 @@ describe("settingService", () => {
     );
   });
 
-  it("忽略损坏的 ZCode endpoint override，保留其它 settings", async () => {
+  it("忽略损坏的 Secretariat endpoint override，保留其它 settings", async () => {
     const home = makeTempHome();
-    const settingsDir = join(home, ".zcode", "v2");
+    const settingsDir = join(home, ".secretariat", "v2");
     const settingsFile = join(settingsDir, "setting.json");
     mkdirSync(settingsDir, { recursive: true });
     writeFileSync(
@@ -736,9 +736,9 @@ describe("settingService", () => {
 
   it("保存 setting.json 时可以注入磁盘/权限类写入错误", async () => {
     const home = makeTempHome();
-    const settingsFile = join(home, ".zcode", "v2", "setting.json");
-    process.env.ZCODE_ENV = "test";
-    process.env.ZCODE_E2E_FS_FAULTS = JSON.stringify([
+    const settingsFile = join(home, ".secretariat", "v2", "setting.json");
+    process.env.SECRETARIAT_ENV = "test";
+    process.env.SECRETARIAT_E2E_FS_FAULTS = JSON.stringify([
       {
         code: "EACCES",
         id: "D03-setting-write-eacces",
@@ -774,7 +774,7 @@ describe("settingService", () => {
     });
   });
 
-  it("会持久化 ZCode 交互行为配置", async () => {
+  it("会持久化 Secretariat 交互行为配置", async () => {
     const home = makeTempHome();
     const service = await createSettingServiceInHome(home);
 
@@ -999,8 +999,8 @@ describe("settingService", () => {
 
   it("读取旧版 settings 时会迁移 lastOpenTabs 和 remoteWorkspaceHistory", async () => {
     const home = makeTempHome();
-    const settingsFile = join(home, ".zcode", "v2", "setting.json");
-    mkdirSync(join(home, ".zcode", "v2"), { recursive: true });
+    const settingsFile = join(home, ".secretariat", "v2", "setting.json");
+    mkdirSync(join(home, ".secretariat", "v2"), { recursive: true });
     writeFileSync(
       settingsFile,
       JSON.stringify({
@@ -1047,7 +1047,7 @@ describe("settingService", () => {
   it("在用户目录下兜底创建默认项目，并准确返回是否首次创建", async () => {
     const home = makeTempHome();
     const service = await createSettingServiceInHome(home);
-    const defaultProjectPath = join(home, "ZCodeProject");
+    const defaultProjectPath = join(home, "SecretariatProject");
 
     await expect(service.ensureDefaultProject(home)).resolves.toEqual({
       path: defaultProjectPath,

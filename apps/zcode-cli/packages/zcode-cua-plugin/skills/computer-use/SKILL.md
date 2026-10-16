@@ -25,8 +25,8 @@ Put the bootstrap and the actions in the **same** cell, bootstrap first:
 
 ```js
 const root =
-  process.env.ZCODE_CUA_PLUGIN_ROOT ??
-  process.env.ZCODE_PLUGIN_ROOT ??
+  process.env.SECRETARIAT_CUA_PLUGIN_ROOT ??
+  process.env.SECRETARIAT_PLUGIN_ROOT ??
   process.env.CLAUDE_PLUGIN_ROOT;
 const { join } = await import("node:path");
 const { pathToFileURL } = await import("node:url");
@@ -249,7 +249,7 @@ Actions resolve to `undefined` on success and throw `ComputerUseError` otherwise
   decide from what you see.
 - `retry` — `"reobserve"`, `"retry"` or `"never"`.
 
-`CONTROLLER_BUSY` means another live ZCode Computer Use session owns input. It is
+`CONTROLLER_BUSY` means another live Secretariat Computer Use session owns input. It is
 never retryable: report the owner from the error and ask the user to close that
 session.
 

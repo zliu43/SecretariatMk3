@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Let desktop users sync selected local user skills into a connected SSH remote host's `~/.zcode/skills`, with missing skills selectable by default and existing remote skills skipped.
+**Goal:** Let desktop users sync selected local user skills into a connected SSH remote host's `~/.secretariat/skills`, with missing skills selectable by default and existing remote skills skipped.
 
 **Architecture:** Add a narrow `skill-sync` RPC service registered on local and remote service collections. The UI opens one reusable dialog from SSH workspace header, `Settings > Skills`, and the connected SSH directory step; the dialog uses base services for local export and the current remote workspace services for remote status/import.
 
@@ -17,7 +17,7 @@
 - `packages/shared/src/index.ts`: export skill sync DTOs.
 - `packages/services/src/skill-sync/skillSync.ts`: `ISkillSyncService` descriptor and interface.
 - `packages/services/src/skill-sync/skillSyncArchive.ts`: sync-specific `.tar.gz` archive writer/reader with strict path safety.
-- `packages/services/src/skill-sync/skillSyncService.ts`: local/remote implementation for listing user skills, exporting archives, checking remote status, and importing into `~/.zcode/skills`.
+- `packages/services/src/skill-sync/skillSyncService.ts`: local/remote implementation for listing user skills, exporting archives, checking remote status, and importing into `~/.secretariat/skills`.
 - `packages/services/src/accessor.ts`, `packages/services/src/index.ts`, `packages/services/src/node.ts`: expose/register the new service.
 - `packages/client/src/remoteServiceAccess.ts`: proxy the new service over RPC.
 - `packages/desktop/src/host/remoteWorkspaceServiceCollection.ts`: register remote workspace `skillSyncService`.
@@ -401,7 +401,7 @@ function makeHome() {
 }
 
 async function writeSkill(home: string, directoryName: string, name = directoryName) {
-  const dir = join(home, ".zcode", "skills", directoryName);
+  const dir = join(home, ".secretariat", "skills", directoryName);
   await mkdir(dir, { recursive: true });
   await writeFile(join(dir, "SKILL.md"), `---\nname: ${name}\ndescription: ${name} desc\n---\nBody`);
   return dir;
@@ -452,7 +452,7 @@ describe("skill sync service", () => {
 
     expect(first.results[0]).toMatchObject({ directoryName: "review", status: "synced" });
     expect(second.results[0]).toMatchObject({ directoryName: "review", status: "skipped" });
-    await expect(readFile(join(remoteHome, ".zcode", "skills", "review", "SKILL.md"), "utf-8"))
+    await expect(readFile(join(remoteHome, ".secretariat", "skills", "review", "SKILL.md"), "utf-8"))
       .resolves.toContain("name: review");
     process.env.HOME = originalHome;
   });
@@ -555,9 +555,9 @@ export function createSkillSyncService(options?: {
 Add these helper functions in the same file with the listed behavior:
 
 - `resolveUserHomeDir()` uses `HOME`, `USERPROFILE`, then `homedir()`.
-- `getUserZcodeSkillRoot()` returns `join(resolveUserHomeDir(), ".zcode", "skills")`.
-- `collectUserSkillCandidates()` scans immediate child directories under `~/.zcode/skills`, requires `SKILL.md`, parses frontmatter `name` and `description`, computes `id` as sha256 of the absolute skill directory path, and computes recursive size.
-- `importArchive()` extracts to a temp dir under `~/.zcode/skills/.sync-tmp-<uuid>`, verifies each child contains `SKILL.md`, copies each missing child to `~/.zcode/skills/<directoryName>`, skips existing children, and removes the temp dir in `finally`.
+- `getUserZcodeSkillRoot()` returns `join(resolveUserHomeDir(), ".secretariat", "skills")`.
+- `collectUserSkillCandidates()` scans immediate child directories under `~/.secretariat/skills`, requires `SKILL.md`, parses frontmatter `name` and `description`, computes `id` as sha256 of the absolute skill directory path, and computes recursive size.
+- `importArchive()` extracts to a temp dir under `~/.secretariat/skills/.sync-tmp-<uuid>`, verifies each child contains `SKILL.md`, copies each missing child to `~/.secretariat/skills/<directoryName>`, skips existing children, and removes the temp dir in `finally`.
 
 Add the Chinese bugfix/security comment at the extraction boundary:
 
@@ -630,7 +630,7 @@ describe("RemoteSkillSyncDialog", () => {
             name: "review",
             directoryName: "review",
             description: "Review code",
-            path: "/Users/me/.zcode/skills/review/SKILL.md",
+            path: "/Users/me/.secretariat/skills/review/SKILL.md",
             sizeBytes: 128,
           },
         ],
@@ -1139,7 +1139,7 @@ In desktop dev mode, connect to an SSH workspace and verify:
 2. Settings > Skills shows the SSH context line and "同步到远端" entry.
 3. SSH directory selection step shows the sync entry after connection succeeds.
 4. Dialog defaults to missing local user skills selected.
-5. Sync creates remote ~/.zcode/skills/<directory>/SKILL.md.
+5. Sync creates remote ~/.secretariat/skills/<directory>/SKILL.md.
 6. Running sync again shows the same skill as skipped.
 ```
 

@@ -4,7 +4,7 @@
 
 **Goal:** Add an isolated `/remote/__test__` static deployment path for Web remote-control test assets while leaving `/remote`, `/remote/v3`, and the desktop default QR URL unchanged.
 
-**Architecture:** Keep test assets on a third parallel static deployment chain that shares the existing `packages/web` Vite SPA but uses its own Vite `base`, Dockerfile, nginx config, local smoke test, image name, and k8s deployment update script. The Web app already derives the QR route from `import.meta.env.BASE_URL`, so implementation only needs a route regression test and deployment artifacts. Desktop testing uses `ZCODE_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__`; no desktop default URL changes are part of this plan.
+**Architecture:** Keep test assets on a third parallel static deployment chain that shares the existing `packages/web` Vite SPA but uses its own Vite `base`, Dockerfile, nginx config, local smoke test, image name, and k8s deployment update script. The Web app already derives the QR route from `import.meta.env.BASE_URL`, so implementation only needs a route regression test and deployment artifacts. Desktop testing uses `SECRETARIAT_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__`; no desktop default URL changes are part of this plan.
 
 **Tech Stack:** pnpm, Vite, nginx, Docker, bash, Vitest, TypeScript, oxlint.
 
@@ -868,7 +868,7 @@ After the publish block, add:
 Desktop 默认二维码 URL 不指向 `/remote/__test__`。需要验证测试资源时，通过环境变量覆盖：
 
 ```bash
-ZCODE_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__ pnpm dev:desktop
+SECRETARIAT_WEB_REMOTE_CONTROL_URL=https://zcode.z.ai/remote/__test__ pnpm dev:desktop
 ```
 ````
 

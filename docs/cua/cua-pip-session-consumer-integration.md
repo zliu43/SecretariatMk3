@@ -2,7 +2,7 @@
 
 ## Ownership
 
-ZCode publishes product facts only. `@zcode/zcode-cua` owns PiP panels, grouping,
+Secretariat publishes product facts only. `@zcode/zcode-cua` owns PiP panels, grouping,
 dismissal, terminal badges, capture admission, native stacking and retry policy.
 
 ```text
@@ -19,10 +19,10 @@ computer-use/operation-event --------> TurnStarted / TurnEnded / SessionClosed
 ```
 
 Desktop Main keeps only ephemeral `{windowId -> activeSessionId}`, the focused
-ZCode window and a process-lifetime `focusRevision`. A background renderer may
-update its map, but only the frontmost ZCode window publishes global focus. When
-focus moves between ZCode windows, Main sends `sessionId=null` to the old host
-before sending the new host's session. When no ZCode window is focused, the last
+Secretariat window and a process-lifetime `focusRevision`. A background renderer may
+update its map, but only the frontmost Secretariat window publishes global focus. When
+focus moves between Secretariat windows, Main sends `sessionId=null` to the old host
+before sending the new host's session. When no Secretariat window is focused, the last
 host receives `sessionId=null`.
 
 The existing `computer-use/operation-event` sideband remains outside conversation
@@ -49,7 +49,7 @@ legacy group fallback.
 | `session-closed` | `SessionClosed` |
 
 Tool scheduled/started events continue to drive the Windows operation indicator,
-but do not define PiP lifecycle. ZCode never manufactures a green badge from
+but do not define PiP lifecycle. Secretariat never manufactures a green badge from
 connection loss or controller state.
 
 ## Verification catalog

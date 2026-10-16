@@ -45,11 +45,11 @@ const targetPlatform = getTargetPlatform();
 // 修复原因：Windows Chrome 导入入口已暂时隐藏，默认安装包不应继续携带、签名或校验原生 helper。
 // 代码和完整供应链保留在显式 opt-in 后，便于未来恢复而不影响当前发布流程。
 const shouldPackageWindowsBrowserImportHelper =
-  targetPlatform.os === "win32" && process.env.ZCODE_ENABLE_WINDOWS_BROWSER_IMPORT === "1";
+  targetPlatform.os === "win32" && process.env.SECRETARIAT_ENABLE_WINDOWS_BROWSER_IMPORT === "1";
 const builtinProviderConfig = await loadBuiltinProviderConfig();
 const desktopProductIdentity = resolveDesktopProductIdentity({
   ...process.env,
-  ZCODE_ENV: builtinProviderConfig.environment,
+  SECRETARIAT_ENV: builtinProviderConfig.environment,
 });
 const nativeSearchReleasePlan = resolveNativeSearchReleasePlan({
   platform: targetPlatform.os,
@@ -59,7 +59,7 @@ const rawMacSigningIdentity = process.env.APPLE_SIGNING_IDENTITY || process.env.
 const macSigningIdentity =
   rawMacSigningIdentity?.replace(/^Developer ID Application:\s*/, "") ?? null;
 const shouldEnableMacSigning =
-  process.env.ZCODE_ENABLE_MAC_SIGN === "1" && Boolean(macSigningIdentity);
+  process.env.SECRETARIAT_ENABLE_MAC_SIGN === "1" && Boolean(macSigningIdentity);
 const workspaceRoot = resolve(import.meta.dirname, "../..");
 const desktopPackageRoot = import.meta.dirname;
 // Computer Use Helper（macOS .app、Windows runtime）只随真实 producer 打包；开源占位包下跳过随包资源与校验。
@@ -71,7 +71,7 @@ const runtimeModuleLookupRoots = [
   resolve(desktopPackageRoot, "node_modules", ".pnpm", "node_modules"),
   resolve(workspaceRoot, "node_modules", ".pnpm", "node_modules"),
 ];
-const desktopDistDir = process.env.ZCODE_DESKTOP_DIST_DIR || "dist";
+const desktopDistDir = process.env.SECRETARIAT_DESKTOP_DIST_DIR || "dist";
 const bundledCuaHelperSource = resolve(
   desktopPackageRoot,
   "bundled-cua-helper",
@@ -185,7 +185,7 @@ async function writeWindowsInstallManifest(context) {
 
 function resolveElectronDownloadMirror(env = process.env) {
   const existingMirror =
-    env.ZCODE_ELECTRON_RUNTIME_MIRROR ||
+    env.SECRETARIAT_ELECTRON_RUNTIME_MIRROR ||
     env.NPM_CONFIG_ELECTRON_MIRROR ||
     env.npm_config_electron_mirror ||
     env.npm_package_config_electron_mirror ||
@@ -208,11 +208,11 @@ function assertPackagedCuaHelper(context) {
     HELPER_APP_NAME,
   );
   if (!existsSync(appPath)) {
-    throw new Error(`Packaged ZCode is missing bundled Computer Use Helper: ${appPath}`);
+    throw new Error(`Packaged Secretariat is missing bundled Computer Use Helper: ${appPath}`);
   }
 }
 const shouldEnableWindowsVsign =
-  process.platform === "win32" && process.env.ZCODE_ENABLE_WINDOWS_SIGN === "1";
+  process.platform === "win32" && process.env.SECRETARIAT_ENABLE_WINDOWS_SIGN === "1";
 const commandStdoutMaxBuffer = 64 * 1024 * 1024;
 // 产物后缀只标记后端环境（_TEST）；身份靠 productName 区分，生产后端的 Preview 包没有后缀。
 const desktopArtifactEnvSuffix = resolveDesktopArtifactSuffix(process.env);
@@ -221,11 +221,11 @@ const desktopArtifactEnvSuffix = resolveDesktopArtifactSuffix(process.env);
 // 避免“产物存在”被误认为已经走完和生产版相同的签名链路。
 if (
   desktopProductIdentity.flavor === "preview" &&
-  process.env.ZCODE_ENABLE_MAC_SIGN === "1" &&
+  process.env.SECRETARIAT_ENABLE_MAC_SIGN === "1" &&
   !macSigningIdentity
 ) {
   throw new Error(
-    "ZCode Preview macOS packaging requires APPLE_SIGNING_IDENTITY or CSC_NAME when ZCODE_ENABLE_MAC_SIGN=1",
+    "Secretariat Preview macOS packaging requires APPLE_SIGNING_IDENTITY or CSC_NAME when SECRETARIAT_ENABLE_MAC_SIGN=1",
   );
 }
 
@@ -289,7 +289,7 @@ async function runTimedAsync(label, fn) {
 
 function resolveAppAsarPath(context) {
   if (context.electronPlatformName === "darwin") {
-    const appName = `${context.packager?.appInfo?.productFilename ?? "ZCode"}.app`;
+    const appName = `${context.packager?.appInfo?.productFilename ?? "Secretariat"}.app`;
     return resolve(context.appOutDir, appName, "Contents", "Resources", "app.asar");
   }
 
@@ -298,7 +298,7 @@ function resolveAppAsarPath(context) {
 
 function resolvePackagedResourcesDir(context) {
   if (context.electronPlatformName === "darwin") {
-    const appName = `${context.packager?.appInfo?.productFilename ?? "ZCode"}.app`;
+    const appName = `${context.packager?.appInfo?.productFilename ?? "Secretariat"}.app`;
     return resolve(context.appOutDir, appName, "Contents", "Resources");
   }
 
@@ -565,7 +565,7 @@ export default {
     zcodeProductFlavor: desktopProductIdentity.flavor,
     homepage: "https://zcode.z.ai",
     author: {
-      name: "ZCode",
+      name: "Secretariat",
       email: "dev@zcode.z.ai",
     },
   },
@@ -729,7 +729,7 @@ export default {
       to: "config/default.json",
     },
     {
-      // Provider Registry 的 ZCode Built-in Config 是静态 Provider/Model 事实的唯一内置来源。
+      // Provider Registry 的 Secretariat Built-in Config 是静态 Provider/Model 事实的唯一内置来源。
       // 显式随包发布，避免正式 Host 回退到旧 Catalog/Preset hardcode。
       from: builtinProviderConfig.sourcePath,
       to: "config/provider/zcode-builtin.json",
@@ -811,7 +811,7 @@ export default {
       // 协议处理器的展示名之前使用小写 scheme，打包产物里的协议描述无法体现产品名。
       // 展示名跟随安装包身份；scheme 仍保持 zcode，因此两个应用中最后注册者会成为默认 handler。
       name: desktopProductIdentity.productName,
-      schemes: ["zcode"],
+      schemes: ["secretariat"],
     },
   ],
   mac: {
@@ -876,7 +876,7 @@ export default {
     // 与 /usr/share/icons/hicolor/*/apps/zcode.png 保持一致。
     executableName: desktopProductIdentity.linuxExecutableName,
     category: "Development",
-    maintainer: "ZCode <dev@zcode.z.ai>",
+    maintainer: "Secretariat <dev@zcode.z.ai>",
   },
   deb: {
     // 生产版与 Preview 必须是两个 dpkg package；只改可执行名仍会让安装器把另一版本当成升级替换。

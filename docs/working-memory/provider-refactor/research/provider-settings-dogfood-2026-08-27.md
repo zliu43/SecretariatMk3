@@ -29,7 +29,7 @@
 Pro 机器保留的迁移前备份与清理前备份证明：
 
 ```text
-旧 ~/.zcode/v2/config.json.provider
+旧 ~/.secretariat/v2/config.json.provider
         |
         | Provider V1 importer
         v
@@ -51,7 +51,7 @@ Idle Plan 使用不同名称。为继续体验而执行的 Personal Config 清�
 
 ### 4.1 运行时事实
 
-Pro 的 `~/.zcode/v2/logs/2026-08-27.log` 在同一次 Team Plan 选择之后同时出现：
+Pro 的 `~/.secretariat/v2/logs/2026-08-27.log` 在同一次 Team Plan 选择之后同时出现：
 
 - Settings 已持久化 `bigmodel -> team-coding-plan`，并包含 product、organization、project；
 - Team Plan 项目校验命中所选项目，机构列表非空；

@@ -1,18 +1,18 @@
-# ZCode Lite Static Distribution Implementation Plan
+# Secretariat Lite Static Distribution Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a static-source ZCode Lite artifact that users can install from an intranet file server and run as a local Web app.
+**Goal:** Build a static-source Secretariat Lite artifact that users can install from an intranet file server and run as a local Web app.
 
 **Architecture:** The build script packages the existing Vite Web dist, HTTP server dist, and `zcode.cjs` agent bundle into a tarball plus `install.sh` and `latest.json`. Runtime uses the existing plain Web same-origin `/ws` path, with optional token protection when binding to non-local hosts.
 
-**Tech Stack:** Node.js 24, Vite Web dist, Hono HTTP server, ZCode service RPC over WebSocket, POSIX shell install script, tar/gzip artifacts.
+**Tech Stack:** Node.js 24, Vite Web dist, Hono HTTP server, Secretariat service RPC over WebSocket, POSIX shell install script, tar/gzip artifacts.
 
 ## Global Constraints
 
 - The intranet source is a plain static file service, not an npm registry.
 - The build script must not upload or push artifacts.
-- ZCode Lite must use the user's installed Node.js and must not bundle Node runtime.
+- Secretariat Lite must use the user's installed Node.js and must not bundle Node runtime.
 - Default serve host is `127.0.0.1`; default port is an automatically selected free port.
 - `--host 0.0.0.0` must default to token-protected access and no automatic browser open.
 - Lite Web must use plain Web same-origin `/ws`; it must not change `/remote` relay or replayable semantics.
@@ -33,7 +33,7 @@
 
 - [ ] Add static file serving with SPA fallback after API and WebSocket routes.
 - [ ] Add token guard for `/api/*`, `/ws`, and `/ws/remote/*`.
-- [ ] Read `HOST`, `ZCODE_SERVER_HOST`, `ZCODE_WEB_STATIC_ROOT`, and `ZCODE_SERVER_AUTH_TOKEN` in `entry-http.ts`.
+- [ ] Read `HOST`, `SECRETARIAT_SERVER_HOST`, `SECRETARIAT_WEB_STATIC_ROOT`, and `SECRETARIAT_SERVER_AUTH_TOKEN` in `entry-http.ts`.
 - [ ] Add tests for `/api/server-info` token rejection/acceptance and static `index.html` fallback.
 
 ### Task 2: Plain Web Bootstrap Workspace
@@ -49,7 +49,7 @@
 - [ ] Use the first workspace path as `initialWorkspaceAbsPath`.
 - [ ] Keep bootstrap tolerant when `/api/server-info` is unavailable.
 
-### Task 3: ZCode Lite Build Script
+### Task 3: Secretariat Lite Build Script
 
 **Files:**
 - Create: `scripts/build-zcode-lite.mjs`

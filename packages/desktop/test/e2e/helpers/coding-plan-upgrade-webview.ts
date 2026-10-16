@@ -326,12 +326,12 @@ export async function readCodingPlanUpgradeMockRequests(): Promise<{
 
 function readCodingPlanUpgradeMockBaseUrlCandidates(): string[] {
   const baseUrls = [
-    process.env.ZCODE_CODING_PLAN_UPGRADE_MOCK_BASE_URL,
-    process.env.ZCODE_E2E_CODING_PLAN_MOCK_URL,
+    process.env.SECRETARIAT_CODING_PLAN_UPGRADE_MOCK_BASE_URL,
+    process.env.SECRETARIAT_E2E_CODING_PLAN_MOCK_URL,
     process.env.BIGMODEL_TEST_API_BASE_URL,
     process.env.BIGMODEL_API_BASE_URL,
     process.env.ZAI_BUSINESS_BASE_URL,
-    process.env.ZCODE_ENDPOINT_ORIGIN,
+    process.env.SECRETARIAT_ENDPOINT_ORIGIN,
   ].flatMap((item) => {
     const value = item?.trim();
     return value ? [value] : [];
@@ -344,7 +344,7 @@ function readCodingPlanUpgradeMockBaseUrlCandidates(): string[] {
 }
 
 function readCodingPlanUpgradeMockControlBaseUrl(): string {
-  const baseUrl = process.env.ZCODE_CODING_PLAN_UPGRADE_MOCK_BASE_URL?.trim();
+  const baseUrl = process.env.SECRETARIAT_CODING_PLAN_UPGRADE_MOCK_BASE_URL?.trim();
   if (!baseUrl) {
     throw new Error("Coding Plan upgrade mock control baseUrl 未配置");
   }

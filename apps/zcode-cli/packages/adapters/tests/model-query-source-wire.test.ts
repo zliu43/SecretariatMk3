@@ -74,8 +74,8 @@ describe.each(providerKinds)("%s query source HTTP header", (providerKind) => {
     const staticHeaders = {
       "X-Request-ID": "static-request",
       "X-Session-ID": "static-session",
-      "X-ZCode-Session-Type": "other",
-      "X-ZCode-Trace-ID": "static-trace",
+      "X-Secretariat-Session-Type": "other",
+      "X-Secretariat-Trace-ID": "static-trace",
     };
     const events: ModelNetworkStatusEvent[] = [];
     const { adapter, requests } = createCapture(providerKind, false, staticHeaders);
@@ -90,8 +90,8 @@ describe.each(providerKinds)("%s query source HTTP header", (providerKind) => {
       : {
           "X-Request-ID": started.requestId,
           "X-Session-ID": "compact",
-          "X-ZCode-Session-Type": "main",
-          "X-ZCode-Trace-ID": started.traceId,
+          "X-Secretariat-Session-Type": "main",
+          "X-Secretariat-Trace-ID": started.traceId,
         };
     for (const [name, value] of Object.entries(expectedHeaders)) {
       expect(requests[0]!.headers.get(name)).toBe(value);
@@ -135,7 +135,7 @@ function createCapture(
   vi.stubGlobal("fetch", transport);
   const registry = new TestProviderConfigFixture({
     env: {},
-    defaultHeaders: { "X-ZCode-Query-Source": "stale_default" },
+    defaultHeaders: { "X-Secretariat-Query-Source": "stale_default" },
     providers: {
       fixture: {
         kind: providerKind,

@@ -44,7 +44,7 @@ Windows：
 - Git Bash 使用 `dialect=git-bash`、`shell=false`；CMD 使用 `dialect=cmd` 和 cmd shell；
 - 没有可用选择时回到 legacy system shell。
 
-provider 只注入上面列出的通用变量和 ZCode 自己命名的变量，不引入其他产品命名的环境变量。
+provider 只注入上面列出的通用变量和 Secretariat 自己命名的变量，不引入其他产品命名的环境变量。
 
 ## Session snapshot
 
@@ -64,7 +64,7 @@ workspace path/identity 不参与 shell identity；实际 executable 可用性�
 
 `bash-startup-script.ts` 只对 `posix-bash` profile 生效：
 
-- 在 ZCode storage 的 session `bash-startup/` 目录物化 0600 source script；
+- 在 Secretariat storage 的 session `bash-startup/` 目录物化 0600 source script；
 - Git Bash 路径转换为其可读格式；
 - 可选 leading sources 与 embedded search prelude 按顺序 `. <quoted path>`；
 - CMD/legacy dialect 不注入 POSIX source；

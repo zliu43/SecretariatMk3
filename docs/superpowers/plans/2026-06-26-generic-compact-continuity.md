@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Do not auto-commit, do not push, and leave all implementation changes unstaged for review.
 
-**Goal:** 收敛 ZCode 现有通用 compaction 流程的 provider-visible content（compact prompt、summary 后处理、post-compact 上下文组装），提升 compact 后继续任务的完整性。
+**Goal:** 收敛 Secretariat 现有通用 compaction 流程的 provider-visible content（compact prompt、summary 后处理、post-compact 上下文组装），提升 compact 后继续任务的完整性。
 
 **Architecture:** 不新增模型专用分支或模型专用配置；直接更新现有 compact prompt、summary 后处理、post-compact message 组装、recent-context 保留、read-state/file reminder 恢复和 compact summary output cap。实现只落本计划冻结的 compact 逻辑/策略，不自行新增策略、抽象或配置开关。UI 投影继续把 compact 展示成一根 `context_compaction` divider，底层 provider-visible 保留 recent messages 不应改变聊天 UI。
 
@@ -16,7 +16,7 @@
 - 优先修改现有 compact 文件和现有 helper；只有当目标行为所需状态无法清晰落在既有边界内时才允许最小拆分，并在 task 中写明依据和调用点。
 - 避免 patch on patch：如果同一处代码需要继续叠加 `if`/`else if`/`else` 分支才能实现目标行为，先把该处收敛成清晰的现有边界内 helper/数据流，再落目标行为；重构只服务于降低分支复杂度和表达目标策略，不做顺手架构升级。
 - Compact summary request 需要保留正常工具列表，使 provider-visible shape 与普通轮一致并尽量复用 provider cache；禁止工具使用必须通过 compact-specific tool-call denial 实现，不能通过 `tools: []` 实现。
-- 不引入新的环境变量名或内部 flag 名；若需要配置，复用 ZCode 现有 `compact` config。
+- 不引入新的环境变量名或内部 flag 名；若需要配置，复用 Secretariat 现有 `compact` config。
 - 不新建模型专用 policy 文件；所有改动进入现有通用 compact 路径。
 - 不改变 UI compact 展示语义：summary user message 仍 model-only，UI 仍只渲染 divider。
 - 实现时不自动 commit、不 push；完成后保持 unstaged，等待人工 review。
@@ -28,10 +28,10 @@
 
 - Server/API side compaction: Anthropic API 的 `compact_20260112`、`context_management`、`compaction_delta` 只作为排除项记录。
 - Cache edit/cache write/cache sharing: 不做 request cache-control 之外的 cache 行为；但 compact request 保留正常 tools shape 是本计划范围内的 provider-visible 要求，不属于 cache edit/server 能力。
-- 外部 compact hooks：`PreCompact`/`PostCompact` hook 的外部能力不做；只保留 ZCode 已有事件/日志。
-- REPL VM 文案：ZCode 没有 REPL VM state，不新增虚假提示；只预留可选参数。
-- Transcript recovery 文案：ZCode 当前没有 full transcript path 能力，post-compact summary message 不注入 `read the full transcript at: ...`。
-- `context_hint`/server-assisted microcompact：ZCode 当前没有对应接口；local microcompact 不作为本轮 provider-visible 收敛的默认目标。
+- 外部 compact hooks：`PreCompact`/`PostCompact` hook 的外部能力不做；只保留 Secretariat 已有事件/日志。
+- REPL VM 文案：Secretariat 没有 REPL VM state，不新增虚假提示；只预留可选参数。
+- Transcript recovery 文案：Secretariat 当前没有 full transcript path 能力，post-compact summary message 不注入 `read the full transcript at: ...`。
+- `context_hint`/server-assisted microcompact：Secretariat 当前没有对应接口；local microcompact 不作为本轮 provider-visible 收敛的默认目标。
 
 ## File Map
 
@@ -44,7 +44,7 @@
 - Modify: `apps/zcode-cli/packages/core/src/runtime/methods/compact-active-helpers.ts`  
   负责 compact request assembly、summary validation、tool-call rejection。
 - Modify: `apps/zcode-cli/packages/core/src/compact/policy.ts`  
-  负责保留 ZCode 已验证的 auto threshold/output reserve 默认值，并只调整 compact summary request output cap。
+  负责保留 Secretariat 已验证的 auto threshold/output reserve 默认值，并只调整 compact summary request output cap。
 - Modify only if needed: `apps/zcode-cli/packages/core/src/runtime/methods/microcompact.ts` and `apps/zcode-cli/packages/core/src/compact/microcompact.ts`  
   local microcompact 改动明确跳过；只允许保留现有 opt-in/安全修复，不把它扩大成本轮 compact provider-visible 收敛目标。
 - Modify: `apps/zcode-cli/packages/core/tests/runtime-compact.test.ts`  
@@ -81,7 +81,7 @@
   - `ran out of context`
   - `covers the earlier portion`
   - `Resume directly`
-  - does not include transcript recovery text unless a future ZCode transcript path capability is explicitly added.
+  - does not include transcript recovery text unless a future Secretariat transcript path capability is explicitly added.
 - [ ] Implement prompt text in `prompt.ts` using existing file, not a new model-specific policy module.
 - [ ] Run: `pnpm vitest run apps/zcode-cli/packages/core/tests/runtime-compact.test.ts apps/zcode-cli/tools/prompt-trajectory/tests/derive.test.ts`
 
@@ -148,7 +148,7 @@
 - [ ] Keep read-state stale guard semantics intact; this task only adds model-visible continuity reminders.
 - [ ] Run: `pnpm vitest run apps/zcode-cli/packages/core/tests/runtime-compact.test.ts apps/zcode-cli/packages/core/tests/read-file-state-hydrator.test.ts`
 
-## Task 5: Remove ZCode Todo State From Post-Compact Context
+## Task 5: Remove Secretariat Todo State From Post-Compact Context
 
 **Files:**
 - Modify: `apps/zcode-cli/packages/core/src/runtime/helpers/compact.ts`
@@ -164,7 +164,7 @@
 - [ ] Remove compact-only `buildPostCompactTodoReminderEntries` wiring.
 - [ ] Run: `pnpm vitest run apps/zcode-cli/packages/core/tests/runtime-compact.test.ts -t "todo"`
 
-## Task 6: Investigate Current Auto Compact Budget Drift, Then Keep ZCode Threshold Defaults and Align Summary Output Cap
+## Task 6: Investigate Current Auto Compact Budget Drift, Then Keep Secretariat Threshold Defaults and Align Summary Output Cap
 
 **Files:**
 - Modify: `apps/zcode-cli/packages/core/src/compact/policy.ts`
@@ -196,7 +196,7 @@
 - [ ] Check whether local incremental token estimation after the latest provider usage snapshot can undercount large tool results or non-Anthropic tokenization. Add a failing test where provider usage is old, incremental context is large, and current local estimate lets auto compact start too late.
 - [ ] Check whether compact summary request budget must reserve compact prompt text and exposed normal tools, now that Task 2 intentionally keeps tools in compact requests. Add a failing test where exposed tool schemas push the compact request over context unless threshold leaves enough buffer.
 - [ ] Check whether `providerPostCompactTokenCount = getUsageTotalTokens(result.usage)` is being interpreted as post-compact context size even though it is the summary request usage. If so, add a test that `truePostCompactTokenCount` is the only re-trigger guard until a real provider count for the next request exists.
-- [ ] Keep default policy tests on the restored ZCode defaults: 64k output reserve and 90 percent threshold.
+- [ ] Keep default policy tests on the restored Secretariat defaults: 64k output reserve and 90 percent threshold.
 - [ ] Do not change unknown max output reserve to 20k; only compact summary request max output is capped at 20k.
 - [ ] Keep explicit config compatibility where `bufferTokens`, `summaryReserveTokens`, or threshold overrides are provided.
 - [ ] Update runtime compact test to assert summary generation request uses max output capped at 20k.
@@ -212,10 +212,10 @@
 - Test: `apps/zcode-cli/packages/core/tests/runtime-compact.test.ts`
 
 **Interfaces:**
-- keep-recent/local replacement 依赖 `context_hint`/server fallback 能力，ZCode 当前没有对应接口；本轮不改 local microcompact 的 provider-visible 行为。
+- keep-recent/local replacement 依赖 `context_hint`/server fallback 能力，Secretariat 当前没有对应接口；本轮不改 local microcompact 的 provider-visible 行为。
 - Runtime compact 收敛路径默认不依赖 microcompact；local microcompact 只保留现有显式 opt-in/安全修复，避免在缺少 `context_hint` 的情况下破坏 cache hit 或污染 provider-visible context。
 
-- [ ] Keep this as an explicit skip in review notes; do not add new microcompact requirements here until ZCode has a `context_hint`/server compact capability.
+- [ ] Keep this as an explicit skip in review notes; do not add new microcompact requirements here until Secretariat has a `context_hint`/server compact capability.
 - [ ] Ensure full compact behavior does not depend on microcompact being enabled.
 
 ## Task 8: Media Handling Should Degrade on Failure, Not Always Strip
@@ -284,7 +284,7 @@
 ## Acceptance Criteria
 
 - Compact summary prompt and continuation message match the local compact semantics frozen in this plan, excluding explicit skip list.
-- Every non-skip behavior change has a direct evidence pointer (fixture or contract test) in test names, test comments, or plan notes; no ZCode-only fallback/heuristic/config/abstraction is introduced as a “nice to have”.
+- Every non-skip behavior change has a direct evidence pointer (fixture or contract test) in test names, test comments, or plan notes; no Secretariat-only fallback/heuristic/config/abstraction is introduced as a “nice to have”.
 - Touched compact code does not accumulate patch-on-patch branch chains; any necessary refactor is minimal, local to existing compact boundaries, and reduces branching while preserving the target behavior.
 - Compact request no longer uses `tools: []`; it exposes normal tools but rejects any compact-time tool call before execution.
 - Auto/reactive compact no longer only preserves trailing user entries; recent assistant/tool/user groups needed for continuity survive verbatim.
@@ -292,5 +292,5 @@
 - Todo state, if present, is a separate model-only reminder and not appended into summary text.
 - Auto compact budget diagnostics are covered, while the accepted default threshold keeps 64k output reserve and 90 percent threshold; compact summary request output is capped at 20k.
 - Compact summary requests reserve enough budget for compact prompt text, exposed normal tools, and summary max output, so auto compact does not trigger into a predictable context-overflow failure.
-- Local microcompact changes are explicitly skipped until ZCode has a `context_hint`/server compact capability; full compact provider-visible behavior must not depend on microcompact.
+- Local microcompact changes are explicitly skipped until Secretariat has a `context_hint`/server compact capability; full compact provider-visible behavior must not depend on microcompact.
 - UI continues to show compact as a single divider and does not expose compact summary as a chat bubble.

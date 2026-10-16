@@ -1,6 +1,6 @@
 # iOS Simulator Plugin
 
-ZCode plugin for model-driven iOS app development on macOS.
+Secretariat plugin for model-driven iOS app development on macOS.
 
 The package root is the plugin root:
 
@@ -8,26 +8,26 @@ The package root is the plugin root:
 zcode --plugin-dir /absolute/path/to/ios-simulator-plugin
 ```
 
-When enabled, ZCode loads:
+When enabled, Secretariat loads:
 
 - `.zcode-plugin/plugin.json` for plugin metadata and skill/command paths.
 - `.mcp.json` for the stdio MCP server.
 - `skills/ios-dev/SKILL.md` for the model workflow.
 - `commands/ios-dev.md` as a convenience slash command.
 
-## ZCode CLI Usage
+## Secretariat CLI Usage
 
-ZCode bundles this package as the official `ios-simulator@zcode-plugins-official`
+Secretariat bundles this package as the official `ios-simulator@zcode-plugins-official`
 plugin. Enable the plugin to project its skill, slash command, and MCP server
 into the session.
-At startup ZCode copies the packaged plugin files into
-`~/.zcode/cli/plugins/cache/zcode-plugins-official/ios-simulator/0.1.0/` and
+At startup Secretariat copies the packaged plugin files into
+`~/.secretariat/cli/plugins/cache/zcode-plugins-official/ios-simulator/0.1.0/` and
 runs the MCP server from that cache directory. SEA builds rewrite the official
-plugin's ZCode manifest to launch the cached MCP server through ZCode's internal
+plugin's Secretariat manifest to launch the cached MCP server through Secretariat's internal
 plugin host, so the server uses the embedded Node.js runtime. Third-party
 plugins are not rewritten automatically and keep their own declared `command`.
 
-Example `~/.zcode/cli/config.json` entry:
+Example `~/.secretariat/cli/config.json` entry:
 
 ```json
 {
@@ -45,7 +45,7 @@ Example `~/.zcode/cli/config.json` entry:
 }
 ```
 
-The plugin MCP server name is `ios-simulator`. ZCode normalizes that name for model-visible MCP tools, so the model sees `mcp__ios_simulator__<tool>`, for example `mcp__ios_simulator__ios_preflight`. The MCP server still implements the raw MCP tool names such as `ios_preflight`; ZCode maps between the model-visible name and the server tool name.
+The plugin MCP server name is `ios-simulator`. Secretariat normalizes that name for model-visible MCP tools, so the model sees `mcp__ios_simulator__<tool>`, for example `mcp__ios_simulator__ios_preflight`. The MCP server still implements the raw MCP tool names such as `ios_preflight`; Secretariat maps between the model-visible name and the server tool name.
 
 Use stdio for the normal local workflow. HTTP is only useful if you later wrap this package as a long-running daemon shared by multiple clients.
 
@@ -99,7 +99,7 @@ pnpm --filter @zcode/ios-simulator-plugin typecheck
 pnpm --filter @zcode/ios-simulator-plugin build
 ```
 
-The Claude-compatible `.mcp.json` and the ZCode manifest both execute
+The Claude-compatible `.mcp.json` and the Secretariat manifest both execute
 `dist/mcp/server.js` with Node.js. Run the package build after changing
 TypeScript sources.
 

@@ -1,11 +1,11 @@
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, resolve as resolvePath } from "node:path";
-import { ZCODE_AGENT_RUNTIME, sanitizeZCodeRuntimeEnvInPlace } from "@zcode/shared";
+import { SECRETARIAT_AGENT_RUNTIME, sanitizeZCodeRuntimeEnvInPlace } from "@zcode/shared";
 import { getDataBaseDir, getProviderWorkspaceConfigDir } from "../paths.js";
 import { buildRuntimeProcessEnvPatch } from "./runtimeCommandEnv.js";
 
-const ZCODE_AGENT_WORKDIR_ENV = "ZCODE_AGENT_WORKDIR";
+const SECRETARIAT_AGENT_WORKDIR_ENV = "SECRETARIAT_AGENT_WORKDIR";
 
 /** 返回 provider + workspace 在应用内的专属配置目录路径 */
 export function resolveProviderConfigDir(
@@ -43,7 +43,7 @@ export function buildCleanEnv(
     env[key] = value;
   }
   // 修复原因：provider/agent runtime 子进程不能默认继承 shell 里的 NODE_ENV、代理或证书变量。
-  // 这些运行时输入必须来自 ZCODE_* 显式配置或 app 设置页，避免用户环境污染模型请求和工具子进程。
+  // 这些运行时输入必须来自 SECRETARIAT_* 显式配置或 app 设置页，避免用户环境污染模型请求和工具子进程。
   sanitizeZCodeRuntimeEnvInPlace(env);
   // Bugfix: Windows 环境变量名大小写不敏感，但 JS 普通对象区分大小写。
   // process.env 枚举时 PATH 通常以 "Path"（title case）出现，
@@ -62,7 +62,7 @@ export function buildCleanEnv(
   }
   if (provider === "glm") {
     const glmHome = getDataBaseDir();
-    // Bugfix: GLM agent 会把 config/session 产物写到 dataBaseDir 下的 ~/.zcode/cli。
+    // Bugfix: GLM agent 会把 config/session 产物写到 dataBaseDir 下的 ~/.secretariat/cli。
     // 这里统一把子进程 HOME 切到 dataBaseDir，保证“写入目录”和“运行时读取目录”始终一致。
     env.HOME = glmHome;
     if (process.platform === "win32") {
@@ -94,7 +94,7 @@ function resolvePlatformScopedBundledAgentRoots(moduleDir?: string): Array<strin
     resolvePath(process.cwd(), "bundled-agents", platformKey),
     resolvePath(process.cwd(), "packages", "desktop", "bundled-agents", platformKey),
     // dev:web 会用 pnpm --filter @zcode/server dev 启动，cwd 落在 packages/server。
-    // ZCode Agent 资源可能位于桌面包或仓库根的 bundled-agents/<platform>。
+    // Secretariat Agent 资源可能位于桌面包或仓库根的 bundled-agents/<platform>。
     // 这里统一补齐仓库内所有平台化目录候选，desktop/web/server 共享一套解析链路。
     resolvePath(process.cwd(), "..", "desktop", "bundled-agents", platformKey),
     moduleDir ? resolvePath(moduleDir, "..", "..", "desktop", "bundled-agents", platformKey) : null,
@@ -113,7 +113,7 @@ function resolveLegacyBundledResourceRoots(moduleDir?: string): Array<string | n
 }
 
 export function findZCodeAgentRuntimeBinary(): string | null {
-  const runtime = ZCODE_AGENT_RUNTIME;
+  const runtime = SECRETARIAT_AGENT_RUNTIME;
   const entrySegments = runtime.resolveEntrySegments(process.platform);
   const resourceSegments = [runtime.bundledResourceDir, ...entrySegments];
   const envPath = process.env[runtime.binaryEnvVar];
@@ -130,7 +130,7 @@ export function findZCodeAgentRuntimeBinary(): string | null {
 
   const candidates = [
     packagedResourcesPath ? resolvePath(packagedResourcesPath, ...resourceSegments) : null,
-    resolvePath(homedir(), ".zcode", "server", "agents", ...resourceSegments),
+    resolvePath(homedir(), ".secretariat", "server", "agents", ...resourceSegments),
     ...platformScopedRoots.map((root) =>
       root ? resolvePath(root, runtime.bundledResourceDir, ...entrySegments) : null,
     ),
@@ -146,7 +146,7 @@ export function findZCodeAgentRuntimeBinary(): string | null {
  * 不查 GLM_BINARY_PATH——那个 env 指向原生二进制，语义不同。
  */
 export function findZCodeAgentRuntimeNodeBundle(): string | null {
-  const runtime = ZCODE_AGENT_RUNTIME;
+  const runtime = SECRETARIAT_AGENT_RUNTIME;
   const entrySegments = runtime.resolveNodeBundleSegments();
   const resourceSegments = [runtime.bundledResourceDir, ...entrySegments];
 
@@ -158,7 +158,7 @@ export function findZCodeAgentRuntimeNodeBundle(): string | null {
 
   const candidates = [
     packagedResourcesPath ? resolvePath(packagedResourcesPath, ...resourceSegments) : null,
-    resolvePath(homedir(), ".zcode", "server", "agents", ...resourceSegments),
+    resolvePath(homedir(), ".secretariat", "server", "agents", ...resourceSegments),
     ...platformScopedRoots.map((root) =>
       root ? resolvePath(root, runtime.bundledResourceDir, ...entrySegments) : null,
     ),
@@ -172,7 +172,7 @@ export function findBinary(provider: string): string | null {
   if (provider !== "glm") {
     return null;
   }
-  // GLM 开发态：ZCODE_AGENT_WORKDIR 或相邻目录发现，返回源码入口路径作为 "binary"
+  // GLM 开发态：SECRETARIAT_AGENT_WORKDIR 或相邻目录发现，返回源码入口路径作为 "binary"
   const devEntry = findGlmDevEntry();
   if (devEntry) {
     return devEntry.agentPath;
@@ -182,7 +182,7 @@ export function findBinary(provider: string): string | null {
 
 /**
  * GLM 开发态源码入口发现。
- * 优先读取 ZCODE_AGENT_WORKDIR。
+ * 优先读取 SECRETARIAT_AGENT_WORKDIR。
  * 未设置时在 cwd 相邻目录查找 zcode-cli / glm。
  */
 interface GlmDevEntry {
@@ -210,7 +210,7 @@ function resolveGlmDevEntry(workdir: string): GlmDevEntry | null {
 }
 
 function findGlmDevEntry(): GlmDevEntry | null {
-  const workdir = process.env[ZCODE_AGENT_WORKDIR_ENV];
+  const workdir = process.env[SECRETARIAT_AGENT_WORKDIR_ENV];
   if (workdir) {
     const entry = resolveGlmDevEntry(workdir);
     if (entry) {

@@ -38,7 +38,7 @@ Helper capture
 zcode-cua 最终 crop/resize/encode
     │ 注册不可变内部 frame，并返回 image + image_ref + hint
     ▼
-ZCode MCP bridge
+Secretariat MCP bridge
     │ 官方 CUA 图像必须保持字节、尺寸、方向和 block 邻接关系
     ▼
 模型 provider 请求
@@ -61,7 +61,7 @@ zcode-cua transport 同步绑定当前 frame → registry → 像素中心投影
 
 1. raster 必须是 tool result 首块，`image_ref` 文本块紧随其后；bridge 不得把任何
    diagnostic/hook 文本放到 raster 前面，也不得重排或拆散该原子对。
-2. raster 在 zcode-cua 已经按 190 KiB 预算编码，ZCode 不得再次 resize、crop、
+2. raster 在 zcode-cua 已经按 190 KiB 预算编码，Secretariat 不得再次 resize、crop、
    rotate、重编码或替换为 artifact 文本。
 3. 若 raster 仍超过 provider 明确上限，结果整体 fail-closed，不能只保留
    `image_ref` 后继续允许该 frame 动作。

@@ -1,8 +1,8 @@
-# ZCode Desktop Context
+# Secretariat Desktop Context
 
 ## 状态
 
-- 本文是 ZCode Desktop 输出呈现约束进入 Agent system prompt 的当前功能规范。
+- 本文是 Secretariat Desktop 输出呈现约束进入 Agent system prompt 的当前功能规范。
 - Desktop context 继续负责要求 Agent 输出 `::code-comment{...}`；Renderer 的解析、卡片和 Review 跳转由
   [Assistant Code Comment Cards](../ui/assistant-code-comment-cards.md) 独立规范，并受默认关闭的灰度能力控制。
 - Identity 中关于 terminal 展示的既有文案本阶段保持不变。
@@ -12,7 +12,7 @@
 | 字段     | 结论                                                                                    |
 | -------- | --------------------------------------------------------------------------------------- |
 | 改动层级 | presentation、runtime config                                                            |
-| 用户入口 | ZCode Desktop 本地 workspace、Desktop-attached SSH/WSL/Docker workspace                 |
+| 用户入口 | Secretariat Desktop 本地 workspace、Desktop-attached SSH/WSL/Docker workspace                 |
 | 评估入口 | `zcode --surface desktop --prompt <text>`                                               |
 | 权威状态 | Services 根据可信宿主事实推导、并在 Agent 启动时冻结的 `presentationSurface`            |
 | 默认值   | `terminal`                                                                              |
@@ -23,7 +23,7 @@
 Desktop surface 使用独立的 `buildDesktopContextSection()`，并遵守以下元数据：
 
 ```text
-name: ZCode Desktop Context
+name: Secretariat Desktop Context
 source: desktop_context
 injectionTarget: system
 cacheHint: stable
@@ -32,7 +32,7 @@ cacheHint: stable
 正文固定为：
 
 ```text
-# ZCode Desktop Context
+# Secretariat Desktop Context
 
 ### Files & URLs
 - Return local web URLs as Markdown links (e.g., [label](http://127.0.0.1:8080)).
@@ -54,14 +54,14 @@ cacheHint: stable
 ```text
 CLI Prefix
 Agent Identity
-ZCode Desktop Context       <- stable，仅 zcode_desktop
+Secretariat Desktop Context       <- stable，仅 zcode_desktop
 Dynamic Behavior            <- dynamic
 Session Guidance
 Environment
 ...
 ```
 
-`ZCode Desktop Context` 与 Identity 进入同一个稳定 system message，不新增 system message 数量。
+`Secretariat Desktop Context` 与 Identity 进入同一个稳定 system message，不新增 system message 数量。
 `customSystemPrompt` 会替换默认 system prompt 体系，因此不注入 Desktop context。Subagent 使用独立
 context builder，也不注入 Desktop context。
 
@@ -97,7 +97,7 @@ zcode --surface desktop --prompt ... -> CLI 参数解析 ───────�
 
 ```text
 remote connect command
-  -> ZCODE_SERVICE_AUTHORITY_MODE=desktop-attached-remote
+  -> SECRETARIAT_SERVICE_AUTHORITY_MODE=desktop-attached-remote
   -> entry-stdio bootstrap
   -> createLocalServices(serviceAuthorityMode)
   -> ZCodeAgentProcessManager command resolver context
@@ -128,7 +128,7 @@ bridge Root 都显式开启灰度能力，Renderer 从同一原始 row text 确�
 普通 Web Server 入口保持默认关闭并继续显示原始 directive。该 UI 投影不改变 continuous/replayable
 交付边界，也不向 session snapshot 增加字段。
 
-该配置不进入 ZCode Protocol request，也不参与 workspace identity。远程 workspace 仍使用
+该配置不进入 Secretariat Protocol request，也不参与 workspace identity。远程 workspace 仍使用
 `workspaceIdentity?.trim() || workspacePath` 做隔离，`workspacePath` 只用于 Agent cwd。
 
 ## Desktop SP 服务端灰度
@@ -151,7 +151,7 @@ Desktop Main 在启动时旁路请求 `/api/v1/client/configs`，后续 Host 创
 
 只有 `code` 缺省或为 `0` 的成功响应才进入配置裁决：下发配置时要求 `enabled` 为 boolean；未下发
 `desktopContextPrompt` 时按 `{enabled:false}` 处理并覆盖旧的开启快照。Main 将本次裁决快照通过
-`ZCODE_DESKTOP_CONTEXT_PROMPT_ENABLED=1|0` 传给 Local Host，并沿现有 Remote runtime env 白名单
+`SECRETARIAT_DESKTOP_CONTEXT_PROMPT_ENABLED=1|0` 传给 Local Host，并沿现有 Remote runtime env 白名单
 传给 Desktop-attached 的远端 Host；Host 不请求服务端、不重新分桶。未提供该环境变量时，保留历史
 Host 装配语义，便于 CLI、普通 HTTP server 和已有测试继续运行。
 

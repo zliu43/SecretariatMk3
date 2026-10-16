@@ -1,6 +1,6 @@
 # Plan Usage ARMS 自定义事件
 
-ZCode 桌面端通过 ARMS custom event 补充所有 LLM request 的请求级用量看板。
+Secretariat 桌面端通过 ARMS custom event 补充所有 LLM request 的请求级用量看板。
 
 ## 事件口径
 
@@ -32,7 +32,7 @@ live 正文、思考或工具进展。不能用 provider/runtime TTFT 代替，�
 | `ask_mode`       | 模型请求事件中的 query source                                                                                                            |
 | `request_status` | `plan_request` 专用；`started` / `completed` / `failed` / `retry_scheduled` / `stream_stalled`                                           |
 | `request_id`     | 模型请求 id                                                                                                                              |
-| `task_id`        | ZCode task id                                                                                                                            |
+| `task_id`        | Secretariat task id                                                                                                                            |
 | `input_id`       | 用户输入 id                                                                                                                              |
 | `query_id`       | query id                                                                                                                                 |
 | `event_key`      | 协议事件去重键                                                                                                                           |

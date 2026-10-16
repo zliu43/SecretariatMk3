@@ -2,7 +2,7 @@
 
 > Date: 2026-06-29
 > Status: Draft v2 (revised after review; pending user review + plan)
-> Scope: ZCode plugin management page — (1) allow uninstalling built-in
+> Scope: Secretariat plugin management page — (1) allow uninstalling built-in
 > (official/bundled) plugins, (2) surface per-plugin update in the UI.
 
 ## Problem

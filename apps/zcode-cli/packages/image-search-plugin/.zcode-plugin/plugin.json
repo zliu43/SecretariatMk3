@@ -1,10 +1,10 @@
 {
   "name": "image-search",
   "version": "0.1.1",
-  "description": "Official ZCode image search MCP server for finding illustrations and reference images.",
+  "description": "Official Secretariat image search MCP server for finding illustrations and reference images.",
   "description_i18n": {
-    "en": "Official ZCode image search MCP server for finding illustrations and reference images.",
-    "zh-CN": "ZCode 官方搜图 MCP 服务，用于查找插图与参考配图。"
+    "en": "Official Secretariat image search MCP server for finding illustrations and reference images.",
+    "zh-CN": "Secretariat 官方搜图 MCP 服务，用于查找插图与参考配图。"
   },
   "author": {
     "name": "Z.ai"
@@ -13,7 +13,7 @@
   "mcpServers": {
     "image_search": {
       "type": "http",
-      "url": "${ZCODE_BASE_URL}/api/v1/mcp/server/image_search",
+      "url": "${SECRETARIAT_BASE_URL}/api/v1/mcp/server/image_search",
       "auth": {
         "type": "zcode_official",
         "provider": "jwt_token"

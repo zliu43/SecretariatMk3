@@ -5,9 +5,9 @@
 当前模型供应商链路已经分成两层事实源：
 
 - Host `modelProviderService` 管理 app 侧 provider 配置、API Key、endpoint、catalog 导入和落盘。
-- ZCode Agent server 接收 Host 生成的 provider registry snapshot，并维护运行态模型目录、当前模型和 reasoning/thought level。
+- Secretariat Agent server 接收 Host 生成的 provider registry snapshot，并维护运行态模型目录、当前模型和 reasoning/thought level。
 
-设置页已经支持从 `models.dev` 导入 provider、自定义 provider、编辑模型 id 列表和 provider 基础字段。聊天框在 ZCode Agent 路径下优先使用 agent 返回的 `settings.model.available/current`，Host provider registry 通过 `workspace/updateProviderRegistry` 热同步给 agent。
+设置页已经支持从 `models.dev` 导入 provider、自定义 provider、编辑模型 id 列表和 provider 基础字段。聊天框在 Secretariat Agent 路径下优先使用 agent 返回的 `settings.model.available/current`，Host provider registry 通过 `workspace/updateProviderRegistry` 热同步给 agent。
 
 现在要把开发阶段的中国 LLM catalog、provider 拖拽排序和单模型运行时 metadata 纳入正式设计。该设计只描述 app/host/agent registry 之间的契约与实现边界，不改变远控链路的 ownership 规则。
 
@@ -17,7 +17,7 @@
 - catalog 数据模型贴合 `zcode.model-providers.v1` JSON schema：保留 `kind`、`endpoints.baseURL + paths`、`model.kinds`、`modalities` 和 reasoning patch，不伪装成 `models.dev`。
 - provider 排序支持拖拽，排序结果持久化，并由 UI 同时应用到设置页 provider 导航和聊天框 provider 分组顺序。
 - 单模型字段从旧的 `string[] + metadata map` 收敛成模型对象数组，避免新旧字段长期双写。
-- catalog 导入后的模型能力进入 `ModelProviderConfig`，再由 `convertModelProviderConfigToZCodeProviderInput` 投影到 ZCode Protocol 的 `ZCodeModelProviderInput.models[*]`。
+- catalog 导入后的模型能力进入 `ModelProviderConfig`，再由 `convertModelProviderConfigToZCodeProviderInput` 投影到 Secretariat Protocol 的 `ZCodeModelProviderInput.models[*]`。
 - 保持桌面、本地远程 workspace、手机 `/remote` shared-host attachment 的 provider registry 同步语义不变。
 
 ## 非目标
@@ -36,7 +36,7 @@
 - `reasoning.levels[level][kind]` 是请求参数 patch，不是最终 providerOptions，也不包含 UI label、rank 或 enabled。转换层需要把公开 JSON 的 `openai-compatible` namespace 映射成 AI SDK 内部的 `openaiCompatible`。
 - 现有 `ModelProviderConfig.models` 是 `string[]`，但如果本阶段正式切换到模型对象数组，就必须提供旧 `model-providers.json` 的一次性自动迁移，否则升级用户的 provider 会因为 schema 不匹配而丢失或读不出来。
 - 现有 `sortModelProvidersForDisplay` 会按内置 provider bucket 重排，普通数组顺序不能代表用户排序。
-- ZCode Protocol 已有 `ZCodeModelReasoningState`：
+- Secretariat Protocol 已有 `ZCodeModelReasoningState`：
   - `enabled`
   - `levels: { value, label, description? }[]`
   - `defaultLevel?`
@@ -256,7 +256,7 @@ interface ModelProviderDisplayOrderState {
 
 不落盘 UI label、description、rank 或 `enabled`。UI 展示 label 由 i18n 根据 level id 派生，例如 `off`、`enabled`、`high`、`max`；未知 level 直接显示原始 value。
 
-### 投影到 ZCode Protocol
+### 投影到 Secretariat Protocol
 
 `convertModelProviderConfigToZCodeProviderInput` 构造每个 `models[*]` 时：
 
@@ -286,7 +286,7 @@ v1 不提供“新增任意 reasoning level”或“高级 JSON 参数编辑”�
 
 ## Agent Registry 投影
 
-`convertModelProviderConfigToZCodeProviderInput` 需要把 v2 provider config 投影到当前 ZCode Protocol：
+`convertModelProviderConfigToZCodeProviderInput` 需要把 v2 provider config 投影到当前 Secretariat Protocol：
 
 - provider `kind` 使用 effective kind。
 - provider `baseURL` 使用按 effective kind 解析后的 runtime baseURL。legacy 迁移产生的空 path 表示 `baseURL` 已经是旧 adapter-ready URL。
@@ -348,4 +348,4 @@ v1 不提供“新增任意 reasoning level”或“高级 JSON 参数编辑”�
 
 ## 后续事项
 
-中国 LLM catalog 的 CDN 化是明确后续事项：在开发阶段使用本地 `models_catalog_china_llm_zcode_2026-06-03.json`，等 catalog 审核和发布流程稳定后，把 `china-llm-zcode-dev` loader 切换为 CDN 下载，并保留本地 fallback 供开发调试。该切换不得改变 provider 落盘 schema 或 ZCode Protocol 投影。
+中国 LLM catalog 的 CDN 化是明确后续事项：在开发阶段使用本地 `models_catalog_china_llm_zcode_2026-06-03.json`，等 catalog 审核和发布流程稳定后，把 `china-llm-zcode-dev` loader 切换为 CDN 下载，并保留本地 fallback 供开发调试。该切换不得改变 provider 落盘 schema 或 Secretariat Protocol 投影。

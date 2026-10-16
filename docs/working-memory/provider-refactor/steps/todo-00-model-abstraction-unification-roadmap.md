@@ -12,7 +12,7 @@
 
 Todo 01–10 已全部实施。生产主链只保留 `ModelSelection -> Provider Registry -> ModelFactory -> Model`：
 Core 不再查询 Connection 或 Adapter Registry，模型能力和请求兼容只来自完整 Model Config；账号连接选择、
-Off-Peak 和 ZCode Built-in Config 也已切入同一结构化事实链。
+Off-Peak 和 Secretariat Built-in Config 也已切入同一结构化事实链。
 
 新增的 Todo 11 只保存 Provider Runtime 组合边界的后续审查，当前为“草案/不得实施”。Todo 12–14 已完成：
 用户选择 Facade 与执行校验分离；目标 Host、workspaceKey、稀疏结构化产品 Selection 和 Local-only Subagent
@@ -153,7 +153,7 @@ Telemetry 当前设计另有问题，但本轮明确不重构：
 | [`07`](./todo-07-account-connection-selection-and-access-context-cutover.md) | 已完成 | Account Connection 收口         | 结构化连接选择、Account Access、Request Auth、Off-Peak 与 MCP 使用同一事实链        | Todo 03 完整类型边界     |
 | [`08`](./todo-08-legacy-model-catalog-retirement.md)                         | 已完成 | Legacy Model Catalog 退役       | 删除 Catalog/override、Reasoning State，并以 Config 驱动 MFJS Tool Schema 投影      | Todo 02、03 已完成       |
 | [`09`](./todo-09-off-peak-model-selection-legacy-projection-retirement.md)   | 已完成 | Off-Peak 旧模型投影退役         | 隐藏 Provider 以 scoped Selection View 统一候选、Reasoning 与双重校验               | Todo 03、08              |
-| [`10`](./todo-10-zcode-builtin-provider-config-naming-cutover.md)            | 已完成 | ZCode Built-in Config 命名切换  | Provider Config 的 `official` 领域、代码和物理命名原子退出，不保留兼容              | 可独立执行               |
+| [`10`](./todo-10-zcode-builtin-provider-config-naming-cutover.md)            | 已完成 | Secretariat Built-in Config 命名切换  | Provider Config 的 `official` 领域、代码和物理命名原子退出，不保留兼容              | 可独立执行               |
 | [`11`](./todo-11-provider-runtime-composition-boundary-cleanup.md)           | 草案   | Provider Runtime 组合边界清理   | 审查 Node Config 资源、Host/Agent 组合根和唯一生命周期 owner                        | 待人工逐项裁决           |
 | [`12`](./todo-12-model-selection-validation-boundary-cutover.md)             | 已完成 | Model Selection 校验边界收口    | Facade 只提供用户候选，Registry/ModelFactory 承担权威执行校验                       | 可独立执行               |
 | [`13`](./todo-13-target-host-model-selection-authority.md)                   | 已完成 | 目标 Host 模型选择权威收口      | local/remote 读取目标 Host，删除临时 App/字符串选择并按 workspaceKey 隔离状态       | 建议在 Todo 12 之后      |

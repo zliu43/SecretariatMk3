@@ -182,7 +182,7 @@ Grouped 视图支持 task item 之间的直接拖拽移动，交互参考 dnd-ki
 - 拖拽 overlay 指跟随鼠标的纯展示浮层，通过 portal 挂到 `document.body`，不渲染在 grouped task 的滚动容器内，避免受滚动条和裁剪上下文影响；overlay 使用 `bg-background`，宽度跟随列表内当前 preview row 的实际宽度并在宽度变化时短过渡，不带 tooltip、右键菜单或 hover 操作态，松手后使用短 drop animation 收进最终落点。
 - Grouped task 拖到会话区 Workbench pane 的四个边缘时，复用 Project task 的分屏落点与 session identity 规则；成功分屏不得提交 grouped 排序预览，task 在 grouped 视图中的原有层级与顺序保持不变。拖动 group header 仍只负责 grouped 内部排序，不允许创建分屏。
 - 拖拽移动时对当前已挂载的可见 task row 做 FLIP 让位动画；task 移入/移出 group 时，group 容器高度变化和后续顶层节点位置变化也参与同一节奏的动画；虚拟列表窗口外未挂载的节点不参与动画，并遵守系统 reduced motion 偏好。
-- 拖拽只改变 Grouped 视图的用户组织顺序，不改变 ZCode session、task realtime stream、desktop continuous 或 web remote replayable 的消息恢复语义。
+- 拖拽只改变 Grouped 视图的用户组织顺序，不改变 Secretariat session、task realtime stream、desktop continuous 或 web remote replayable 的消息恢复语义。
 
 ## Fork 与新任务置顶
 
@@ -250,7 +250,7 @@ const workspaceKey = workspaceIdentity?.trim() || workspacePath;
 Group 相关数据持久化到现有 task 索引库：
 
 ```txt
-~/.zcode/v2/tasks-index.sqlite
+~/.secretariat/v2/tasks-index.sqlite
 ```
 
 不要为 group 另建 JSON 真相源，也不要把 group 状态放进 UI store、relay 或 main process。SQLite 仍由 services 层 repo 统一读写，UI 只通过 service/hook 访问。
@@ -492,4 +492,4 @@ async function applyGroupedViewChange(nextView) {
 - 不把 group 状态下沉到 relay 或 main process。
 - 不改变桌面端 `continuous` 与手机端 `replayable` 的 conversation/task 消息流语义。
 - 远程 workspace 成员引用必须贯穿传递 `workspaceIdentity` 和 `remoteSessionId` 可用上下文，禁止只按 `workspacePath` 匹配。
-- 手机 `/remote` 仍通过 shared-host attachment 复用已有 host，不为 group 视图另起独立 ZCode Agent runtime。
+- 手机 `/remote` 仍通过 shared-host attachment 复用已有 host，不为 group 视图另起独立 Secretariat Agent runtime。

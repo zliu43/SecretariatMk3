@@ -11,10 +11,10 @@
 ## Global Constraints
 
 - P0 只支持用户级/global subagent 管理；不支持工作区级创建/编辑。
-- 用户级 agent Markdown 的默认运行时根目录是 `~/.zcode/agents`，不是 `~/.zcode/cli/agents`。
+- 用户级 agent Markdown 的默认运行时根目录是 `~/.secretariat/agents`，不是 `~/.secretariat/cli/agents`。
 - GUI 的 enabled/disabled 状态必须被 zcode-cli runtime 启动时消费；不能只影响 Settings 列表或 mention 面板。
 - built-in agents `general-purpose` 和 `Explore` 在 P0 只读展示，不支持编辑/删除。
-- workspace/project agents 如果需要继续供 mention 使用，必须从 runtime 实际路径 `<workspace>/.zcode/agents` 读取；Settings P0 不提供编辑入口。
+- workspace/project agents 如果需要继续供 mention 使用，必须从 runtime 实际路径 `<workspace>/.secretariat/agents` 读取；Settings P0 不提供编辑入口。
 - 不让 `packages/services` 直接依赖 `@zcode/core` 或 runtime 具体实现。
 - 涉及 `packages/ui` 必须遵守根目录 `DESIGN.md`：使用 semantic color tokens、现有 Button/Input/Switch/Select/Dialog primitives、紧凑 settings 布局、支持 Zai Light/Dark 和响应式。
 - UI 文案必须走 i18n：`packages/ui/src/i18n/locales/zh-CN.ts` 与 `packages/ui/src/i18n/locales/en-US.ts` 同步补齐。
@@ -27,9 +27,9 @@
 - CLI runtime 加载 profile 的入口是 `apps/zcode-cli/packages/bootstrap/src/subagents.ts`。
 - CLI runtime 当前读取：
   - user root: `join(storageRoot, "agents")`
-  - project root: `join(workingDirectory, ".zcode", "agents")`
-- `storageRoot` 默认来自 `DefaultRuntimeConfig.storage.dir = "~/.zcode"`。
-- App service 当前 `packages/services/src/subagents/subagentsService.ts` 仍用 `ZCODE_AGENT_RUNTIME.nativeConfigDir` 推导 `~/.zcode/cli/agents` 和 `<workspace>/.zcode/cli/agents`，这和 runtime loader 不一致。
+  - project root: `join(workingDirectory, ".secretariat", "agents")`
+- `storageRoot` 默认来自 `DefaultRuntimeConfig.storage.dir = "~/.secretariat"`。
+- App service 当前 `packages/services/src/subagents/subagentsService.ts` 仍用 `SECRETARIAT_AGENT_RUNTIME.nativeConfigDir` 推导 `~/.secretariat/cli/agents` 和 `<workspace>/.secretariat/cli/agents`，这和 runtime loader 不一致。
 - App service 当前只解析/写回 `name`、`description`、`color`、`model`、`tools`、body；runtime profile 还支持 `disallowedTools`、`skills`、`permissionMode`、`maxTurns`、`background`、`mcpServers`。
 - `agents-state.json` 当前只被 service 读写，runtime 不消费。
 
@@ -45,7 +45,7 @@
   - 不依赖 `@zcode/core`。
 - Create: `packages/services/src/subagents/subagentStorage.ts`
   - 统一解析 user/global agent root、project agent root、state file path。
-  - 读取 `~/.zcode/cli/config.json` 中的 `storage.dir`，fallback 到 `~/.zcode`。
+  - 读取 `~/.secretariat/cli/config.json` 中的 `storage.dir`，fallback 到 `~/.secretariat`。
 - Modify: `packages/services/src/subagents/subagents.ts`
   - 扩展 service interface，支持 settings user-only list、create/update/delete 的 user scope。
 - Modify: `packages/services/src/subagents/subagentsService.ts`
@@ -390,19 +390,19 @@ pnpm test -- --run packages/services/test/subagentsService.test.ts
   - `resolveUserSubagentRoot(): Promise<string>`
   - `resolveWorkspaceSubagentRoot(workspacePath: string): string`
   - `resolveSubagentStateFile(): Promise<string>`
-- Consumes: `~/.zcode/cli/config.json` 的 `storage.dir`，fallback `~/.zcode`。
+- Consumes: `~/.secretariat/cli/config.json` 的 `storage.dir`，fallback `~/.secretariat`。
 
 - [ ] **Step 1: 写 failing root resolution test**
 
-使用临时 HOME，创建 `~/.zcode/cli/config.json`：
+使用临时 HOME，创建 `~/.secretariat/cli/config.json`：
 
 ```ts
 it("uses runtime storage.dir agents root for user subagents", async () => {
   const home = await mkdtemp(join(tmpdir(), "zcode-subagents-home-"));
   const storageRoot = join(home, "custom-storage");
-  await mkdir(join(home, ".zcode", "cli"), { recursive: true });
+  await mkdir(join(home, ".secretariat", "cli"), { recursive: true });
   await writeFile(
-    join(home, ".zcode", "cli", "config.json"),
+    join(home, ".secretariat", "cli", "config.json"),
     JSON.stringify({ storage: { dir: storageRoot } }),
     "utf8",
   );
@@ -415,11 +415,11 @@ it("uses runtime storage.dir agents root for user subagents", async () => {
 
 - [ ] **Step 2: 实现 storage helper**
 
-`subagentStorage.ts` 不直接使用 `ZCODE_AGENT_RUNTIME.nativeConfigDir` 推导 agent root。它只用 native config path 读取 config 文件：
+`subagentStorage.ts` 不直接使用 `SECRETARIAT_AGENT_RUNTIME.nativeConfigDir` 推导 agent root。它只用 native config path 读取 config 文件：
 
 ```ts
-const DEFAULT_STORAGE_DIR = "~/.zcode";
-const ZCODE_CONFIG_PATH = join(resolveUserHomeDir(), ".zcode", "cli", "config.json");
+const DEFAULT_STORAGE_DIR = "~/.secretariat";
+const SECRETARIAT_CONFIG_PATH = join(resolveUserHomeDir(), ".secretariat", "cli", "config.json");
 
 export async function resolveUserSubagentRoot(): Promise<string> {
   const storageDir = await readStorageDirFromCliConfig();
@@ -427,7 +427,7 @@ export async function resolveUserSubagentRoot(): Promise<string> {
 }
 
 export function resolveWorkspaceSubagentRoot(workspacePath: string): string {
-  return join(workspacePath, ".zcode", "agents");
+  return join(workspacePath, ".secretariat", "agents");
 }
 
 export async function resolveSubagentStateFile(): Promise<string> {
@@ -442,7 +442,7 @@ export async function resolveSubagentStateFile(): Promise<string> {
 
 - [ ] **Step 4: 保留兼容迁移读取**
 
-为了不让已有 `~/.zcode/cli/agents` 用户立刻消失，P0 可以只读 legacy root 但不再写 legacy root。实现为：
+为了不让已有 `~/.secretariat/cli/agents` 用户立刻消失，P0 可以只读 legacy root 但不再写 legacy root。实现为：
 
 ```ts
 const roots = [
@@ -847,7 +847,7 @@ Expected: PASS。
 
 **Interfaces:**
 
-- Consumes: `useSubagents(activeWorkspacePath, ZCODE_AGENT_PROVIDER, { mode: "settingsUserOnly" })`
+- Consumes: `useSubagents(activeWorkspacePath, SECRETARIAT_AGENT_PROVIDER, { mode: "settingsUserOnly" })`
 - Produces: search/filter/list/toggle/edit/delete entry points。
 
 - [ ] **Step 1: 写 failing render test**
@@ -907,7 +907,7 @@ Rules:
 
 - [ ] **Step 4: open user folder**
 
-Use existing `subagentsService.getPrimaryUserAgentsDirectory({ provider: ZCODE_AGENT_PROVIDER })` then `platform.openInFileManager(path)`。Failure toast uses existing `appHeader.openInFileManagerFailed`。
+Use existing `subagentsService.getPrimaryUserAgentsDirectory({ provider: SECRETARIAT_AGENT_PROVIDER })` then `platform.openInFileManager(path)`。Failure toast uses existing `appHeader.openInFileManagerFailed`。
 
 - [ ] **Step 5: toggle enabled**
 
@@ -1014,13 +1014,13 @@ Errors:
 Create:
 
 ```ts
-await createAgent(config, ZCODE_AGENT_PROVIDER, subagentsService);
+await createAgent(config, SECRETARIAT_AGENT_PROVIDER, subagentsService);
 ```
 
 Edit:
 
 ```ts
-await updateAgent(agent.id, config, agent.path, ZCODE_AGENT_PROVIDER, subagentsService);
+await updateAgent(agent.id, config, agent.path, SECRETARIAT_AGENT_PROVIDER, subagentsService);
 ```
 
 After success:
@@ -1267,7 +1267,7 @@ Start the app using the repo's normal dev command for this worktree. Then:
 1. Open Settings.
 2. Open Subagents section.
 3. Create user agent `code-reviewer`.
-4. Confirm file exists at `~/.zcode/agents/code-reviewer.md` or configured `${storage.dir}/agents/code-reviewer.md`.
+4. Confirm file exists at `~/.secretariat/agents/code-reviewer.md` or configured `${storage.dir}/agents/code-reviewer.md`.
 5. Disable `code-reviewer`.
 6. Start a new agent session.
 7. Inspect model-io/provider-visible request and confirm `code-reviewer` is absent from available agent list.
@@ -1284,7 +1284,7 @@ Expected:
 
 ## Risks and Non-goals
 
-- This plan does not change the separate provider-visible carrier question: ZCode currently injects the agent list through `context_prefix` rather than the Agent tool prompt.
+- This plan does not change the separate provider-visible carrier question: Secretariat currently injects the agent list through `context_prefix` rather than the Agent tool prompt.
 - This plan does not add workspace/project agent creation or editing.
 - This plan does not add plugin agents.
 - This plan does not implement nested YAML object editing for `mcpServers`; P0 preserves simple array values and can expose raw text only.

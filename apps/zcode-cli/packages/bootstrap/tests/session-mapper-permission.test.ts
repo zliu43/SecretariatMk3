@@ -72,7 +72,7 @@ describe("legacy permission.requested 映射", () => {
       saved: {
         name: "nightly",
         args: { depth: 3, target: "packages/core" },
-        path: "/repo/.zcode/workflows/nightly.dwf.ts",
+        path: "/repo/.secretariat/workflows/nightly.dwf.ts",
         scope: "project",
       },
     };
@@ -102,7 +102,7 @@ describe("legacy permission.requested 映射", () => {
       name: "pr-review",
       description: "Review a pull request",
       script: "return 1;",
-      path: "/repo/.zcode/workflows/pr-review.dwf.ts",
+      path: "/repo/.secretariat/workflows/pr-review.dwf.ts",
       overwrite: true,
       scope: "project",
     };
@@ -178,7 +178,7 @@ describe("legacy permission.requested 映射", () => {
           name: "pr-review",
           description: "Review a pull request",
           script: "return 1;",
-          path: "/repo/.zcode/workflows/pr-review.dwf.ts",
+          path: "/repo/.secretariat/workflows/pr-review.dwf.ts",
           overwrite: true,
           scope: "project",
         },
@@ -260,7 +260,7 @@ describe("legacy permission.requested 映射", () => {
       saved: {
         name: "release-check",
         args: { target: "packages/core", depth: 3, skipTests: false },
-        path: "/repo/.zcode/workflows/release-check.dwf.ts",
+        path: "/repo/.secretariat/workflows/release-check.dwf.ts",
         scope: "project",
       },
     };
@@ -268,7 +268,7 @@ describe("legacy permission.requested 映射", () => {
       name: "release-check",
       description: "对本仓库做一次发布前检查",
       script: "return 1;",
-      path: "/repo/.zcode/workflows/release-check.dwf.ts",
+      path: "/repo/.secretariat/workflows/release-check.dwf.ts",
       overwrite: true,
       scope: "project",
     };

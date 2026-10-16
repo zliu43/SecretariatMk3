@@ -5,12 +5,12 @@
 CUA 工具卡需要显示实际目标应用图标，但模型不需要、也不保证重复提交
 `bundle_id`。目标应用必须由 official CUA runtime 根据本次调用已经验证的
 `state_id`、`frame_id`、`app_ref` 或 Helper 响应解析，再通过宿主专用结果元数据投影给
-ZCode UI。
+Secretariat UI。
 
 该能力只改变展示投影，不改变 30 个 CUA 工具的名称、输入 schema、模型可见结果、
 权限、副作用、owner/stale 防护或 delivery-state 语义。
 
-发布时 ZCode 的 catalog pin、official plugin wrapper、plugin manifest 和 official plugin
+发布时 Secretariat 的 catalog pin、official plugin wrapper、plugin manifest 和 official plugin
 definition 必须共同对齐到包含本能力的 `zcode-cua@0.5.8`。只更新依赖 SHA 而保留旧
 wrapper 版本会让开发态 bundle 可用、正式插件缓存路径却仍落在旧版本，版本一致性检查
 必须阻止这种半升级状态。
@@ -130,9 +130,9 @@ type CuaAppAssociationsV1 = {
 
 - `appKey` 取代 `iconLocators`，形态为 `darwin:<bundleId>` / `windows-aumid:<aumid>` /
   `windows-exe:<canonical path>` / `linux-exe:<path>`；locator 由消费侧按前缀派生。
-- producer 现在自己携带 Helper 抓到的 ≤32×32 PNG。**ZCode 不投影这个 `icon`**：会话协议
+- producer 现在自己携带 Helper 抓到的 ≤32×32 PNG。**Secretariat 不投影这个 `icon`**：会话协议
   不承载 data URL 的约定不变，图标仍由 `IPlatformService.getApplicationIcon(locator)` 解析。
-- ZCode 侧从未实现过 `target-app-display-v1` 的消费；`CuaToolResultDisplay.targetApp`
+- Secretariat 侧从未实现过 `target-app-display-v1` 的消费；`CuaToolResultDisplay.targetApp`
   与 `iconLocators` 自 2026-08-20 起就取不到值，工具卡图标一直靠 legacy
   `readBundleId(input) ?? readCuaResultBundleId(result)` 兜底。该兜底只对历史会话保留。
 

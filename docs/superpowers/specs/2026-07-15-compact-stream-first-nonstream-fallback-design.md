@@ -3,13 +3,13 @@
 ## 状态
 
 - 日期：2026-07-15
-- 基线：ZCode `feat/streamable-compact`
+- 基线：Secretariat `feat/streamable-compact`
 - 变更类型：compact summary 辅助请求的 transport 调整
 - 明确非目标：cache-sharing fork、独立 summarizer、compact 产品状态或 prompt 语义调整
 
 ## 背景
 
-变更前，ZCode 在 `compactActiveConversation()` 中直接调用
+变更前，Secretariat 在 `compactActiveConversation()` 中直接调用
 `modelAdapter.generateText(...)`。因此即使普通主请求使用 SSE，compact summary 仍固定走 HTTP
 non-stream 请求。
 

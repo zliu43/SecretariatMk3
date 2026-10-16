@@ -13,8 +13,8 @@ import {
   PlatformChannels,
   resolveHelpAppConfig,
   resolveZCodeEndpointOrigin,
-  ZCODE_ENV,
-  ZCODE_PRODUCT_FLAVOR,
+  SECRETARIAT_ENV,
+  SECRETARIAT_PRODUCT_FLAVOR,
   type AppSettings,
   type DesktopCommandId,
   type Locale,
@@ -41,8 +41,8 @@ import { openResourceManager } from "./resourceManagerWindow.js";
 
 export const HELP_TOGGLE_DEV_TOOLS_MENU_ID = "help.toggle-dev-tools";
 export const HELP_TOGGLE_ZCODE_STDIO_TAP_MENU_ID = "help.toggle-zcode-stdio-tap";
-const ZCODE_ENDPOINT_PROMPT_WIDTH = 460;
-const ZCODE_ENDPOINT_PROMPT_HEIGHT = 210;
+const SECRETARIAT_ENDPOINT_PROMPT_WIDTH = 460;
+const SECRETARIAT_ENDPOINT_PROMPT_HEIGHT = 210;
 const CODING_PLAN_WEBVIEW_PARTITION = "persist:zcode-coding-plan";
 
 function resolveTargetWindow(senderWindow?: BrowserWindow | null) {
@@ -95,7 +95,7 @@ async function clearAllDataAndRelaunch(options: {
     title: "Clear All Data",
     message: "确定要清除所有数据吗？",
     detail:
-      "将删除 ~/.zcode/v2（配置、凭据、日志）和浏览器缓存（localStorage）。操作不可恢复，清除后应用将自动重启。",
+      "将删除 ~/.secretariat/v2（配置、凭据、日志）和浏览器缓存（localStorage）。操作不可恢复，清除后应用将自动重启。",
   });
   if (response !== 1) {
     return;
@@ -105,9 +105,9 @@ async function clearAllDataAndRelaunch(options: {
   const { rm } = await import("node:fs/promises");
   try {
     await rm(options.credentialsDir, { recursive: true, force: true });
-    options.logger.info("[clear-all-data] deleted ~/.zcode/v2");
+    options.logger.info("[clear-all-data] deleted ~/.secretariat/v2");
   } catch (error) {
-    options.logger.error("[clear-all-data] failed to delete ~/.zcode/v2:", error);
+    options.logger.error("[clear-all-data] failed to delete ~/.secretariat/v2:", error);
   }
 
   for (const win of BrowserWindow.getAllWindows()) {
@@ -312,7 +312,7 @@ function buildZCodeEndpointPromptHtml(currentValue: string): string {
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>ZCode Endpoint</title>
+    <title>Secretariat Endpoint</title>
     <style>
       :root { color-scheme: light dark; }
       body { margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -325,7 +325,7 @@ function buildZCodeEndpointPromptHtml(currentValue: string): string {
   </head>
   <body>
     <form id="form">
-      <label for="endpoint">ZCode endpoint origin</label>
+      <label for="endpoint">Secretariat endpoint origin</label>
       <input id="endpoint" value="${value}" placeholder="https://zcode.z.ai" spellcheck="false" />
       <div class="hint">Use an http or https origin, for example https://zcode.z.ai.</div>
       <div class="actions">
@@ -357,14 +357,14 @@ function showZCodeEndpointPromptWindow(options: {
   return new Promise((resolve) => {
     let settled = false;
     const promptWindow = new BrowserWindow({
-      width: ZCODE_ENDPOINT_PROMPT_WIDTH,
-      height: ZCODE_ENDPOINT_PROMPT_HEIGHT,
+      width: SECRETARIAT_ENDPOINT_PROMPT_WIDTH,
+      height: SECRETARIAT_ENDPOINT_PROMPT_HEIGHT,
       parent: options.parentWindow,
       modal: Boolean(options.parentWindow),
       resizable: false,
       minimizable: false,
       maximizable: false,
-      title: "ZCode Endpoint",
+      title: "Secretariat Endpoint",
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: false,
@@ -413,7 +413,7 @@ async function setZCodeEndpointOverride(options: {
   onZCodeEndpointChanged: () => Promise<void> | void;
   logger: { warn: (...args: unknown[]) => void };
 }) {
-  if (ZCODE_ENV === "production") {
+  if (SECRETARIAT_ENV === "production") {
     return;
   }
   const normalized = options.value ? normalizeZCodeEndpointOrigin(options.value) : undefined;
@@ -472,7 +472,7 @@ async function resolveCurrentZCodeEndpointOrigin(settingService: {
 }): Promise<string> {
   const settings = await settingService.get();
   return resolveZCodeEndpointOrigin({
-    env: ZCODE_ENV,
+    env: SECRETARIAT_ENV,
     envBaseOrigin: settingService.envBaseOrigin,
     overrideOrigin: settings.zcodeEndpointOrigin,
   });
@@ -594,7 +594,7 @@ export async function executeDesktopCommand(options: {
       return;
     case DesktopCommandIds.CheckForUpdates:
       // 按产品身份而不是后端环境放行：生产后端的 Preview 同样没有更新器。
-      if (ZCODE_PRODUCT_FLAVOR === "production") {
+      if (SECRETARIAT_PRODUCT_FLAVOR === "production") {
         checkForUpdateMenuClick(targetWindow);
       } else {
         options.logger.info("[auto-update] Preview 已禁用手动更新检查");
@@ -661,7 +661,7 @@ export async function executeDesktopCommand(options: {
       } catch (error) {
         await showMessageBoxWithOptionalParent(targetWindow, {
           type: "error",
-          title: "ZCode Endpoint",
+          title: "Secretariat Endpoint",
           message: "Endpoint 无效",
           detail: error instanceof Error ? error.message : String(error),
         });

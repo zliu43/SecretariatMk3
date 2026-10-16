@@ -41,8 +41,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import {
-  ZCODE_MODE_OPTION_DESCRIPTION_IDS,
-  ZCODE_MODE_OPTION_LABEL_IDS,
+  SECRETARIAT_MODE_OPTION_DESCRIPTION_IDS,
+  SECRETARIAT_MODE_OPTION_LABEL_IDS,
 } from "./display-help.js";
 import { RollingToolbarLabel } from "@/chat-input-toolbar/RollingToolbarLabel.js";
 
@@ -144,7 +144,7 @@ export function ChatApiRetryStatus({
       return null;
     }
 
-    // 当前 ZCode Agent 只会推送某一刻的 retryDelayMs 快照，不会每秒递减。
+    // 当前 Secretariat Agent 只会推送某一刻的 retryDelayMs 快照，不会每秒递减。
     // 继续把这个值渲染成“X 秒后继续”会给用户造成倒计时在卡住的错觉。
     // 这里先收敛成稳定的重试状态文案，只展示第几次重试。
     const formatter = new Intl.NumberFormat(locale);
@@ -201,7 +201,7 @@ export function getModeOptionLabelMessageId(
     return null;
   }
 
-  return ZCODE_MODE_OPTION_LABEL_IDS[provider]?.[entry.value] ?? null;
+  return SECRETARIAT_MODE_OPTION_LABEL_IDS[provider]?.[entry.value] ?? null;
 }
 
 export function getModeOptionDescriptionMessageId(
@@ -212,7 +212,7 @@ export function getModeOptionDescriptionMessageId(
     return null;
   }
 
-  return ZCODE_MODE_OPTION_DESCRIPTION_IDS[provider]?.[entry.value] ?? null;
+  return SECRETARIAT_MODE_OPTION_DESCRIPTION_IDS[provider]?.[entry.value] ?? null;
 }
 
 export function getConfigOptionEntryLabel(

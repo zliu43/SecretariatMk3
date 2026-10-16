@@ -6,9 +6,9 @@
 
 The first supported workflow kind is `expert`, modeled after `~/workspace/zcode-cli-bak/src/gsap`: clarify the task, analyze it, decompose architecture, check environment needs, prepare meta prompts, execute, run a final critic, then produce a report.
 
-The implementation must treat `expert` as the first built-in workflow definition, not as a one-off subsystem. Scheduling, graph state derivation, node transitions, activity recording, and ZCode app-server observation are generic workflow runtime capabilities. `expert` only supplies the default phase order, prompts, strategy defaults, and completion report.
+The implementation must treat `expert` as the first built-in workflow definition, not as a one-off subsystem. Scheduling, graph state derivation, node transitions, activity recording, and Secretariat app-server observation are generic workflow runtime capabilities. `expert` only supplies the default phase order, prompts, strategy defaults, and completion report.
 
-Workflow contracts use generic `WorkflowRunSnapshot`, `WorkflowStrategy`, `kind`, and `phase` shapes so future workflow definitions can add their own phase names without changing the scheduler or ZCode app-server envelope. `ExpertWorkflowRunSnapshot` and `ExpertWorkflowStrategy` remain compatibility aliases for the built-in workflow, but the store and graph scheduler depend on the generic names. The slash command surface still only registers `/expert` for the built-in workflow; ZCode app-server and bootstrap expose a generic workflow control path where `kind` defaults to `expert` and `definitionId` can select a runtime-validated workflow definition.
+Workflow contracts use generic `WorkflowRunSnapshot`, `WorkflowStrategy`, `kind`, and `phase` shapes so future workflow definitions can add their own phase names without changing the scheduler or Secretariat app-server envelope. `ExpertWorkflowRunSnapshot` and `ExpertWorkflowStrategy` remain compatibility aliases for the built-in workflow, but the store and graph scheduler depend on the generic names. The slash command surface still only registers `/expert` for the built-in workflow; Secretariat app-server and bootstrap expose a generic workflow control path where `kind` defaults to `expert` and `definitionId` can select a runtime-validated workflow definition.
 
 Workflow definitions are also a generic contract. A `WorkflowDefinition` declares `definitionId`, `definitionVersion`, `kind`, `title`, `phaseOrder`, default `strategy`, and one `WorkflowPhaseDefinition` per phase. Phase definitions declare the phase id/title/description, optional artifact path, and behavior: `agent`, `scheduled_graph`, `critic`, or `complete`. An agent phase may also declare `seedGraphFromArtifact` with `targetPhase` and optional `gateAfterPhase`; the built-in expert definition uses that on `arch_decompose` to seed the `exec` graph and gate root task nodes after `meta_prompt`. An agent phase may also declare `nodePromptsFromArtifact` with a `targetPhase`; the runtime parses the phase artifact as a validated node-prompt update set and updates existing target-phase graph nodes before the scheduler dispatches them. The built-in expert definition uses this on `meta_prompt` so execution instructions become scheduler input instead of only another report artifact. The runtime reads expert's schedule from this definition object, so expert is the first built-in definition rather than the owner of the workflow scheduler.
 
@@ -17,7 +17,7 @@ Definition provenance is durable run state. New snapshots record `definitionId` 
 Definition files live under the workflow definition directory:
 
 ```text
-~/.zcode/cli/workflows/
+~/.secretariat/cli/workflows/
   definitions/
     <definitionId>.json
 ```
@@ -29,7 +29,7 @@ The file body is the same `WorkflowDefinition` JSON object accepted by the runti
 Expert workflow state is user-level CLI state, not project state:
 
 ```text
-~/.zcode/cli/workflows/
+~/.secretariat/cli/workflows/
   definitions/
   runs/
     <runId>/
@@ -41,7 +41,7 @@ Expert workflow state is user-level CLI state, not project state:
   index.json
 ```
 
-Implementations must resolve the leading `~` through the same cross-platform storage-root logic used by CLI config. Do not hardcode Unix paths. The default root is derived from `storage.dir`; with the current default `storage.dir = ~/.zcode`, the workflow root is `~/.zcode/cli/workflows`.
+Implementations must resolve the leading `~` through the same cross-platform storage-root logic used by CLI config. Do not hardcode Unix paths. The default root is derived from `storage.dir`; with the current default `storage.dir = ~/.secretariat`, the workflow root is `~/.secretariat/cli/workflows`.
 
 ## Architecture
 
@@ -67,7 +67,7 @@ WorkflowRuntime
        -> callbacks for snapshot/event/graph-record persistence
 ```
 
-`WorkflowGraphScheduler` is a pure orchestration layer around the durable graph. It accepts a generic `WorkflowRunSnapshot`, derives ready, active, blocked, failed, and collection frontier state from `WorkflowGraph`, respects `strategy.executor.maxConcurrentLoops`, starts child agent activities for ready nodes, marks node transitions, and emits small workflow events. It does not know about `fs`, config files, provider clients, tools, ZCode app-server transports, terminal UI, or the built-in expert phase list.
+`WorkflowGraphScheduler` is a pure orchestration layer around the durable graph. It accepts a generic `WorkflowRunSnapshot`, derives ready, active, blocked, failed, and collection frontier state from `WorkflowGraph`, respects `strategy.executor.maxConcurrentLoops`, starts child agent activities for ready nodes, marks node transitions, and emits small workflow events. It does not know about `fs`, config files, provider clients, tools, Secretariat app-server transports, terminal UI, or the built-in expert phase list.
 
 The scheduler also owns the generic graph-expansion contract used by GSAP-style exploration. A workflow graph may define optional `collections[]`; each collection contains `collectionId`, `nodeIds`, `explorable`, optional `frontierTarget`, planner counters, watermarks, and exhaustion state. When a collection is explorable and its pending+active frontier falls below the target after seeded work has had a chance to run, the scheduler may call an injected planner port. The planner returns nodes and edges; the scheduler validates duplicates, unknown edge endpoints, self-loops, and cycles before persisting the expansion. This makes graph growth a reusable workflow capability. `expert` supplies the first built-in collection/planner prompts later, but does not own the expansion mechanism.
 
@@ -142,7 +142,7 @@ workflowRun
 
 This is intentionally different from a simple multi-turn implementation. Complex GSAP-style scheduling needs phase/node isolation, replayable activity state, and later concurrent execution. A future frontier executor can add multiple activities under the same phase or graph node without changing the command surface.
 
-The runtime may still run non-exec phases serially. The `exec` phase must go through the generic DAG scheduler so later workflow definitions can reuse the same scheduler for different phase names and node prompts. If a run only contains the built-in phase graph, `exec` schedules the `phase:exec` node as a single activity. If a definition or planner adds task nodes, independent ready nodes can run concurrently without changing slash-command or ZCode app-server APIs.
+The runtime may still run non-exec phases serially. The `exec` phase must go through the generic DAG scheduler so later workflow definitions can reuse the same scheduler for different phase names and node prompts. If a run only contains the built-in phase graph, `exec` schedules the `phase:exec` node as a single activity. If a definition or planner adds task nodes, independent ready nodes can run concurrently without changing slash-command or Secretariat app-server APIs.
 
 ## Default Mode
 
@@ -159,22 +159,22 @@ Bare `/expert` is equivalent to `/expert status`.
 
 The command center owns parsing and dispatch. The TUI only submits the slash command and renders returned text/events.
 
-## ZCode App-Server Control Surface
+## Secretariat App-Server Control Surface
 
-Desktop and web clients must manage workflow state through ZCode app-server, not by reading the workflow store directly. The workflow store is the durable truth source; ZCode app-server is the control and observation surface.
+Desktop and web clients must manage workflow state through Secretariat app-server, not by reading the workflow store directly. The workflow store is the durable truth source; Secretariat app-server is the control and observation surface.
 
-ZCode Protocol extension methods:
+Secretariat Protocol extension methods:
 
 - `zcode.dev/workflow/start`: start a workflow in the background and return the initial snapshot.
 - `zcode.dev/workflow/list`: list workflow runs for the current workspace.
 - `zcode.dev/workflow/get`: read one workflow snapshot and optional recent events.
 - `zcode.dev/workflow/cancel`: mark a workflow run cancelled.
 
-ZCode Protocol extension notifications:
+Secretariat Protocol extension notifications:
 
 - `zcode.dev/workflow/event`: emitted when workflow lifecycle events are appended.
 
-All workflow extension requests are scoped through a ZCode app-server `sessionId`. The session identifies the workspace process and parent session; the workflow run then records child agent sessions through `activities[].sessionId`. Requests may include a non-empty `kind` string, which defaults to `expert`, and may include a non-empty `definitionId` string to load a definition from `~/.zcode/cli/workflows/definitions`. When both are supplied, the loaded definition's `kind` must match the requested `kind`. ZCode protocol clients should render workflow runs as scheduler objects and link out to child sessions instead of flattening a workflow into a normal chat session.
+All workflow extension requests are scoped through a Secretariat app-server `sessionId`. The session identifies the workspace process and parent session; the workflow run then records child agent sessions through `activities[].sessionId`. Requests may include a non-empty `kind` string, which defaults to `expert`, and may include a non-empty `definitionId` string to load a definition from `~/.secretariat/cli/workflows/definitions`. When both are supplied, the loaded definition's `kind` must match the requested `kind`. Secretariat protocol clients should render workflow runs as scheduler objects and link out to child sessions instead of flattening a workflow into a normal chat session.
 
 `zcode.dev/workflow/get` returns the durable snapshot and may include recent workflow events. Clients can derive active, ready, and blocked nodes from `snapshot.graph.nodes[].status`, `dependsOn`, and `snapshot.graph.edges`. The server also emits scheduler lifecycle events so clients can refresh without polling every field:
 
@@ -187,7 +187,7 @@ All workflow extension requests are scoped through a ZCode app-server `sessionId
 
 The extension surface intentionally mirrors the slash command capabilities but returns structured data. UI clients must not start workflows by sending `/expert ...` as a prompt because that loses structured run/activity/session relationships.
 
-`zcode.dev/workflow/start`, `zcode.dev/workflow/get`, and `zcode.dev/workflow/cancel` also return a derived `scheduler` object alongside `snapshot`. The server validates this view with `WorkflowSchedulerStateSchema` before crossing the ZCode app-server boundary:
+`zcode.dev/workflow/start`, `zcode.dev/workflow/get`, and `zcode.dev/workflow/cancel` also return a derived `scheduler` object alongside `snapshot`. The server validates this view with `WorkflowSchedulerStateSchema` before crossing the Secretariat app-server boundary:
 
 - `readyNodeIds`
 - `activeNodeIds`
@@ -200,7 +200,7 @@ The extension surface intentionally mirrors the slash command capabilities but r
 
 The derived scheduler object is computed from the durable workflow snapshot. Graph state remains the source for ready/blocked/frontier derivation, and active activity state provides child session links once the child runtime has been created. It is a view, not a second source of truth. `zcode.dev/workflow/event` notifications must preserve `nodeId` and small structured `payload` values such as frontier changes so desktop clients can update debugger state without re-parsing event messages.
 
-Malformed workflow ZCode app-server requests must fail with structured ZCode app-server `invalidParams` or `invalidRequest` errors. Examples: `sessionId`, `task`, `kind`, and `definitionId` must be non-empty strings when supplied, `runId` must be a non-empty string when supplied, `limit` and `eventLimit` must be positive integers, and `includeEvents` must be boolean when supplied.
+Malformed workflow Secretariat app-server requests must fail with structured Secretariat app-server `invalidParams` or `invalidRequest` errors. Examples: `sessionId`, `task`, `kind`, and `definitionId` must be non-empty strings when supplied, `runId` must be a non-empty string when supplied, `limit` and `eventLimit` must be positive integers, and `includeEvents` must be boolean when supplied.
 
 ## Scheduling Strategy
 
@@ -228,7 +228,7 @@ The scheduler copies the important GSAP executor properties from `~/workspace/zc
 - Explorable collections use the bak executor's frontier rule: do not expand before seeded nodes produce a completion, expand when frontier is below target or new completed nodes need analysis, cap planner runs, and mark collections exhausted on planner/error limits.
 - Graph expansion follows the bak graph ops safety rules: reject duplicate nodes, self-loop edges, duplicate edges, unknown edge endpoints, and cycles before writing durable state.
 
-Workflow lifecycle repair is generic runtime behavior, not expert-only behavior. When a workflow resumes without proof that child sessions are still running, stale active graph nodes are reset to `pending`, stale active activities are closed as `cancelled` with a resume-repair reason, and the repaired graph is persisted before new dispatch. When a workflow is cancelled, the run is marked `cancelled` and all non-terminal phases, graph nodes, and activities are marked `cancelled` so ZCode protocol clients do not continue to display phantom active or ready work. Same-process background runs must also receive an abort signal so cancellation stops new child activities instead of only editing the durable snapshot. Child session ids are recorded as soon as the activity runner creates the child runtime, so ZCode app-server debuggers can link active workflow activities before they complete.
+Workflow lifecycle repair is generic runtime behavior, not expert-only behavior. When a workflow resumes without proof that child sessions are still running, stale active graph nodes are reset to `pending`, stale active activities are closed as `cancelled` with a resume-repair reason, and the repaired graph is persisted before new dispatch. When a workflow is cancelled, the run is marked `cancelled` and all non-terminal phases, graph nodes, and activities are marked `cancelled` so Secretariat protocol clients do not continue to display phantom active or ready work. Same-process background runs must also receive an abort signal so cancellation stops new child activities instead of only editing the durable snapshot. Child session ids are recorded as soon as the activity runner creates the child runtime, so Secretariat app-server debuggers can link active workflow activities before they complete.
 
 The generic collection/planner contract and graph expansion validation are in place. The built-in expert workflow now seeds `exec` task nodes and collections from `arch_decompose` artifacts, including the legacy GSAP graph shape. Further planner specialization can still improve the quality of generated exploration prompts, but the graph bridge itself is generic workflow behavior.
 
@@ -247,7 +247,7 @@ For a task node in the built-in `expert` `exec` phase, execution is:
 
 If no task nodes were seeded and the only executable node is the built-in phase node, the scheduler may still use the direct single child activity path for compatibility. GSAP-like execution is for task nodes because they carry the scoped implementation objective.
 
-Every subplanner, actor, and critic attempt is a normal workflow activity with an activity kind, artifact path, model, trace id, turn id, and optional child session id. `WorkflowRunSnapshot.sessionLinks[]` is derived from these activities so ZCode protocol clients can show all attempts for a node without scraping event text. `zcode.dev/workflow/event` must preserve `nodeId` and small payload fields such as `activityId`, `activityKind`, `loopId`, `attempt`, `sessionId`, `model`, and `artifactPath`.
+Every subplanner, actor, and critic attempt is a normal workflow activity with an activity kind, artifact path, model, trace id, turn id, and optional child session id. `WorkflowRunSnapshot.sessionLinks[]` is derived from these activities so Secretariat protocol clients can show all attempts for a node without scraping event text. `zcode.dev/workflow/event` must preserve `nodeId` and small payload fields such as `activityId`, `activityKind`, `loopId`, `attempt`, `sessionId`, `model`, and `artifactPath`.
 
 Final critic is a generic workflow graph feedback loop, not an expert-only patch path. A critic activity returns a validated workflow critic result:
 
@@ -283,7 +283,7 @@ Default strategy values mirror the bak GSAP defaults where applicable:
 - executor: `maxConcurrentLoops = 2`, `frontierTarget = 3`, `maxPlannerRuns = 10`, `maxConsecutiveErrors = 3`
 - final critic: `maxIterations = 3`
 
-Do not copy bak-only env vars such as `ZCODE_GSAP_*` unless a future spec defines their priority, errors, and tests.
+Do not copy bak-only env vars such as `SECRETARIAT_GSAP_*` unless a future spec defines their priority, errors, and tests.
 
 ## Tests
 
@@ -294,6 +294,6 @@ Required coverage:
 - workflow store writes `run.json`, `events.jsonl`, `graph.jsonl`, artifacts, report, and `index.json`.
 - workflow runtime runs phases in schedule order with a fake agent runner and records one child session activity per agent phase.
 - workflow scheduler dispatches independent ready nodes concurrently, blocks dependent nodes, records node events, and pauses on the configured consecutive error threshold.
-- ZCode app-server workflow extension methods list, get, cancel, and background-start workflow runs without parsing normal chat text.
+- Secretariat app-server workflow extension methods list, get, cancel, and background-start workflow runs without parsing normal chat text.
 - status/resume/stop work for missing, active, failed, cancelled, and completed runs.
 - CLI/TUI wiring keeps `/expert` out of TUI-owned state.

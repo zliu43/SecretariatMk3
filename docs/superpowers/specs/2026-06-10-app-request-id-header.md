@@ -29,7 +29,7 @@ App 侧外部业务 API 已经收敛到 `ApiClient`，错误诊断也会读取�
 2. 若没有现有 `x-request-id`，调用 `createUuid()` 生成 UUID 并写入小写 `x-request-id`。
 3. 若调用方已传入同名 header，保持原值。
 
-`NodeApiClient.request()` 在 endpoint rewrite 和 ZCode source header 合并后，再统一调用 helper。
+`NodeApiClient.request()` 在 endpoint rewrite 和 Secretariat source header 合并后，再统一调用 helper。
 这样无论目标是默认 endpoint、测试 endpoint 还是普通外部 API，都能拿到请求级 ID，
 同时 source header 的覆盖规则保持不变。
 
@@ -40,6 +40,6 @@ App 侧外部业务 API 已经收敛到 `ApiClient`，错误诊断也会读取�
 ## 验证
 
 - `NodeApiClient` 单测覆盖默认生成 `x-request-id`、保留显式传入的 request id、外部主动 abort 不影响 header 生成。
-- endpoint rewrite 单测覆盖 ZCode endpoint source headers 与 `x-request-id` 共存，普通外部请求也会带 header。
+- endpoint rewrite 单测覆盖 Secretariat endpoint source headers 与 `x-request-id` 共存，普通外部请求也会带 header。
 - `FeedbackHttpClient` 单测覆盖普通反馈 API、日志 chunk PUT、单次附件 PUT 都带 `x-request-id`。
 - 完成后执行定向 vitest，并按仓库要求执行 `pnpm typecheck` 和 `pnpm lint`。

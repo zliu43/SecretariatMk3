@@ -167,7 +167,7 @@ TypeError: native.probeAccessibility is not a function
 共同错误形态：
 
 ```text
-CuaHelperError: Failed to verify the live ZCode Computer Use process identity
+CuaHelperError: Failed to verify the live Secretariat Computer Use process identity
 Caused by: ENOENT: no such file or directory,
 rename '<socket>.pending' -> '<socket>'
 ```

@@ -1,5 +1,5 @@
 import { useCodingPlanEntryGate } from "@/settings/CodingPlanEntryButton.js";
-/* New task 页闲时任务入口（Figma ⚫️ Z.ai - Zcode / node 5488-3978；spec §5「模板」/ D30-4 第二入口）。
+/* New task 页闲时任务入口（Figma ⚫️ Z.ai - Secretariat / node 5488-3978；spec §5「模板」/ D30-4 第二入口）。
    引导横幅「Use free run Idle-time task」+ Client Scenes 模板卡（预填创建表单，Customize=空白）。
    灰度未命中不渲染（D31）；横幅可关闭（本会话内，D28「关闭后下次登录/重启再开」→ session 级）。
    点击卡片：暂存预填草稿 → 打开 Automations 主视图（idle tab）创建表单消费草稿。

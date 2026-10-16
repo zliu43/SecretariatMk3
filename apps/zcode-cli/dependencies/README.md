@@ -1,6 +1,6 @@
 # Repository dependencies
 
-This directory contains versioned third-party artifacts required by ZCode packaging.
+This directory contains versioned third-party artifacts required by Secretariat packaging.
 Keep the original archives in Git; extracted binaries and build caches belong in
 the existing ignored output directories.
 
@@ -39,7 +39,7 @@ the extracted archives; the default Desktop / SEA / server-cli plan continues to
 Desktop, CLI SEA, server-cli staging and remote asset packaging prepare native
 search tools through `scripts/prepare-native-search-tools.mjs`. When a dependency
 mirror is configured (`NATIVE_SEARCH_TOOLS_DOWNLOAD_BASE_URL`, or a resolvable
-`ZCODE_DEPS_BASE_URL` / `INTRANET_MACHINE_HOST`), it downloads the same archives
+`SECRETARIAT_DEPS_BASE_URL` / `INTRANET_MACHINE_HOST`), it downloads the same archives
 from that mirror with the same SHA-256 checks. Otherwise it resolves these
 archives relative to the repository, independently of the current working
 directory, and never downloads. The two sources are not fallbacks for each other.

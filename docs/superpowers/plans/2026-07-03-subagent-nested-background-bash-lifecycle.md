@@ -4,7 +4,7 @@
 
 **Goal:** 收敛 BG06：background subagent 内部启动 background Bash 后，Bash completion 归属于 child runtime 的 cleanup lifecycle，不复活已完成的 child model loop，也不补发 parent Agent result。
 
-**Architecture:** 不引入全局 `agentId -> task` owner routing。ZCode 已经通过 main/child `AgentRuntime` 隔离解决了 runtime 串线问题；本计划只在 child runtime 内增加 terminal/sealed background notification policy、subagent-scope Bash 最大运行时长和取消清理。parent/main background Agent、parent Bash、goal defer/wake 主链路保持现状。
+**Architecture:** 不引入全局 `agentId -> task` owner routing。Secretariat 已经通过 main/child `AgentRuntime` 隔离解决了 runtime 串线问题；本计划只在 child runtime 内增加 terminal/sealed background notification policy、subagent-scope Bash 最大运行时长和取消清理。parent/main background Agent、parent Bash、goal defer/wake 主链路保持现状。
 
 **Tech Stack:** TypeScript, `AgentRuntime`, `ToolExecutor`, `RuntimeTaskRegistry`, `ExecutionPort`, Vitest, desktop conversation E2E replay.
 

@@ -1,15 +1,15 @@
-# Feature Boundary Planner ZCode Domain Map
+# Feature Boundary Planner Secretariat Domain Map
 
 ## 背景
 
-`feature-boundary-planner` 从 conversation 专项 skill 泛化为 ZCode 通用功能边界澄清入口后，主流程保留了
+`feature-boundary-planner` 从 conversation 专项 skill 泛化为 Secretariat 通用功能边界澄清入口后，主流程保留了
 formal-proof、case catalog 和用户剪枝方法，但核心是先问清功能边界。后续用户提出“切换模型”
 “手机模式”“队列功能”“渲染性能”“持久化数据更新”“监控埋点”“数据跟踪”等问题时，skill 需要先把可能交叉的
 产品状态列出来，再引导用户逐步剪枝，而不是只套 conversation 默认维度。
 
 ## 目标
 
-- 在 skill 内增加一份 ZCode 能力域和交叉轴参考，帮助使用者从自然语言需求定位相关文档、代码和状态所有者。
+- 在 skill 内增加一份 Secretariat 能力域和交叉轴参考，帮助使用者从自然语言需求定位相关文档、代码和状态所有者。
 - 让矩阵枚举覆盖桌面端、Web 端、手机远控、远程 workspace、model/provider、queue、persistence、telemetry、
   rendering performance、permission/tool/MCP、theme/locale 等真实产品交叉点。
 - 保持 `SKILL.md` 精简，把详细 domain map 放入 `references/`，按需加载。
@@ -32,7 +32,7 @@ formal-proof、case catalog 和用户剪枝方法，但核心是先问清功能�
 
 ## Skill 行为要求
 
-1. 当用户给出 ZCode 功能或 bug-prone interaction 时，先把需求映射到 1-4 个能力域，读相应源文档，再看代码。
+1. 当用户给出 Secretariat 功能或 bug-prone interaction 时，先把需求映射到 1-4 个能力域，读相应源文档，再看代码。
 2. 对每个能力域记录状态所有者：UI local state、Zustand store、host service、desktop main、relay、agent runtime、SQLite /
    session file、remote host 或 backend API。
 3. 维度提取必须包含端类型和交付语义：桌面 `desktop-continuous` 与手机 `web-remote-replayable` 不能互相代替。

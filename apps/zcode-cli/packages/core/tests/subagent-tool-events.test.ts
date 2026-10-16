@@ -199,7 +199,7 @@ describe("subagent tool event projection", () => {
       {
         eventStore,
         fileSystemPort: new MemoryFileSystem({
-          "/workspace/project/README.md": "ZCode Explore reads this file.\n",
+          "/workspace/project/README.md": "Secretariat Explore reads this file.\n",
         }),
         modelFactory: createTestModelFactory({
           async generateText(request: any) {
@@ -346,7 +346,7 @@ describe("subagent tool event projection", () => {
       {
         eventStore,
         fileSystemPort: new MemoryFileSystem({
-          "/workspace/project/README.md": "ZCode background child reads this file.\n",
+          "/workspace/project/README.md": "Secretariat background child reads this file.\n",
         }),
         modelFactory: createTestModelFactory({
           async generateText(request: any) {

@@ -235,8 +235,8 @@ describe("mcpStore", () => {
   it("远端 workspace attachment 绑定前不把预期断连记录成 MCP 警告", async () => {
     vi.stubGlobal("window", {});
     const disconnectedError = Object.assign(
-      new Error("ZCODE_REMOTE_WORKSPACE_DISCONNECTED"),
-      { code: "ZCODE_REMOTE_WORKSPACE_DISCONNECTED" },
+      new Error("SECRETARIAT_REMOTE_WORKSPACE_DISCONNECTED"),
+      { code: "SECRETARIAT_REMOTE_WORKSPACE_DISCONNECTED" },
     );
     const directoryService = {
       loadMcpFromUserDirectory: vi.fn(async () => {
@@ -362,7 +362,7 @@ describe("mcpStore", () => {
     ]);
   });
 
-  it("批量合并只更新 ZCode Agent MCP 行且清理 changed", () => {
+  it("批量合并只更新 Secretariat Agent MCP 行且清理 changed", () => {
     useMcpStore.setState({
       servers: [
         {
@@ -663,7 +663,7 @@ describe("mcpStore", () => {
     });
   });
 
-  it("批量状态刷新开始时会立即标记待检查的 ZCode Agent MCP 为连接中", () => {
+  it("批量状态刷新开始时会立即标记待检查的 Secretariat Agent MCP 为连接中", () => {
     useMcpStore.setState({
       servers: [
         {
@@ -791,7 +791,7 @@ describe("mcpStore", () => {
     });
   });
 
-  it("批量状态刷新失败时会把当前连接中的 ZCode Agent MCP 收口为错误", () => {
+  it("批量状态刷新失败时会把当前连接中的 Secretariat Agent MCP 收口为错误", () => {
     useMcpStore.setState({
       servers: [
         {

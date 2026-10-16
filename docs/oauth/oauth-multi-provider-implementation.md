@@ -61,11 +61,11 @@ BigModel 不再内置历史 fallback secret；未显式配置 `BIGMODEL_OAUTH_AP
 
 ### 2.6 OAuth callback 收敛
 
-Desktop OAuth 统一使用 `zcode://oauth/callback`：
+Desktop OAuth 统一使用 `secretariat://oauth/callback`：
 
-- ZAI 默认 `redirectUri` 从 `zcode://zai-auth/callback` 收敛为 `zcode://oauth/callback`
-- BigModel 保持 `zcode://oauth/callback`
-- Desktop main 进程不再识别 `zcode://zai-auth/callback` / `zcode://bigmodel-auth/callback`
+- ZAI 默认 `redirectUri` 从 `secretariat://zai-auth/callback` 收敛为 `secretariat://oauth/callback`
+- BigModel 保持 `secretariat://oauth/callback`
+- Desktop main 进程不再识别 `secretariat://zai-auth/callback` / `secretariat://bigmodel-auth/callback`
 - `ZAI_OAUTH_REDIRECT_URI` / `BIGMODEL_OAUTH_REDIRECT_URI` 及 legacy redirect URI override 已移除
 
 Provider 归属不依赖 callback host，而是由发起登录时注册的 `state` 绑定关系决定。
@@ -91,16 +91,16 @@ ZAI 环境变量：
 - `ZAI_BUSINESS_BASE_URL`：派生 `POST /api/auth/z/login`，用于把 ZAI OAuth access token 换成业务 token；测试环境为 `https://api.z.ai`
 - `ZAI_BUSINESS_LOGIN_URL`：完整业务 token 交换 URL override，优先级高于 `ZAI_BUSINESS_BASE_URL`
 
-ZAI 默认登录链路已切换为后端 JWT token 交换，授权入口和业务 token 交换入口按 `ZCODE_ENV=test|production` 选择：
+ZAI 默认登录链路已切换为后端 JWT token 交换，授权入口和业务 token 交换入口按 `SECRETARIAT_ENV=test|production` 选择：
 
 - 授权页：由 `ZAI_<ENV>_OAUTH_ORIGIN` 派生 `/api/oauth/authorize`，生产默认为 `https://chat.z.ai/api/oauth/authorize`
-- token 交换：由 `ZCODE_<ENV>_BASE_URL` 派生 `/api/v1/oauth/token`
+- token 交换：由 `SECRETARIAT_<ENV>_BASE_URL` 派生 `/api/v1/oauth/token`
 - 桌面端请求体：`{ code, redirect_uri, state }`
 - 本地保存的 `oauth:zai:access_token` 是后端返回的 `data.token`
 
 ## 4. ZAI 后端 JWT 登录链路（增量）
 
-ZAI OAuth 登录不再由桌面端直接请求三方 ZAI token 接口。桌面端只负责打开授权页、接收 `zcode://oauth/callback` deep link，并把 `code`、`redirect_uri`、`state` 传给后端 `https://zcode.z.ai/api/v1/oauth/token`。
+ZAI OAuth 登录不再由桌面端直接请求三方 ZAI token 接口。桌面端只负责打开授权页、接收 `secretariat://oauth/callback` deep link，并把 `code`、`redirect_uri`、`state` 传给后端 `https://zcode.z.ai/api/v1/oauth/token`。
 
 后端完成 z.ai token 交换、userinfo 拉取、用户创建与 JWT 签发。客户端把响应中的 `data.token` 保存为 `oauth:zai:access_token`，把 `data.user` 映射为 `oauth:zai:user_info`，并把 `oauth:active_provider` 设置为 `zai`。
 
@@ -124,13 +124,13 @@ ZAI OAuth 登录不再由桌面端直接请求三方 ZAI token 接口。桌面�
 
 行为说明：
 
-1. `credentialService.save` 自动加密后写入 `~/.zcode/v2/credentials.json`
+1. `credentialService.save` 自动加密后写入 `~/.secretariat/v2/credentials.json`
 2. `credentialService.load` 自动解密并返回明文给上层业务
 3. 历史明文值（无 `enc:v1:` 前缀）保持兼容读取，避免升级后登录态失效
 
 密钥说明：
 
-- 优先使用环境变量 `ZCODE_CREDENTIAL_SECRET`
+- 优先使用环境变量 `SECRETARIAT_CREDENTIAL_SECRET`
 - 未配置时使用本机上下文生成 fallback key（用于本地/远程模式下的最小可用加密）
 
 测试：

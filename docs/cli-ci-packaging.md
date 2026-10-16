@@ -22,7 +22,7 @@ SEA 依赖不能只按包名去重：同名不同来源版本按 Node 解析规�
 ## 上传与并发
 
 复用桌面 CI 的 runner、registry、依赖安装函数及共享目录文件复制方式；不调用桌面安装包筛选脚本。
-共享根使用 ZCODE_CI_SHARED_ROOT（macOS）、ZCODE_CI_LINUX_CONTAINER_OUT（Linux）、ZCODE_CI_WINDOWS_SHARED_ROOT（Windows）。
+共享根使用 SECRETARIAT_CI_SHARED_ROOT（macOS）、SECRETARIAT_CI_LINUX_CONTAINER_OUT（Linux）、SECRETARIAT_CI_WINDOWS_SHARED_ROOT（Windows）。
 它们均表示共享的 zcode 目录，目标保持 `<shared-root>/deps/zcode-cli-<CLI版本>/<既有SEA文件名>`。
 新增 job 内部变量 CLI_SEA_TARGET 仅选择构建目标，不传入产品运行时配置。
 共享根必须已经存在，避免挂载丢失时悄悄创建本地替代目录。
@@ -85,6 +85,6 @@ CLI package.json 同时提供 `release` 与 `release:dry`，根 package.json 提
 
 每个平台由 `ci-cli-sea.mjs` 在 SEA 构建及上传完成后发送一次飞书成功卡片，复用现有通知服务、`ci.build.completed` 场景和收件人配置。卡片标题明确标记 CLI，包含版本、平台、分支、提交人/信息、同一行水平排列的下载按钮及 Job 按钮。下载地址通过 `resolveIntranetDepsBaseUrl` 和实际发布目录/文件名生成。
 
-顺序：`构建 → 单平台上传成功 → 飞书通知`。构建或上传失败不发送成功通知；缺少通知凭据或通知服务失败只记录警告，不改变构建成功状态。沿用 `ZCODE_FEISHU_NOTIFY_TOKEN`、`ZCODE_FEISHU_NOTIFY_BASE_URL`、`FEISHU_RECEIVE_ID`/`FEISHU_RECEIVE_ID_TYPE`；`SANDBOX_RELEASE=1` 或 tag 包含 test（不区分大小写） 时跳过通知。每次手动重跑成功都会再次通知，不增加去重状态。桌面通知入口及 DAG 不变。
+顺序：`构建 → 单平台上传成功 → 飞书通知`。构建或上传失败不发送成功通知；缺少通知凭据或通知服务失败只记录警告，不改变构建成功状态。沿用 `SECRETARIAT_FEISHU_NOTIFY_TOKEN`、`SECRETARIAT_FEISHU_NOTIFY_BASE_URL`、`FEISHU_RECEIVE_ID`/`FEISHU_RECEIVE_ID_TYPE`；`SANDBOX_RELEASE=1` 或 tag 包含 test（不区分大小写） 时跳过通知。每次手动重跑成功都会再次通知，不增加去重状态。桌面通知入口及 DAG 不变。
 
 验证：模拟通知服务检查六平台地址和卡片、缺少 token/发送失败/沙箱跳过；编排测试验证先上传后通知以及失败不发送。

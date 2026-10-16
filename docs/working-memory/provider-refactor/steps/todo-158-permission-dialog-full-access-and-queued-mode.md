@@ -198,7 +198,7 @@ resolveInteraction(fullAccess) → session FIFO → registry claim（Hook 退赛
 
 合并最新 `origin/staging` 后复验（2026-09-17）：排除原有未提交改动的实际交付版本，根/CLI typecheck、根 lint、architecture 通过；UI 79、Core 24、SQLite 3、Contracts 27、Bootstrap 审批/队列 154、Gateway PA158 2 项通过，浏览器四组合通过。Linux Electron 再跑 1/1 通过，run `desktop-e2e-20260917120736651-p895163-873605a2d4994754`。首次构建因本机 Zod 旧依赖被 staging 的版本校验拦截，对齐本地安装至仓库要求的 4.6.5 后构建及 E2E 成功；未改依赖清单或锁文件。CLI lint 仍为原有 max-lines 失败。功能图新增节点/seed/边校验无新增问题，已有两个缺失 endpoint（`capability.mcp-oauth-authorization`、`persistence.desktop-user-data-root`）另记为基线缺口。
 
-发布前 `ZCODE_PRE_PUSH_BASE=origin/staging pnpm verify:pre-push` 通过（lint、architecture、变更测试及 related 受影响测试）。Zod 4.6.5 校验暴露的新增兼容测试缺少 `detail` 已补齐并复验；产品逻辑未因此变更。
+发布前 `SECRETARIAT_PRE_PUSH_BASE=origin/staging pnpm verify:pre-push` 通过（lint、architecture、变更测试及 related 受影响测试）。Zod 4.6.5 校验暴露的新增兼容测试缺少 `detail` 已补齐并复验；产品逻辑未因此变更。
 
 ### CR-01 / CR-02 修复复验（2026-09-17）
 

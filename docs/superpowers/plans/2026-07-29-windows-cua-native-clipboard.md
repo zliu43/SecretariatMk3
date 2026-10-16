@@ -522,7 +522,7 @@ it("awaits native clipboard read/write and advertises the complete pair", async 
     },
     brokerInfo: {
       bundle_id: "dev.zcode.cua.helper",
-      display_name: "ZCode Computer Use",
+      display_name: "Secretariat Computer Use",
       permission_mode: "product",
       version: "0.0.0-test",
       platform: "win32",
@@ -566,7 +566,7 @@ Replace the handlers with:
 read_clipboard: async () => {
   if (!supportsClipboard) {
     throw notAuthorized(
-      "read_clipboard is unavailable in this ZCode Computer Use build.",
+      "read_clipboard is unavailable in this Secretariat Computer Use build.",
     );
   }
   return await adapter.readClipboardText();
@@ -574,7 +574,7 @@ read_clipboard: async () => {
 write_clipboard: async (params) => {
   if (!supportsClipboard) {
     throw notAuthorized(
-      "write_clipboard is unavailable in this ZCode Computer Use build.",
+      "write_clipboard is unavailable in this Secretariat Computer Use build.",
     );
   }
   const text = typeof params.text === "string" ? params.text : "";
@@ -1181,7 +1181,7 @@ Expected: FAIL because the smoke script does not exist.
 Base lifecycle, random pipe/token, ready verification and clean shutdown on `windows-pointer-live-smoke.mjs`, but use this exact summary surface:
 
 ```js
-const OPT_IN_ENV = "ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE";
+const OPT_IN_ENV = "SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE";
 const summary = {
   platform: process.platform,
   helperReady: false,
@@ -1267,7 +1267,7 @@ Add to `package.json`:
 
 ```powershell
 cd C:\Users\dev\zcode-cua
-Remove-Item Env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE -ErrorAction SilentlyContinue
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE -ErrorAction SilentlyContinue
 pnpm exec vitest run test/windows-clipboard-live-smoke.test.ts
 pnpm smoke:windows:clipboard
 ```
@@ -1281,9 +1281,9 @@ Warn the user immediately before this step that pure-text replacement drops any 
 ```powershell
 cd C:\Users\dev\zcode-cua
 pnpm build
-$env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE='1'
 pnpm smoke:windows:clipboard
-Remove-Item Env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE
 ```
 
 Expected JSON booleans: every field except `platform` is `true`; exit 0; original pure text is restored and re-read exactly. If any field is false, stop feature completion, preserve a redacted failure-stage record, and do not claim live acceptance.
@@ -1331,9 +1331,9 @@ Add source build and live verification:
 cd C:\Users\dev\zcode-cua
 pnpm rebuild:native
 pnpm build
-$env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE='1'
 pnpm smoke:windows:clipboard
-Remove-Item Env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE
 ```
 
 Record these boundaries:
@@ -1406,22 +1406,22 @@ pnpm test
 
 Expected: exit 0. Record exact passed、skipped 和待处理数量 from this run instead of copying old counts.
 
-- [ ] **Step 3: Verify the source ZCode integration without remote paths**
+- [ ] **Step 3: Verify the source Secretariat integration without remote paths**
 
 ```powershell
 cd C:\Users\dev\z-code
-$env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
+$env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
 pnpm exec vitest run packages/services/test/windowsCuaDevHelper.integration.test.ts
 pnpm exec vitest run packages/services/test/cua
 pnpm --filter @zcode/zcode-cua-plugin test
-Remove-Item Env:ZCODE_CUA_DEV_ROOT
+Remove-Item Env:SECRETARIAT_CUA_DEV_ROOT
 pnpm typecheck
 pnpm lint
 ```
 
 Expected: Helper integration, CUA focused suite, official plugin, typecheck and lint exit 0. Confirm no SSH/WSL/Docker/remote/mobile process was started.
 
-- [ ] **Step 4: Execute and classify the full ZCode affected-unit baseline**
+- [ ] **Step 4: Execute and classify the full Secretariat affected-unit baseline**
 
 ```powershell
 cd C:\Users\dev\z-code
@@ -1474,7 +1474,7 @@ Expected: both worktrees clean. Final report must distinguish:
 
 - source unit/build gates;
 - real clipboard live round-trip and restoration;
-- ZCode source Helper integration;
+- Secretariat source Helper integration;
 - known non-CUA full-suite baseline;
 - still-pending WGC, UIA worker isolation, product packaging/signing;
 - still-pending pointer live acceptance if the foreground remains `LockApp`.

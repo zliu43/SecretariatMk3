@@ -44,7 +44,7 @@ export { type SettingsSectionId };
 export { createSettingsPageConfig, resolveSettingsSectionForPlatform };
 
 const TASK_AUTO_ARCHIVE_DAY_OPTIONS = [3, 7, 14, 30] as const;
-const ZCODE_INTERACTION_BEHAVIOR_OPTIONS: readonly ZCodeInteractionBehavior[] = ["queue", "guide"];
+const SECRETARIAT_INTERACTION_BEHAVIOR_OPTIONS: readonly ZCodeInteractionBehavior[] = ["queue", "guide"];
 
 export function GeneralSectionContent({
   localePreference,
@@ -709,7 +709,7 @@ export function GeneralSectionContent({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ZCODE_INTERACTION_BEHAVIOR_OPTIONS.map((behavior) => (
+                {SECRETARIAT_INTERACTION_BEHAVIOR_OPTIONS.map((behavior) => (
                   <SelectItem key={behavior} value={behavior}>
                     {intl.formatMessage({
                       id: `settings.zcodeInteractionBehavior.option.${behavior}`,

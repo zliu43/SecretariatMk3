@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ZCODE_AGENT_LIFECYCLE_LOG_MARKER } from "@zcode/shared/process-diagnostic";
+import { SECRETARIAT_AGENT_LIFECYCLE_LOG_MARKER } from "@zcode/shared/process-diagnostic";
 
 const init = vi.fn((_config: unknown) => Promise.resolve());
 
@@ -32,9 +32,9 @@ vi.mock("@zcode/shared", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@zcode/shared")>();
   return {
     ...actual,
-    ZCODE_ARMS_RUM_ENDPOINT: "https://example.test/endpoint",
-    ZCODE_ENV: "test",
-    ZCODE_VERSION: "0.0.0-test",
+    SECRETARIAT_ARMS_RUM_ENDPOINT: "https://example.test/endpoint",
+    SECRETARIAT_ENV: "test",
+    SECRETARIAT_VERSION: "0.0.0-test",
     mapZCodeEnvToArmsRumEnv: vi.fn(() => "local"),
   };
 });
@@ -152,7 +152,7 @@ describe("appARMSBootstrap beforeReport", () => {
       event_type: "exception",
       type: "error",
       source: "console.error",
-      message: `[host-log] process exited ${ZCODE_AGENT_LIFECYCLE_LOG_MARKER}`,
+      message: `[host-log] process exited ${SECRETARIAT_AGENT_LIFECYCLE_LOG_MARKER}`,
     };
     const realError = { ...wrapper, source: "uncaughtException" };
     const normalConsoleError = { ...wrapper, message: "a real main error" };
@@ -293,7 +293,7 @@ describe("appARMSBootstrap beforeReport", () => {
     expect(result.events[0].properties).toBeUndefined();
   });
 
-  it("drops crashReporter dumps that do not contain the ZCode product binary", async () => {
+  it("drops crashReporter dumps that do not contain the Secretariat product binary", async () => {
     const beforeReport = await getBeforeReport();
     const externalCrash = {
       event_type: "exception",
@@ -497,12 +497,12 @@ describe("appARMSBootstrap beforeReport", () => {
   it.each([
     {
       runtime: "Linux Preview",
-      applicationName: "ZCode Preview",
+      applicationName: "Secretariat Preview",
       executableName: "zcode-preview",
     },
     {
       runtime: "local development",
-      applicationName: "ZCode Dev",
+      applicationName: "Secretariat Dev",
       executableName: "Electron",
     },
   ])(

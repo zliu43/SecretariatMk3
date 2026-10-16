@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 新增 ZCode client-side `AnalyzeImage` 工具，内部通过单独模型请求只带 provider-native `analyze_image` 工具，避免 provider 自发输出的 `analyze_image` transcript 被误当作普通 ZCode 工具执行。
+**Goal:** 新增 Secretariat client-side `AnalyzeImage` 工具，内部通过单独模型请求只带 provider-native `analyze_image` 工具，避免 provider 自发输出的 `analyze_image` transcript 被误当作普通 Secretariat 工具执行。
 
 **Architecture:** 公开工具面只暴露 `AnalyzeImage`，不把 provider-native `analyze_image` 暴露到主 turn。`AnalyzeImage` handler 复用现有图片读取/压缩能力，把本地图片和用户问题发到 `querySource: "analyze_image_tool"` 的内部流式模型请求；adapter 只在这个内部请求的工具名为 `analyze_image` 时把函数工具投影成 provider-native `analyze_image`。主 turn 中未经请求的 `server_tool_use analyze_image` 仍按 provider anomaly 隔离，不进入 Bash 或任意本地工具调度。
 
@@ -12,7 +12,7 @@
 
 ## 设计边界
 
-- `AnalyzeImage` 是 ZCode client-side built-in tool，模型可见名称使用 PascalCase：`AnalyzeImage`。
+- `AnalyzeImage` 是 Secretariat client-side built-in tool，模型可见名称使用 PascalCase：`AnalyzeImage`。
 - `analyze_image` 是 provider-native server tool 名称，只允许出现在 `AnalyzeImage` 内部 side request。
 - v1 输入显式使用本地图片路径：`image_path` 和可选 `prompt`。不在 v1 中实现“从整个历史里自动猜当前图片”的隐式图片选择，避免把 prompt attachment、Read image result、MCP image artifact 三类来源混在一起。
 - 图片读取复用 `apps/zcode-cli/packages/core/src/tool/handlers/read-image.ts` 的 `inferImageMimeFromPath()` 与 `readImageFile()`，继承当前跨平台文件读取、尺寸限制、压缩和错误语义。
@@ -20,7 +20,7 @@
 - provider-visible 验收面是最终 HTTP request body，不是中间 `ModelToolContract`：
   - 主 turn `request.body.tools` 包含 `AnalyzeImage` function tool，不包含 provider-native `analyze_image`。
   - `querySource: "analyze_image_tool"` 的内部请求 `request.body.tools` 只包含 `{"type":"analyze_image","name":"analyze_image"}`。
-  - provider 未授权输出的主 turn `server_tool_use analyze_image` 不产生可执行 ZCode tool call。
+  - provider 未授权输出的主 turn `server_tool_use analyze_image` 不产生可执行 Secretariat tool call。
 
 ## 文件结构
 
@@ -1110,7 +1110,7 @@ function toAiSdkProviderNativeAnalyzeImageTool(
   }
 
   // AI SDK Anthropic provider only allowlists known provider-defined tool ids.
-  // ZCode sends a normal function-shaped sentinel here and rewrites it to
+  // Secretariat sends a normal function-shaped sentinel here and rewrites it to
   // provider-native analyze_image at the Anthropic-compatible fetch boundary.
   return tool<unknown, never>({
     description: contract.description,
@@ -1322,13 +1322,13 @@ If Task 3 Step 6 did not already finish the suppression, finish it here. The fin
 
 ```ts
 // 修复原因：部分 Anthropic-compatible provider 会在未请求 analyze_image 时返回
-// server_tool_use transcript；这不是 ZCode 注册的工具调用，必须在进入 AI SDK
+// server_tool_use transcript；这不是 Secretariat 注册的工具调用，必须在进入 AI SDK
 // tool input normalization 前隔离，避免损坏参数继续流向 Bash 或普通工具调度。
 ```
 
 - [ ] **Step 4: 增加 assembler 防线**
 
-Add an adapter-level guard in `streaming-tool-call-assembler.ts` so provider-executed `analyze_image` cannot become a ZCode-executable tool call even if a future provider response shape bypasses fetch-level frame suppression:
+Add an adapter-level guard in `streaming-tool-call-assembler.ts` so provider-executed `analyze_image` cannot become a Secretariat-executable tool call even if a future provider response shape bypasses fetch-level frame suppression:
 
 ```ts
 const UNAUTHORIZED_PROVIDER_TOOL_NAMES = new Set(["analyze_image"]);

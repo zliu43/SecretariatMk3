@@ -31,8 +31,8 @@ import {
 import {
   CodingPlanWebviewChannels,
   type CodingPlanPurchaseCompletePayload,
-  ZCODE_ENV,
-  ZCODE_VERSION,
+  SECRETARIAT_ENV,
+  SECRETARIAT_VERSION,
 } from "@zcode/shared";
 
 interface CodingPlanEmbeddedWebviewDialogProps {
@@ -129,7 +129,7 @@ export function CodingPlanEmbeddedWebviewDialog({
       endpointOrigin: RENDERER_ZCODE_ENDPOINT_URLS.origin,
       e2eStoreBridgeEnabled: env.VITE_ZCODE_E2E_STORE_BRIDGE === "1",
       overrideOrigin: env.VITE_CODING_PLAN_WEBVIEW_ORIGIN,
-      zcodeEnv: ZCODE_ENV,
+      zcodeEnv: SECRETARIAT_ENV,
     });
     // URL 带 ?lang= hint 让官网首屏就有正确语言，避免注入前的英文闪烁。
     // 同步带 ?theme= hint，避免官网 SSR 默认 dark 在 App 浅色主题下首帧闪烁。
@@ -193,7 +193,7 @@ export function CodingPlanEmbeddedWebviewDialog({
           funnelContext,
           deviceMid,
           userId,
-          appVersion: ZCODE_VERSION,
+          appVersion: SECRETARIAT_VERSION,
         });
         const script = createCodingPlanAuthInjectionScript({
           provider,

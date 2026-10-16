@@ -24,7 +24,7 @@ process.once(
 
     try {
       const store = createSharedZCodeCredentialStore({
-        env: { ZCODE_CREDENTIAL_SECRET: "test-secret" },
+        env: { SECRETARIAT_CREDENTIAL_SECRET: "test-secret" },
         filePath: message.filePath,
       });
       if (message.operation === "read-corrupt") {

@@ -1,7 +1,7 @@
 import { zcodeProcessResourceSampleSchema } from "@zcode/shared";
 import { describe, expect, it, vi } from "vitest";
 import {
-  ZCODE_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS,
+  SECRETARIAT_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS,
   createZCodeProcessResourceSampler,
   type ProcessMemoryUsageSnapshot,
 } from "../src/process-resource-sampler.js";
@@ -38,7 +38,7 @@ describe("createZCodeProcessResourceSampler", () => {
       timer: {
         clearInterval: vi.fn(),
         setInterval(callback, intervalMs) {
-          expect(intervalMs).toBe(ZCODE_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS);
+          expect(intervalMs).toBe(SECRETARIAT_PROCESS_RESOURCE_SAMPLE_INTERVAL_MS);
           scheduled = callback;
           return { unref };
         },

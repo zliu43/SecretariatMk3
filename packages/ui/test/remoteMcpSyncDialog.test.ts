@@ -125,7 +125,7 @@ function createMcpSyncServiceStub(): IMcpSyncService {
     })),
     checkRemoteUserMcpWriteAccess: vi.fn(async () => ({
       ok: true,
-      path: "/home/dev/.zcode/cli",
+      path: "/home/dev/.secretariat/cli",
     })),
     importMcpServers: vi.fn(async () => ({ results: [] })),
   };
@@ -144,7 +144,7 @@ describe("RemoteMcpSyncDialog helpers", () => {
               config: { type: "stdio", command: "npx" },
               enabled: true,
               source: "zcode",
-              path: "/Users/alice/.zcode/cli/config.json",
+              path: "/Users/alice/.secretariat/cli/config.json",
             },
           ],
         },
@@ -169,7 +169,7 @@ describe("RemoteMcpSyncDialog helpers", () => {
           config: { type: "stdio", command: "npx" },
           enabled: true,
           source: "zcode",
-          path: "/Users/me/.zcode/cli/config.json",
+          path: "/Users/me/.secretariat/cli/config.json",
         },
         {
           id: "docs-id",
@@ -177,7 +177,7 @@ describe("RemoteMcpSyncDialog helpers", () => {
           config: { type: "http", url: "https://mcp.example.com/mcp" },
           enabled: true,
           source: "zcode",
-          path: "/Users/me/.zcode/cli/config.json",
+          path: "/Users/me/.secretariat/cli/config.json",
         },
       ],
       [{ name: "docs", exists: true }],
@@ -306,7 +306,7 @@ describe("RemoteMcpSyncDialog", () => {
           config: { type: "stdio", command: "npx" },
           enabled: true,
           source: "zcode",
-          path: "/Users/me/.zcode/cli/config.json",
+          path: "/Users/me/.secretariat/cli/config.json",
         },
       ],
       [],
@@ -323,7 +323,7 @@ describe("RemoteMcpSyncDialog", () => {
     expect(html).toContain("grid gap-2");
     expect(html).toContain("rounded-lg border border-border bg-surface");
     expect(html).toContain('aria-labelledby="remote-mcp-sync-filesystem-id-label"');
-    expect(html).toContain("/Users/me/.zcode/cli/config.json");
+    expect(html).toContain("/Users/me/.secretariat/cli/config.json");
     expect(html).not.toContain("divide-y divide-border");
   });
 

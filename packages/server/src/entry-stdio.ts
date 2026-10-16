@@ -1,7 +1,7 @@
 import { disposeServiceResourcesAndWait, getAppConfigDir } from "@zcode/services/node";
 import type { IChannel } from "@zcode/rpc";
 import {
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   TOPIC_RESOURCE_RELAY_CHANNEL,
   SERVICE_AUTHORITY_MODE_ENV,
   formatLogPrefix,
@@ -34,7 +34,7 @@ console.debug = stderrConsoleLog;
 
 // --version flag: print version and exit (used by deploy version check)
 if (process.argv.includes("--version")) {
-  process.stdout.write(ZCODE_VERSION + "\n");
+  process.stdout.write(SECRETARIAT_VERSION + "\n");
   process.exit(0);
 }
 
@@ -42,7 +42,7 @@ async function main() {
   // Phase 1: Send hello message
   const hello: HelloMessage = {
     type: "zcode-hello",
-    version: ZCODE_VERSION,
+    version: SECRETARIAT_VERSION,
     platform: process.platform,
     arch: process.arch,
     pid: process.pid,
@@ -53,7 +53,7 @@ async function main() {
   const ack = await waitForAck();
   log(`client connected: ${ack.clientId} (v${ack.version})`);
 
-  // 远端主机没有 Desktop main，没人写 telemetry-state.json，services 发往 ZCode endpoint
+  // 远端主机没有 Desktop main，没人写 telemetry-state.json，services 发往 Secretariat endpoint
   // 的请求缺 X-Device-Mid，Start Plan 的 billing/balance 被拒。远端 server 是本机设备身份的
   // 生命周期所有者，必须在 services 创建前确保 deviceMid 存在（详见 stdioDeviceMid.ts）。
   await ensureRemoteServerDeviceMid({ log });

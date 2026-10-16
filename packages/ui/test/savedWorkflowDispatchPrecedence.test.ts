@@ -169,7 +169,7 @@ describe("saved-workflow dispatch precedence over tool family", () => {
         name: "release-check",
         description: "发布前检查",
         script: SCRIPT,
-        path: "/workspace/.zcode/workflows/release-check.dwf.ts",
+        path: "/workspace/.secretariat/workflows/release-check.dwf.ts",
         overwrite: false,
         scope: "project",
       },

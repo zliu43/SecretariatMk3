@@ -2,7 +2,7 @@
 
 ## Goal
 
-ZCode agent extensions must merge user-level and current-workspace definitions instead of choosing only one source. When the same extension identity appears in both places, the user-level definition wins.
+Secretariat agent extensions must merge user-level and current-workspace definitions instead of choosing only one source. When the same extension identity appears in both places, the user-level definition wins.
 
 This applies to local discovery for:
 
@@ -17,13 +17,13 @@ The rule is intentionally scoped to extension discovery. General runtime prefere
 Default skill roots are resolved in this order:
 
 1. explicitly configured `skills.roots`, in configured order
-2. user native root: `~/.zcode/skills`
+2. user native root: `~/.secretariat/skills`
 3. user agent-compatible root: `~/.agents/skills`
-4. project native roots from `workingDirectory` up to the git worktree root: `<dir>/.zcode/skills`
+4. project native roots from `workingDirectory` up to the git worktree root: `<dir>/.secretariat/skills`
 5. project agent-compatible roots from `workingDirectory` up to the git worktree root: `<dir>/.agents/skills`
 6. enabled plugin-provided roots
 
-Within the same directory level, `.zcode` has higher priority than `.agents`. `.zcode` and `.agents` are both scanned; `.agents` is no longer only a fallback when `.zcode` is empty.
+Within the same directory level, `.secretariat` has higher priority than `.agents`. `.secretariat` and `.agents` are both scanned; `.agents` is no longer only a fallback when `.secretariat` is empty.
 
 Same-name skills from different paths remain discoverable because path is the install identity. When loading by skill name, the first discovered skill wins, so user-level skills shadow project-level skills with the same name.
 
@@ -32,9 +32,9 @@ Same-name skills from different paths remain discoverable because path is the in
 Default custom command roots use the same source order as skills:
 
 1. configured roots
-2. user `.zcode/commands`
+2. user `.secretariat/commands`
 3. user `.agents/commands`
-4. project `.zcode/commands`
+4. project `.secretariat/commands`
 5. project `.agents/commands`
 6. enabled plugin-provided command roots
 

@@ -1,19 +1,19 @@
-# ZCode Agent Remote Deployment
+# Secretariat Agent Remote Deployment
 
 ## Scope
 
 For Desktop-attached SSH/Docker/WSL workspaces, Desktop Main starts or reuses a local Electron
-Remote Host utility process. That Remote Host connects to `zcode-server` and the ZCode Agent runtime
+Remote Host utility process. That Remote Host connects to `zcode-server` and the Secretariat Agent runtime
 on the remote machine, where file, git, terminal, and agent execution observe the remote filesystem
 and process environment. The window-scoped Local Host remains a separate process; a remote workspace
 does not replace it or receive a second Local Host.
 
-Current remote deployment only prepares the default ZCode resource set:
+Current remote deployment only prepares the default Secretariat resource set:
 
 - `server-bundle`
 - `node-runtime`
 - `node-pty`
-- `glm` / ZCode Agent runtime
+- `glm` / Secretariat Agent runtime
 - `bfs`
 - `ripgrep`
 - `ugrep`
@@ -25,7 +25,7 @@ Retired third-party agent and proxy runtimes are not deployed.
 Remote server base path:
 
 ```text
-~/.zcode/server/
+~/.secretariat/server/
 ├── node
 ├── zcode-server.cjs
 ├── build/Release/pty.node
@@ -183,7 +183,7 @@ remote .asset-components/server-bundle.json
 
 The renderer-facing host collection is mixed:
 
-- Remote proxy: file, git, system, terminal, file watcher, ZCode task/session/agent services,
+- Remote proxy: file, git, system, terminal, file watcher, Secretariat task/session/agent services,
   workspace-scoped Provider Settings, and workspace-scoped Model Selection.
 - Local implementation: Desktop app-global settings, OAuth UI integration, usage/coding-plan
   presentation, and other window-global state.
@@ -206,7 +206,7 @@ Desktop Entry
     | remote Provider Settings / Model Selection / task commands
     v
 Remote Environment
-├─ ZCode Built-in + Personal + Account Provider Config
+├─ Secretariat Built-in + Personal + Account Provider Config
 ├─ Credential Store
 ├─ Host Registry
 └─ Core Worker Registry -> ModelFactory -> model request
@@ -344,7 +344,7 @@ component-cache key semantics are unchanged.
 
 ## Resource Package Compatibility
 
-`SSHConnectOptions.resourcePackages.selectedPackageIds` is still accepted as historical input, but current connections ignore retired package choices and use the default ZCode resource set. Linux remote runtime includes `bfs`, `ripgrep`, and `ugrep`; Darwin remote only deploys its supported `ripgrep` component. Old configs cannot disable active runtime tools or re-enable third-party agent runtimes.
+`SSHConnectOptions.resourcePackages.selectedPackageIds` is still accepted as historical input, but current connections ignore retired package choices and use the default Secretariat resource set. Linux remote runtime includes `bfs`, `ripgrep`, and `ugrep`; Darwin remote only deploys its supported `ripgrep` component. Old configs cannot disable active runtime tools or re-enable third-party agent runtimes.
 
 ## Key Files
 

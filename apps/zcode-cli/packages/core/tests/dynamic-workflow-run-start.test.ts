@@ -59,7 +59,7 @@ function makeDir(prefix: string): string {
   return dir;
 }
 
-// 全局根默认取 os.homedir()：把 HOME 指到空临时目录，避免扫到开发机真实的 ~/.zcode/workflows。
+// 全局根默认取 os.homedir()：把 HOME 指到空临时目录，避免扫到开发机真实的 ~/.secretariat/workflows。
 let originalHome: string | undefined;
 let originalUserProfile: string | undefined;
 beforeEach(() => {
@@ -402,7 +402,7 @@ describe("startSavedWorkflowRun — 成功路径", () => {
     const draft = join(cwd, WORKFLOW_DRAFTS_DIR, "reporter.dwf.ts");
     expect(submitCalls[0]!.scriptPath).toBe(draft);
     expect(readFileSync(draft, "utf8")).toBe(
-      readFileSync(join(cwd, ".zcode/workflows/reporter.dwf.ts"), "utf8"),
+      readFileSync(join(cwd, ".secretariat/workflows/reporter.dwf.ts"), "utf8"),
     );
   });
 

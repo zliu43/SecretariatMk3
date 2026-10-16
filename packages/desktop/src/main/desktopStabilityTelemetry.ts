@@ -187,14 +187,14 @@ function redactRemainingAbsolutePaths(value: string): string {
   const protectedPaths: string[] = [];
   const protectedValue = value.replace(AGENT_CRASH_KNOWN_PATH_PLACEHOLDER_PATTERN, (match) => {
     const index = protectedPaths.push(match) - 1;
-    return `ZCODE_REDACTED_PATH_${index}_TOKEN`;
+    return `SECRETARIAT_REDACTED_PATH_${index}_TOKEN`;
   });
   const redacted = protectedValue
     .replace(AGENT_CRASH_WINDOWS_ABSOLUTE_PATH_PATTERN, "<path>")
     .replace(AGENT_CRASH_POSIX_ABSOLUTE_PATH_PATTERN, "<path>");
   return protectedPaths.reduce(
     (result, protectedPath, index) =>
-      result.replace(`ZCODE_REDACTED_PATH_${index}_TOKEN`, protectedPath),
+      result.replace(`SECRETARIAT_REDACTED_PATH_${index}_TOKEN`, protectedPath),
     redacted,
   );
 }
@@ -741,7 +741,7 @@ export function shouldReportChildProcessGoneAsCrash(input: ChildProcessGoneInput
   }
 
   // Bugfix: RUM 里 Video Capture / Network Service / Audio Service 等 Chromium Utility
-  // 子进程会被系统自动重建，不会让 ZCode 主窗口或会话不可用；它们只能作为可恢复退出记录，
+  // 子进程会被系统自动重建，不会让 Secretariat 主窗口或会话不可用；它们只能作为可恢复退出记录，
   // 不能进入 perf_crash，否则会把 crash-free 指标按“非真实崩溃”拉低。
   if (role === "utility") {
     return false;

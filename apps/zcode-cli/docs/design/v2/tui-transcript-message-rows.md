@@ -27,7 +27,7 @@ while assistant output stays on the regular transcript surface.
 - System plain text remains warning-colored plain text.
 - Agent text continues to flow through `MarkdownText`.
 - The row background is a TUI-only projection detail. It must not change
-  persisted session messages, ZCode app-server projection, model-visible history, or
+  persisted session messages, Secretariat app-server projection, model-visible history, or
   transcript export data.
 
 ## Tests

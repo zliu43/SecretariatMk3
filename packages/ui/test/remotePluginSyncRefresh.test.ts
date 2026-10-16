@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CommandsListResult, ZCodeCommand } from "@zcode/shared";
-import { ZCODE_AGENT_PROVIDER } from "@zcode/shared";
+import { SECRETARIAT_AGENT_PROVIDER } from "@zcode/shared";
 import { refreshWorkspacePluginCapabilitiesAfterRemoteSync } from "../src/lib/remotePluginSyncRefresh.js";
 import { useCommandsStore } from "../src/store/commandsStore.js";
 import { useSkillStore } from "../src/store/skillStore.js";
@@ -48,7 +48,7 @@ beforeEach(() => {
     workspaceIdentity: null,
     loadedWorkspacePath: null,
     loadedWorkspaceIdentity: null,
-    provider: ZCODE_AGENT_PROVIDER,
+    provider: SECRETARIAT_AGENT_PROVIDER,
     loadedProvider: null,
     skills: [],
     capability: null,

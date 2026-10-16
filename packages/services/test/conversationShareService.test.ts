@@ -8,7 +8,7 @@ import type {
 } from "@zcode/shared";
 import { ProxyChannel } from "@zcode/rpc";
 import {
-  ZCODE_ATTACHMENT_FAULT_CODES,
+  SECRETARIAT_ATTACHMENT_FAULT_CODES,
   ZCodeAttachmentFaultError,
 } from "@zcode/shared/zcode-protocol-v4";
 import { describe, expect, it, vi } from "vitest";
@@ -532,7 +532,7 @@ describe("ConversationShareService", () => {
       allowed_artifacts: [{ type: "text", extensions: ["txt"], mime_types: ["text/plain"] }],
     });
     conversationAttachmentStatV4.mockRejectedValueOnce(
-      new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.shareStatTooLarge),
+      new ZCodeAttachmentFaultError(SECRETARIAT_ATTACHMENT_FAULT_CODES.shareStatTooLarge),
     );
 
     const result = await service.preflight({
@@ -1120,7 +1120,7 @@ describe("ConversationShareService", () => {
         origin: "realUser",
         attachments: [
           {
-            ref: "/data/.zcode/tmp/paste-attachments/pasted.txt",
+            ref: "/data/.secretariat/tmp/paste-attachments/pasted.txt",
             fileName: "pasted.txt",
             mime: "text/plain",
             bytes: 11,

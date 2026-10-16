@@ -407,7 +407,7 @@ export class ZCodeProtocolAgentServer {
   shutdown(): Promise<void> {
     if (this.shutdownPromise) return this.shutdownPromise;
     this.shutdownPromise = this.runtimeResources.close();
-    const error = new Error("ZCode Protocol runtime stopping");
+    const error = new Error("Secretariat Protocol runtime stopping");
     this.disconnectClient(error);
     this.messageSink = undefined;
     this.clearPostResponseMessages();
@@ -476,7 +476,7 @@ export class ZCodeProtocolAgentServer {
         if (control.success) this.networkCapture.setCaptureId(control.data.captureId);
         return undefined;
       }
-      this.logger?.debug("ZCode Protocol notification ignored", {
+      this.logger?.debug("Secretariat Protocol notification ignored", {
         event: "zcode_protocol.notification.ignored",
         method: message.method,
         module: "bootstrap.zcode_protocol",
@@ -908,7 +908,7 @@ export class ZCodeProtocolAgentServer {
     if (!this.messageSink) {
       throw new ProtocolRequestError(
         PROTOCOL_CLIENT_REQUEST_ERROR_CODES.noClientAttached,
-        `No ZCode Protocol client is attached for ${method}`,
+        `No Secretariat Protocol client is attached for ${method}`,
       );
     }
 

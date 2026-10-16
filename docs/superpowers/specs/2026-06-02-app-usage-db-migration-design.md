@@ -6,7 +6,7 @@
 ## 背景与目标
 
 「应用用量」（App Usage）面板当前的数据全部来自**本地 session JSON 文件**
-（`~/.zcode/sessions/*.json`），经宿主进程的 `usageStatsAggregator.ts` 用
+（`~/.secretariat/sessions/*.json`），经宿主进程的 `usageStatsAggregator.ts` 用
 「字符数 / 3」**估算** token 后聚合成三个区块：概要、热力图、趋势，支持
 全部 / 7d / 30d 时间筛选。
 
@@ -29,17 +29,17 @@ zcode agent 新增了可观测性数据库（迁移 `0010_usage_observability`�
 2. **新增指标范围**：真实 Token 拆分 + 工具使用统计 + 质量/可靠性指标。
    **不做**按 query_source 拆分（主对话/压缩/子 agent/workflow）。
 3. **热力图形态 → 30 天日历格**（约 5 列，GitHub 式），每格 = 当天真实 token 总量。
-4. **取数路径 → ZCode Protocol**：新增协议方法，由 agent 侧 SQL 聚合后回传。
+4. **取数路径 → Secretariat Protocol**：新增协议方法，由 agent 侧 SQL 聚合后回传。
 
 ## 架构与数据流
 
 宿主进程**不直接持有** agent 的 SQLite；agent 是独立子进程，宿主只能通过
-ZCode Protocol（stdio JSON-RPC）请求数据（现有 `session/list`、`session/messages` 即此模式）。
+Secretariat Protocol（stdio JSON-RPC）请求数据（现有 `session/list`、`session/messages` 即此模式）。
 聚合放在 **agent 侧（SQL）**，而非把原始行拉回宿主再算 —— 省 stdio 传输、天然带 30 天窗口。
 
 ```
 旧:  useAppUsageStats → usageStatsService.getAppUsageSnapshot()
-        → readPersistedSessionFiles(~/.zcode/sessions/*.json)      [删]
+        → readPersistedSessionFiles(~/.secretariat/sessions/*.json)      [删]
         → buildUsageStatsSnapshot()  字符数/3 估算                 [删]
 
 新:  useAppUsageStats → usageStatsService.getAppUsageSnapshot()
@@ -50,7 +50,7 @@ ZCode Protocol（stdio JSON-RPC）请求数据（现有 `session/list`、`sessio
 ```
 
 **备选方案（不采用）**：宿主进程直接只读打开同一个 `default.db` 文件。否决原因：
-与 agent 并发访问同一 DB、schema 双份耦合、违反「新代码走 ZCode Protocol」约定。
+与 agent 并发访问同一 DB、schema 双份耦合、违反「新代码走 Secretariat Protocol」约定。
 
 ## 指标变更
 

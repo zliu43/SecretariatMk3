@@ -2,28 +2,28 @@
 
 > **状态：历史规划，未实现。** 本文拟议的 `automationSurface` / `browser_use` 模块在当前分支不存在，
 > 不可据此判断现行浏览器自动化能力。当前产品 CUA 权限边界见
-> [ZCode CUA Permission Broker](../../cua-permission-broker/zcode-cua-permission-broker.md)。
+> [Secretariat CUA Permission Broker](../../cua-permission-broker/zcode-cua-permission-broker.md)。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 让 zcode-cli 内模型可以在受控开关开启后，通过内置 `browser_use` session-injected MCP 操作 z-code 桌面内置浏览器，并为未来 iOS Simulator、Android Emulator 等可视化自动化实例复用同一套 session/instance 管理结构。
 
-**Architecture:** 采用内置 session-injected MCP，而不是普通 official plugin。Host/service 层按 ZCode task/session 创建 `AutomationSurfaceSession`，按需注入 per-session loopback HTTP MCP；桌面 main 只承载 Electron WebContents/platform provider，UI 负责 retained/visible view 渲染。`browser` 是第一个 `AutomationSurfaceProvider`，未来 `ios-simulator`、`android-emulator` 只新增 provider 与 tool adapter，不重做 session 管理。
+**Architecture:** 采用内置 session-injected MCP，而不是普通 official plugin。Host/service 层按 Secretariat task/session 创建 `AutomationSurfaceSession`，按需注入 per-session loopback HTTP MCP；桌面 main 只承载 Electron WebContents/platform provider，UI 负责 retained/visible view 渲染。`browser` 是第一个 `AutomationSurfaceProvider`，未来 `ios-simulator`、`android-emulator` 只新增 provider 与 tool adapter，不重做 session 管理。
 
-**Tech Stack:** TypeScript, Electron webview, React, Zustand, zod, ZCode Protocol, host/main postMessage bridge, zcode-cli HTTP MCP transport, Vitest, WebdriverIO/Electron e2e.
+**Tech Stack:** TypeScript, Electron webview, React, Zustand, zod, Secretariat Protocol, host/main postMessage bridge, zcode-cli HTTP MCP transport, Vitest, WebdriverIO/Electron e2e.
 
 ---
 
 ## 已确定设计
 
 1. `browser_use` 是内置 session-injected MCP，但必须有开关：
-   - `AppSettings.automationSurface.browserUse.enabled` 控制是否给新建/恢复的 ZCode session 注入内置 MCP。
+   - `AppSettings.automationSurface.browserUse.enabled` 控制是否给新建/恢复的 Secretariat session 注入内置 MCP。
    - `AppSettings.automationSurface.browserUse.autoOpenOnToolCall` 控制 tool call 是否自动把对应 view 展示到 side pane。
-   - 初始 rollout 默认 `enabled=false`、`autoOpenOnToolCall=true`；开发/测试可用 `ZCODE_BROWSER_USE_MCP=1` 强制开启，用 `ZCODE_BROWSER_USE_MCP=0` 强制关闭。
+   - 初始 rollout 默认 `enabled=false`、`autoOpenOnToolCall=true`；开发/测试可用 `SECRETARIAT_BROWSER_USE_MCP=1` 强制开启，用 `SECRETARIAT_BROWSER_USE_MCP=0` 强制关闭。
    - 关闭时不启动 MCP HTTP server、不创建 automation instance、不暴露 `browser_use` tool。
 
 2. 跨 session 管理必须通用化：
-   - 一个 ZCode task/session 对应一个 `AutomationSurfaceSession`。
+   - 一个 Secretariat task/session 对应一个 `AutomationSurfaceSession`。
    - 一个 `AutomationSurfaceSession` 可以挂多个 `AutomationSurfaceInstance`，当前只挂 `kind="browser"`，未来可以挂 `kind="ios-simulator"` / `kind="android-emulator"`。
    - 隔离 key 必须包含 `workspaceKey = workspaceIdentity?.trim() || workspacePath`、`taskId/sessionId`、`surface kind` 和 `instanceId`，不能复用当前 human browser 的 workspace 级 side pane memory。
 
@@ -33,8 +33,8 @@
 
 ## 关键边界
 
-- `Main` 只做平台调度：窗口聚焦、WebContents attach、webview preload 放行、截图和 provider command dispatch。它不拥有 ZCode task/session、stream、queue、snapshot 业务状态。
-- `Host/services` 拥有 automation session registry、feature policy、MCP server 生命周期、权限摘要、workspace identity 隔离和 ZCode Protocol MCP 注入。
+- `Main` 只做平台调度：窗口聚焦、WebContents attach、webview preload 放行、截图和 provider command dispatch。它不拥有 Secretariat task/session、stream、queue、snapshot 业务状态。
+- `Host/services` 拥有 automation session registry、feature policy、MCP server 生命周期、权限摘要、workspace identity 隔离和 Secretariat Protocol MCP 注入。
 - `UI` 不直接调用 Repo，不直接接触 Electron WebContents；UI 通过 `IPlatformService`/preload bridge 渲染 retained view、attach webview、订阅 platform event。
 - Desktop 保持 `desktop-continuous` 主链路；mobile `/remote` 保持 `web-remote-replayable`，只通过 shared-host attachment 使用桌面已有 host，不启动独立 browser/simulator runtime。
 - 日志遵守现有规范：UI 用 `packages/ui/src/logger.ts`；services 用 `createServiceLogger(scope)`；高频 command/event trace 用 `debug`，生命周期/开关决策用 `info`。
@@ -46,7 +46,7 @@
 - z-code 已有 human Browser side pane：`packages/ui/src/EmbeddedBrowserPane.tsx` + `packages/ui/src/EmbeddedBrowserPaneParts.tsx`。
 - 当前 Browser side pane memory 是 workspace 级共享，不适合直接承载 task/session-scoped automation instance。
 - `packages/desktop/src/main/desktopWindowChrome.ts` 当前会删除所有 webview preload 并强制 sandbox；automation webview 必须做 partition-scoped 例外。
-- ZCode app/server create/resume schema 尚未完整贯通 UI/host 注入的 MCP servers。
+- Secretariat app/server create/resume schema 尚未完整贯通 UI/host 注入的 MCP servers。
 - z-ai-pc 的 browser runtime 证明了方向可行：`BrowserRuntime` 接口每个方法带 `sessionID`，desktop runtime 内部 `Map<string, BrowserSession>`，MCP server 是 per-session loopback HTTP。
 - Browser Use 不能按普通 MCP plugin 处理：需要按当前 session/turn 过滤 backend，并把 session/turn metadata 注入每个 browser backend request；UI webview 按 conversation/tab 保留。
 
@@ -65,7 +65,7 @@
 - Modify: `packages/shared/src/zcode-protocol/index.ts`
   - `zcodeSessionCreateParamsSchema` / `zcodeSessionResumeParamsSchema` 增加可选 `mcpServers`。
 - Modify: `packages/shared/src/mcp.ts`
-  - 暴露 HTTP MCP server schema，供 ZCode Protocol runtime 校验。
+  - 暴露 HTTP MCP server schema，供 Secretariat Protocol runtime 校验。
 - Modify: `packages/shared/src/channels.ts`
   - 增加 renderer/main platform channels 与 host/main automation request/response message types。
 - Modify: `packages/shared/src/platform.ts`
@@ -94,7 +94,7 @@
 - Modify: `packages/services/src/index.ts`
   - 导出 service factory 和类型。
 - Modify: `packages/services/src/zcode-agent/zcodeTaskServiceAdapter.ts`
-  - create/resume 前按 feature policy 准备内置 MCP servers，并随 ZCode Protocol params 注入。
+  - create/resume 前按 feature policy 准备内置 MCP servers，并随 Secretariat Protocol params 注入。
 - Modify: `packages/services/src/session/zcodeTaskService.ts`
   - 保持 `mcpServers?: ZCodeAgentMcpServer[]` contract，并补中文注释说明内置 MCP 只能由 host 注入。
 
@@ -264,7 +264,7 @@ In `packages/shared/src/protocol.ts`, add:
 ```ts
 export interface AutomationSurfaceSettings {
   browserUse?: {
-    /** 是否给 ZCode session 注入内置 browser_use MCP。 */
+    /** 是否给 Secretariat session 注入内置 browser_use MCP。 */
     enabled?: boolean;
     /** tool call 触发时是否自动展开对应可视化实例。 */
     autoOpenOnToolCall?: boolean;
@@ -393,7 +393,7 @@ import { z } from "zod";
 
 export const BROWSER_USE_MCP_SERVER_NAME = "browser_use";
 export const BROWSER_USE_MCP_TOOL_NAME = "browser";
-export const BROWSER_USE_MCP_TOKEN_HEADER = "X-ZCode-Browser-MCP-Token";
+export const BROWSER_USE_MCP_TOKEN_HEADER = "X-Secretariat-Browser-MCP-Token";
 export const BROWSER_USE_PARTITION_HINT_PREFIX = "zcode-browser-use:";
 
 export const browserUseActionSchema = z.enum([
@@ -477,7 +477,7 @@ git commit -m "feat: add automation surface settings and contracts"
 
 ---
 
-## Task 2: 打通 ZCode Protocol 的 injected MCP server 链路
+## Task 2: 打通 Secretariat Protocol 的 injected MCP server 链路
 
 **Files:**
 - Modify: `packages/shared/src/mcp.ts`
@@ -496,7 +496,7 @@ const mcpServers = [
     name: "browser_use",
     type: "http" as const,
     url: "http://127.0.0.1:43210/mcp",
-    headers: [{ name: "X-ZCode-Browser-MCP-Token", value: "secret" }],
+    headers: [{ name: "X-Secretariat-Browser-MCP-Token", value: "secret" }],
   },
 ];
 ```
@@ -507,7 +507,7 @@ Assert runtime config contains:
 expect(runtimeConfig.mcp?.servers.browser_use).toMatchObject({
   type: "http",
   url: "http://127.0.0.1:43210/mcp",
-  headers: { "X-ZCode-Browser-MCP-Token": "secret" },
+  headers: { "X-Secretariat-Browser-MCP-Token": "secret" },
 });
 ```
 
@@ -541,7 +541,7 @@ export const zcodeAgentHttpMcpServerSchema = z.object({
 
 Include existing stdio/sse shapes if they already exist; do not duplicate type names.
 
-- [ ] **Step 3: Extend ZCode Protocol schemas**
+- [ ] **Step 3: Extend Secretariat Protocol schemas**
 
 In `packages/shared/src/zcode-protocol/index.ts`, add:
 
@@ -624,14 +624,14 @@ describe("automation surface feature policy", () => {
   it("lets env force-enable browser_use for dev and tests", () => {
     expect(resolveAutomationSurfaceFeaturePolicy({
       settings: {},
-      env: { ZCODE_BROWSER_USE_MCP: "1" },
+      env: { SECRETARIAT_BROWSER_USE_MCP: "1" },
     }).browserUse.enabled).toBe(true);
   });
 
   it("lets env force-disable browser_use", () => {
     expect(resolveAutomationSurfaceFeaturePolicy({
       settings: { automationSurface: { browserUse: { enabled: true } } },
-      env: { ZCODE_BROWSER_USE_MCP: "0" },
+      env: { SECRETARIAT_BROWSER_USE_MCP: "0" },
     }).browserUse.enabled).toBe(false);
   });
 });
@@ -657,7 +657,7 @@ export function resolveAutomationSurfaceFeaturePolicy(input: {
   env: Record<string, string | undefined>;
   platformSupported?: boolean;
 }): AutomationSurfaceFeaturePolicy {
-  const forced = input.env.ZCODE_BROWSER_USE_MCP;
+  const forced = input.env.SECRETARIAT_BROWSER_USE_MCP;
   const browserUse = input.settings.automationSurface?.browserUse;
   const platformSupported = input.platformSupported ?? true;
 
@@ -745,7 +745,7 @@ Add timeout default `30_000ms` and `debug` logs only.
 Create `automationSurfaceMcpServer.ts` modeled after z-ai-pc's per-session server:
 
 - bind to `127.0.0.1` port `0`
-- require `X-ZCode-Browser-MCP-Token`
+- require `X-Secretariat-Browser-MCP-Token`
 - support `initialize`, `tools/list`, `tools/call`, `ping`
 - expose one tool: `{ name: "browser", title: "Browser Use" }`
 - timeout `30_000ms`
@@ -813,7 +813,7 @@ AutomationSurfacePlatformResponse: "automation-surface-platform-response",
 
 to `HostMessageTypes`.
 
-Add comments in Chinese explaining these are host/main platform dispatch messages and do not carry ZCode stream state.
+Add comments in Chinese explaining these are host/main platform dispatch messages and do not carry Secretariat stream state.
 
 - [ ] **Step 2: Add desktop runtime tests**
 
@@ -879,7 +879,7 @@ Create `packages/desktop/src/main/automationSurface/runtime.ts`:
 - dispatch `kind="browser"` to browser provider once Task 5 lands
 - emit events to renderer via platform channel and to host via `AutomationSurfacePlatformEvent`
 
-Do not import services or ZCode session modules.
+Do not import services or Secretariat session modules.
 
 - [ ] **Step 5: Route host requests in main**
 
@@ -1110,7 +1110,7 @@ git commit -m "feat: render retained automation surface views"
 
 ---
 
-## Task 7: 在 ZCode session create/resume 前注入 browser_use MCP
+## Task 7: 在 Secretariat session create/resume 前注入 browser_use MCP
 
 **Files:**
 - Modify: `packages/services/src/zcode-agent/zcodeTaskServiceAdapter.ts`
@@ -1155,7 +1155,7 @@ describe("browser_use MCP injection", () => {
           name: "browser_use",
           type: "http" as const,
           url: "http://127.0.0.1:4567/mcp",
-          headers: [{ name: "X-ZCode-Browser-MCP-Token", value: "secret" }],
+          headers: [{ name: "X-Secretariat-Browser-MCP-Token", value: "secret" }],
         }],
         instances: [],
       })),
@@ -1319,9 +1319,9 @@ git commit -m "feat: add browser use permissions and settings"
 
 Scenario:
 
-1. enable `ZCODE_BROWSER_USE_MCP=1`
+1. enable `SECRETARIAT_BROWSER_USE_MCP=1`
 2. start desktop app
-3. create a ZCode session
+3. create a Secretariat session
 4. assert injected MCP server exists in protocol request
 5. call `browser` tool with `goto`
 6. assert retained webview attaches
@@ -1425,7 +1425,7 @@ sequenceDiagram
   participant Main as Desktop Main Runtime
   participant View as Retained Webview
 
-  UI->>Host: create/resume ZCode session
+  UI->>Host: create/resume Secretariat session
   Host->>Host: resolve feature policy
   Host->>MCP: start loopback HTTP server when enabled
   Host->>Agent: session/new or session/load with injected mcpServers

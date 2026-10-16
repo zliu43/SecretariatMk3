@@ -27,7 +27,7 @@ E2E 落地回答“怎么稳定测”：
 6. 跑本地 default replay。
 7. 需要进入 Docker suite 时，先单 spec 跑 `replay-isolated`，通过后再登记进 Docker preset。
 8. 常规 Docker 回归按 suite 批量运行，复用同一个镜像、容器和 WDIO 构建入口。
-9. MR 与 GitLab Web pipeline 通过手动 optional job 跑正式目录下的 default replay：共享 macOS 与专用 macOS runner job 都是单实例执行，只有 Windows job 使用四个 GitLab/WDIO 原生 shard。三条入口都复用 `ZCODE_E2E_SPEC=./test/e2e/conversation-session/*.test.ts` 等 direct-root glob；这些 glob 是非递归的，只收已经转正到正式目录的 spec，不收 `manual-review/pending`。
+9. MR 与 GitLab Web pipeline 通过手动 optional job 跑正式目录下的 default replay：共享 macOS 与专用 macOS runner job 都是单实例执行，只有 Windows job 使用四个 GitLab/WDIO 原生 shard。三条入口都复用 `SECRETARIAT_E2E_SPEC=./test/e2e/conversation-session/*.test.ts` 等 direct-root glob；这些 glob 是非递归的，只收已经转正到正式目录的 spec，不收 `manual-review/pending`。
 10. Docker CI 只收已经自动化稳定的 suite。
 
 ## 共享初始化合同
@@ -89,10 +89,10 @@ packages/desktop/test/e2e/fixtures/cases/conversation-session/<case-name>.json
 
 ### 跨平台运行时路径合同
 
-`.e2e-home` 是 Desktop E2E 的隔离用户目录，不应把 case 文件散落到系统 `/tmp`。spec 在运行时创建、读取、修改或等待的文件统一放到 Agent 实际执行 workspace `ZCodeProject` 下的 `.zcode-e2e/<case>`：
+`.e2e-home` 是 Desktop E2E 的隔离用户目录，不应把 case 文件散落到系统 `/tmp`。spec 在运行时创建、读取、修改或等待的文件统一放到 Agent 实际执行 workspace `SecretariatProject` 下的 `.zcode-e2e/<case>`：
 
 ```text
-.e2e-home/ZCodeProject/               Agent workspace cwd
+.e2e-home/SecretariatProject/               Agent workspace cwd
 └── .zcode-e2e/<case>/                case-owned runtime files
 ```
 
@@ -103,7 +103,7 @@ packages/desktop/test/e2e/fixtures/cases/conversation-session/<case-name>.json
 
 ```text
 spec native path ─────────────┐
-fixture absolute tool path ───┼─> ZCodeProject/.zcode-e2e/<case>/file
+fixture absolute tool path ───┼─> SecretariatProject/.zcode-e2e/<case>/file
 Bash relative path ───────────┘
 ```
 
@@ -186,7 +186,7 @@ pnpm --filter @zcode/desktop e2e:fixture:check -- \
 
 pending manual-review 会按 case 是否已有 case-local fixture 自动隔离模式：已有 fixture 时使用 replay，
 缺 fixture 时使用 live/capture。需要临时覆盖 fixture 集合时仍可显式传入 fixture 路径；该变量同时把
-provider transport 切到 replay，但仍保留 `ZCODE_E2E_MANUAL_REVIEW=1` 的 pending spec 运行边界，
+provider transport 切到 replay，但仍保留 `SECRETARIAT_E2E_MANUAL_REVIEW=1` 的 pending spec 运行边界，
 避免把回放证据误当成真实 provider capture：
 
 ```bash

@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文整理 ZCode 在一次输出过程中的状态轮转，重点回答两个问题：
+本文整理 Secretariat 在一次输出过程中的状态轮转，重点回答两个问题：
 
 1. 用户看到的输出为什么会在 thinking、streaming、tool running、permission、done 之间切换。
 2. tool 调度到底有哪些状态，哪些是调度计划，哪些是执行状态，哪些只是 UI projection。
@@ -15,7 +15,7 @@
 
 | 层级 | 主要状态 | 事实来源 | 消费者 |
 | --- | --- | --- | --- |
-| Session projection | `idle`、`running`、`waiting`、`paused`、`completed`、`error` | `EventReducer` 从 `SessionEvent` 重建 | TUI、ZCode app-server、debug panel、session list |
+| Session projection | `idle`、`running`、`waiting`、`paused`、`completed`、`error` | `EventReducer` 从 `SessionEvent` 重建 | TUI、Secretariat app-server、debug panel、session list |
 | Turn phase | `processing_input`、`awaiting_model_response`、`streaming`、`scheduling_tools`、`executing_tools`、`awaiting_permission`、`aggregating_results`、`completing`、`error` | `TurnMachine` 内存状态 | runtime 控制流、错误归属 |
 | Model stream part | `start`、`text_delta`、`reasoning_delta`、`tool_input_delta`、`tool_call`、`finish`、`error` | `model_streaming` 事件 | TUI live assistant text、debug timeline |
 | Tool call | `scheduled`、`waiting_permission`、`running`、`completed`、`failed`、`permission_denied` | `ToolExecutor` 事件和 `TurnMachine` | tool progress、message history、artifact |
@@ -41,7 +41,7 @@ flowchart TB
   ModelComplete --> EventStore
   EventStore --> Reducer["EventReducer"]
   Reducer --> Projection["SessionProjection\nsession status + active tools + permissions"]
-  EventStore --> LiveSink["Live sinks\nTUI / ZCode app-server / debug"]
+  EventStore --> LiveSink["Live sinks\nTUI / Secretariat app-server / debug"]
 
   ModelComplete --> Decision{"Tool calls?"}
   Decision -- "no" --> Complete["turn_complete"]

@@ -1,4 +1,4 @@
-# ZCode JWT 过期重新认证
+# Secretariat JWT 过期重新认证
 
 ## 状态
 

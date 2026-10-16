@@ -22,8 +22,8 @@
 
 1. 保留 Account Built-in Provider Config 作为正式 Overlay，并用 `enabled`、账号级 Start Plan
    `builtinModelIds` 与结构化 Account Access 表达当前账号动态事实；
-2. 阻止 Registry 发布“新 ZCode Built-in + 旧 Account Overlay”的中间组合；
-3. 将 ZCode Built-in Environment Active/LKG 按 ZCode Endpoint 物理隔离；
+2. 阻止 Registry 发布“新 Secretariat Built-in + 旧 Account Overlay”的中间组合；
+3. 将 Secretariat Built-in Environment Active/LKG 按 Secretariat Endpoint 物理隔离；
 4. 修正 CLI `--help` / `--version` 不必要启动 Provider Runtime，以及 Bootstrap 漏声明 `zod`；
 5. 删除审查确认的孤儿 ZIP 实现与专属依赖。
 
@@ -37,7 +37,7 @@ Built-in Release 业务完整性发布门禁。
 Account Overlay 不是为了形式统一而存在。当前账号会真实改变账号型 Built-in Provider 的有效配置：
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
               |
               v
 Account Built-in Provider Config
@@ -60,7 +60,7 @@ const effectiveBuiltinProviders = zcodeBuiltinProviders.overlay(accountBuiltinPr
 const effectiveProviders = effectiveBuiltinProviders.overlay(personalProviders);
 ```
 
-Account 只读取和约束 ZCode Built-in 中 `access.type = "zhipu-account"` 的 Provider，不读取、不约束 Personal-only
+Account 只读取和约束 Secretariat Built-in 中 `access.type = "zhipu-account"` 的 Provider，不读取、不约束 Personal-only
 Provider。Personal 继续作为最后一层用户覆盖。
 
 ### 1.2 账号可用性统一使用 `enabled`
@@ -97,7 +97,7 @@ Start Plan balance
 Account Provider Config.builtinModelIds
               |
               v
-ZCode Built-in Model Config Rules resolve
+Secretariat Built-in Model Config Rules resolve
 ```
 
 规则如下：
@@ -108,7 +108,7 @@ ZCode Built-in Model Config Rules resolve
   宽泛 Built-in 默认集合；
 - `show_name` 只作为当前服务端兼容输入暂时保留；服务端保证稳定提供 `model:<id>` 后另行删除；
 - Account 只改变成员资格，不提供 Properties、Reasoning、context 或 max output；模型静态事实仍
-  由 ZCode Built-in + Personal Model Config Rules 解析；
+  由 Secretariat Built-in + Personal Model Config Rules 解析；
 - Personal `modelIds` 继续在账号约束后的 Built-in Inventory 之后加入，真实请求仍由服务端最终授权。
 
 ### 1.4 Account Access 继续进入 Overlay，但不包含真实凭据
@@ -183,9 +183,9 @@ account.basedOnZCodeBuiltinRevision === config.zcodeBuiltinRevision;
 Provider Map，只要 `basedOnZCodeBuiltinRevision` 改变，也必须发布新的 Account Source revision/change event，使 Registry
 能够应用新 Built-in。Personal 更新不改变 `zcodeBuiltinRevision`，不得被 Account 网络刷新阻塞。
 
-### 1.6 Active/LKG 按 ZCode Endpoint 隔离
+### 1.6 Active/LKG 按 Secretariat Endpoint 隔离
 
-这里的 Endpoint 指 ZCode 平台控制面 `zcodeEndpointOrigin`（生产、测试或开发/mock Origin），不是 Provider Config 中的
+这里的 Endpoint 指 Secretariat 平台控制面 `zcodeEndpointOrigin`（生产、测试或开发/mock Origin），不是 Provider Config 中的
 模型 API Endpoint。Todo 18 当前只让 `refresh-control.json.endpointKey` 隔离刷新 TTL，但不同 Endpoint 仍共享
 `active.json`，导致互不相关的 revision 被比较。
 
@@ -245,7 +245,7 @@ Bootstrap 生产代码直接导入 `zod`，必须在自己的 `dependencies` 中
 Bundled / Endpoint-scoped Active / Remote
                     |
                     v
-          ZCode Built-in Source Bn
+          Secretariat Built-in Source Bn
                     |
                     +----------------------+
                     |                      |
@@ -419,7 +419,7 @@ already-created Active Model
 
 | State/fact                    | Authoritative owner        | Persistence/cache             | Publish sink     |
 | ----------------------------- | -------------------------- | ----------------------------- | ---------------- |
-| Built-in revision/content     | ZCode Built-in Source      | Endpoint-scoped `active.json` | Config Service   |
+| Built-in revision/content     | Secretariat Built-in Source      | Endpoint-scoped `active.json` | Config Service   |
 | Account enabled/models/access | AccountProviderService     | 进程内 LKG Snapshot           | Account Source   |
 | Personal Config               | Personal Repository        | `config.json`                 | Config Service   |
 | Effective Provider/Model      | ProviderRegistryService    | 进程内 immutable Snapshot     | Registry/Facades |
@@ -448,13 +448,13 @@ already-created Active Model
 
 ### 8.1 已落地
 
-- `ProviderConfigSnapshot` 已拆分组合 revision、ZCode Built-in revision 与 Personal revision；
+- `ProviderConfigSnapshot` 已拆分组合 revision、Secretariat Built-in revision 与 Personal revision；
   `AccountProviderConfigSnapshot` 已携带 `basedOnZCodeBuiltinRevision`，且 Account revision 同时包含来源与 Overlay 内容；
 - Account Resolver 已统一投影 `enabled`：available 显式启用，unavailable 显式禁用，unknown 首次 fail-closed；
   Start Plan 精确采用账号模型集合，空集合执行 LKG/fail-closed；Individual/Team 继承 Built-in 成员；
 - Registry 已增加 Built-in/Account revision barrier：不匹配时保留上一份完整 Snapshot，匹配后再发布；Personal-only
   revision 变化不等待 Account 重算；
-- Environment Source 已按规范化 ZCode 控制面 Origin 的 SHA-256 路径段隔离 `active.json` 与
+- Environment Source 已按规范化 Secretariat 控制面 Origin 的 SHA-256 路径段隔离 `active.json` 与
   `refresh-control.json`；Endpoint 切换使用各自 Bundled/LKG，晚到的旧 Endpoint 响应不会落盘；
 - Desktop Services 在读取 Settings 时动态解析当前 Endpoint；Bootstrap、Protocol 与 Agent stdio payload 已贯穿
   Account 来源 revision；首次 Account 事实尚未到达时使用与当前 Built-in 匹配的 fail-closed Snapshot；

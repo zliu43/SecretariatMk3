@@ -73,7 +73,7 @@ function createProvider(
 }
 
 const artifacts = ["AppImage", "deb", "rpm", "pkg.tar.zst"].map((extension) => ({
-  url: `https://cdn.example.test/releases/ZCode-3.12.2-linux-x64.${extension}`,
+  url: `https://cdn.example.test/releases/Secretariat-3.12.2-linux-x64.${extension}`,
   sha512: `checksum-${extension}`,
 }));
 const manifest = { version: "3.12.2", releaseDate: "2026-09-16", files: artifacts };
@@ -109,7 +109,7 @@ describe("Linux manifest 与真实 updater 文件选择契约", () => {
   });
 
   it.each(linuxUpdaters)("%s 支持相对地址、查询参数和大小写 %s", (Updater, extension) => {
-    const url = `releases/ZCode.${extension.toUpperCase()}?download=1`;
+    const url = `releases/Secretariat.${extension.toUpperCase()}?download=1`;
     const [file] = createProvider(Updater).resolveFiles({
       ...manifest,
       files: [{ url, sha512: "checksum" }],
@@ -120,7 +120,7 @@ describe("Linux manifest 与真实 updater 文件选择契约", () => {
 
   it("Pacman 使用安全的本地文件名，真实下载地址与原始清单不变", () => {
     const [file] = createProvider(PacmanUpdater).resolveFiles(manifest);
-    expect(file?.info.url).toBe("ZCode-3.12.2-linux-x64.pkg.tar.zst");
+    expect(file?.info.url).toBe("Secretariat-3.12.2-linux-x64.pkg.tar.zst");
     expect(file?.url.href).toBe(artifacts[3]?.url);
     expect(artifacts[3]?.url).toMatch(/^https:/);
   });
@@ -154,7 +154,7 @@ describe("macOS / Windows 更新解析保持兼容", () => {
       Object.create(Updater.prototype),
       { platform, isUseMultipleRangeRequest: false, executor: {} as never },
     );
-    const files = [other, extension].map((ext) => ({ url: `releases/ZCode.${ext}`, sha512: ext }));
+    const files = [other, extension].map((ext) => ({ url: `releases/Secretariat.${ext}`, sha512: ext }));
     const resolved = provider.resolveFiles({ ...manifest, files });
     expect(resolved).toHaveLength(2);
     expect(findFile(resolved, extension)?.info.sha512).toBe(extension);
@@ -166,10 +166,10 @@ describe("macOS / Windows 更新解析保持兼容", () => {
     const resolved = provider.resolveFiles({
       ...manifest,
       files: [],
-      path: "ZCode.deb",
+      path: "Secretariat.deb",
       sha512: "legacy",
     });
-    expect(resolved[0]?.url.href).toBe("https://zcode.example.test/ZCode.deb");
+    expect(resolved[0]?.url.href).toBe("https://zcode.example.test/Secretariat.deb");
     expect(resolved[0]?.info.sha512).toBe("legacy");
   });
 });

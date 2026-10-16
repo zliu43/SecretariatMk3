@@ -69,12 +69,12 @@ function readShortcutProperty(shortcutPath, propertyName) {
 
   const command = [
     "$shell = New-Object -ComObject WScript.Shell",
-    "$shortcut = $shell.CreateShortcut($env:ZCODE_SHORTCUT_PATH)",
+    "$shortcut = $shell.CreateShortcut($env:SECRETARIAT_SHORTCUT_PATH)",
     `[Console]::Out.Write(${propertyExpression})`,
   ].join("; ");
   return execFileSync("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
     encoding: "utf-8",
-    env: { ...process.env, ZCODE_SHORTCUT_PATH: shortcutPath },
+    env: { ...process.env, SECRETARIAT_SHORTCUT_PATH: shortcutPath },
   }).trim();
 }
 
@@ -169,7 +169,7 @@ async function main() {
       runFixture(installerPath, installDir, customLogPath);
       assertInstallerLog(customLogPath ?? join(tempRoot, `${scenario}-default.log`), "silent");
 
-      const appExe = join(installDir, "ZCode.exe");
+      const appExe = join(installDir, "Secretariat.exe");
       const startMenuLink = join(installDir, "start-menu.lnk");
       const desktopLink = join(installDir, "desktop.lnk");
       const launchLink = readFileSync(join(installDir, "launch-link.txt"), "utf-8");

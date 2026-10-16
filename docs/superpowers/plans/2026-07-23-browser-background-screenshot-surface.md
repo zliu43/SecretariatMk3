@@ -1449,7 +1449,7 @@ git commit -m "test(browser-use): cover background screenshot compositor"
 - Consumes: Tasks 1-5 的完整实现和 smoke 命令。
 - Produces: 用户场景的运行时证据、全仓 typecheck/lint、干净且可审计的最终 commit chain。
 
-- [ ] **Step 1: 对照原始失败尺寸执行 ZCode 运行时复验**
+- [ ] **Step 1: 对照原始失败尺寸执行 Secretariat 运行时复验**
 
 启动当前桌面开发构建：
 

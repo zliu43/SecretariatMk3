@@ -7,7 +7,7 @@ description: Build, run, inspect, and lightly automate Android apps with the and
 
 Use this skill when the user wants you to create, modify, build, run, debug, screenshot, or inspect an Android app in the desktop Android Emulator or on a USB-connected Android device.
 
-## ZCode Tool Names
+## Secretariat Tool Names
 
 This skill assumes the MCP server is configured in zcode as `android_emulator`. In zcode, MCP tools are exposed to the model as `mcp__android_emulator__<tool>`.
 

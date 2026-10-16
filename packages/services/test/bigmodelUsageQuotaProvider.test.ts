@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   BIGMODEL_PROVIDER_ID,
   BUILTIN_MODEL_PROVIDER_IDS,
-  ZCODE_VERSION,
+  SECRETARIAT_VERSION,
   type ApiClient,
 } from "@zcode/shared";
 import { BigModelUsageQuotaProvider } from "../src/usage-stats/providers/bigmodelUsageQuotaProvider.js";
@@ -180,7 +180,7 @@ describe("BigModelUsageQuotaProvider", () => {
   });
 
   it("Z.ai Start Plan 用 zcodejwttoken 读取当前套餐和到期时间", async () => {
-    const balanceUrl = `https://zcode.z.ai/api/v1/zcode-plan/billing/balance?app_version=${ZCODE_VERSION}`;
+    const balanceUrl = `https://zcode.z.ai/api/v1/zcode-plan/billing/balance?app_version=${SECRETARIAT_VERSION}`;
     const requestUrls: string[] = [];
     const apiClient: ApiClient = {
       request: vi.fn(async (input, init) => {
@@ -198,7 +198,7 @@ describe("BigModelUsageQuotaProvider", () => {
             plans: [
               {
                 plan_id: "zcode-v3-start-plan",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 status: "active",
                 starts_at: 1_780_291_200,
                 ends_at: 1_781_500_800,
@@ -259,7 +259,7 @@ describe("BigModelUsageQuotaProvider", () => {
     });
     expect(snapshot.subscription?.details[0]).toMatchObject({
       productId: "zcode-v3-start-plan",
-      productName: "ZCode V3 Start Plan",
+      productName: "Secretariat V3 Start Plan",
       billingCycle: "daily",
       // Start Plan 卡片不再展示套餐级续期时间；桶刷新时间由各 limit 的 nextResetTime 表达。
       renewTime: null,
@@ -390,7 +390,7 @@ describe("BigModelUsageQuotaProvider", () => {
             plans: [
               {
                 plan_id: "start-plan-welcome",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 status: "active",
                 ends_at: 1_781_500_800,
               },
@@ -534,7 +534,7 @@ describe("BigModelUsageQuotaProvider", () => {
             plans: [
               {
                 plan_id: "zcode-v3-start-plan",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 status: "active",
                 ends_at: 1_781_500_800,
               },
@@ -592,7 +592,7 @@ describe("BigModelUsageQuotaProvider", () => {
             plans: [
               {
                 plan_id: "zcode-v3-start-plan",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 status: "active",
               },
             ],
@@ -643,7 +643,7 @@ describe("BigModelUsageQuotaProvider", () => {
   });
 
   it("Z.ai Start Plan 只请求一次 billing/balance 并从 plans 判定套餐", async () => {
-    const balanceUrl = `https://zcode.z.ai/api/v1/zcode-plan/billing/balance?app_version=${ZCODE_VERSION}`;
+    const balanceUrl = `https://zcode.z.ai/api/v1/zcode-plan/billing/balance?app_version=${SECRETARIAT_VERSION}`;
     const requestOrder: string[] = [];
     const apiClient: ApiClient = {
       request: vi.fn(async (input) => {
@@ -657,7 +657,7 @@ describe("BigModelUsageQuotaProvider", () => {
             plans: [
               {
                 plan_id: "zcode-v3-start-plan",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 status: "active",
                 starts_at: 1_787_900_000,
                 entitlements: [
@@ -765,7 +765,7 @@ describe("BigModelUsageQuotaProvider", () => {
             plans: [
               {
                 plan_id: "zcode-v3-start-plan",
-                name: "ZCode V3 Start Plan",
+                name: "Secretariat V3 Start Plan",
                 status: "active",
                 starts_at: 1_780_291_200,
                 ends_at: 1_781_500_800,
@@ -1009,7 +1009,7 @@ describe("BigModelUsageQuotaProvider", () => {
     expect(snapshot.unavailableReason).toBeUndefined();
   });
 
-  it("ZCODE_ENV=test 时 BigModel Coding Plan quota 使用 bigmodel.cn", async () => {
+  it("SECRETARIAT_ENV=test 时 BigModel Coding Plan quota 使用 bigmodel.cn", async () => {
     const requestUrls: string[] = [];
     const apiClient: ApiClient = {
       request: vi.fn(async (input) => {
@@ -1031,7 +1031,7 @@ describe("BigModelUsageQuotaProvider", () => {
     const provider = createProviderForTest({
       apiClient,
       env: {
-        ZCODE_ENV: "test",
+        SECRETARIAT_ENV: "test",
       },
       modelProviderService: {
         getAllCached: vi.fn(async () => [createBigModelCodingPlanProvider()]),
@@ -1480,7 +1480,7 @@ describe("BigModelUsageQuotaProvider", () => {
         getAllCached: vi.fn(async () => [createBigModelCodingPlanProvider()]),
       } as LegacyModelProviderReader,
       env: {
-        ZCODE_BIGMODEL_USAGE_API_KEY: "env-usage-key",
+        SECRETARIAT_BIGMODEL_USAGE_API_KEY: "env-usage-key",
       },
     });
 

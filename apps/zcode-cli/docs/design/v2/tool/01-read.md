@@ -49,7 +49,7 @@
 - 成功读取非空文本后，provider-visible tool result 只包含按条件生成的 freshness / truncation reminder 和带行号正文，不追加 malware reminder 之类的历史后缀。
 - 用户提交的文本文件附件会合成 `Called the Read tool...` 与 `Result of calling the Read tool...` reminder。同一附件的 reminder body 使用单换行连接；不同附件在同一个 mid-conversation system turn 中仍使用双换行。附件超过默认行数上限时，提示必须明确截断到前 `2000` 行，并提示按需继续读取该文件。
 - 空文件返回 system reminder。
-- 文本结构化输出应携带原始文件大小、实际读取字节数、是否截断等 metadata，供 UI/ZCode app-server/debug 展示；模型可见文本仍只展示行号内容或可操作错误。
+- 文本结构化输出应携带原始文件大小、实际读取字节数、是否截断等 metadata，供 UI/Secretariat app-server/debug 展示；模型可见文本仍只展示行号内容或可操作错误。
 - 图片转成 provider-visible image content block。对 Anthropic wire format，
   `Read` 图片结果必须落到对应 tool result 的 `content` 数组里，例如
   `{ type: "image", source: { type: "base64", data, media_type } }`，而不是
@@ -73,7 +73,7 @@
 - PDF 未传 `pages` 时作为原生 `application/pdf` file block 注入；传 `pages` 时返回固定摘要和按页码升序排列的 JPEG 页面图片。
 - 重复读取未变化文件时返回固定 stub，让模型引用上下文里此前的读取结果。
 
-ZCode 需要把内部结构化输出和模型可见序列化分开，避免 UI、SDK、provider 三者耦合。
+Secretariat 需要把内部结构化输出和模型可见序列化分开，避免 UI、SDK、provider 三者耦合。
 
 ## PDF 执行与结果契约
 
@@ -102,7 +102,7 @@ Read(file_path=.pdf)
 ### 依赖与进程边界
 
 - `pdfinfo` 和 `pdftoppm` 直接通过 `ExecutionPort` 以 executable + argv 启动，禁止拼接 shell 字符串。
-- Poppler 只从运行环境 `PATH` 解析。ZCode 不下载、不编译、不随 Desktop / SEA / remote runtime 打包 Poppler。
+- Poppler 只从运行环境 `PATH` 解析。Secretariat 不下载、不编译、不随 Desktop / SEA / remote runtime 打包 Poppler。
 - `pdfinfo` 只在未传 `pages` 时尽力探测总页数，超时 10 秒；普通执行或解析失败不阻止后续原生 PDF 读取，但 runtime shutdown 或用户取消产生的 `cancelled` 必须沿 tool executor 取消路径向上冒泡。
 - `pdftoppm` 先用 `-v` 做 5 秒可用性检查，再以 `-jpeg -r 100` 渲染；探测结果为 `exitCode=0`，或 `exitCode!=127` 且 stderr 非空时视为可用。缺少命令时逐字返回 `pdftoppm is not installed. Install poppler-utils (e.g. \`brew install poppler\` or \`apt-get install poppler-utils\`) to enable PDF page rendering.`。子进程渲染超时为 120 秒。只有 PDF `pages` 分支使用 150 秒的 Read executor 外层预算，为可用性检查、页面图片规范化和临时目录清理留出空间；其他 Read 调用仍为 30 秒。只缓存成功的可用性检查，避免安装 Poppler 后必须重启进程。
 - 页面渲染使用唯一临时目录，并在成功、失败、取消和超时后统一清理。临时目录的创建、枚举和页面读取失败统一映射为 `io_error`；清理失败不得覆盖已有的 Poppler 主错误。单次最多 20 页，因此可以在渲染完成后并行读取页面文件，不引入 600 页流式协议。
@@ -124,7 +124,7 @@ Read(file_path=.pdf)
 - 传 `pages`：`PDF pages extracted: <count> page(s) from <filePath> (<size>)`，随后是按原始页码升序排列的页面图片。
 - 文件大小使用一位小数、去除尾随 `.0` 的格式，例如 `1536 bytes -> 1.5KB`、`2048 bytes -> 2KB`。
 - 不生成 `<Page_N_image>`、`<Page_N_parse_result>`、文本层、PNG 或 120 DPI，也不保留旧的 600 页语义。
-- Anthropic Messages 和 OpenAI Responses 保留结构化 text/media tool result。OpenAI Chat Completions 沿用 ZCode 既有通用投影：`role: tool` 包含上述摘要和逐页图片文本占位符，实际页面图片按原顺序进入紧随连续 tool-result 消息之后的一条 synthetic user message；PDF 不增加专属占位符抑制规则。
+- Anthropic Messages 和 OpenAI Responses 保留结构化 text/media tool result。OpenAI Chat Completions 沿用 Secretariat 既有通用投影：`role: tool` 包含上述摘要和逐页图片文本占位符，实际页面图片按原顺序进入紧随连续 tool-result 消息之后的一条 synthetic user message；PDF 不增加专属占位符抑制规则。
 - live、resume、fork 和冷启动通过现有 tool media artifact + `modelContentLayout` 恢复同一顺序，不新增 PDF 专属 manifest 或持久化协议。
 - E2E 必须从真实 runtime 发起 `Read` tool call，并由本地 provider capture endpoint 断言最终 OpenAI Chat Completions HTTP body；测试不得直接调用消息转换 helper。首次 tool-result 请求与重新创建 runtime 后的 cold-resume 请求必须包含相同的摘要和同序页面图片 data URL，以覆盖 executor、artifact 持久化、历史恢复及 provider serialization 的完整链路。
 - `supportsPdf` 与 `supportsImages` 独立：无 `pages` 的原生 PDF 只依赖 `supportsPdf`；有 `pages` 且模型明确不支持图片时，在任何 Poppler I/O 前返回统一 tool error。
@@ -158,7 +158,7 @@ Read(file_path=.pdf)
 
 ### 图片预算与压缩
 
-ZCode 的图片 `Read` 采用多阶段保护策略，最长边使用
+Secretariat 的图片 `Read` 采用多阶段保护策略，最长边使用
 `2000px` 上限：
 
 - `READ_IMAGE_MAX_BASE64_BYTES = 5 * 1024 * 1024`。这是 provider/API 侧
@@ -191,7 +191,7 @@ ZCode 的图片 `Read` 采用多阶段保护策略，最长边使用
 
 ### 文本大文件预算
 
-ZCode 文本 `Read` 使用两层预算：
+Secretariat 文本 `Read` 使用两层预算：
 
 - `READ_MAX_FILE_SIZE_BYTES = 256 * 1024`。未显式传 `limit` 时，adapter 先按文件总大小检查；超过上限时返回 `too_large` / `read_file_too_large` 类错误，提示使用 `offset` 和 `limit`。
 - 显式传 `limit` 时，不用文件总大小拦截，而是按完整文件的真实行区间读取。实现不能先读文件头部再在 core 中切片，否则会导致大文件后半段永远不可读。
@@ -210,7 +210,7 @@ ZCode 文本 `Read` 使用两层预算：
 - session memory、plan、tool results 等内部可读路径可以允许。
 - 工作区外读取当前版本不在 core path-policy 层拦截；后续默认 ask，并建议增加 session read rule。
 
-ZCode 应将路径权限做成统一 filesystem permission adapter，`Read` 只声明 `getPath` 和操作类型 `read`。
+Secretariat 应将路径权限做成统一 filesystem permission adapter，`Read` 只声明 `getPath` 和操作类型 `read`。
 
 ## 校验与错误
 
@@ -230,7 +230,7 @@ ZCode 应将路径权限做成统一 filesystem permission adapter，`Read` 只�
 
 这些错误应保留稳定错误码和结构化原因，CLI 入口层再格式化成人类提示。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 ## 实现状态（2026-05-08）
 
@@ -250,12 +250,12 @@ ZCode 应将路径权限做成统一 filesystem permission adapter，`Read` 只�
 后续优先级：保留文本大文件与 read cache 既有语义；PDF 不在 Read handler 内叠加媒体
 预算特殊兜底，共享请求媒体策略继续由 runtime provider-request 投影边界统一维护。
 
-`Read` 是文件工具链的状态基础。ZCode 应把它建成 `FileReadService` 加 `ReadTool` 两层：
+`Read` 是文件工具链的状态基础。Secretariat 应把它建成 `FileReadService` 加 `ReadTool` 两层：
 
 - `ReadTool` 负责 schema、权限、tool result 序列化。
 - `FileReadService` 负责类型识别、范围读取、内容预算、read cache 更新。
 - 文件系统 I/O 必须通过 `FileSystemPort`。
-- `FileSystemPort` 可由本地 Node adapter 或远程/ZCode protocol client adapter 实现；Read tool 不得直接 import `fs/promises`。
+- `FileSystemPort` 可由本地 Node adapter 或远程/Secretariat protocol client adapter 实现；Read tool 不得直接 import `fs/promises`。
 - PDF、图片、notebook 处理应是可替换 adapter，避免核心 tool 直接依赖具体库。
 - `readFileState` 必须记录 `path`、`mtime`、`content`、`offset`、`limit`、是否 partial view。
 - 所有读取和 cache 命中都要带 `traceId`，便于回放和审计。

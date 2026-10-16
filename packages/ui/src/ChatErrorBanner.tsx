@@ -2,7 +2,7 @@ import { CodingPlanEntryButton } from "@/settings/CodingPlanEntryButton.js";
 /**
  * ChatErrorBanner — 错误提示组件
  *
- * 显示 ZCode Agent 链路中的错误，带 traceId 方便排查。
+ * 显示 Secretariat Agent 链路中的错误，带 traceId 方便排查。
  */
 import { useState } from "react";
 import {
@@ -51,8 +51,8 @@ const LOCALIZED_ERROR_CODES = new Set([
   MEDIA_BUDGET_CURRENT_VIDEO_TOO_LARGE_ERROR_CODE,
   // 服务层错误 message 是跨进程兜底，不能作为最终 UI 语言来源。
   // 历史任务模型不可用要按稳定 code 本地化，避免英文界面显示中文提示。
-  "ZCODE_RUNTIME_MODEL_UNAVAILABLE",
-  "ZCODE_BIGMODEL_TEAM_PLAN_MEMBER_REQUIRED",
+  "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE",
+  "SECRETARIAT_BIGMODEL_TEAM_PLAN_MEMBER_REQUIRED",
 ]);
 
 const MODEL_CONFIG_MISSING_CODES = new Set([
@@ -135,7 +135,7 @@ export function shouldSuppressChatErrorBanner(
   // 只有历史恢复残留的模型不可用提示才隐藏；当前发送/草稿报错需要展示，
   // 否则 registry 移除模型后用户会看到“请求没返回”而没有任何可操作反馈。
   return Boolean(
-    error.code === "ZCODE_RUNTIME_MODEL_UNAVAILABLE" &&
+    error.code === "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE" &&
     HISTORICAL_MODEL_UNAVAILABLE_MESSAGES.some((message) => error.message.includes(message)),
   );
 }

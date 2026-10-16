@@ -212,7 +212,7 @@ describe("remote workspace connect telemetry IPC", () => {
     expect(listener).toBeDefined();
 
     const sender = {
-      getURL: vi.fn(() => "file:///Applications/ZCode/index.html"),
+      getURL: vi.fn(() => "file:///Applications/Secretariat/index.html"),
       loadURL: vi.fn(() => Promise.resolve()),
     };
     const returnTo = encodeURIComponent(

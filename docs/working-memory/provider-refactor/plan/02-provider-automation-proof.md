@@ -57,7 +57,7 @@ Provider 关键 E2E 晋升
   Provider。旧 `same-model-provider-identity` 实际使用不同 modelId，只能作为普通跨 Provider 切换覆盖，
   不承担本阶段的同名身份隔离证明。
 - 候选过滤 E2E 使用代表性负样本证明 hidden Provider、visible Provider 下的 hidden Model、disabled 或
-  incomplete Provider 不进入普通候选；同时以真实 ZCode Built-in Provider + Personal 同 modelId 覆盖证明
+  incomplete Provider 不进入普通候选；同时以真实 Secretariat Built-in Provider + Personal 同 modelId 覆盖证明
   冲突时 Built-in 成员仍可选择、可发送。重复排列和 issue code 继续由 Resolver 单测证明，E2E 不复制
   Resolver 全量状态空间。
 - 普通任务中，无显式模型的 Subagent 继承父 ModelFactory，显式模型仍创建自己的 Model；Off-Peak 是

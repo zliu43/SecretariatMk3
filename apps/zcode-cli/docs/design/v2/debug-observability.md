@@ -21,13 +21,13 @@
 
 ### Structured log JSONL
 
-默认读取 `{home}/.zcode/cli/log/*.jsonl`，也可以通过 UI/API 传入自定义 `logDir`。日志用于索引：
+默认读取 `{home}/.secretariat/cli/log/*.jsonl`，也可以通过 UI/API 传入自定义 `logDir`。日志用于索引：
 
 - `traceId`、`sessionId`、`turnId`、`spanId`、`parentSpanId`、`toolCallId`
 - `event`、`module`、`message`、`status`、`durationMs`
 - `context` 中的 safe metadata，例如 `Context built` 记录的 section 名称、字符数和 token 数
 
-当 logger 识别到开发环境默认 debug 时，runtime 会写出 `event: "context.built"` 的 debug 级日志，其中包含 context sections 的 `name`、`source`、`chars`、`tokens`、`preview` 和 `content`。这是开发期可观测路径；默认非 debug 日志级别不写完整 section content。日志级别不通过 `ZCODE_LOG_LEVEL` 配置；需要这些快照时，应使用 dev 运行形态重新运行被测 CLI。
+当 logger 识别到开发环境默认 debug 时，runtime 会写出 `event: "context.built"` 的 debug 级日志，其中包含 context sections 的 `name`、`source`、`chars`、`tokens`、`preview` 和 `content`。这是开发期可观测路径；默认非 debug 日志级别不写完整 section content。日志级别不通过 `SECRETARIAT_LOG_LEVEL` 配置；需要这些快照时，应使用 dev 运行形态重新运行被测 CLI。
 
 在每次模型请求前，runtime 还会在 debug 级别写出 `event: "context_usage_snapshot"`。它不是稳定对外 API，而是开发期 JSONL 观测事件，用于 debug app 展示 context 占用。快照至少包含：
 
@@ -43,7 +43,7 @@
 
 ### SQLite session DB
 
-默认只读打开 `{home}/.zcode/cli/db/db.sqlite`，也可以通过 UI/API 传入自定义 `dbPath`。SQLite 用于展示 session、message、part、todo 等持久化状态。
+默认只读打开 `{home}/.secretariat/cli/db/db.sqlite`，也可以通过 UI/API 传入自定义 `dbPath`。SQLite 用于展示 session、message、part、todo 等持久化状态。
 
 当前 DB 中 message/part 记录不保证携带 `traceId`。debug app 可以在已知 `sessionId` 时把它们并入同一视图，但必须标记为 `session-only` 来源，不得伪装成完整 trace 证据。
 

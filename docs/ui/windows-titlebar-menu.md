@@ -16,7 +16,7 @@
 
 ## 当前菜单项
 
-- 合并菜单：New task、Open Workspace、Open in File Explorer、About ZCode、Check for Updates（检查中/下载中会显示状态与百分比）、Feedback、Community（有可用入口时）、Export Logs、Toggle Developer Tools（开发态）、Resource Manager（资源管理器，开发态）、Close Window
+- 合并菜单：New task、Open Workspace、Open in File Explorer、About Secretariat、Check for Updates（检查中/下载中会显示状态与百分比）、Feedback、Community（有可用入口时）、Export Logs、Toggle Developer Tools（开发态）、Resource Manager（资源管理器，开发态）、Close Window
 
 ## Windows 工作区外沿
 

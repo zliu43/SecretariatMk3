@@ -2,9 +2,9 @@
 
 ## 状态
 
-- 本文是 ZCode CLI 模型 provider 端点转发的事实规范；动态路由与静态网关共用同一契约和调用链。
+- 本文是 Secretariat CLI 模型 provider 端点转发的事实规范；动态路由与静态网关共用同一契约和调用链。
 - 能力只存在于 `apps/zcode-cli` 的默认 AI SDK provider transport，不修改用户 provider 配置、
-  ZCode Protocol、Desktop/Web renderer 网络、WebFetch、MCP、OAuth、插件下载或 tool 子进程。
+  Secretariat Protocol、Desktop/Web renderer 网络、WebFetch、MCP、OAuth、插件下载或 tool 子进程。
 - 受信 `custom` provider 自己持有 transport，不在透明转发范围内。
 
 ## 目标
@@ -31,7 +31,7 @@ bootstrap process registry（endpoint origin + network policy）
 
 静态实现保持既有开源网关行为：
 
-| 精确匹配的 HTTPS 端点 | 当前 runtime ZCode origin 下的目标路径 |
+| 精确匹配的 HTTPS 端点 | 当前 runtime Secretariat origin 下的目标路径 |
 | --- | --- |
 | `open.bigmodel.cn/api/anthropic/v1/messages` | `/api/v1/ultra/anthropic/v1/messages` |
 | `api.z.ai/api/anthropic/v1/messages` | `/api/v1/ultra-zai/anthropic/v1/messages` |
@@ -46,14 +46,14 @@ bootstrap process registry（endpoint origin + network policy）
 
 ### 动态实现
 
-ZCode CLI 在模型请求发生时按需读取：
+Secretariat CLI 在模型请求发生时按需读取：
 
 ```text
 GET https://zcode.z.ai/api/v1/agent/configs
 ```
 
 测试与非生产环境必须复用 `buildRuntimeZCodeApiUrl` 的现有 endpoint 选择规则，禁止另加平行环境变量。
-响应中 `data.proxyEndpoint.mapping` 决定是否把一个明确的 provider endpoint 改写到 ZCode 代理 endpoint。
+响应中 `data.proxyEndpoint.mapping` 决定是否把一个明确的 provider endpoint 改写到 Secretariat 代理 endpoint。
 服务端返回合法空映射即关闭转发；客户端不修改或持久化 provider `baseURL`。
 
 示例：
@@ -86,7 +86,7 @@ GET https://zcode.z.ai/api/v1/agent/configs
 | 生效 runtime | 独立 CLI、TUI、桌面 stdio Agent、主会话、workflow 与 subagent 子 runtime                 |
 | 生效请求     | 默认 AI SDK provider 发出的模型 HTTP(S) 请求                                             |
 | 不生效请求   | WebFetch、MCP、OAuth、插件、Bash/tool、Desktop/Web renderer、`custom` provider transport |
-| 配置 owner   | ZCode CLI 进程内共享 routing registry                                                    |
+| 配置 owner   | Secretariat CLI 进程内共享 routing registry                                                    |
 | 持久化       | 无；进程重启后重新读取                                                                   |
 | 协议/配置    | 私有 requestAuth 增加可选 apiKeyId，不新增用户配置或环境变量                             |
 
@@ -144,13 +144,13 @@ ProviderEndpointRoutingPort.resolve
 `buildZCodeSourceHeaders` 相同的共享构造规则，发送：
 
 - `Accept: application/json`
-- `HTTP-Referer`，跟随当前 runtime ZCode endpoint origin
-- `User-Agent: ZCode/<version>`
-- 有有效版本时发送 `X-ZCode-App-Version`
+- `HTTP-Referer`，跟随当前 runtime Secretariat endpoint origin
+- `User-Agent: Secretariat/<version>`
+- 有有效版本时发送 `X-Secretariat-App-Version`
 - `X-Title`，独立 CLI/TUI 为 `Z Code@cli`，桌面 stdio Agent 为 `Z Code@electron`
 - `X-Platform`、`X-Release-Channel`、`X-Client-Language`、`X-Client-Timezone`、
   `X-Os-Category` 与有效的 `X-Os-Version`
-- 已有 `~/.zcode/v2/telemetry-state.json`（或 `ZCODE_DATA_BASE_DIR` 对应目录）中存在
+- 已有 `~/.secretariat/v2/telemetry-state.json`（或 `SECRETARIAT_DATA_BASE_DIR` 对应目录）中存在
   合法 `deviceMid` 时发送 `X-Device-Mid`；配置请求不得创建新的设备身份
 - 账号请求的 `requestAuth.apiKeyId` 非空时，配置 GET 携带 `x-api-key-id`；值必须在 trim 后为可打印 ASCII。
 
@@ -159,7 +159,7 @@ ID 来自鉴权 owner 的同一次 PAT 换证结果，通过专用参数传入�
 仅发送客户端来源 Header。快照仍有效时不发起 GET；single-flight 刷新使用启动者的 ID。
 空白、控制字符或非 ASCII ID 不进入 Header，但不阻止配置刷新。
 
-共享来源 header 注入点只允许提供上述 ZCode 来源标识；即使被错误注入
+共享来源 header 注入点只允许提供上述 Secretariat 来源标识；即使被错误注入
 `x-api-key-id`、`Authorization`、Cookie 或其它未声明 header，也不得越过配置请求边界。配置 GET
 的 `x-api-key-id` 只能来自本次 `resolve` 的专用参数。
 
@@ -167,7 +167,7 @@ ID 来自鉴权 owner 的同一次 PAT 换证结果，通过专用参数传入�
 runtime/env + OS/locale + existing deviceMid
                     |
                     v
-       shared ZCode source headers ------------------+
+       shared Secretariat source headers ------------------+
                                                      |
 requestAuth.apiKeyId --explicit ID only-----------------+--> agent/configs GET
                     |

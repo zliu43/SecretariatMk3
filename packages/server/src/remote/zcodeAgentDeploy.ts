@@ -1,6 +1,6 @@
 import {
-  ZCODE_AGENT_RUNTIME,
-  ZCODE_AGENT_PROVIDER,
+  SECRETARIAT_AGENT_RUNTIME,
+  SECRETARIAT_AGENT_PROVIDER,
   type RemoteResourcePackageId,
 } from "@zcode/shared";
 import type { IRemoteBackend, RemoteEnvironment } from "@zcode/server/remote/backend.js";
@@ -126,7 +126,7 @@ async function shouldSkipZCodeAgentDeploy(params: {
   }
 
   params.loggers.log(
-    `[zcode-agent-deploy] ${ZCODE_AGENT_PROVIDER}: 制品 SHA ${params.expectedArtifactSha256} 已部署，跳过`,
+    `[zcode-agent-deploy] ${SECRETARIAT_AGENT_PROVIDER}: 制品 SHA ${params.expectedArtifactSha256} 已部署，跳过`,
   );
   return true;
 }
@@ -145,7 +145,7 @@ async function findMissingRemoteOfficialPluginAssetPaths(
 }
 
 /**
- * 部署 ZCode Agent runtime 到远程机器。
+ * 部署 Secretariat Agent runtime 到远程机器。
  *
  * 生产态只用 manifest SHA 判断制品是否变化；语义版本不参与跳过决策。
  */
@@ -155,8 +155,8 @@ export async function deployZCodeAgentRuntime(
   options: DeployZCodeAgentRuntimeOptions,
   loggers: DeployLoggers,
 ): Promise<void> {
-  const provider = ZCODE_AGENT_PROVIDER;
-  const runtime = ZCODE_AGENT_RUNTIME;
+  const provider = SECRETARIAT_AGENT_PROVIDER;
+  const runtime = SECRETARIAT_AGENT_RUNTIME;
   const componentId = provider;
   if (!isSelectedZCodeAgentComponent(componentId, options.selectedResourcePackageIds)) {
     loggers.log(`[zcode-agent-deploy] ${provider}: 未选择资源包 ${componentId}，跳过检查和部署`);

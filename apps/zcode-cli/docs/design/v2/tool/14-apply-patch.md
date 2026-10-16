@@ -76,6 +76,6 @@ Update hunk 语义：
 
 失败时不得写入已验证成功的其他文件。
 
-## ZCode 设计结论
+## Secretariat 设计结论
 
 `ApplyPatch` 解决的是 `Edit.old_string` 容易受行号、tab、换行和长字符串复制影响的问题。它通过结构化 hunk、上下文行和预验证把兼容性限制在局部 diff 中。它不是 Python/sed 替换脚本的替代壳，而是受权限、trace、adapter 和 diff UI 统一管理的一等 tool。

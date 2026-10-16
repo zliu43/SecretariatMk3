@@ -2,8 +2,8 @@
 
 ## Goal
 
-ZCode must support a single cancellation contract for every active user turn.
-The local TUI `Esc` shortcut while output is active and ZCode app-server `session/cancel`
+Secretariat must support a single cancellation contract for every active user turn.
+The local TUI `Esc` shortcut while output is active and Secretariat app-server `session/cancel`
 notification are input adapters for the same runtime behavior: pause the current
 turn output by cancelling active model and tool work, preserve observability, and
 return the session to an idle state.
@@ -17,7 +17,7 @@ tasks must not cancel each other by accident.
 Each active turn owns a root cancellation scope:
 
 - TUI creates it when a prompt is submitted.
-- ZCode app-server creates it when `session/prompt` starts.
+- Secretariat app-server creates it when `session/prompt` starts.
 - Core links the caller signal into a runtime turn signal.
 - Model, permission, tool, filesystem, subprocess, MCP, skill, and artifact
   adapters receive only `AbortSignal`, never the writable `AbortController`.
@@ -45,8 +45,8 @@ TUI:
   non-`Ctrl-C` key, draft-clearing `Ctrl-C`, or confirmation timeout clears the
   pending exit.
 
-ZCode app-server:
-- `session/cancel` aborts the active prompt controller for that ZCode app-server session.
+Secretariat app-server:
+- `session/cancel` aborts the active prompt controller for that Secretariat app-server session.
 - Repeated cancel notifications are idempotent.
 - Cancelling a missing or idle session is a no-op.
 - A cancelled prompt resolves as `stopReason: "cancelled"` and must not surface
@@ -79,7 +79,7 @@ Network-backed model adapters must treat abort as a transport cancellation, not
 only as a local state flag. Provider fetch implementations must pass the active
 turn `AbortSignal` to the underlying HTTP client and, for Node `http`/`https`
 fallbacks, explicitly destroy both the pending client request and any response
-body stream when the signal aborts. This keeps TUI `Esc` and ZCode app-server
+body stream when the signal aborts. This keeps TUI `Esc` and Secretariat app-server
 `session/cancel` on the same cancellation path: the local TCP/SSE stream is
 closed, late provider bytes are ignored by the cancelled turn, and core receives
 a structured cancellation result instead of waiting for the remote server to
@@ -114,6 +114,6 @@ Required coverage:
 - Provider network fetch abort destroys in-flight HTTP/SSE requests after
   response headers have been received, so model streams do not remain open until
   the remote server finishes.
-- ZCode app-server `session/cancel` resolves an in-flight prompt as `cancelled`, including
+- Secretariat app-server `session/cancel` resolves an in-flight prompt as `cancelled`, including
   when the prompt throws after observing the abort signal.
 - Abort during model retry sleep is not retried.

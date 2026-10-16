@@ -10,7 +10,7 @@ import {
 } from "@zcode/rpc";
 import type { IServiceAccessor } from "@zcode/services";
 import {
-  ZCODE_RPC_HOST_CAPABILITY_HEADER,
+  SECRETARIAT_RPC_HOST_CAPABILITY_HEADER,
   TOPIC_RESOURCE_RELAY_CHANNEL,
   serverRemoteHostCapabilitySchema,
   serverRemoteInfoSchema,
@@ -213,7 +213,7 @@ function connectNodeWebSocket(
     const socket = new WebSocket(authenticatedUrl(wsUrl, target), {
       headers: {
         ...(token ? { authorization: `Bearer ${token}` } : {}),
-        [ZCODE_RPC_HOST_CAPABILITY_HEADER]: capability,
+        [SECRETARIAT_RPC_HOST_CAPABILITY_HEADER]: capability,
       },
     });
     let settled = false;

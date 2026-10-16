@@ -17,9 +17,9 @@
 本 plan 负责：
 
 - 保持 `MessageHistory` prefix 现状，不把 system / skills / userContext 从 history 中拆出。
-- 保留 ZCode 现有 provider-visible title `# user_instructions`，并固定 request-level userContext 的前置结构和相对顺序。
-- 保持 ZCode 当前 `AGENTS.md -> CLAUDE.md` 单文件 priority，作为明确的产品决策。
-- 将 `project_context` 作为 ZCode extra 内容拼到 `# user_instructions` block 末尾，不再作为独立 provider-visible field。
+- 保留 Secretariat 现有 provider-visible title `# user_instructions`，并固定 request-level userContext 的前置结构和相对顺序。
+- 保持 Secretariat 当前 `AGENTS.md -> CLAUDE.md` 单文件 priority，作为明确的产品决策。
+- 将 `project_context` 作为 Secretariat extra 内容拼到 `# user_instructions` block 末尾，不再作为独立 provider-visible field。
 - 锁定 userContext 顺序：`# user_instructions` block 在前，`# currentDate` 在后；无 instruction/project context 时不生成空 `# user_instructions`。
 - 复核 custom system prompt、compact/reset、Explore subagent 的最终 provider body，按需做小范围 targeted fixes。
 - 每个 phase 用 focused tests + prompt-trajectory e2e 验证最终 request body。
@@ -30,7 +30,7 @@
 - 删除 `countContextPrefixMessages(...)` 或重构 request assembly segments。
 - 完整多层 `CLAUDE.md` / `.claude/rules` / include / conditional discovery。
 - user-message `content[]` merge、attachment bubble-up、ToolSearch、MCP instructions。
-- exact wording；目标是固定 provider-visible 结构、顺序与语义，同时保留 ZCode 自身的 section title。
+- exact wording；目标是固定 provider-visible 结构、顺序与语义，同时保留 Secretariat 自身的 section title。
 
 ## Current Baseline
 
@@ -45,9 +45,9 @@
 | ID | 决策 | 当前 plan 口径 |
 | --- | --- | --- |
 | PVC-D1 | 内部结构 | 保持现状：prefix 继续在内存 `MessageHistory` 中。 |
-| PVC-D2 | provider-visible title | 暂时沿用 ZCode 现有 `# user_instructions` title；不改用其他 section 名，也不按文件名动态生成 `# agentMd`。 |
+| PVC-D2 | provider-visible title | 暂时沿用 Secretariat 现有 `# user_instructions` title；不改用其他 section 名，也不按文件名动态生成 `# agentMd`。 |
 | PVC-D3 | instruction source | 保持 `AGENTS.md -> CLAUDE.md` priority，作为明确的产品决策。 |
-| PVC-D4 | project context | 默认拼到 `# user_instructions` block 末尾，作为 ZCode extra 内容；不新增独立 `# projectContext`。 |
+| PVC-D4 | project context | 默认拼到 `# user_instructions` block 末尾，作为 Secretariat extra 内容；不新增独立 `# projectContext`。 |
 | PVC-D5 | custom system prompt | custom body 跳过 default system/systemContext，但保留 userContext；`project_context` 因归入 `# user_instructions` 也应保留。 |
 | PVC-D6 | compact/reset | 先保持现有 prefix 保留机制；只验证最终 provider body，不做 request-time projection 重构。 |
 | PVC-D7 | Explore subagent | read-only omit 语义：Explore 子请求 omit instruction/project userContext block，保留 `currentDate`。 |
@@ -185,7 +185,7 @@ Evidence: `apps/zcode-cli/tools/prompt-trajectory/out/request-user-context-pvc2/
 
 ### Checklist
 
-- [x] 找到 ZCode Explore subagent request 构造路径。
+- [x] 找到 Secretariat Explore subagent request 构造路径。
 - [x] Explore 子请求不包含 `# user_instructions`。
 - [x] Explore 子请求保留 `# currentDate`。
 - [x] 主会话 request 不受影响。
@@ -217,8 +217,8 @@ Evidence: `apps/zcode-cli/tools/prompt-trajectory/out/request-user-context-pvc3/
 
 ## Final Acceptance
 
-- [x] Final provider body keeps ZCode `# user_instructions` title with the request-level userContext order/structure defined above.
-- [x] ZCode `AGENTS.md -> CLAUDE.md` priority remains intact and documented as a deliberate product decision.
+- [x] Final provider body keeps Secretariat `# user_instructions` title with the request-level userContext order/structure defined above.
+- [x] Secretariat `AGENTS.md -> CLAUDE.md` priority remains intact and documented as a deliberate product decision.
 - [x] `project_context` is appended inside `# user_instructions`, not a standalone provider field.
 - [x] `# user_instructions` precedes `# currentDate`.
 - [x] Empty `# user_instructions` is not emitted.

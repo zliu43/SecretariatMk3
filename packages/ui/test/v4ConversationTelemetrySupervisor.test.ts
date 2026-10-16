@@ -505,7 +505,7 @@ describe("ConversationTelemetrySupervisor", () => {
     });
   });
 
-  it("send seed 缺少显式运行时 provider 时沿用 ZCode Agent 默认值", () => {
+  it("send seed 缺少显式运行时 provider 时沿用 Secretariat Agent 默认值", () => {
     expect(
       buildV4ConversationPromptTelemetryExtraDetail({
         configProvider: "glm",

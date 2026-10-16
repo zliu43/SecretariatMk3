@@ -7,7 +7,7 @@ import type { ProviderEndpointRoutingPort } from "@zcode/contracts";
 import {
   resolveRuntimeZCodeEnv,
   resolveRuntimeZCodeEndpointOrigin,
-  ZCODE_APP_VERSION_ENV,
+  SECRETARIAT_APP_VERSION_ENV,
 } from "@zcode/shared";
 import {
   createRuntimePlatformHeaders,
@@ -57,13 +57,13 @@ export function buildCliZCodeSourceHeaders(
   const timezone = normalizePrintableHeaderValue(Intl.DateTimeFormat().resolvedOptions().timeZone);
   return {
     "HTTP-Referer": resolveRuntimeZCodeEndpointOrigin(env),
-    "User-Agent": `ZCode/${appVersion ?? "unknown"}`,
-    ...(appVersion ? { "X-ZCode-App-Version": appVersion } : {}),
+    "User-Agent": `Secretariat/${appVersion ?? "unknown"}`,
+    ...(appVersion ? { "X-Secretariat-App-Version": appVersion } : {}),
     "X-Title": `Z Code@${sourceTitle}`,
     "X-Release-Channel": resolveRuntimeZCodeEnv(env),
     "X-Client-Language": locale ?? "unknown",
     "X-Client-Timezone": timezone ?? "unknown",
-    "X-ZCode-Agent": "glm",
+    "X-Secretariat-Agent": "glm",
     ...createRuntimePlatformHeaders(),
   };
 }
@@ -72,7 +72,7 @@ function resolveAppVersionForHeaders(
   env: EnvRecord,
   options: Pick<RuntimeExecutionConfigOptions, "appVersion">,
 ): string | undefined {
-  return normalizePrintableHeaderValue(env[ZCODE_APP_VERSION_ENV] ?? options.appVersion);
+  return normalizePrintableHeaderValue(env[SECRETARIAT_APP_VERSION_ENV] ?? options.appVersion);
 }
 
 function detectDefaultProviderSourceTitle(): ModelProviderSourceTitle {

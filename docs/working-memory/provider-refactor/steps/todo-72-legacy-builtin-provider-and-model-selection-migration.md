@@ -42,7 +42,7 @@
 - 没有 API Key 时，不制造自定义副本，也不写空 Key 覆盖已有有效值。
 - 套餐 Token、JWT、动态 Headers 和旧账号状态不迁入 Personal，由当前账号凭据链重新提供。
 - 真正自定义 Provider 继续迁移调用配置、模型成员/顺序及合法 Context Window；其余模型能力按既定规则丢弃。
-- 不凭显示名称或 URL 判定内置身份。UUID 自定义 Provider 即使叫“智谱”或“ZCode”，也不能被误删。
+- 不凭显示名称或 URL 判定内置身份。UUID 自定义 Provider 即使叫“智谱”或“Secretariat”，也不能被误删。
 - 旧 `config.json` 保持原样，不生成备份，不恢复 `model-providers.json` 回退，不新增未发布中间版本兼容。
 
 本次处理旧文件首次导入。已经生成的 `provider_config.json` 不得被重新导入覆盖，也不得按名称扫描删除

@@ -70,11 +70,11 @@ zcode --prompt "<task>" --output-format stream-json
 
 - 单测：`apps/zcode-cli/packages/cli/tests/plugins-command.test.ts`（子命令路由、scope 映射、
   `--all` 互斥、`--keep-data` 透传、JSON 形状、`plugin` 别名与旗标收集）。
-- 真实冒烟（2026-09-14，隔离 `HOME`/`ZCODE_DATA_BASE_DIR`/`ZCODE_STORAGE_DIR`，ZAPI GLM-5.3-Highspeed）：
+- 真实冒烟（2026-09-14，隔离 `HOME`/`SECRETARIAT_DATA_BASE_DIR`/`SECRETARIAT_STORAGE_DIR`，ZAPI GLM-5.3-Highspeed）：
   `marketplace list` → `marketplace update zcode-plugins-official`（8 → 27 个条目）→ `list --available --json`
   → `install lark-cli` → `plugin disable --all` → `enable lark-cli` → `update lark-cli`（already up to date）
   → `--prompt` 要求加载 lark-cli 的 setup skill，stream-json 中出现 `tool.updated` 且 `toolName: "Skill"`、
   `skill: "lark-cli:setup"`，turn 正常完成 → `uninstall lark-cli --keep-data --force` 后 `data/lark-cli@…` 保留、
   cache 记录移除 → `validate` 对 bundled 插件目录、plugin.json 文件、不存在路径分别返回 0 / 0 / 1。
-- 冒烟踩坑：headless 默认模型只读 `~/.zcode/v2/provider_config.json` 的 `config.defaultModelSelection`，
+- 冒烟踩坑：headless 默认模型只读 `~/.secretariat/v2/provider_config.json` 的 `config.defaultModelSelection`，
   且必须带 `options.reasoningLevel`，否则静默回退到第一个 provider 的第一个模型。

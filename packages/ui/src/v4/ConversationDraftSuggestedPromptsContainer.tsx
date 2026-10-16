@@ -11,7 +11,7 @@ import {
 } from "@/v4/featureSuggestedPromptRotation.js";
 /* oxlint-disable eslint(max-lines) -- 推荐 Prompt 同时收口 latest-wins、取消、可信解析、操作反馈和 Composer 收尾，拆分会打散这条状态机。 */
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID } from "@zcode/shared";
+import { SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE_ID } from "@zcode/shared";
 import { cn } from "@/components/lib/utils.js";
 import { toast } from "@/components/ui/toast.js";
 import { usePlatform } from "@/hooks/usePlatform.js";
@@ -371,7 +371,7 @@ export function ConversationDraftSuggestedPromptsContainer({
         requestVersion !== requestVersionRef.current ||
         (kind === "install" &&
           (!flow.result?.pluginName ||
-            flow.result.marketplace !== ZCODE_OFFICIAL_PLUGIN_MARKETPLACE_ID ||
+            flow.result.marketplace !== SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE_ID ||
             flow.result.sourceTrust !== "official"))
       ) {
         return;

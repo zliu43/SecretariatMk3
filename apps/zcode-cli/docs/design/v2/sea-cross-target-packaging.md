@@ -2,7 +2,7 @@
 
 ## 背景
 
-ZCode 的默认发布形态仍然是标准 Node.js CLI 包：`dist/zcode.cjs` 加 `bin.zcode`。SEA 只是可选的单文件分发路径，用于给没有预装 Node.js 的环境提供独立二进制。
+Secretariat 的默认发布形态仍然是标准 Node.js CLI 包：`dist/zcode.cjs` 加 `bin.zcode`。SEA 只是可选的单文件分发路径，用于给没有预装 Node.js 的环境提供独立二进制。
 
 当前 SEA 脚本只复制 `process.execPath`，因此在 macOS arm64 上只能生成 `zcode-darwin-arm64`。这不符合项目面向 Windows、macOS、Linux 的发布目标。
 
@@ -20,7 +20,7 @@ ZCode 的默认发布形态仍然是标准 Node.js CLI 包：`dist/zcode.cjs` �
 - 不实现完整 release pipeline、上传、压缩归档或包管理器发布。
 - 不实现 Windows Authenticode、macOS Developer ID、公证或 Linux 包格式。
 - 不支持 Alpine/musl 作为首批 SEA target。
-- 不把 target 配置做成 `ZCODE_` 环境变量。
+- 不把 target 配置做成 `SECRETARIAT_` 环境变量。
 
 ## Target 契约
 
@@ -79,7 +79,7 @@ SEA 可以在一个 host 上下载并注入其它 target 的官方 Node.js binar
 
 ## Node 24 SEA 基线
 
-ZCode 以 Node.js `24.14.0` 作为本仓库开发、构建和发布基线。Node 26 的原生 `node --build-sea` 路径在生产老设备上兼容性不足，本轮回退到 Node 24 LTS 兼容路径；仓库 `engines.node` 要求 `>=24.14.0 <25`，SEA 发布产物必须嵌入同版本 Node 24 运行时。
+Secretariat 以 Node.js `24.14.0` 作为本仓库开发、构建和发布基线。Node 26 的原生 `node --build-sea` 路径在生产老设备上兼容性不足，本轮回退到 Node 24 LTS 兼容路径；仓库 `engines.node` 要求 `>=24.14.0 <25`，SEA 发布产物必须嵌入同版本 Node 24 运行时。
 
 SEA 构建路径是 `node --experimental-sea-config <config>` 生成 preparation blob，然后把该 blob 用 `postject` 注入目标平台官方 Node.js 二进制。脚本必须继续从官方 Node release 下载同版本目标二进制，或接受用户用 `--node-binary <target>=<path>` 显式提供的二进制。
 
@@ -91,15 +91,15 @@ SEA config 必须显式写入：
 - `assets`: OpenTUI runtime assets, bundled official plugin assets and the
   bundled skill pack. Official plugins are stored as raw files in the SEA blob,
   then extracted on startup into
-  `~/.zcode/cli/plugins/cache/zcode-plugins-official/<plugin>/<version>/`.
-  They must not be imported into the ZCode main bundle. Seeded official plugin
+  `~/.secretariat/cli/plugins/cache/zcode-plugins-official/<plugin>/<version>/`.
+  They must not be imported into the Secretariat main bundle. Seeded official plugin
   manifests are rewritten to use the hidden `__zcode-plugin-host` entrypoint so
   the cached MCP server runs on the SEA-embedded Node.js runtime. Third-party
   plugins are not automatically rewritten and keep their own declared command.
   The bundled skill pack (`packages/bundled-skills/skills/**`, collected by
   `scripts/sea-bundled-skill-assets.mjs` under the `zcode-bundled-skills/`
   prefix) is not a plugin: its manifest hash names the extraction directory
-  `~/.zcode/cli/bundled-skills/<hash>/`, every required file must be present or
+  `~/.secretariat/cli/bundled-skills/<hash>/`, every required file must be present or
   the build aborts, and a runtime hash mismatch refuses the pack.
 - `useCodeCache`: `false`。
 - `useSnapshot`: `false`。
@@ -133,7 +133,7 @@ ESM/CommonJS 的实际目标文件，不能用全局 `zod` alias 把 v3 重定�
 
 ## CLI 版本来源
 
-普通 Node CLI bundle 和 SEA binary 必须使用仓库根目录 `package.json` 的 `version` 注入 `__CLI_VERSION__`。`packages/cli/package.json` 只是 workspace 子包元数据，不能作为 `zcode --version`、`zcode version`、`zcode doctor --json`、ZCode app-server 初始化版本字段、MCP client initialize `version`，或 `session.version` 的来源。
+普通 Node CLI bundle 和 SEA binary 必须使用仓库根目录 `package.json` 的 `version` 注入 `__CLI_VERSION__`。`packages/cli/package.json` 只是 workspace 子包元数据，不能作为 `zcode --version`、`zcode version`、`zcode doctor --json`、Secretariat app-server 初始化版本字段、MCP client initialize `version`，或 `session.version` 的来源。
 
 构建脚本读取根 `package.json` 失败，或 `version` 不是非空字符串时，应中止构建并报告根版本元数据异常。源码测试环境未经过 bundle 注入时，运行时仍保留 `0.0.0` fallback，便于直接测试 `packages/cli/src/run.ts`。
 

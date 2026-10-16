@@ -21,7 +21,7 @@ vi.mock("../src/app/runtime-config.js", async (importOriginal) => {
 describe("App 初始化旧 Subagent 身份", () => {
   it("用户目录完成原地迁移再构造 Runtime；项目文件不迁移也不暗中换身份", async () => {
     const root = await mkdtemp(join(tmpdir(), "zcode-subagent-init-"));
-    const directory = join(root, ".zcode", "agents");
+    const directory = join(root, ".secretariat", "agents");
     const file = join(directory, "legacy.md");
     const markdown =
       "---\nname: legacy\ndescription: legacy profile\nmodel: builtin:zai-coding-plan/glm-4.6\nthoughtLevel: high\n---\nreview";
@@ -49,7 +49,7 @@ describe("App 初始化旧 Subagent 身份", () => {
       resolveRuntimeConfig.mockClear();
       creation = Promise.resolve(
         createRegistryBackedTestApp({
-          env: { ZCODE_STORAGE_DIR: join(root, "storage") },
+          env: { SECRETARIAT_STORAGE_DIR: join(root, "storage") },
           skipUserConfig: true,
           sessionStore: store,
           runtimeConfig: { workingDirectory: root, mcp: { enabled: false } },

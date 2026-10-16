@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createSqliteSessionStore } from "@zcode/adapters/storage";
 import {
   BUILTIN_MODEL_PROVIDER_IDS,
-  ZCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
+  SECRETARIAT_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
   zcodeProtocolMethods,
   zcodeMessagePartSchema,
   zcodeSessionCancelBackgroundTaskResultSchema,
@@ -287,7 +287,7 @@ describe("ZCodeProtocolAgentServer", () => {
     });
   });
 
-  it("maps core tool events into typed ZCode session event payloads", () => {
+  it("maps core tool events into typed Secretariat session event payloads", () => {
     const mapped = zcodeSessionEventSchema.parse(
       mapSessionEvent({
         id: "evt_tool_1" as SessionEvent["id"],
@@ -1818,7 +1818,7 @@ describe("ZCodeProtocolAgentServer", () => {
               headers: [],
               oauth: {
                 type: "authorization_code",
-                clientName: "ZCode",
+                clientName: "Secretariat",
               },
             },
           ],
@@ -1905,7 +1905,7 @@ describe("ZCodeProtocolAgentServer", () => {
               headers: [],
               oauth: {
                 type: "authorization_code",
-                clientName: "ZCode",
+                clientName: "Secretariat",
               },
             },
           ],
@@ -1973,7 +1973,7 @@ describe("ZCodeProtocolAgentServer", () => {
               headers: [],
               oauth: {
                 type: "authorization_code",
-                clientName: "ZCode",
+                clientName: "Secretariat",
               },
             },
           ],
@@ -3192,7 +3192,7 @@ describe("ZCodeProtocolAgentServer", () => {
         params: { workspace },
       }),
     );
-    expect(created.protocol).toEqual({ name: "ZCode Protocol", version: 1 });
+    expect(created.protocol).toEqual({ name: "Secretariat Protocol", version: 1 });
     expect(created.session.workspace.workspaceKey).toBe(workspace.workspaceKey);
 
     const read = zcodeSessionStateSnapshotSchema.parse(
@@ -4019,13 +4019,13 @@ describe("ZCodeProtocolAgentServer", () => {
         params: { workspace },
       });
 
-      await vi.advanceTimersByTimeAsync(ZCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS);
+      await vi.advanceTimersByTimeAsync(SECRETARIAT_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS);
 
       await expect(resultPromise).resolves.toMatchObject({
         error: {
           code: -32022,
           data: {
-            timeoutMs: ZCODE_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
+            timeoutMs: SECRETARIAT_SESSION_RUNTIME_PREFERENCES_REQUEST_TIMEOUT_MS,
           },
         },
       });
@@ -4033,7 +4033,7 @@ describe("ZCodeProtocolAgentServer", () => {
       expect(logs).toContainEqual(
         expect.objectContaining({
           level: "warn",
-          message: "ZCode Protocol runtime preferences request timed out",
+          message: "Secretariat Protocol runtime preferences request timed out",
           context: expect.objectContaining({
             errorCode: -32022,
             scope: "runtime-materialization",
@@ -5090,7 +5090,7 @@ describe("ZCodeProtocolAgentServer", () => {
             filename: "pasted-text.txt",
             mimeType: "text/plain",
             sizeBytes: 8192,
-            localPath: "/tmp/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+            localPath: "/tmp/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
             sourceKind: "clipboard-text",
           },
           {
@@ -5109,7 +5109,7 @@ describe("ZCodeProtocolAgentServer", () => {
       attachments: [
         { path: "/tmp/report.pdf", type: "pdf" },
         {
-          path: "/tmp/.zcode/tmp/paste-attachments/2026-06-30/pasted-text.txt",
+          path: "/tmp/.secretariat/tmp/paste-attachments/2026-06-30/pasted-text.txt",
           sourceKind: "clipboard-text",
           type: "file",
         },
@@ -6341,7 +6341,7 @@ describe("ZCodeProtocolAgentServer", () => {
     );
 
     await vi.waitFor(() => {
-      expect(abortReasons).toContain("ZCode Protocol goal paused");
+      expect(abortReasons).toContain("Secretariat Protocol goal paused");
     });
     expect(target?.status).toBe("paused");
     expect(pauseResult).toMatchObject({
@@ -6461,7 +6461,7 @@ describe("ZCodeProtocolAgentServer", () => {
     });
 
     await vi.waitFor(() => {
-      expect(abortReasons).toContain("ZCode Protocol session stopped");
+      expect(abortReasons).toContain("Secretariat Protocol session stopped");
     });
     expect(goalResult.startedTurn).toBe(true);
     expect(target?.status).toBe("paused");

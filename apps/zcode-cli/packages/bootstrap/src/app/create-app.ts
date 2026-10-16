@@ -39,7 +39,7 @@ import {
 } from "@zcode/contracts";
 import { isRemoteWorkspaceIdentity, resolveZCodeRuntimeEnv } from "@zcode/shared";
 import {
-  ZCODE_ATTACHMENT_FAULT_CODES,
+  SECRETARIAT_ATTACHMENT_FAULT_CODES,
   ZCodeAttachmentFaultError,
 } from "@zcode/shared/zcode-protocol-v4";
 
@@ -312,7 +312,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         ),
       };
     }
-    startupTimer.mark("ZCode runtime configuration resolved", {
+    startupTimer.mark("Secretariat runtime configuration resolved", {
       context: runtimeConfigLogContext(runtimeConfig, workingDirectory),
       event: "bootstrap.app.startup.runtime_config.completed",
       stage: "resolve_runtime_config",
@@ -347,7 +347,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       ...(options.workspaceHookReviewHost
         ? {
             emitReviewEvent: async (event) => {
-              if (!runtime) throw new Error("ZCode runtime is not initialized yet.");
+              if (!runtime) throw new Error("Secretariat runtime is not initialized yet.");
               await runtime.appendEvent(
                 createSessionEvent(event.type, sessionId, event.payload, {
                   traceId: traceContext.traceId,
@@ -356,7 +356,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
               );
             },
             emitAdmissionEvent: async (event) => {
-              if (!runtime) throw new Error("ZCode runtime is not initialized yet.");
+              if (!runtime) throw new Error("Secretariat runtime is not initialized yet.");
               await runtime.appendEvent(
                 createSessionEvent(event.type, sessionId, event.payload, {
                   traceId: traceContext.traceId,
@@ -389,7 +389,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       (messageEnabled
         ? createNodeSessionMailboxAdapter({
             rootDir: resolvePath(
-              (options.env ?? process.env).ZCODE_MAILBOX_ROOT ?? "~/.zcode/mailbox",
+              (options.env ?? process.env).SECRETARIAT_MAILBOX_ROOT ?? "~/.secretariat/mailbox",
             ),
           })
         : undefined);
@@ -457,7 +457,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
       runtimeConfig,
     });
     const getRuntime = (): AgentRuntime => {
-      if (!runtime) throw new Error("ZCode runtime is not initialized yet.");
+      if (!runtime) throw new Error("Secretariat runtime is not initialized yet.");
       return runtime;
     };
     let resumePrepared = false;
@@ -1160,7 +1160,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         const { ref, mediaType, artifactUri } = await resolvePromptAttachment(input);
         if (artifactUri) {
           if (!artifactStore.statToolResultArtifact) {
-            throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.statUnsupported);
+            throw new ZCodeAttachmentFaultError(SECRETARIAT_ATTACHMENT_FAULT_CODES.statUnsupported);
           }
           const result = await artifactStore.statToolResultArtifact({
             uri: artifactUri,
@@ -1176,7 +1176,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
         if (result.kind !== "file") {
           // 目录/符号链接/已消失都意味着「这个附件不再是可分享的文件」，用稳定码上抛，
           // 让 share 预检按确定分类处理，而不是靠错误文本猜。
-          throw new ZCodeAttachmentFaultError(ZCODE_ATTACHMENT_FAULT_CODES.statNotFile);
+          throw new ZCodeAttachmentFaultError(SECRETARIAT_ATTACHMENT_FAULT_CODES.statNotFile);
         }
         return {
           totalBytes: result.sizeBytes,
@@ -1397,7 +1397,7 @@ export async function createZCodeApp(options: ZCodeAppOptions): Promise<ZCodeApp
     providerModelRuntime?.dispose();
     void modelTelemetry.shutdown().catch(() => undefined);
     void ownedNodeReplBrowserBroker?.close();
-    startupTimer.fail("ZCode app startup failed", error, {
+    startupTimer.fail("Secretariat app startup failed", error, {
       context: { sessionId, workingDirectory },
       event: "bootstrap.app.startup.failed",
       stage: "total",

@@ -68,7 +68,7 @@
 
 ## 远控边界
 
-本改动只影响 UI 层渲染，不改变 ZCode task 消息流、snapshot、queue 或恢复语义：
+本改动只影响 UI 层渲染，不改变 Secretariat task 消息流、snapshot、queue 或恢复语义：
 
 - 桌面端 `desktop-continuous` 仍保持 direct continuous 主链路。
 - 手机远控 `web-remote-replayable` 仍通过 replayable snapshot/gap 恢复边界展示消息。

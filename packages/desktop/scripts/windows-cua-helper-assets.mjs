@@ -722,8 +722,8 @@ export async function resolveWindowsCuaHelperSourceRoot({
   if (explicitRoot) {
     if (!isAbsolute(explicitRoot)) {
       const variableName = explicitRuntimePackageDir
-        ? "ZCODE_CUA_HELPER_RUNTIME_PACKAGE_DIR"
-        : "ZCODE_CUA_DEV_ROOT";
+        ? "SECRETARIAT_CUA_HELPER_RUNTIME_PACKAGE_DIR"
+        : "SECRETARIAT_CUA_DEV_ROOT";
       throw new Error(`[windows-cua-helper-assets] ${variableName} must be absolute`);
     }
     return realpath(explicitRoot);
@@ -837,7 +837,7 @@ export async function prepareWindowsCuaHelperAssets({
       `[windows-cua-helper-assets] invalid package version: ${String(packageJson.version)}`,
     );
   }
-  // 根因：消费端固定版本号和 artifact 目录会让生产者每次独立发版都必须同步改 ZCode。
+  // 根因：消费端固定版本号和 artifact 目录会让生产者每次独立发版都必须同步改 Secretariat。
   // package.json 的严格契约才是兼容边界；version 只作为安装产物的来源追踪信息。
   const producerContract = readProducerRuntimeContract(packageJson, sourceRoot);
 

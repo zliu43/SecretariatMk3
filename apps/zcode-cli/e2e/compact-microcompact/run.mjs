@@ -50,10 +50,10 @@ async function main() {
       return;
     }
 
-    if (caseDefinitions.some((caseDef) => caseDef.requiresApiKey) && !process.env.ZCODE_API_KEY) {
+    if (caseDefinitions.some((caseDef) => caseDef.requiresApiKey) && !process.env.SECRETARIAT_API_KEY) {
       keepTmp = true;
       throw new Error(
-        "ZCODE_API_KEY is required for real-provider compact E2E cases. Use --case=fake to run only local scripted cases.",
+        "SECRETARIAT_API_KEY is required for real-provider compact E2E cases. Use --case=fake to run only local scripted cases.",
       );
     }
 

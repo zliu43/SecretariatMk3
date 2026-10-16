@@ -1,6 +1,6 @@
 # Web Element Context
 
-ZCode 的内置浏览器支持在桌面端把网页元素加入聊天上下文。
+Secretariat 的内置浏览器支持在桌面端把网页元素加入聊天上下文。
 
 ## Flow
 
@@ -49,7 +49,7 @@ EmbeddedBrowserPane
 - 上下文按 `workspaceIdentity?.trim() || workspacePath` 归属当前 workspace。
 - V4 远程 workspace 必须继续传 `workspaceIdentity`；禁止只按 `workspacePath` 过滤 context。
 - 不读取 cookie、localStorage、sessionStorage，也不采集 input 当前 value；password input 会被 mask。
-- 发送给 ZCode Agent 的内容是纯文本 Markdown，兼容当前 provider。
+- 发送给 Secretariat Agent 的内容是纯文本 Markdown，兼容当前 provider。
 
 ## Captured Fields
 

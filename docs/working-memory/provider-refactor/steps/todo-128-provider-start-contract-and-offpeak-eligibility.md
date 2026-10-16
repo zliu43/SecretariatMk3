@@ -13,7 +13,7 @@
 2026-09-11 只读排查 Air 的设置、日志与安装包，确认：
 
 - 当前选择是 BigModel Team Plan；不在文档保存账号、组织、项目 ID 或凭据。
-- Air 日志 `~/.zcode/v2/logs/2026-09-11.log` 在 23:01:21（日志原始时间）记录 BigModel Team Plan 为 `availability: available / entitled: true / current: true`，BigModel 闲时 Provider 也已 `entitled: true`。
+- Air 日志 `~/.secretariat/v2/logs/2026-09-11.log` 在 23:01:21（日志原始时间）记录 BigModel Team Plan 为 `availability: available / entitled: true / current: true`，BigModel 闲时 Provider 也已 `entitled: true`。
 - Air 安装包的 Host 代码与仓库一致：闲时 `resolveAccountProvider()` 从 `await providerRuntime.start()` 的返回值筛选 Coding Plan Provider，而该 Runtime 缓存首次启动 Promise 和首次快照。
 - 未重启 Air、修改其账号配置、创建真实闲时任务或读取完整运行中内存；日志与包内代码证明账号更新和缺陷实现存在，不能把本轮调查写成修复后的端到端验收。
 

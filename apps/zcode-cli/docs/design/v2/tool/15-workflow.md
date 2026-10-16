@@ -17,7 +17,7 @@ The Zod runtime schema is the source of truth and projects to provider-neutral J
 - `script?: string` up to `524288` bytes. A self-contained script beginning with
   `export const meta = { name, description, phases }`.
 - `name?: string`. A saved workflow name resolved from the allowlisted built-in registry, project
-  `.zcode/workflows`, then user `~/.zcode/workflows`.
+  `.secretariat/workflows`, then user `~/.secretariat/workflows`.
 - `args?: unknown`. Exposed to the script as global `args`.
 - `scriptPath?: string`. Path to an editable workflow script. This takes precedence over `script`
   and `name`.
@@ -110,7 +110,7 @@ Required coverage:
 - Registry registers `Workflow` only when a `WorkflowPort` is configured.
 - Handler delegates to `WorkflowPort` with `sessionId`, `turnId`, `toolCallId`, cwd and trace.
 - Missing `WorkflowPort` fails closed.
-- Bootstrap port persists inline scripts, resolves named workflows from `.zcode/workflows` and
-  `~/.zcode/workflows`, and returns a `wf_...` launch result.
+- Bootstrap port persists inline scripts, resolves named workflows from `.secretariat/workflows` and
+  `~/.secretariat/workflows`, and returns a `wf_...` launch result.
 - Background workflow completion enters `RuntimeTaskRegistry` as `local_workflow` and queues a
   parent `<task-notification>` only after terminal completion is observed.

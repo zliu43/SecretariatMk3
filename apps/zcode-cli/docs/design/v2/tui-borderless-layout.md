@@ -27,7 +27,7 @@ background color, and the prompt input keeps a complete focused frame.
   `sidebar width - horizontal padding`.
 - Input height follows the multiline input spec; this layout does not add extra
   chrome rows beyond the complete prompt frame.
-- No runtime, provider, session, tool, permission, event, ZCode app-server, or storage schema
+- No runtime, provider, session, tool, permission, event, Secretariat app-server, or storage schema
   changes are required.
 
 ## Tests

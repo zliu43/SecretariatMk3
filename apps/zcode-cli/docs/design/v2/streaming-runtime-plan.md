@@ -2,7 +2,7 @@
 
 ## Status
 
-This is the implementation plan for upgrading ZCode from the current batch-style
+This is the implementation plan for upgrading Secretariat from the current batch-style
 agent loop to a production streaming runtime.
 
 Implementation progress:
@@ -30,7 +30,7 @@ Historical baseline before this plan:
 ## Goals
 
 - Stream assistant text and reasoning deltas through `SessionEvent`.
-- Keep tool execution inside ZCode `ToolExecutor`: schema validation,
+- Keep tool execution inside Secretariat `ToolExecutor`: schema validation,
   permission broker, trace, artifact storage, timeout, cancellation, and
   result budgeting must not be bypassed by AI SDK tool execution.
 - Make streamed model output, tool calls, approvals, tool results, cancellation,
@@ -45,7 +45,7 @@ Historical baseline before this plan:
 - Do not require streaming tool execution before the first production streaming
   release. Running tools as soon as their complete input appears is a later
   optimization.
-- Do not introduce a second event model for TUI or ZCode app-server. `SessionEvent` remains
+- Do not introduce a second event model for TUI or Secretariat app-server. `SessionEvent` remains
   the fact model.
 
 ## Design Patterns
@@ -96,13 +96,13 @@ Streaming tool execution:
 2. AI SDK tools are projection only.
 
    `toAiSdkTools()` must continue exposing schemas without provider-side
-   `execute`. A model tool call becomes a ZCode `ExecutableToolCall` only after
+   `execute`. A model tool call becomes a Secretariat `ExecutableToolCall` only after
    core validates and schedules it.
 
 3. `SessionEvent` is the durable streaming API.
 
    Every user-visible delta or lifecycle transition should first become a
-   `SessionEvent`, then TUI/ZCode app-server/debug clients project from those events.
+   `SessionEvent`, then TUI/Secretariat app-server/debug clients project from those events.
 
 4. Production v1 executes tools after a streaming model step completes.
 
@@ -178,7 +178,7 @@ Acceptance:
 
 ## Phase 2: Stream-Path Tool Loop
 
-Route tool calls produced by `streamText()` through the existing ZCode tool
+Route tool calls produced by `streamText()` through the existing Secretariat tool
 runtime.
 
 Tasks:

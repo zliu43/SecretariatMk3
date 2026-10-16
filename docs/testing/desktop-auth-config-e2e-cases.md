@@ -49,7 +49,7 @@ Electron 用例不声称覆盖这些微观竞态。AUTH-06 保持 pending，Pro 
 ### 操作步骤
 
 1. WDIO `beforeSession` 清理隔离 HOME。
-2. `wdio.conf.ts` 识别 `oauth-credential-recovery.test.ts` 后，在 `~/.zcode/v2/credentials.json` 写入损坏 OAuth seed。
+2. `wdio.conf.ts` 识别 `oauth-credential-recovery.test.ts` 后，在 `~/.secretariat/v2/credentials.json` 写入损坏 OAuth seed。
 3. 启动桌面端本地默认窗口。
 4. 等待登录入口渲染。
 5. 检查 Z.ai 与 BigModel 登录渠道均可见。
@@ -68,7 +68,7 @@ Electron 用例不声称覆盖这些微观竞态。AUTH-06 保持 pending，Pro 
 ### Fixture 合同
 
 - 本 case 不触发 provider 请求，manifest 使用 `providerRequestPolicy: "none"` 和空 `requests`。
-- 本 case 的输入 fixture 是 WDIO 冷启动 seed：`~/.zcode/v2/credentials.json`。
+- 本 case 的输入 fixture 是 WDIO 冷启动 seed：`~/.secretariat/v2/credentials.json`。
 - 需要清理的 key 包含 `oauth:active_provider`、Z.ai/BigModel access token、refresh token、user info，以及旧 `zcodejwttoken`。
 
 ### 转正说明
@@ -112,7 +112,7 @@ desktop local 使用隔离 HOME 冷启动；CLI session DB 预置一条 interact
 | AUTH-02-C | 未配置时点击发送被 UI admission 拒绝            | composer 原文保留；没有 `createSession` pending 记录或 unknown/discarded 恢复横幅                                                                                   |
 | AUTH-02-D | 未配置时历史可见且可读                          | 预置 interactive CLI session 的侧栏 row、用户正文与助手正文均可见，证明真实 sessions-index/conversation topic 已工作                                                |
 | AUTH-02-E | 未配置时没有 deferred draft/retry               | service/UI focused tests 断言 `provider_not_ready` 保持 idle 且投影 banner                                                                                          |
-| AUTH-02-F | 未配置时目标 workspace 只读 Agent 数为 1        | 资源管理器快照按 `ZCodeProject` workspace tag 断言为 1；系统 conversation sibling 不计入，只允许 sessions-index/history 读取，不产生 session create/model command |
+| AUTH-02-F | 未配置时目标 workspace 只读 Agent 数为 1        | 资源管理器快照按 `SecretariatProject` workspace tag 断言为 1；系统 conversation sibling 不计入，只允许 sessions-index/history 读取，不产生 session create/model command |
 | AUTH-02-G | 保存 provider 后仍复用目标 workspace 唯一 Agent | 资源管理器对同一 workspace 的 Agent 行数保持 1，稳定窗口后二次断言仍为 1，read→write 不重复启动                                                                      |
 | AUTH-02-H | 草稿模型水合且缺模型 banner 清除                | 模型 trigger 回显首个未禁用模型，`TID_CHAT_ERROR_BANNER` 不再存在                                                                                                   |
 
@@ -134,7 +134,7 @@ desktop local 使用隔离 HOME 冷启动；CLI session DB 预置一条 interact
 
 Docker 准入不执行：该 auth/config case 不依赖 provider replay，也不属于 conversation Docker preset。
 
-## AUTH-03: ZCode JWT 过期后重新认证
+## AUTH-03: Secretariat JWT 过期后重新认证
 
 ### Case 定义
 
@@ -187,7 +187,7 @@ Welcome 展示 Z.ai + BigModel 登录入口
 ### Fixture 合同
 
 - manifest 使用 `providerRequestPolicy: "none"`、`noProviderRequests: true` 和空 `requests`。
-- 输入 fixture 是 WDIO 在 App 启动前写入隔离 HOME 的 `~/.zcode/v2/credentials.json`。
+- 输入 fixture 是 WDIO 在 App 启动前写入隔离 HOME 的 `~/.secretariat/v2/credentials.json`。
 - JWT 只包含测试用 header/payload/signature；payload 的 `exp` 固定在过去，不依赖签名有效性。
 - 需要清理的 key 包含 `oauth:active_provider`、Z.ai access token、refresh token、user info 和 `zcodejwttoken`。
 - 当前位于 `manual-review/pending`；人工确认可视交互后才能移动到正式路径并更新本节状态。
@@ -196,7 +196,7 @@ Welcome 展示 Z.ai + BigModel 登录入口
 
 2026-08-06 已执行：
 
-- `ZCODE_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e -- --spec ./test/e2e/manual-review/pending/jwt-expiry-reauthentication.test.ts`
+- `SECRETARIAT_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e -- --spec ./test/e2e/manual-review/pending/jwt-expiry-reauthentication.test.ts`
   - 结果：通过，1 个 spec / 1 个 case passed。
   - Artifact：`packages/desktop/.e2e-artifacts/desktop-e2e-20260806040559238-p94707-95e800e8762670fe/summary.md`。
   - 运行时发现并修复：provider 启动门禁的 `open=false` 曾无条件清空 `session-expired`，导致用户确认后重新登录页被工作区覆盖；现在门禁只关闭自己拥有的 `startup-provider-required`。
@@ -205,7 +205,7 @@ Welcome 展示 Z.ai + BigModel 登录入口
 当前只完成自动运行，尚未记录人工视觉验收，因此继续保留在 `manual-review/pending`，不执行转正或 Docker 准入。
 
 <!-- 固定 staging 的 JWT 场景原编号 AUTH-05，与上方登录取消编号冲突；此处命名为 AUTH-JWT-401，历史证据不算本轮通过。 -->
-## AUTH-JWT-401: 运行中 ZCode JWT 401 退出并重启
+## AUTH-JWT-401: 运行中 Secretariat JWT 401 退出并重启
 
 ### Case 定义
 
@@ -219,7 +219,7 @@ Welcome 展示 Z.ai + BigModel 登录入口
 ### 测试场景
 
 desktop local 使用隔离 HOME 冷启动并恢复一份有效 OAuth 会话。进入工作区后，测试通过 Electron 网络 mock
-让后续 ZCode 控制面请求返回普通 HTTP 401；请求携带的 Authorization 与本地 `zcodejwttoken` 相同，
+让后续 Secretariat 控制面请求返回普通 HTTP 401；请求携带的 Authorization 与本地 `zcodejwttoken` 相同，
 因此必须触发 Host 的统一 logout，而不是展示普通网络错误。测试断言凭据在提示确认前已清理，用户确认后
 调用现有 `RelaunchApp`，避免真实退出测试进程。
 
@@ -232,7 +232,7 @@ Agent 模型 transport、Official MCP、remote workspace 或手机 `/remote`。
 有效 OAuth 会话 + zcodejwttoken
              |
              v
-打开模型供应商设置，触发 ZCode 请求
+打开模型供应商设置，触发 Secretariat 请求
              |
              v
 Electron net.fetch mock 返回 401
@@ -256,7 +256,7 @@ Renderer 显示“登录已过期”
 | AUTH-JWT-401-A | 运行中 401 能显示登录过期提示  | 证明请求出口观察和 Host 广播链路实际工作              |
 | AUTH-JWT-401-B | 确认前 OAuth/JWT 凭据已清理    | 证明提示框不会阻塞认证事实清理                        |
 | AUTH-JWT-401-C | 确认后调用 `RelaunchApp`       | 证明提示动作复用现有重启流程                          |
-| AUTH-JWT-401-D | 普通 401 mock 不依赖专用响应头 | 证明兼容当前没有 `X-ZCode-JWT-Invalid` 响应头的服务端 |
+| AUTH-JWT-401-D | 普通 401 mock 不依赖专用响应头 | 证明兼容当前没有 `X-Secretariat-JWT-Invalid` 响应头的服务端 |
 
 ### Fixture 合同
 
@@ -331,7 +331,7 @@ desktop local 使用隔离 HOME 冷启动：OAuth 凭据为空，当前 Environm
 
 ### 自动运行记录
 
-- `ZCODE_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e:serial -- --spec ./test/e2e/manual-review/pending/subagent-coding-plan-login-catalog-stale.test.ts`
+- `SECRETARIAT_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e:serial -- --spec ./test/e2e/manual-review/pending/subagent-coding-plan-login-catalog-stale.test.ts`
   - 结果：通过，1 个 spec / 1 个 case passed。
   - Runtime 证据：`workspace/readState` 返回 `modelCount=5`，renderer workspace catalog 包含 `builtin:bigmodel-coding-plan/GLM-5.2` 及其 reasoning 档位，Subagent effort 控件为 supported。
   - Artifact：`packages/desktop/.e2e-artifacts/desktop-e2e-20260819-070650-011/summary.md`。
@@ -358,8 +358,8 @@ desktop local 使用隔离 HOME 冷启动：OAuth 凭据为空，当前 Environm
 
 - 候选 spec：`packages/desktop/test/e2e/manual-review/pending/access-token-401-auto-logout.test.ts`。
 - manifest：`packages/desktop/test/e2e/fixtures/cases/auth-config/access-token-401-auto-logout.json`。
-- 输入：隔离 HOME 的 BigModel 旧版用户资料缓存、不同值的业务 access token 与未被判定过期的 ZCode JWT，以及一个独立 Bot 凭据。
-- 动作：启动资料迁移真实发出 userinfo 请求；本地 HTTP fixture 暂停响应，待 UI 可用后返回 HTTP 401，或通过 `ZCODE_E2E_AUTH_EXPIRY_HTTP_STATUS=200` 返回 HTTP 200 + `{"code":401,"msg":"登录状态已过期","success":false}`。用例确认 fixture 实际启用的状态码；其它控制面请求返回正常 200，避免 JWT 401 掩盖新增判断。
+- 输入：隔离 HOME 的 BigModel 旧版用户资料缓存、不同值的业务 access token 与未被判定过期的 Secretariat JWT，以及一个独立 Bot 凭据。
+- 动作：启动资料迁移真实发出 userinfo 请求；本地 HTTP fixture 暂停响应，待 UI 可用后返回 HTTP 401，或通过 `SECRETARIAT_E2E_AUTH_EXPIRY_HTTP_STATUS=200` 返回 HTTP 200 + `{"code":401,"msg":"登录状态已过期","success":false}`。用例确认 fixture 实际启用的状态码；其它控制面请求返回正常 200，避免 JWT 401 掩盖新增判断。
 - 断言：fixture 确认请求用的是业务 token；原过期弹窗出现；确认前 active/token/profile/JWT 已清除且 Bot 凭据保留；确认后经 preload 发出原 RelaunchApp 命令。测试在主进程 IPC 边界截断命令，不实际执行退出/重启，避免 Host 关闭屏障干扰 WebDriver 收尾。
 - HTTP fixture 不记录凭据原文；不访问真实平台，不需要模型请求。支付、API key、旧请求与多平台判定由服务层单测覆盖。
 - desktop local 的 HTTP/Host/Renderer 链路必须自动运行通过；人工验收、手机 shared-host 与跨平台 UI 回归未完成前保持 pending，不宣称完整多端验证。
@@ -377,7 +377,7 @@ desktop local 使用隔离 HOME 冷启动：OAuth 凭据为空，当前 Environm
 ### AUTH-06 自动验证记录（2026-09-08）
 
 - 服务层先在原 JWT 判断上复现 4 项失败；增加匹配后，凭据分类及既有 API client 回归共 41 项通过，另有 4 项原 OAuth logout/资料迁移清理回归通过。
-- Electron E2E 最终 1/1 通过，运行 ID：`desktop-e2e-20260908035743975-p37710-5701199aa046d5f2`。最后一次仅调整测试的 IPC 截断点，复用此前同一业务源码构建的产物（`ZCODE_E2E_SKIP_BUILD=1 ZCODE_E2E_SKIP_AGENT_BUILD=1`）。
+- Electron E2E 最终 1/1 通过，运行 ID：`desktop-e2e-20260908035743975-p37710-5701199aa046d5f2`。最后一次仅调整测试的 IPC 截断点，复用此前同一业务源码构建的产物（`SECRETARIAT_E2E_SKIP_BUILD=1 SECRETARIAT_E2E_SKIP_AGENT_BUILD=1`）。
 - 首轮并行类型检查覆盖 Host 构建输出导致启动失败；分开执行后定位到测试 mock 重启仍执行 Host 关闭屏障，引发 WebDriver 收尾超时；改在 IPC 边界记录命令后完整通过。业务实现未因这些测试环境问题扩展范围。
 - `pnpm typecheck`、`pnpm --filter @zcode/desktop typecheck:e2e`、`pnpm lint` 均通过；Lint 有 43 条既有警告，新增文件专项检查为 0 警告/0 错误。
 - 当前 fixture checker 不支持 auth/config pending spec，命令返回不支持该目录；不将此结果计为 fixture 校验通过。
@@ -399,7 +399,7 @@ Todo103 本轮运行证据记录在 staging-integration ledger。
 - 沿用现有 pending case 与合成凭据，不使用真实平台或用户文件。
 - 最终验证：`pnpm exec vitest run packages/services/test/oauthUnauthorizedLogout.test.ts packages/services/test/oauthUnauthorizedRequest.test.ts packages/services/test/nodeApiClient.test.ts packages/services/test/nodeApiClientEndpoint.test.ts packages/services/test/oauthService.test.ts`：148/148 通过，含 9 项新竞态/通知回归。
 - `pnpm typecheck`、`pnpm --filter @zcode/desktop typecheck:e2e`、`pnpm lint`、`pnpm architecture:check --changed` 通过；lint 为 46 条既有警告、0 错误。
-- `ZCODE_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e -- --spec ./test/e2e/manual-review/pending/access-token-401-auto-logout.test.ts`：最终代码重新构建 App/Agent 后 1/1 通过，未设置 skip build。制品：`packages/desktop/.e2e-artifacts/desktop-e2e-20260909071607852-p66392-b7f49a248cd9bd36/summary.json`。
+- `SECRETARIAT_E2E_MANUAL_REVIEW=1 pnpm --filter @zcode/desktop test:e2e -- --spec ./test/e2e/manual-review/pending/access-token-401-auto-logout.test.ts`：最终代码重新构建 App/Agent 后 1/1 通过，未设置 skip build。制品：`packages/desktop/.e2e-artifacts/desktop-e2e-20260909071607852-p66392-b7f49a248cd9bd36/summary.json`。
 - macOS arm64；保留现有 IPC 拦截以验证 RelaunchApp 命令，不执行真实进程重启。手机 shared-host、Windows/Linux 和真实平台响应未补跑。
 
 - 跟进审查基线检查后，已 rebase 到 `a1fcf91ec11ab34d263b6347bc704b5dd09ac016`；WDIO 冲突保留新增的安全校验 fixture 与认证 fixture 两个按 case 启用的入口。rebase 后再次通过上述 148 项单测、typecheck、E2E typecheck、lint 和 architecture 检查，App/Agent 重新构建后 AUTH-06 为 1/1 通过。最新制品：`packages/desktop/.e2e-artifacts/desktop-e2e-20260909072706868-p75427-b55cce637bf05b15/summary.json`。
@@ -416,14 +416,14 @@ Todo103 本轮运行证据记录在 staging-integration ledger。
 - 原因：业务登录过期返回 HTTP 200 + JSON 数值 code=401，旧请求观察器没有进入退出与重启提示链路。身份、企业定价、团队订阅详情复用同一当前凭据白名单及会话队列复核。
 - 服务层 8 个相关测试文件 260/260 通过；覆盖 BigModel/ZAI 三接口、并发仅一次清理/通知、重新登录/刷新后旧响应不清理新会话、原响应正文可读、空/损坏正文及 SSE 不误判。
 - `pnpm typecheck`、`pnpm --filter @zcode/desktop typecheck:e2e`、`pnpm lint`（68 条其它文件既有警告、0 错误）、`pnpm architecture:check --changed`（0 violations）、变更代码格式检查通过。
-- pending replay 需显式传入 `E2E_PROVIDER_HTTP_MODE=replay` 和 `E2E_PROVIDER_REPLAY_FIXTURE_PATH=packages/desktop/test/e2e/fixtures/upstream/common.json`，再以 `ZCODE_E2E_AUTH_EXPIRY_HTTP_STATUS=200` 或 `401` 运行本用例；没有模型请求。fixture checker 当前只支持 conversation-session/plugin，不支持此 auth-config 路径；AUTH-06 manifest 保持无模型请求声明。
+- pending replay 需显式传入 `E2E_PROVIDER_HTTP_MODE=replay` 和 `E2E_PROVIDER_REPLAY_FIXTURE_PATH=packages/desktop/test/e2e/fixtures/upstream/common.json`，再以 `SECRETARIAT_E2E_AUTH_EXPIRY_HTTP_STATUS=200` 或 `401` 运行本用例；没有模型请求。fixture checker 当前只支持 conversation-session/plugin，不支持此 auth-config 路径；AUTH-06 manifest 保持无模型请求声明。
 - HTTP 200 + 业务 401：重新构建 App/Agent 后 1/1 通过；制品 `packages/desktop/.e2e-artifacts/desktop-e2e-20261008081902034-p54677-f19c52bf23b72057/summary.json`。
-- HTTP 401：复用上一次相同源码的 App 产物（`ZCODE_E2E_SKIP_BUILD=1`）、重新构建 Agent 后 1/1 通过；制品 `packages/desktop/.e2e-artifacts/desktop-e2e-20261008082005216-p55748-74de9060da312d0b/summary.json`。
+- HTTP 401：复用上一次相同源码的 App 产物（`SECRETARIAT_E2E_SKIP_BUILD=1`）、重新构建 Agent 后 1/1 通过；制品 `packages/desktop/.e2e-artifacts/desktop-e2e-20261008082005216-p55748-74de9060da312d0b/summary.json`。
 - 两次均验证确认前凭据清理、Bot 凭据保留、唯一原过期弹窗及确认后 RelaunchApp 命令。沿用 IPC 拦截，不声称实际进程重启；macOS arm64 验证，手机 shared-host、Windows/Linux 未实机回归。复用原 UI、广播及重启动作，不改 continuous/replayable 边界；用例保持 pending。
 
 ## HM-01～HM-04：帮助菜单应用入口
 
-用户于 2026-09-16 确认转正。正式用例 `packages/desktop/test/e2e/help-menu-about.test.ts`，默认 desktop E2E 收集 Preview 分支，production 使用 `ZCODE_E2E_HELP_MENU_FLAVOR=production` 与 production 构建单独运行。HM-02 对下载完成状态分别验证动作文案和版本 pill，关闭重开后再次验证版本。共 4 个 case，覆盖草稿页/设置页、中英文关于窗口、更新状态及禁用/重开、真实开发包检查更新回执和 Preview 隐藏。无模型请求，无 provider replay fixture 依赖；合成更新事件仅用于菜单状态展示。完整矩阵和运行命令见 [桌面帮助菜单](../windows-caption-help-menu.md)。
+用户于 2026-09-16 确认转正。正式用例 `packages/desktop/test/e2e/help-menu-about.test.ts`，默认 desktop E2E 收集 Preview 分支，production 使用 `SECRETARIAT_E2E_HELP_MENU_FLAVOR=production` 与 production 构建单独运行。HM-02 对下载完成状态分别验证动作文案和版本 pill，关闭重开后再次验证版本。共 4 个 case，覆盖草稿页/设置页、中英文关于窗口、更新状态及禁用/重开、真实开发包检查更新回执和 Preview 隐藏。无模型请求，无 provider replay fixture 依赖；合成更新事件仅用于菜单状态展示。完整矩阵和运行命令见 [桌面帮助菜单](../windows-caption-help-menu.md)。
 
 ## AUTH-07: OAuth 回调与轮询完成竞态（pending）
 

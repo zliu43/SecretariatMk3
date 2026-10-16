@@ -22,13 +22,13 @@ import {
 } from "../src/auth-login.js";
 
 const TEST_ENV = {
-  ZCODE_CREDENTIAL_SECRET: "bootstrap-test-secret",
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE: fileURLToPath(
+  SECRETARIAT_CREDENTIAL_SECRET: "bootstrap-test-secret",
+  SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE: fileURLToPath(
     new URL("../../../../../config/provider/zcode-builtin.json", import.meta.url),
   ),
 };
 
-describe("ZCode CLI login", () => {
+describe("Secretariat CLI login", () => {
   it("没有任何 Standalone 账号凭据时不会误报已配置 Coding Plan", async () => {
     const dir = await mkdtemp(join(tmpdir(), "zcode-no-login-"));
     const credentialStore = createSharedZCodeCredentialStore({
@@ -44,7 +44,7 @@ describe("ZCode CLI login", () => {
     }
   });
 
-  it("uses the production ZCode endpoint by default for OAuth init", async () => {
+  it("uses the production Secretariat endpoint by default for OAuth init", async () => {
     const httpClient = new FakeHttpClient([
       jsonResponse({
         code: 0,
@@ -364,7 +364,7 @@ describe("ZCode CLI login", () => {
         credentialStore,
         env: {
           ...TEST_ENV,
-          ZCODE_BUILTIN_PROVIDER_CONFIG_FILE: zcodeBuiltinProviderConfigPath,
+          SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE: zcodeBuiltinProviderConfigPath,
         },
         personalProviderConfigPath,
         providerId: "bigmodel",
@@ -380,7 +380,7 @@ describe("ZCode CLI login", () => {
           credentialStore,
           env: {
             ...TEST_ENV,
-            ZCODE_BUILTIN_PROVIDER_CONFIG_FILE: zcodeBuiltinProviderConfigPath,
+            SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE: zcodeBuiltinProviderConfigPath,
           },
         }),
       ).resolves.toBe(true);

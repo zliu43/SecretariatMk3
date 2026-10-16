@@ -2,13 +2,13 @@
 
 > For agentic workers: REQUIRED SKILL: Use superpowers:executing-plans to execute this plan step-by-step.
 
-> 2026-06-25 复核修正：ZCode 默认启用 embedded search branch（embedded search gate 开启且 Bash 可用）。provider-visible request 以 embedded branch 合同测试为证据；direct Glob/Grep short description 由 dedicated contract baseline 单独校验。
+> 2026-06-25 复核修正：Secretariat 默认启用 embedded search branch（embedded search gate 开启且 Bash 可用）。provider-visible request 以 embedded branch 合同测试为证据；direct Glob/Grep short description 由 dedicated contract baseline 单独校验。
 
 > 2026-06-25 临时运行时策略：provider-visible embedded branch 继续保持默认开启，但 Bash 执行层暂不注入 `find()` / `grep()` prelude。模型仍会看到并优先使用 Bash 中的 `find` / `grep`，实际命令先依赖用户本地 shell 环境；如果是 CMD 或缺少命令，由首轮 Bash 错误反馈给模型自适应。prelude builder、backend 类型和 adapter 支持代码保留，后续可通过开关恢复。
 
 ## 目标
 
-将 ZCode 的 main agent、Agent/Explore subagent、Glob/Grep 工具描述，以及 Bash 中 `find`/`grep` 的运行时行为，统一切换到默认的 **embedded search 分支**。
+将 Secretariat 的 main agent、Agent/Explore subagent、Glob/Grep 工具描述，以及 Bash 中 `find`/`grep` 的运行时行为，统一切换到默认的 **embedded search 分支**。
 
 当前默认 baseline 是 embedded search branch：
 
@@ -41,7 +41,7 @@
 以下取舍是为了降低第一版实现成本，允许保留，但必须在代码和测试中清楚体现：
 
 - 第一版不实现 `ARGV0=bfs/ugrep` 自分发二进制。
-  - ZCode 第一版使用 `internal-cli` backend 接管 `find` / `grep`。
+  - Secretariat 第一版使用 `internal-cli` backend 接管 `find` / `grep`。
   - 架构事实必须叫 embedded search backend，而不是 internal search shim。
   - 默认 provider-visible 行为保持 embedded search；模型看到并调用 Bash 中的 `find` / `grep`。
   - 预留 `argv0-dispatch` backend 口子，未来可以替换成单 binary 自分发实现，不改 prompt/tool exposure。
@@ -92,7 +92,7 @@
 5. Agent tool description 默认不列出 direct search tools。
    - Explore description 不能写 `(Tools: Glob, Grep, Read, Bash, WebFetch, WebSearch, TodoWrite)`。
 6. Main system guidance 默认不输出 Agent/Explore session guidance。
-   - embedded branch 的 simple guidance 不包含这两行；ZCode 保持注释不输出。
+   - embedded branch 的 simple guidance 不包含这两行；Secretariat 保持注释不输出。
 
 当前临时策略下，CMD / legacy shell fallback 不再改变 provider-visible branch：仍默认隐藏 direct `Glob` / `Grep`，Bash prompt 仍允许模型使用 `find` / `grep`。执行层不注入 Bash prelude；如果本地 shell 不支持这些命令，由首轮 Bash 错误反馈给模型自适应。
 
@@ -208,7 +208,7 @@ docs/plan/trajectory/embedded-search-provider-visible.md
   - Bash 初始化注入 `find` / `grep`。
   - main/Explore/Bash prompt 的 embedded 分支。
   - Glob/Grep short description 分支与 gate 的关系。
-- ZCode 的实现策略：
+- Secretariat 的实现策略：
   - provider-visible branch capability。
   - provider-visible branch。
   - Bash prelude。
@@ -466,7 +466,7 @@ apps/zcode-cli/packages/core/src/tool/handlers/bash-prompt.ts
 目标：
 
 - embedded branch exact 合同：avoid list 不包含 `find` / `grep`，只保留 ``cat``, ``head``, ``tail``, ``sed``, ``awk``, or ``echo``。
-- direct branch 保留当前“避免 Bash 跑 find/grep/cat/head/tail/sed/awk/echo”的 ZCode 规则。
+- direct branch 保留当前“避免 Bash 跑 find/grep/cat/head/tail/sed/awk/echo”的 Secretariat 规则。
 
 建议接口：
 
@@ -657,12 +657,12 @@ apps/zcode-cli/packages/cli/tests/internal-search.test.ts
 测试覆盖：
 
 - `grep pattern file` 输出真实 `grep` 匹配行。
-- `grep -e pattern file` 这类真实 `grep` 参数不能被 ZCode shim 拒绝。
+- `grep -e pattern file` 这类真实 `grep` 参数不能被 Secretariat shim 拒绝。
 - `grep -Rni --include "*.ts" --exclude-dir ignored pattern .` 透传给真实 `grep`。
 - `cat file | grep pattern` 这类 stdin 管道输入必须保留。
 - `find . -name "*.ts"` 输出真实 `find` 匹配文件。
-- `find . -type f -name "*.ts" -print` 这类真实 `find` predicate 不能被 ZCode shim 拒绝。
-- invalid predicate / flag 的 stderr 与 exit code 来自真实命令，而不是 ZCode 私有 unsupported 文案。
+- `find . -type f -name "*.ts" -print` 这类真实 `find` predicate 不能被 Secretariat shim 拒绝。
+- invalid predicate / flag 的 stderr 与 exit code 来自真实命令，而不是 Secretariat 私有 unsupported 文案。
 
 执行：
 
@@ -723,7 +723,7 @@ export async function runEmbeddedSearchCli(argv: string[], io: EmbeddedSearchIo)
 - `__internal-search grep ...` 通过 `spawn("grep", argv)` 透传到宿主真实 `grep`。
 - `__internal-search find ...` 通过 `spawn("find", argv)` 透传到宿主真实 `find`。
 - stdin、stdout、stderr、cwd、exit code 必须按真实命令语义保留。
-- 真实命令支持的全部参数都必须透传；ZCode shim 只验证第一个子命令是 `find` 或 `grep`。
+- 真实命令支持的全部参数都必须透传；Secretariat shim 只验证第一个子命令是 `find` 或 `grep`。
 - 后续如果要跨平台提供一致能力，应切换 backend 到 bundled `bfs` / `ugrep` 或 `argv0-dispatch`，不能回到手写参数子集。
 
 说明：
@@ -1242,7 +1242,7 @@ git diff
 如果用户 review 后明确要求提交，提交说明可使用：
 
 ```text
-Switches ZCode's default provider-visible surface to the embedded search branch.
+Switches Secretariat's default provider-visible surface to the embedded search branch.
 
 Keeps CMD and legacy shell fallback on the direct Glob/Grep branch, while Bash find/grep are routed through an embedded search backend for supported POSIX shells.
 
@@ -1282,7 +1282,7 @@ pnpm --filter @zcode/adapters test -- exec.test.ts
 - 默认 Bash prompt 不再劝模型避免用 Bash 跑 `find` / `grep`。
 - 默认 Explore prompt、Plan prompt 和 Agent description 走 Bash `find` / `grep` wording。
 - CMD / legacy shell fallback provider-visible request 暴露 direct Glob/Grep tools。
-- Bash runtime 在默认 embedded branch 中通过 injected function 调用 ZCode embedded search backend。
+- Bash runtime 在默认 embedded branch 中通过 injected function 调用 Secretariat embedded search backend。
 - direct Glob/Grep fallback branch 保留并通过现有 description/schema 测试。
 - 所有新增 branch 判断集中在 `embedded-search-capability.ts`，没有散落的 provider/source 判断。
 - `internal-cli` 只是第一版 backend strategy，未来可切换到 `argv0-dispatch`。

@@ -28,7 +28,7 @@ import type {
   SkillsCapability,
   RemoteTarget,
 } from "@zcode/shared";
-import { ZCODE_AGENT_PROVIDER } from "@zcode/shared";
+import { SECRETARIAT_AGENT_PROVIDER } from "@zcode/shared";
 import type { CreateTaskRequest } from "@/app-shell/types.js";
 import { useZCodeIntl } from "@/i18n/IntlProvider.js";
 import { toast } from "@/components/ui/toast.js";
@@ -345,7 +345,7 @@ export function SkillsSection({
         const result = await skillsService.list({
           workspacePath: activeWorkspacePath,
           workspaceIdentity: activeWorkspaceIdentity,
-          provider: ZCODE_AGENT_PROVIDER,
+          provider: SECRETARIAT_AGENT_PROVIDER,
         });
         if (requestId !== latestRequestIdRef.current) {
           return;
@@ -405,9 +405,9 @@ export function SkillsSection({
       if (!activeWorkspacePath) {
         return;
       }
-      // 移除三方来源后，技能状态统一写入 ZCode Agent 上下文，避免旧 provider 前缀带来分桶漂移。
+      // 移除三方来源后，技能状态统一写入 Secretariat Agent 上下文，避免旧 provider 前缀带来分桶漂移。
       const targetSkill = skills.find((skill) => skill.id === skillId);
-      const effectiveProvider: ZCodeProvider = ZCODE_AGENT_PROVIDER;
+      const effectiveProvider: ZCodeProvider = SECRETARIAT_AGENT_PROVIDER;
       try {
         await skillsService.setEnabled({
           workspacePath: activeWorkspacePath,
@@ -503,7 +503,7 @@ export function SkillsSection({
   const scopedProviderSkills = useMemo(() => {
     const allProviderSkills = filterSkillsForProvider(
       skills,
-      ZCODE_AGENT_PROVIDER,
+      SECRETARIAT_AGENT_PROVIDER,
     );
     const pluginStoreMatchesTarget =
       (pluginWorkspaceIdentity?.trim() || pluginWorkspacePath || "") ===
@@ -572,7 +572,7 @@ export function SkillsSection({
     if (!activeWorkspacePath || !onCreateTask) {
       return;
     }
-    const effectiveProvider: ZCodeProvider = ZCODE_AGENT_PROVIDER;
+    const effectiveProvider: ZCodeProvider = SECRETARIAT_AGENT_PROVIDER;
     const skillCreator = filterSkillsForProvider(skills, effectiveProvider).find(
       (skill) => skill.name === "skill-creator",
     );

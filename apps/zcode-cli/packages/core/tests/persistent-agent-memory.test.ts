@@ -26,15 +26,15 @@ const scopeGuidance = JSON.parse(
 ) as Record<"user" | "project" | "local", string>;
 
 describe("persistent custom-agent memory", () => {
-  it("uses the exact agent key replacement and three ZCode scope roots", () => {
+  it("uses the exact agent key replacement and three Secretariat scope roots", () => {
     expect(sanitizePersistentAgentMemoryKey("reviewer/a b")).toBe("reviewer-a-b");
     expect(sanitizePersistentAgentMemoryKey("review😀agent")).toBe("review--agent");
     expect(sanitizePersistentAgentMemoryKey("!!!")).toBe("---");
     expect(sanitizePersistentAgentMemoryKey("")).toBe("unknown");
 
     expect(root("user")).toBe("/storage/agent-memory/reviewer-a-b");
-    expect(root("project")).toBe("/workspace/app/.zcode/agent-memory/reviewer-a-b");
-    expect(root("local")).toBe("/workspace/app/.zcode/agent-memory-local/reviewer-a-b");
+    expect(root("project")).toBe("/workspace/app/.secretariat/agent-memory/reviewer-a-b");
+    expect(root("local")).toBe("/workspace/app/.secretariat/agent-memory-local/reviewer-a-b");
   });
 
   it.each(["user", "project", "local"] as const)(

@@ -108,7 +108,7 @@ describe("Side Pane Tab responsive interactions", () => {
     }
     if (process.platform === "win32" || process.platform === "linux") {
       expect(await browser.execute(() => {
-        const logo = document.querySelector('img[alt="ZCode"]')!;
+        const logo = document.querySelector('img[alt="Secretariat"]')!;
         return logo.closest("button")!.getBoundingClientRect().left;
       })).toBe(13);
     }
@@ -301,7 +301,7 @@ describe("Side Pane Tab responsive interactions", () => {
       expect(terminalTabStyle.gap).toBe("4px");
       await browser.saveScreenshot(
         join(
-          process.env.ZCODE_E2E_ARTIFACT_DIR || process.cwd(),
+          process.env.SECRETARIAT_E2E_ARTIFACT_DIR || process.cwd(),
           `independent-panels-${theme}.png`,
         ),
       );

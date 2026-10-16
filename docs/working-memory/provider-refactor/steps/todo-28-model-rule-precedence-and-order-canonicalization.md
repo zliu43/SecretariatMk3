@@ -39,7 +39,7 @@ Todo 21 已经确立 Model Rule 后置覆盖和 Provider/Model 三段顺序，To
 Effective Model Rules 的唯一组合顺序固定为：
 
 ```text
-ZCode Built-in Rules（完整保留 Built-in 内部顺序）
+Secretariat Built-in Rules（完整保留 Built-in 内部顺序）
                        +
 Personal Match Rules（保留 Personal Match 内部顺序）
                        +
@@ -53,7 +53,7 @@ Personal provider-model Rules（保留 Personal 精确 Rule 内部顺序）
 - Settings Personal Model Draft Preview；
 - 连接测试、ModelFactory 和其他间接消费 Effective Model Config 的链路。
 
-不重排 ZCode Built-in Rules 自身；Built-in 中的通用、API、Provider 和 Endpoint 特化仍由 Built-in 文件
+不重排 Secretariat Built-in Rules 自身；Built-in 中的通用、API、Provider 和 Endpoint 特化仍由 Built-in 文件
 的作者顺序决定。不要通过重写 Personal JSON 的物理排列实现优先级；应在组合 Effective Rule
 数组的领域边界做一次确定性分组。
 

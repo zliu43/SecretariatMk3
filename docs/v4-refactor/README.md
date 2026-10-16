@@ -12,7 +12,7 @@ Host/relay 转发连接与 topic；renderer/web 订阅 projection、发送 comma
   只代表当时状态。
 
 产品语义优先读 [Conversation Product Protocol](../conversation-product-protocol.md)，系统总览优先读
-[ZCode Protocol](../zcode-protocol.md) 与 [Message Flow](../architecture/message-flow.md)。
+[Secretariat Protocol](../zcode-protocol.md) 与 [Message Flow](../architecture/message-flow.md)。
 
 ## 当前拓扑
 
@@ -32,7 +32,7 @@ Host connection scope
           |
           | @zcode/shared/zcode-protocol-v4 over stdio
           v
-ZCode CLI
+Secretariat CLI
   |-- transcript + session metadata + goal facts
   |-- V4 command inbox / durable input admission
   |-- ProductProjection + SessionsIndexProjection

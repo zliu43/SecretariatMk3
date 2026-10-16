@@ -2,7 +2,7 @@
 /*
  * 本地自测用的 fake 官方 Server MCP（Streamable HTTP）。
  *
- * 用途：验证运行中的 ZCode 实际发出的官方 MCP 身份头是否正确——包括当前登录身份的 JWT、
+ * 用途：验证运行中的 Secretariat 实际发出的官方 MCP 身份头是否正确——包括当前登录身份的 JWT、
  * 选中 Coding Plan 的 key、Bigmodel-Target-Type，以及 Team 场景的 organization/project。
  * 同时跟踪协议生命周期（initialize / initialized / tools/list / tools/call），把每一步是否
  * 成功、失败原因、以及工具调用的入参与结果都打印出来。
@@ -460,14 +460,14 @@ JSON
   console.log("2) 在设置页「添加 marketplace」里填这个目录（注意是 marketplace 根目录，");
   console.log(`   不是插件目录）：${marketRoot}`);
   console.log("   然后在插件列表里找到 " + PLUGIN_NAME + " 并「安装」。");
-  console.log("   若之前用 plugins.dirs 挂过同名插件，先从 ~/.zcode/cli/config.json 的");
+  console.log("   若之前用 plugins.dirs 挂过同名插件，先从 ~/.secretariat/cli/config.json 的");
   console.log("   plugins.dirs 里移除，避免两个来源的同名插件互相干扰。\n");
   console.log("3) 安装后**启用**它——marketplace 安装的插件默认不启用，未启用时其 MCP 不会被解析：");
   console.log("   设置页直接打开开关即可；或写配置：");
   console.log(`
 node -e '
 const fs=require("fs"),os=require("os"),path=require("path");
-const f=path.join(os.homedir(),".zcode/cli/config.json");
+const f=path.join(os.homedir(),".secretariat/cli/config.json");
 const c=JSON.parse(fs.readFileSync(f,"utf8"));
 c.plugins=c.plugins||{};
 c.plugins.enabled=true;
@@ -480,12 +480,12 @@ console.log("plugins.dirs =",c.plugins.dirs);
 `);
   console.log("4) 带 dev 开关启动 desktop（值为逗号分隔的 loopback origin）：");
   console.log(`
-export ZCODE_OFFICIAL_MCP_DEV_TRUSTED_ORIGINS='${origin}'
+export SECRETARIAT_OFFICIAL_MCP_DEV_TRUSTED_ORIGINS='${origin}'
 pnpm dev:desktop
 `);
   console.log("   该开关只接受 http loopback，无法把凭证导向远端；不设置时一切 fail closed。");
   console.log(
-    "   正式规则是「官方 marketplace 的 plugin + origin 等于当前 ZCode API origin」。\n" +
+    "   正式规则是「官方 marketplace 的 plugin + origin 等于当前 Secretariat API origin」。\n" +
       `   本地 marketplace 叫 ${marketplace}（非官方），且 origin 是 loopback，\n` +
       "   因此自测必须依赖该开关。\n",
   );

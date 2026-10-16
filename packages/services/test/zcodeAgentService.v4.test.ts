@@ -242,7 +242,7 @@ process.stdin.on("data", (chunk) => {
     if (msg.method === "v4/attachment/previewSource" && msg.id !== undefined) {
       send({ id: msg.id, result: {
         kind: "local_path",
-        path: "/tmp/.zcode/video-cache/demo.mp4",
+        path: "/tmp/.secretariat/video-cache/demo.mp4",
         mediaType: "video/mp4"
       } });
     }
@@ -586,7 +586,7 @@ describe("zcodeAgentService v4 conversation channel", () => {
       // 修复原因：只读 topic 已经登记 active client，旧 fast path 会直接返回它并绕过
       // provider/model 门禁。createSession 必须仍在写入协议前确定性拒绝。
       await expect(service.createSession({ workspacePath })).rejects.toMatchObject({
-        code: "ZCODE_AGENT_PROVIDER_NOT_READY",
+        code: "SECRETARIAT_AGENT_PROVIDER_NOT_READY",
         data: expect.objectContaining({ reason: "provider_not_ready" }),
       });
 
@@ -693,7 +693,7 @@ describe("zcodeAgentService v4 conversation channel", () => {
           workspacePath,
           runtimePolicy: "existing-only",
         }),
-      ).rejects.toMatchObject({ code: "ZCODE_AGENT_RUNTIME_UNAVAILABLE" });
+      ).rejects.toMatchObject({ code: "SECRETARIAT_AGENT_RUNTIME_UNAVAILABLE" });
       expect(commandResolver).not.toHaveBeenCalled();
       expect(lifecycle).toEqual([]);
 
@@ -1140,7 +1140,7 @@ describe("zcodeAgentService v4 conversation channel", () => {
       });
       expect(authorizeLocalMediaPreviewPath).toHaveBeenCalledOnce();
       expect(authorizeLocalMediaPreviewPath).toHaveBeenCalledWith(
-        "/tmp/.zcode/video-cache/demo.mp4",
+        "/tmp/.secretariat/video-cache/demo.mp4",
       );
       await expect(mobile.service.attachmentPreviewSourceV4(input)).resolves.toEqual({
         kind: "chunked",

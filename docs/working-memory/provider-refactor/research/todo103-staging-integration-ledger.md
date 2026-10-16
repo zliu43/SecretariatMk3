@@ -310,7 +310,7 @@ JSON 中状态只有在相应来源片段全部有明确去向时才能改为完
 
 ## 16. G04 收口：官方商店刷新、插件覆盖冷启动及来源复审
 
-- `dbb3ec0ce802826aa6a807a4a33e1e441234ada3` 剩余商店行为按来源保留：进入页面只自动刷新 ZCode 官方目录，距成功刷新或最近尝试不足十分钟时跳过；模块内先占位，避免重挂载和失败后的重复请求。手动刷新仍刷新全部市场，不受自动窗口限制；不自动刷新 Claude 市场，不新增轮询。
+- `dbb3ec0ce802826aa6a807a4a33e1e441234ada3` 剩余商店行为按来源保留：进入页面只自动刷新 Secretariat 官方目录，距成功刷新或最近尝试不足十分钟时跳过；模块内先占位，避免重挂载和失败后的重复请求。手动刷新仍刷新全部市场，不受自动窗口限制；不自动刷新 Claude 市场，不新增轮询。
 - 保留当前 Host 用户 inventory、configScope 和 workspaceIdentity 接线；没有恢复旧 Provider/Family 数据源或插件 Markdown 写入。CONTEXT、商店 spec、生命周期目录和覆盖矩阵同步更新。
 - 来源 29 个路径逐项对应：存储／RPC／加载由 B1 接入结构化 Selection；默认官方缓存发现、Commands／Skills 和设置页／双语由 B2/B3 完成；商店 helper／页面及 WDIO fixture 在本批保留；文档和功能图同步本批及前两批结果。24 个仅属于 G04 的路径已核验，5 个跨组路径只记录 G04 片段完成，仍保留其他组 pending，不提前结清整文件。
 - 新增 PLM-LC-020 pending 冷启动请求用例，复用 SE-04 已证明的保存格式。完整重启 Desktop／Host／CLI 后，真实捕获插件 judge 的子请求为 alternate model/high，父 continuation 仍为原 model/max；按最新 user block 类型区分 child 和 tool_result，避免只匹配包含子提示词的父请求产生假阳性。执行结束、队列为空、持久覆盖未改写均有断言。
@@ -339,7 +339,7 @@ JSON 中状态只有在相应来源片段全部有明确去向时才能改为完
 
 ### 来源裁决与实现
 
-- Windows 八条来源 `049b2a539b`、`36368ef523`、`acb87a9a18`、`4b9f3844cf`、`a698fede1c`、`22d92c5dac`、`43839fd9a1`、`dd0b06f91c` 按固定 staging 最终行为整体保留：ownership manifest 限定 managed 更新清理；HKCU／SHELL_CONTEXT 清理诊断；静默错误框默认退出；安装详情阶段及逐文件清理日志；按旧卸载器 manifest 能力决定是否进行 `.zcode` 保护扫描；生产／Preview AUMID 与打包 appId 一致。
+- Windows 八条来源 `049b2a539b`、`36368ef523`、`acb87a9a18`、`4b9f3844cf`、`a698fede1c`、`22d92c5dac`、`43839fd9a1`、`dd0b06f91c` 按固定 staging 最终行为整体保留：ownership manifest 限定 managed 更新清理；HKCU／SHELL_CONTEXT 清理诊断；静默错误框默认退出；安装详情阶段及逐文件清理日志；按旧卸载器 manifest 能力决定是否进行 `.secretariat` 保护扫描；生产／Preview AUMID 与打包 appId 一致。
 - 不扩入旧版本备份／回滚、重做 NSIS 原生重试或 junction 扫描。普通卸载仍沿来源全量清理，隔离 fixture 不接触真实安装／用户数据。原 spec 的“原子落盘”没有实现证据，改为准确的随包落盘描述，不宣称额外事务保证。
 - `50a9c63c12` + `bbcc946c38`：保留 Helper signIgnore，避免 electron-builder 重签已签名／公证的嵌套 Helper；doctor 的必需 Helper gate 增加本地 staple 校验，并在文件存在、codesign/spctl 通过后才检查 xcrun，避免前置工具错误掩盖真实 Helper 错误。可选 Helper 的既有边界不变，不运行签名、公证或发布操作。
 - `7beb6487b2`：保留 Linux manifest 中 pacman/rpm/deb 过滤及过滤后为空的明确失败；macOS/Windows 不过滤。新增直接调用正式 resolveFiles 的验证，证明过滤接入实际解析入口、保留 AppImage 地址/校验值，而不只是 helper 单测通过。
@@ -347,7 +347,7 @@ JSON 中状态只有在相应来源片段全部有明确去向时才能改为完
 
 ### I103-10：正式 UAC 状态漏接
 
-- 来源 installer 的 `ZCODE_INSTALLER_IS_ELEVATED_INNER` 默认恒假，只有 smoke fixture 显式改为 true；真实 electron-builder 模板并不注入这项定义。因此来源的提权内层日志路径保护没有在正式构建生效，单看模拟测试会误判已保护。
+- 来源 installer 的 `SECRETARIAT_INSTALLER_IS_ELEVATED_INNER` 默认恒假，只有 smoke fixture 显式改为 true；真实 electron-builder 模板并不注入这项定义。因此来源的提权内层日志路径保护没有在正式构建生效，单看模拟测试会误判已保护。
 - 这是阻碍本次保留安全行为的接线缺口，纳入小修：默认包含同一 UAC.nsh 并引用 `UAC_IsInnerInstance`；fixture 仍可显式替换，不重做权限／提权流程。新增正式默认值断言先失败，改后通过；真实 NSIS 编译也覆盖未覆写此默认的 preserve-files fixture。
 
 ### 验证及明确限制
@@ -363,7 +363,7 @@ JSON 中状态只有在相应来源片段全部有明确去向时才能改为完
 
 - installer、辅助脚本与领域 spec 的来源行为均有去向，新增 UAC 默认接线有单独证据；不新增 Provider/Selection 状态或持久化迁移。
 - electron-builder 相对固定 staging 只保留当前 Built-in Provider Config 资源，不恢复旧 chinaLlm catalog；其余 G01 构建差异均已迁入。runtime-asset 测试同时保留当前 Built-in Config 打包断言、缺 Helper 提示和 Helper signIgnore 正则，覆盖 merge `5ded50a096` 的有意义 resolution。
-- main/index 只加入 Windows AUMID 调用，不覆盖同文件的 Host/remote/account 变更；打包态读取构建期 ZCODE_ENV，开发态独立身份，macOS/Linux 不进入该分支。
+- main/index 只加入 Windows AUMID 调用，不覆盖同文件的 Host/remote/account 变更；打包态读取构建期 SECRETARIAT_ENV，开发态独立身份，macOS/Linux 不进入该分支。
 - G01 全部来源已有裁决及实现去向，但 Windows 相关项保留 `implemented-awaiting-windows-smoke`，其余来源已完成组内复审。共享 main/index、package.json 仍保持其他组 pending。本批可提交到隔离整合分支，不据此合回 recovery 或标记整个 Goal 完成。
 
 ## 19. G09：OAuth 401 与失败页交互（已实施、组内复审）
@@ -525,7 +525,7 @@ Web 平台动作 -----------------+                     |
 - 用 dep-refs 全仓追踪旧 URL 构造函数的 9 处引用，全部属于本批 Desktop/Web/旧单测；
   改后 rg 查两个旧符号无调用残留。公共字段解析保持，不删除其它仍有用途的 helper。
 - 根 typecheck（含 E2E）通过。根 lint 初次 40 warning/0 error，新增一项来自删除旧
-  Web 请求后多余的 ZCODE_VERSION import，已移除；该文件专项 lint 0 warning/0 error，
+  Web 请求后多余的 SECRETARIAT_VERSION import，已移除；该文件专项 lint 0 warning/0 error，
   其余 39 条为既有 warning，不扩大清理。
 - Pro 共用一轮 tsup/Renderer 构建；首次 `desktop-e2e-20260909-161555-029` **6/8**，
   失败分别是找不到英文 Help、反馈实际显示中文“提交反馈”。运行时 DOM 错误文本与
@@ -589,7 +589,7 @@ current-generation 比较和非阻塞 transport 替换，日志去重不参与�
 - 根 pnpm typecheck 通过；根 pnpm lint 39 条既有 warning、0 error；diff check 通过。
   上次两个终端结果在上下文交接丢失，只重取那两文件及增量 typecheck，未重复整批 E2E。
 - SSH-P0-TASK-03 case-local fixture 检查通过；候选保持 pending，未晋级正式回归。
-  Pro 未配置 ZCODE_E2E_SSH_* 密码登录环境，当前容器也没有 Docker 命令。
+  Pro 未配置 SECRETARIAT_E2E_SSH_* 密码登录环境，当前容器也没有 Docker 命令。
   不复用同事旧凭据或清理真实账号来凑验收。**真实 SSH 运行中开关设置后侧栏收敛仍为
   本次合并关键门槛**，暂不宣告本组验收完成，不转交 Todo102；继续其它独立组。
 
@@ -939,7 +939,7 @@ G02 发现新策略未登记重构后的 provider/provider-node：补 spec 与�
 - background activity smoke 在 `win.hide()` 后仍读到 host `visibility=visible / frames=96 / timers=80`，未进入后续唤醒/恢复验收。脚本与固定 source 字节一致且仅直接调用 Electron、不加载整合后的业务代码，属于原脚本在当前 Pro/Electron 的失败；保持记录，不改时限或扩大为浏览器生命周期重构。Windows 专项仍不能由本次 Mac 结果替代。
 - Pro UI polish 首次 reporter 8 pass / 1 fail / 1 skip，其中 Windows-only `UP-00` 在 Mac 直接 return，不算 Windows 已测；7 项实际执行通过（菜单/导航、新增供应商、无同步入口、空列表、排序、删除）。MP-UI-06 的第一处失败为测试采样竞态：记录过渡 alpha=0.047，随后最终焦点 alpha=0.05 无法相等。仅调整测试为等待控件自身动画结束，保留相同颜色/边框断言。
 - MP-UI-06 重跑继而发现旧断言仍要求删除用户 Map 原文空格，与 Todo98 已实施合同矛盾；输入与实际保存一致，改断言为输入原文并删除多余 canonical 常量。最后 Pro `desktop-e2e-20260909-195812-279` **该 case 通过**：中英/深浅/390px、Hover/焦点、智能配置、个人 Map 保存与视觉标记均实际执行。没有修改产品代码或样式。
-- OffPeakCreate 冷恢复首跑被录像 `ffmpeg ENOENT` 遮挡。隔离目录 `/Users/dev/zcode-todo103-tools.MLS5xf` 安装 Darwin arm64 编码器，显式 `ZCODE_E2E_FFMPEG_PATH`，无全局安装/凭据修改。随后实际失败为请求中无 OffPeakCreate：日志所有 Account/Off-Peak entitled=false。fixture 只有取票网关、没有账号控制面及具体连接前置。补 4 例先 RED，复用现有 Coding Plan mock 后 **2 文件13条通过**；正在实跑，不称工具链已验收。
+- OffPeakCreate 冷恢复首跑被录像 `ffmpeg ENOENT` 遮挡。隔离目录 `/Users/dev/zcode-todo103-tools.MLS5xf` 安装 Darwin arm64 编码器，显式 `SECRETARIAT_E2E_FFMPEG_PATH`，无全局安装/凭据修改。随后实际失败为请求中无 OffPeakCreate：日志所有 Account/Off-Peak entitled=false。fixture 只有取票网关、没有账号控制面及具体连接前置。补 4 例先 RED，复用现有 Coding Plan mock 后 **2 文件13条通过**；正在实跑，不称工具链已验收。
 
 ## 40. G14 有界保留与进程诊断交集复核
 
@@ -1014,7 +1014,7 @@ Pro `desktop-e2e-20260909-203731-261` **2 specs / 2 cases 通过**，runner exit
 
 ## 46. 剩余平台门槛的环境复核与恢复入口
 
-在 `f1589ef797` 后只读复核：工作区干净、freshness 通过；Linux 未找到 wine、qemu-system-x86_64、docker、virsh。Pro SSH 管理连接可达，系统为 Darwin；当前非交互 PATH 未找到 docker/prlctl/VBoxManage/qemu，且没有注入任何 ZCODE_E2E_SSH_* 环境变量。本结论仅描述可用执行环境，不声称机器磁盘上绝对没有虚拟机软件。
+在 `f1589ef797` 后只读复核：工作区干净、freshness 通过；Linux 未找到 wine、qemu-system-x86_64、docker、virsh。Pro SSH 管理连接可达，系统为 Darwin；当前非交互 PATH 未找到 docker/prlctl/VBoxManage/qemu，且没有注入任何 SECRETARIAT_E2E_SSH_* 环境变量。本结论仅描述可用执行环境，不声称机器磁盘上绝对没有虚拟机软件。
 
 G01 两个既有脚本均检查 win32，使用临时目录创建 fixture 并清理。待提供隔离 Windows 执行环境后，在完整候选安装依赖，运行：
 
@@ -1025,7 +1025,7 @@ node packages/desktop/scripts/test-installer-preserve-files.mjs
 
 需要保留实际 installer/uninstaller 日志与脚本退出结果；Linux 上脚本跳过不能解除门槛。不能为了自动续跑自行开通云 Windows、创建系统用户或改变真实安装。
 
-G17 现有 helper `readSSHRuntimeConfig` / `toSSHConnectOptions` 明确使用 password，不会读取管理 SSH alias 的私钥。Pro 管理连接可达不等于该用例前置具备。需要在测试进程安全注入 ZCODE_E2E_SSH_HOST / USERNAME / PASSWORD / PORT，显式指定两个不同的隔离 WORKSPACE_PATHS，不采用默认 `/root,/home`。目标账号须允许反向转发，且其 server/Agent 数据可供本次测试写入；仅工作目录为空不足以隔离同一真实账号的默认数据目录。随后在 Pro 运行原 pending `conversation-session-ssh-remote-settings-overlay-sidebar-status.test.ts`，显式加载 common 与同名 case-local replay，不能只跑 mock 解除真实 SSH 门槛。
+G17 现有 helper `readSSHRuntimeConfig` / `toSSHConnectOptions` 明确使用 password，不会读取管理 SSH alias 的私钥。Pro 管理连接可达不等于该用例前置具备。需要在测试进程安全注入 SECRETARIAT_E2E_SSH_HOST / USERNAME / PASSWORD / PORT，显式指定两个不同的隔离 WORKSPACE_PATHS，不采用默认 `/root,/home`。目标账号须允许反向转发，且其 server/Agent 数据可供本次测试写入；仅工作目录为空不足以隔离同一真实账号的默认数据目录。随后在 Pro 运行原 pending `conversation-session-ssh-remote-settings-overlay-sidebar-status.test.ts`，显式加载 common 与同名 case-local replay，不能只跑 mock 解除真实 SSH 门槛。
 
 已询问环境配置位置，不在文档记录密码、不复用历史同事凭据；不为绕过环境缺失改产品鉴权或扩大 E2E 工具重构。没有仍在执行的验收进程可等待。剩余本机独立审查已完成，恢复这两项需用户提供隔离环境或新的明确授权；未满足前保留候选，不合回、不推送。
 

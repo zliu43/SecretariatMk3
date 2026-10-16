@@ -13,7 +13,7 @@ Add a session-local long-running goal that lets the user or model persist one ob
 
 ## User Model
 
-A goal belongs to the current session. A session has zero or one current goal. Setting a new goal replaces the current slot and creates a new stored `targetId` version. Clearing the goal removes the slot. DB table names, event names, and ZCode app-server `_meta.zcode.target` remain target-shaped compatibility surfaces; user-facing commands and model-visible tools use goal naming.
+A goal belongs to the current session. A session has zero or one current goal. Setting a new goal replaces the current slot and creates a new stored `targetId` version. Clearing the goal removes the slot. DB table names, event names, and Secretariat app-server `_meta.zcode.target` remain target-shaped compatibility surfaces; user-facing commands and model-visible tools use goal naming.
 
 The TUI command surface is:
 
@@ -30,7 +30,7 @@ The headless prompt surface is:
 - `zcode --target "<objective>" --resume <sessionId>` and `zcode --target "<objective>" --continue` apply the same command semantics to the resumed session.
 - `--target` does not combine with `--prompt`; mixed usage is rejected at the CLI boundary so headless goal intent stays unambiguous.
 - If a goal already exists, headless mode requires an explicit `--target-replace`; otherwise the CLI returns a local error and does not submit a model turn.
-- `--target` is a compatibility CLI flag only. It does not introduce a new `ZCODE_*` environment variable or change the session goal storage contract.
+- `--target` is a compatibility CLI flag only. It does not introduce a new `SECRETARIAT_*` environment variable or change the session goal storage contract.
 
 Plain prompts do not implicitly create goals. The user must use `/goal` or explicitly ask the model to create one. If the model creates a goal during a normal prompt, the runtime may continue it after the current turn completes.
 
@@ -60,7 +60,7 @@ The verifier returns a structured pass/fail result:
 - invalid verifier JSON: treat the verification as passed, update the goal to `complete`, and skip further continuation.
 - verifier request/system error: keep the goal `active` but do not invent a continuation step when there is no usable `nextAction`.
 
-The verifier JSON shape is `{"passed": boolean, "reason": string, "nextAction": string}`. The parser accepts a raw JSON object and tolerates model responses that wrap that object in a Markdown fenced code block with a `json` language marker. If the verifier emits malformed JSON, the runtime treats that verifier output as a pass because there is no trustworthy continuation condition to drive another goal iteration. If the verifier concludes the goal cannot be satisfied in the current session, it still returns `passed: false`, explains the blocker in `reason`, and puts the smallest useful user-facing unblock step in `nextAction`. `nextAction` is also projected to the ZCode app runtime snapshot so the summary panel can replace the next iteration title. The verifier result is runtime projection data, not goal business state. A dynamic switch can disable the verifier by setting the compatibility config key `targetCompletionVerification.enabled` to `false`; when disabled, runtime skips the verifier and continues the active goal until another control surface pauses, clears, or replaces it.
+The verifier JSON shape is `{"passed": boolean, "reason": string, "nextAction": string}`. The parser accepts a raw JSON object and tolerates model responses that wrap that object in a Markdown fenced code block with a `json` language marker. If the verifier emits malformed JSON, the runtime treats that verifier output as a pass because there is no trustworthy continuation condition to drive another goal iteration. If the verifier concludes the goal cannot be satisfied in the current session, it still returns `passed: false`, explains the blocker in `reason`, and puts the smallest useful user-facing unblock step in `nextAction`. `nextAction` is also projected to the Secretariat app runtime snapshot so the summary panel can replace the next iteration title. The verifier result is runtime projection data, not goal business state. A dynamic switch can disable the verifier by setting the compatibility config key `targetCompletionVerification.enabled` to `false`; when disabled, runtime skips the verifier and continues the active goal until another control surface pauses, clears, or replaces it.
 
 Continuation is skipped when:
 
@@ -88,9 +88,9 @@ The pending reminder is intentionally in-memory and scoped to the active model/t
 
 ## Events
 
-Every successful goal mutation emits a durable compatibility `target_changed` session event after the session store write succeeds. The event is the stable notification surface for TUI, ZCode app-server, replay, debug, and future session projection consumers; clients must not infer goal state by parsing command text or model-visible tool output.
+Every successful goal mutation emits a durable compatibility `target_changed` session event after the session store write succeeds. The event is the stable notification surface for TUI, Secretariat app-server, replay, debug, and future session projection consumers; clients must not infer goal state by parsing command text or model-visible tool output.
 
-`/goal clear` is idempotent for client synchronization. If the session store already has no current goal, the command may still emit a `cleared` event with `target: null` and `previousTarget: null` so ZCode app-server/TUI clients that restored stale local goal metadata can converge back to the authoritative empty state.
+`/goal clear` is idempotent for client synchronization. If the session store already has no current goal, the command may still emit a `cleared` event with `target: null` and `previousTarget: null` so Secretariat app-server/TUI clients that restored stale local goal metadata can converge back to the authoritative empty state.
 
 ```ts
 interface TargetChangedPayload {
@@ -103,13 +103,13 @@ interface TargetChangedPayload {
 
 Mutation sources are:
 
-- `command`: `/goal ...`, headless `--target ...`, and ZCode app-server command equivalents.
+- `command`: `/goal ...`, headless `--target ...`, and Secretariat app-server command equivalents.
 - `tool`: legacy historical events only; current model-visible goal tools do not mutate goal state.
 - `runtime`: cancellation pause, resume activation, goal usage accounting, budget limiting, completion verifier completion, and generated goal summary title writeback.
 
 `set` covers both first creation and replacement. `cleared` sets `target` to `null` and includes `previousTarget` when one existed. `usage_accounted` is emitted only when accounting applies to the same `targetId` that started the turn. Completion verifier passes emit a `status_updated` event from `runtime` when the goal becomes `complete`. `summary_updated` is emitted after the asynchronous title sidecar writes `summaryTitle`; it does not reset completion verifier state.
 
-ZCode app-server projects `target_changed` as a standard `session_info_update` with private legacy `_meta.zcode.target`. TUI may render a transient line, but the durable business state remains in core/session events and `SessionProjection.target` until a future protocol migration.
+Secretariat app-server projects `target_changed` as a standard `session_info_update` with private legacy `_meta.zcode.target`. TUI may render a transient line, but the durable business state remains in core/session events and `SessionProjection.target` until a future protocol migration.
 
 ## Storage
 
@@ -266,7 +266,7 @@ calls retain their own existing policy.
 - Store can set, read, update status, update summary title, reject stale summary title writes, replace with a new `targetId`, and clear goals.
 - Tool registry exposes `GoalRead` only; create/update completion tools are not registered.
 - Goal prompts escape user-provided objectives before embedding them in system-reminder XML and explicitly say that plans, todos, checklists, proxy signals, and elapsed effort are not completion evidence by themselves. The verifier prompt also requires unfinished todos to be completed before the goal can pass.
-- Successful goal mutations emit `target_changed`; projection updates `SessionProjection.target`; ZCode app-server forwards the event through `_meta.zcode.target`.
+- Successful goal mutations emit `target_changed`; projection updates `SessionProjection.target`; Secretariat app-server forwards the event through `_meta.zcode.target`.
 - Runtime verifies post-turn goal completion through a separate no-tool model request; tests cover verifier pass, verifier fail continuation, disabled verifier, and prompt/query source projection.
 - Verifier malformed JSON is treated as pass so an unparseable verifier response cannot leave an otherwise finished goal active without a continuation condition.
 - Resume injects goal state into model history.

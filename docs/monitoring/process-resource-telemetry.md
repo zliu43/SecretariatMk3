@@ -79,7 +79,7 @@ CLI 真实读数时间 ──> 分组新读数 ──> 有界窗口；交付不�
 
 ## Problem Statement
 
-产品与开发团队现在无法用一句话回答"ZCode 的哪个进程、在哪个版本、在哪类机器上占了多少 CPU 与内存，
+产品与开发团队现在无法用一句话回答"Secretariat 的哪个进程、在哪个版本、在哪类机器上占了多少 CPU 与内存，
 有没有变差"。现有 ARMS 资源埋点分散在三个事件（`perf_resource_window`、`perf_resource_agent`、
 `perf_mcp_memory`）里，三种 schema、三条链路，且存在以下缺陷：
 
@@ -116,7 +116,7 @@ main 进程零外部进程，全链路禁止 PowerShell。
 3. 作为性能负责人，我希望多进程角色同时带总量与最大单进程，以便区分"用户开了很多 workspace"和"某个进程泄漏"。
 4. 作为性能负责人，我希望事件带进程运行时长，以便在平台上按运行时长分桶发现内存随时间增长，而不需要客户端做泄漏判断。
 5. 作为性能负责人，我希望 Node 进程带 JS 堆用量，以便区分 JS 堆泄漏与 native / ArrayBuffer / 子进程侧的增长。
-6. 作为性能负责人，我希望有设备级的整机 CPU、剩余内存与应用总量事件，以便判断问题是 ZCode 造成的还是用户机器本身压力大。
+6. 作为性能负责人，我希望有设备级的整机 CPU、剩余内存与应用总量事件，以便判断问题是 Secretariat 造成的还是用户机器本身压力大。
 7. 作为性能负责人，我希望旧事件停发、新事件一次性替换，以便看板口径不混杂、过渡期不双倍上报。
 8. 作为值班工程师，我希望 spec 给出可直接落地的告警规则清单，含指标、分组、阈值与含义，以便在自建平台上配置而不依赖 ARMS 告警能力。
 9. 作为值班工程师，我希望告警规则按群体占比和版本对比定义，以便不被单台设备的正常波动打扰。
@@ -285,9 +285,9 @@ chromium_other 18 个。
 | 状态 | `background_ratio`、`app_uptime_minutes`         | `background_ratio` 与角色事件同源；uptime 取 main 进程运行时长     |
 | 整机 | `system_cpu_percent_p95`                         | `os.cpus()` 差分                                                   |
 | 整机 | `system_free_memory_kb_min`                      | 窗口内 `os.freemem()` 最小值                                       |
-| 应用 | `app_cpu_percent_p95`                            | 全部本机 ZCode 进程合计                                            |
+| 应用 | `app_cpu_percent_p95`                            | 全部本机 Secretariat 进程合计                                            |
 | 应用 | `app_rss_kb_total_mean`、`app_rss_kb_total_peak` | Chromium 体系每 10 秒精确合计，加 CLI 与 MCP 最近一次已知样本      |
-| 应用 | `process_count_total_peak`                       | 全部本机 ZCode 进程数峰值                                          |
+| 应用 | `process_count_total_peak`                       | 全部本机 Secretariat 进程数峰值                                          |
 | 质量 | `sample_count`                                   | 首个 tick 无 CPU 基线不产生样本，5 分钟窗口预期 29                 |
 | 质量 | `telemetry_self_ms`                              | 窗口内 main 侧采样与聚合代码累计墙钟毫秒数，`performance.now()` 计 |
 
@@ -359,7 +359,7 @@ adapter spawn → 每命令 owner → 15s / 30s / …（最多 20 次）
 CLI 进程退出时在途样本直接丢弃。崩溃、强杀、断电允许丢失未上报窗口。
 
 E2E 跑的是打包构建（`app.isPackaged === true`），因此 1 分钟窗口的判据是「开发构建」或
-「`ZCODE_ENV=test` 且带 `ZCODE_E2E_RUN_ID`」；生产客户端始终 5 分钟。
+「`SECRETARIAT_ENV=test` 且带 `SECRETARIAT_E2E_RUN_ID`」；生产客户端始终 5 分钟。
 
 量级估算：每 5 分钟约 14 条（10 个角色若全部存活，约 3 个 mcp_id，1 条系统事件），每天在线 8 小时
 约 1350 条趋势事件每设备，Bash 事件按慢命令条数另计。现状约 480 到 576 条。计费按条数，效果优先。
@@ -380,7 +380,7 @@ E2E 跑的是打包构建（`app.isPackaged === true`），因此 1 分钟窗口
 | A2 闲置 CPU 回归 | `background_ratio ≥ 0.9` 的窗口中 `cpu_percent_p95` 的 p95 | process_role × app_version | 大于基线 1.5 倍，或绝对值大于 5% | 后台仍在烧 CPU，通常是定时器或轮询泄漏 |
 | A3 前台 CPU 回归 | `background_ratio ≤ 0.1` 的窗口中 `cpu_percent_p95` 的 p95 | process_role × app_version | 大于基线 1.3 倍                  | 交互时更卡                             |
 | A4 进程数回归    | `process_count_peak` 均值                                  | process_role × app_version | 大于基线 1.5 倍                  | 进程回收失效                           |
-| A5 应用总量回归  | `perf_system_window.app_rss_kb_total_mean` 的 p95          | app_version                | 大于基线 1.2 倍                  | 用户直观感受到的 ZCode 占内存          |
+| A5 应用总量回归  | `perf_system_window.app_rss_kb_total_mean` 的 p95          | app_version                | 大于基线 1.2 倍                  | 用户直观感受到的 Secretariat 占内存          |
 
 **B 类：绝对水位**（滚动 1 小时，P2）。统计"近 1 小时内出现过超阈值窗口的设备占全部活跃设备的比例"，
 触发条件统一为"占比大于基线 2 倍且大于 3%"。
@@ -426,7 +426,7 @@ E2E 跑的是打包构建（`app.isPackaged === true`），因此 1 分钟窗口
 | D2 前台持续高 CPU | `background_ratio ≤ 0.1` 且 `cpu_percent_p95 > 50%` 的设备占比 | renderer_main | 大于 5%  | UI 卡顿风险          |
 | D3 GPU 进程高 CPU | `cpu_percent_p95 > 30%` 的设备占比                             | gpu           | 大于 3%  | 渲染层问题           |
 | D4 MCP 闲置耗 CPU | 同 D1                                                          | mcp × mcp_id  | 大于 5%  | 某插件后台轮询       |
-| D5 整机 CPU 饱和  | `system_cpu_percent_p95 > 90%` 且 app 占比超一半的设备占比     | app_version   | 大于 3%  | ZCode 是整机卡顿主因 |
+| D5 整机 CPU 饱和  | `system_cpu_percent_p95 > 90%` 且 app 占比超一半的设备占比     | app_version   | 大于 3%  | Secretariat 是整机卡顿主因 |
 
 cli_chat 不设 CPU 告警，Agent 工作时 CPU 高是正常的。
 
@@ -766,7 +766,7 @@ HAVING COUNT(DISTINCT device_mid) >= 100
   停发的负向断言。遥测关键字门禁通过（56 个受保护文件、2 个已登记豁免）。
 - E2E：按用户最新要求仅运行受影响的 PRT-023 / PRT-024，命令退出码 0：PRT-023
   **1 passed（59.7s）**，PRT-024 **1 skipped**（macOS 平台条件，需 Windows 补验）。
-  使用 `ZCODE_E2E_SPEC` 指定 `process-resource-telemetry-roles.test.ts` 与
+  使用 `SECRETARIAT_E2E_SPEC` 指定 `process-resource-telemetry-roles.test.ts` 与
   `windows-agent-metric-probe-absence.test.ts`；运行 ID：
   `desktop-e2e-20260915090553275-p30388-8c6c049d47706164`。先前全量尝试已按用户要求中止，
   套餐、后台会话等失败保留在对应产物中，不作为本票受影响验收结果，不继续扩大范围。

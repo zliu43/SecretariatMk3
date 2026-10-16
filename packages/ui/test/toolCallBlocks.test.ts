@@ -562,7 +562,7 @@ describe("readRawToolCallFileSummaries", () => {
         kind: "read",
         status: "completed",
         rawInput: {
-          file_path: "/Users/dev/ZCodeProject/demo/snake/index.html",
+          file_path: "/Users/dev/SecretariatProject/demo/snake/index.html",
         },
         content: [
           {
@@ -578,7 +578,7 @@ describe("readRawToolCallFileSummaries", () => {
         kind: "read",
         title: "Read snake/index.html",
         input: {
-          file_path: "/Users/dev/ZCodeProject/demo/snake/index.html",
+          file_path: "/Users/dev/SecretariatProject/demo/snake/index.html",
         },
       },
     );
@@ -598,7 +598,7 @@ describe("readRawToolCallFileSummaries", () => {
               kind: "read",
               title: "Read snake/index.html",
               input: {
-                file_path: "/Users/dev/ZCodeProject/demo/snake/index.html",
+                file_path: "/Users/dev/SecretariatProject/demo/snake/index.html",
               },
               output: {
                 content: "function deleteFood() { return writeScore(); }",
@@ -607,13 +607,13 @@ describe("readRawToolCallFileSummaries", () => {
               raw: {
                 kind: "read",
                 changes: {
-                  "/Users/dev/ZCodeProject/demo/snake/index.html": {
+                  "/Users/dev/SecretariatProject/demo/snake/index.html": {
                     type: "add",
                     content: "unexpected",
                   },
                 },
                 rawInput: {
-                  file_path: "/Users/dev/ZCodeProject/demo/snake/index.html",
+                  file_path: "/Users/dev/SecretariatProject/demo/snake/index.html",
                 },
               },
             },
@@ -665,7 +665,7 @@ describe("readRawToolCallFileSummaries", () => {
         kind: "explore",
         title: "Read snake/game.ts",
         input: {
-          file_path: "/Users/dev/ZCodeProject/demo/snake/game.ts",
+          file_path: "/Users/dev/SecretariatProject/demo/snake/game.ts",
         },
       },
     );
@@ -673,7 +673,7 @@ describe("readRawToolCallFileSummaries", () => {
     expect(summaries).toEqual([]);
   });
 
-  it("reads multi-file ZCode tool display summaries", () => {
+  it("reads multi-file Secretariat tool display summaries", () => {
     const summaries = readRawToolCallFileSummaries(
       {
         display: {
@@ -730,13 +730,13 @@ describe("readRawToolCallFileSummaries", () => {
       {
         kind: "execute",
         changes: {
-          "/Users/dev/ZCodeProject/demo/snake/game.ts": {
+          "/Users/dev/SecretariatProject/demo/snake/game.ts": {
             type: "delete",
             oldText: "console.log('legacy');",
           },
         },
         rawInput: {
-          path: "/Users/dev/ZCodeProject/demo/snake/game.ts",
+          path: "/Users/dev/SecretariatProject/demo/snake/game.ts",
         },
       },
       {
@@ -756,7 +756,7 @@ describe("readRawToolCallFileSummaries", () => {
       {
         status: "completed",
         rawInput: {
-          file_path: "/Users/dev/ZCodeProject/demo/snake/game.ts",
+          file_path: "/Users/dev/SecretariatProject/demo/snake/game.ts",
           description: "Delete legacy fallback after inspection",
         },
       },
@@ -764,7 +764,7 @@ describe("readRawToolCallFileSummaries", () => {
         kind: "explore",
         title: "Inspect game.ts",
         input: {
-          file_path: "/Users/dev/ZCodeProject/demo/snake/game.ts",
+          file_path: "/Users/dev/SecretariatProject/demo/snake/game.ts",
           description: "Delete legacy fallback after inspection",
         },
       },
@@ -797,7 +797,7 @@ describe("readRawToolCallFileSummaries", () => {
     expect(summaries[0]?.patch).toContain("+++ b/demo.ts");
   });
 
-  it("builds write summaries from ZCode protocol input payloads", () => {
+  it("builds write summaries from Secretariat protocol input payloads", () => {
     const summaries = readRawToolCallFileSummaries(
       {
         toolName: "Write",
@@ -825,7 +825,7 @@ describe("readRawToolCallFileSummaries", () => {
     expect(summaries[0]?.changeStat).toEqual({ added: 1, removed: 0 });
   });
 
-  it("builds edit summaries from ZCode protocol input payloads", () => {
+  it("builds edit summaries from Secretariat protocol input payloads", () => {
     const summaries = readRawToolCallFileSummaries(
       {
         toolName: "Edit",
@@ -954,7 +954,7 @@ describe("readRawToolCallFileSummaries", () => {
               kind: "explore",
               title: "Read snake/game.ts",
               input: {
-                file_path: "/Users/dev/ZCodeProject/demo/snake/game.ts",
+                file_path: "/Users/dev/SecretariatProject/demo/snake/game.ts",
               },
               output: "...",
               status: "completed",
@@ -1012,7 +1012,7 @@ describe("readRawToolCallFileSummaries", () => {
               raw: {
                 kind: "execute",
                 changes: {
-                  "/Users/dev/ZCodeProject/demo/snake/game.ts": {
+                  "/Users/dev/SecretariatProject/demo/snake/game.ts": {
                     type: "delete",
                     oldText: "console.log('legacy');",
                   },

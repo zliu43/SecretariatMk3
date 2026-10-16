@@ -36,7 +36,7 @@
 |           | `packages/shared/src/channels.ts` + `validation.ts`                                                   | `OffPeakRun`/`OffPeakRunResult`/`OffPeakSchedulerWakeRequest` 消息对；V4 `sendText.modelExecution`（D33/M4）                             |
 | 存储      | `packages/services/src/session/offPeakTaskRepo.ts`                                                    | `off_peak_tasks` DDL + 状态机守卫；`history_deleted_at` 兼容迁移与本地 History 隐藏                                                      |
 | 服务      | `offPeakServerClient.ts`                                                                              | availability/取号/批量状态/结算四接口；每个请求只解析一次 selected credential snapshot，并成对注入 Team org/project（messages 不走这里） |
-|           | `offPeakMockGateway.ts`                                                                               | 进程内 mock 网关（`ZCODE_OFFPEAK_MOCK=1`）；`resolveUpstream` 返 null 回固定响应                                                         |
+|           | `offPeakMockGateway.ts`                                                                               | 进程内 mock 网关（`SECRETARIAT_OFFPEAK_MOCK=1`）；`resolveUpstream` 返 null 回固定响应                                                         |
 |           | `offPeakTaskService.ts`                                                                               | 编排：创建取号/取消/Pause-Continue/删除/编辑/Delete history + offPeakTaskSync 轮询晋级 + 核销 + 3102 续跑                                |
 |           | `offPeakRuntimeModel.ts`                                                                              | selected Coding Plan 分类与 credential snapshot + 单次 Request Auth 构造 + origin/mock 上游解析                                          |
 |           | `offPeakTask.ts`                                                                                      | `IOffPeakTaskService` 描述符（renderer RPC 面，向 UI 只暴露脱敏 Coding Plan support）                                                    |
@@ -121,15 +121,15 @@ UI 脱敏 support    ticket 四接口请求头       modelExecution.requestAuth
 ## 本地演示 / 联调
 
 ```bash
-ZCODE_OFFPEAK_MOCK=1 mise run dev:desktop           # 进程内 mock 网关点亮全流程
+SECRETARIAT_OFFPEAK_MOCK=1 mise run dev:desktop           # 进程内 mock 网关点亮全流程
 # 可调时序（演示 3h 续跑用小值）：
-ZCODE_OFFPEAK_MOCK_READY_DELAY_MS=3000 ZCODE_OFFPEAK_MOCK_ACTIVE_MS=30000 \
-ZCODE_OFFPEAK_MOCK_QUEUE_429_COUNT=2 ...
+SECRETARIAT_OFFPEAK_MOCK_READY_DELAY_MS=3000 SECRETARIAT_OFFPEAK_MOCK_ACTIVE_MS=30000 \
+SECRETARIAT_OFFPEAK_MOCK_QUEUE_429_COUNT=2 ...
 ```
 
 mock 模式灰度强制开启（`resolveOffPeakClientConfig`），`resolveUpstream` 只代理当前 selected Coding Plan；
 该 connection 不可用时回固定响应，不会扫描其他缓存 provider。联调切真实服务端：删掉
-`ZCODE_OFFPEAK_MOCK` 即走 zcode API origin。
+`SECRETARIAT_OFFPEAK_MOCK` 即走 zcode API origin。
 
 UI 验收使用当前窗口已打开的本地 workspace 作为 Project 候选。手机 `/remote` 不暴露
 Automations；桌面远程 workspace 不暴露 Idle-time。不要为了选择远程项目向任务协议补

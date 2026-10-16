@@ -137,7 +137,7 @@ function createRepoTemplate(): string {
 
   runGit(repoPath, ["init"]);
   runGit(repoPath, ["branch", "-M", "main"]);
-  runGit(repoPath, ["config", "user.name", "ZCode Tester"]);
+  runGit(repoPath, ["config", "user.name", "Secretariat Tester"]);
   runGit(repoPath, ["config", "user.email", "tester@example.com"]);
   runGit(repoPath, ["config", "commit.gpgsign", "false"]);
   runGit(repoPath, ["config", "core.autocrlf", "false"]);
@@ -623,7 +623,7 @@ describeIfGit("gitService", () => {
     expect(summary.isRepository).toBe(true);
 
     const identity = await service.getIdentity({ workspacePath });
-    expect(identity.userName).toBe("ZCode Tester");
+    expect(identity.userName).toBe("Secretariat Tester");
     expect(identity.userEmail).toBe("tester@example.com");
     expect(identity.nameSource).toContain(".git/config");
     expect(identity.scopeLabel).toBe("local");
@@ -661,7 +661,7 @@ describeIfGit("gitService", () => {
       includeIdentity: true,
     });
     expect(refresh.summary.isDirty).toBe(true);
-    expect(refresh.identity?.userName).toBe("ZCode Tester");
+    expect(refresh.identity?.userName).toBe("Secretariat Tester");
     expect(
       refresh.unstagedChanges
         .map((change) => `${change.section}:${change.workspaceRelativePath}`)

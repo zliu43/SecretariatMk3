@@ -289,8 +289,8 @@ describe("ChatEmptyWorkspacePreviewMenu", () => {
       getScratchWorkspaceNameErrorKind,
     } = await import("../src/ChatEmptyState.js");
 
-    expect(getScratchWorkspaceLocationHint("")).toBe("~/ZCodeProject/");
-    expect(getScratchWorkspaceLocationHint("demo")).toBe("~/ZCodeProject/demo");
+    expect(getScratchWorkspaceLocationHint("")).toBe("~/SecretariatProject/");
+    expect(getScratchWorkspaceLocationHint("demo")).toBe("~/SecretariatProject/demo");
     expect(getScratchWorkspaceNameErrorKind("")).toBe("required");
     expect(getScratchWorkspaceNameErrorKind("bad/name")).toBe("separator");
     expect(getScratchWorkspaceNameErrorKind("bad\\name")).toBe("separator");
@@ -317,10 +317,10 @@ describe("ChatEmptyWorkspacePreviewMenu", () => {
     >;
     const html = renderToStaticMarkup(
       createElement(Menu, {
-        workspacePath: "/Users/tester/.zcode/workspace/default",
+        workspacePath: "/Users/tester/.secretariat/workspace/default",
         workspaceTabs: [
           {
-            workspacePath: "/Users/tester/.zcode/workspace/default",
+            workspacePath: "/Users/tester/.secretariat/workspace/default",
             label: "default",
             workspacePurpose: "conversation",
           },
@@ -350,7 +350,7 @@ describe("ChatEmptyWorkspacePreviewMenu", () => {
         workspacePath: "/Users/tester/project",
         workspaceTabs: [
           {
-            workspacePath: "/Users/tester/.zcode/workspace/default",
+            workspacePath: "/Users/tester/.secretariat/workspace/default",
             label: "default",
             workspacePurpose: "conversation",
           },

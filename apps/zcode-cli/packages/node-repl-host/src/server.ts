@@ -40,12 +40,12 @@ const MAX_SYNC_TIMEOUT_MS = 120_000;
 const UNTRUSTED_SESSION_KEY = "__unscoped__";
 const WORKER_KIND = "zcode-node-repl-call";
 export const NODE_REPL_MCP_PROCESS_TITLE = "zcode-node-repl-mcp";
-const pluginRoot = process.env.ZCODE_PLUGIN_ROOT ?? process.env.CLAUDE_PLUGIN_ROOT ?? process.cwd();
+const pluginRoot = process.env.SECRETARIAT_PLUGIN_ROOT ?? process.env.CLAUDE_PLUGIN_ROOT ?? process.cwd();
 // CUA 与 Browser Use 共用 node_repl host，但文档和 native 依赖必须按领域隔离；
 // 否则 CUA skill 会因为 host root 恰好来自 Browser Use 而再次产生隐式依赖。
 const browserDocumentationRoot = resolve(pluginRoot, "docs");
 const cuaDocumentationRoot = resolve(
-  process.env.ZCODE_CUA_PLUGIN_ROOT ?? pluginRoot,
+  process.env.SECRETARIAT_CUA_PLUGIN_ROOT ?? pluginRoot,
   "docs",
 );
 const jsInputSchema = z
@@ -300,7 +300,7 @@ function invalidParams(message: string): never {
 
 function buildRequestMeta(meta: Record<string, unknown> | undefined): NodeReplRequestMeta {
   const parsed = requestContextSchema.safeParse(meta?.["com.zcode/request-context"]);
-  // 安全边界：顶层 MCP _meta 是第三方可扩展字段，不能成为 ZCode session 路由凭据。
+  // 安全边界：顶层 MCP _meta 是第三方可扩展字段，不能成为 Secretariat session 路由凭据。
   // 只有 host client 写入的命名空间会进入 Browser bridge；旧 client 的普通 JS 仍可执行。
   return parsed.success ? parsed.data : {};
 }
@@ -372,11 +372,11 @@ if (!isMainThread && isWorkerCallData(workerData)) {
 export function captureComputerUseRuntimeFromEnvironment(
   env: NodeJS.ProcessEnv = process.env,
 ): ComputerUseRuntime | undefined {
-  const socketPath = env.ZCODE_CUA_PERMISSION_BROKER_SOCKET?.trim();
+  const socketPath = env.SECRETARIAT_CUA_PERMISSION_BROKER_SOCKET?.trim();
   if (!socketPath) return undefined;
   return createComputerUseRuntime({
     brokerSocketPath: socketPath,
-    refreshMarkerPath: env.ZCODE_CUA_PERMISSION_BROKER_REFRESH_MARKER?.trim(),
+    refreshMarkerPath: env.SECRETARIAT_CUA_PERMISSION_BROKER_REFRESH_MARKER?.trim(),
   });
 }
 

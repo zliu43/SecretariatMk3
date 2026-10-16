@@ -827,7 +827,7 @@ pnpm exec vitest run packages/ui/test/v4DraftSessionPrewarm.test.ts packages/ui/
 - [ ] dev 端到端手工验证（单测覆盖不到真实换代时序）
 
 ```bash
-ZCODE_CUA_DEV_MODE=1 pnpm run dev:desktop
+SECRETARIAT_CUA_DEV_MODE=1 pnpm run dev:desktop
 ```
 
 冷启动后立刻在草稿态粘贴一张截图（**必须是粘贴，不能拖本地文件**——本地文件走 `localZeroCopy` 不上传，复现不出问题），等 `cua helper ready` 日志出现。预期：发送按钮短暂置灰并显示「会话正在重建，请稍候」，随后自动恢复，图片重新上传完成，点发送不再报 `sessionNotFound`。

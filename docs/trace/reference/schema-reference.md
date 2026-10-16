@@ -371,7 +371,7 @@ Parent：`model_call`。SpanKind：`CLIENT`。一个 Attempt 对应一次真实 
 
 | 字段                                      | 类型    | 含义                                                                           |
 | ----------------------------------------- | ------- | ------------------------------------------------------------------------------ |
-| `zcode.model_attempt.request_id`          | string  | ZCode 物理请求 ID                                                              |
+| `zcode.model_attempt.request_id`          | string  | Secretariat 物理请求 ID                                                              |
 | `zcode.model_attempt.attempt_number`      | integer | 从 1 开始的 Attempt 序号                                                       |
 | `zcode.model_attempt.max_attempts`        | integer | 当前策略最大尝试数                                                             |
 | `zcode.model_attempt.attempt_cause`       | enum    | `initial` / `retry` / `fallback`                                               |

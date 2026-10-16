@@ -975,7 +975,7 @@ describe("cold conversation three-source merge", () => {
     const descriptor = {
       clientVisible: true,
       sourceKind: "user",
-      sourcePath: "/Users/example/.zcode/cli/config.json",
+      sourcePath: "/Users/example/.secretariat/cli/config.json",
       executionType: "process",
       executionMode: "foreground",
       commandDisplay: 'echo ""',
@@ -1092,7 +1092,7 @@ describe("cold conversation three-source merge", () => {
     const descriptor = {
       clientVisible: true,
       sourceKind: "user",
-      sourcePath: "/Users/example/.zcode/cli/config.json",
+      sourcePath: "/Users/example/.secretariat/cli/config.json",
       executionType: "process",
       executionMode: "foreground",
       commandDisplay: 'echo ""',
@@ -1190,7 +1190,7 @@ describe("cold conversation three-source merge", () => {
     const descriptor = {
       clientVisible: true,
       sourceKind: "user",
-      sourcePath: "/Users/example/.zcode/cli/config.json",
+      sourcePath: "/Users/example/.secretariat/cli/config.json",
       executionType: "process",
       executionMode: "foreground",
       commandDisplay: 'echo ""',
@@ -1316,7 +1316,7 @@ describe("cold conversation three-source merge", () => {
     const descriptor = {
       clientVisible: true,
       sourceKind: "user",
-      sourcePath: "/Users/example/.zcode/cli/config.json",
+      sourcePath: "/Users/example/.secretariat/cli/config.json",
       executionType: "process",
       executionMode: "foreground",
       commandDisplay: 'echo ""',

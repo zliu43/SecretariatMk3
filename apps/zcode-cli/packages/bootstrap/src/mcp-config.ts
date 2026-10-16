@@ -8,24 +8,24 @@ import {
   getCapturedZCodeCuaBrokerCredentials,
   isZCodeCuaMcpCommand,
   isZCodeCuaMcpPackageArg,
-  ZCODE_CUA_BROKER_SOCKET_ENV_KEY,
-  ZCODE_CUA_NODE_REPL_HOST_ENV_KEY,
-  ZCODE_CUA_OFFICIAL_PLUGIN_ID,
-  ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY,
-  ZCODE_PLUGIN_ID_ENV_KEY,
+  SECRETARIAT_CUA_BROKER_SOCKET_ENV_KEY,
+  SECRETARIAT_CUA_NODE_REPL_HOST_ENV_KEY,
+  SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID,
+  SECRETARIAT_CUA_PLUGIN_AUTHORITY_ENV_KEY,
+  SECRETARIAT_PLUGIN_ID_ENV_KEY,
 } from "@zcode/shared";
 
 export {
-  ZCODE_CUA_BROKER_SOCKET_ENV_KEY as ZCODE_CUA_BROKER_SOCKET_ENV,
+  SECRETARIAT_CUA_BROKER_SOCKET_ENV_KEY as SECRETARIAT_CUA_BROKER_SOCKET_ENV,
 } from "@zcode/shared";
 // 保留环境变量名供旧诊断脚本读取；迁移后的配置路径不会据此启动独立 CUA MCP。
-export const ZCODE_CUA_BROKER_UNAVAILABLE_ENV = "ZCODE_CUA_PERMISSION_BROKER_UNAVAILABLE";
+export const SECRETARIAT_CUA_BROKER_UNAVAILABLE_ENV = "SECRETARIAT_CUA_PERMISSION_BROKER_UNAVAILABLE";
 // CLI 入口会先清理 broker 凭据；shared node_repl 的可信配置随后从进程内捕获快照恢复它们。
 function resolveZCodeCuaBrokerSocket(): string | undefined {
   // captured 优先；运行时残留的 stale socket 不能覆盖可信快照。
   return (
     getCapturedZCodeCuaBrokerCredentials().socket ||
-    process.env[ZCODE_CUA_BROKER_SOCKET_ENV_KEY]?.trim()
+    process.env[SECRETARIAT_CUA_BROKER_SOCKET_ENV_KEY]?.trim()
   );
 }
 
@@ -36,7 +36,7 @@ function resolveZCodeCuaBrokerToken(): string | undefined {
 }
 
 const NODE_REPL_SERVER_NAME = "node_repl";
-const REFRESH_MARKER_ENV = "ZCODE_CUA_PERMISSION_BROKER_REFRESH_MARKER";
+const REFRESH_MARKER_ENV = "SECRETARIAT_CUA_PERMISSION_BROKER_REFRESH_MARKER";
 
 /**
  * Derive official CUA provenance from the in-memory plugin registry rather than
@@ -54,8 +54,8 @@ export function resolveTrustedOfficialCuaServerNames(
         ([name, config]) =>
           configuredServers[name] === config &&
           config.type === "stdio" &&
-          config.env?.[ZCODE_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() ===
-            ZCODE_CUA_OFFICIAL_PLUGIN_ID,
+          config.env?.[SECRETARIAT_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() ===
+            SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID,
       )
       .map(([name]) => name),
   );
@@ -164,11 +164,11 @@ function injectCuaCredentialsIntoNodeRepl(
     ...config,
     env: {
       ...config.env,
-      [ZCODE_CUA_BROKER_SOCKET_ENV_KEY]: socketPath,
+      [SECRETARIAT_CUA_BROKER_SOCKET_ENV_KEY]: socketPath,
       ...(refreshMarker ? { [REFRESH_MARKER_ENV]: refreshMarker } : {}),
-      ...(pluginAuthority ? { [ZCODE_CUA_PLUGIN_AUTHORITY_ENV_KEY]: pluginAuthority } : {}),
-      [ZCODE_CUA_NODE_REPL_HOST_ENV_KEY]: "1",
-      [ZCODE_PLUGIN_ID_ENV_KEY]: ZCODE_CUA_OFFICIAL_PLUGIN_ID,
+      ...(pluginAuthority ? { [SECRETARIAT_CUA_PLUGIN_AUTHORITY_ENV_KEY]: pluginAuthority } : {}),
+      [SECRETARIAT_CUA_NODE_REPL_HOST_ENV_KEY]: "1",
+      [SECRETARIAT_PLUGIN_ID_ENV_KEY]: SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID,
     },
   };
 }
@@ -184,7 +184,7 @@ function isZCodeCuaStdioServer(
   // 上面的 name/command/args 三条都匹配不到。_plugin id 由 adapters resolver 权威写入 env
   // （manifest/user env 不可覆盖），用它识别 official plugin server。
   if (
-    config.env?.[ZCODE_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() === ZCODE_CUA_OFFICIAL_PLUGIN_ID
+    config.env?.[SECRETARIAT_PLUGIN_ID_ENV_KEY]?.trim().toLowerCase() === SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID
   ) {
     return true;
   }

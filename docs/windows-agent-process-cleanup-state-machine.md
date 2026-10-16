@@ -30,7 +30,7 @@ ZCodeAgentProcessManager
 3. 多 workspace 共用的进程表查询可能早于新 Agent spawn 启动。新 root 的 cleanup 若复用
    这张旧表会查不到自身，随后正确地 fail-closed，却也因此无法发送 taskkill。
 
-这三项均属于清理状态机实现错误，不是 app 自动更新逻辑，也不是用户仍在运行 ZCode。
+这三项均属于清理状态机实现错误，不是 app 自动更新逻辑，也不是用户仍在运行 Secretariat。
 
 ## 安全不变量
 
@@ -106,7 +106,7 @@ waiterDeadline = waiterStartedAt                waiterDeadline = waiterStartedAt
 ```
 
 - `forceAfterMs` 默认 2,000 ms。
-- 进程层默认单次 taskkill 上限为 2,000 ms；ZCode transport 的等待式路径显式使用 1,000 ms。
+- 进程层默认单次 taskkill 上限为 2,000 ms；Secretariat transport 的等待式路径显式使用 1,000 ms。
 - graceful taskkill 从等待开始即与 force timer 并发，不为 graceful 与 force 两条命令各叠加
   一份 timeout；deadline 只在 force 余量后保留一份终态 taskkill 上限。
 - 身份查询不可用且没有任何已验证 identity 时，graceful 与 force 的目标集合都必然为空；此时

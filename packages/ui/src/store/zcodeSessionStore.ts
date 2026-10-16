@@ -1,5 +1,5 @@
 /**
- * ZCode session UI 状态 store
+ * Secretariat session UI 状态 store
  *
  * 一个 tab 对应一个 workspace，所以聊天相关状态也必须按 workspace 分桶保存。
  * 这样切换标签页时，当前任务、输入中的草稿态和初始化状态才不会互相串台。
@@ -31,7 +31,7 @@ declare global {
 }
 
 if (shouldExposeE2EStoreBridge()) {
-  // E2E 诊断入口必须由 WDIO 显式打开，不能复用 ZCODE_ENV=test，避免产品测试环境暴露可变全局 store。
+  // E2E 诊断入口必须由 WDIO 显式打开，不能复用 SECRETARIAT_ENV=test，避免产品测试环境暴露可变全局 store。
   window.__zcodeSessionStoreE2E = useZCodeSessionStore;
 }
 

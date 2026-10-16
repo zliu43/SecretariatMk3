@@ -30,7 +30,7 @@ function ack(partial: Partial<CommandAck>): CommandAck {
 const agentService = {} as never;
 const REQUEST = {
   name: "release-check",
-  path: "/beta/.zcode/workflows/release-check.dwf.ts",
+  path: "/beta/.secretariat/workflows/release-check.dwf.ts",
   locale: "zh-CN",
 };
 
@@ -60,7 +60,7 @@ describe("useSavedWorkflowPromote", () => {
     expect(payload.workspaceId).toBe("/beta");
     // 首条消息即概括提示：带名字与路径、要求 scope global。
     expect(payload.firstInput.text).toContain("「release-check」");
-    expect(payload.firstInput.text).toContain("/beta/.zcode/workflows/release-check.dwf.ts");
+    expect(payload.firstInput.text).toContain("/beta/.secretariat/workflows/release-check.dwf.ts");
     expect(payload.firstInput.text).toContain('scope: "global"');
     // 不发第二条命令（不是 startSavedWorkflow）。
     expect(Object.keys(payload)).toEqual(["workspaceId", "firstInput"]);

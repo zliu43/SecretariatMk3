@@ -195,7 +195,7 @@ describe("ConversationShareReadonlyTimeline", () => {
           "",
           "| 项目 | 内容 |",
           "| --- | --- |",
-          "| 公司 | **ZCode** |",
+          "| 公司 | **Secretariat** |",
           "",
           "```ts",
           "const answer = 42;",

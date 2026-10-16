@@ -2,20 +2,20 @@
 
 ## Goal
 
-ZCode should treat `~/.zcode/AGENTS.md` as the user's default instruction file and merge it with the workspace `AGENTS.md` resolved for the current session.
+Secretariat should treat `~/.secretariat/AGENTS.md` as the user's default instruction file and merge it with the workspace `AGENTS.md` resolved for the current session.
 
 ## Resolution
 
 - Workspace instruction discovery keeps the current behavior: search from `workingDirectory` upward until the detected project root, or filesystem root when no project root is detected.
-- The user default instruction file is `~/.zcode/AGENTS.md`.
+- The user default instruction file is `~/.secretariat/AGENTS.md`.
 - `HOME` resolves the user directory first. On Windows-style environments, `USERPROFILE` is used when `HOME` is absent. If neither is set, Node's `homedir()` is used.
-- The user default file is only considered when `priorityFiles` includes `AGENTS.md`. Custom priority sets that omit `AGENTS.md` must not load `~/.zcode/AGENTS.md`.
+- The user default file is only considered when `priorityFiles` includes `AGENTS.md`. Custom priority sets that omit `AGENTS.md` must not load `~/.secretariat/AGENTS.md`.
 
 ## Merge Order
 
-When both sources exist, ZCode injects both in this order:
+When both sources exist, Secretariat injects both in this order:
 
-1. User default instructions from `~/.zcode/AGENTS.md`.
+1. User default instructions from `~/.secretariat/AGENTS.md`.
 2. Workspace instructions from the resolved workspace `AGENTS.md`.
 
 Workspace instructions appear later so they can narrow or override broad user defaults for work inside the repository.

@@ -121,7 +121,7 @@ Provider ID。当前登录账号由 Account Connection Service 内部参与解�
 
 ### 2.2 Start、Individual 与 Team 是独立 Built-in Provider
 
-同一 Family 的 Start Plan、Individual Coding Plan、Team Coding Plan 分别定义为独立 ZCode Built-in
+同一 Family 的 Start Plan、Individual Coding Plan、Team Coding Plan 分别定义为独立 Secretariat Built-in
 Provider。每个 Provider 的 `access.family` 和 `access.planKind` 固定，不允许一个 Coding Plan Provider
 在运行时于 Individual 与 Team 之间变形。
 
@@ -193,7 +193,7 @@ type ZhipuAccountAccessConfig =
     };
 ```
 
-ZCode Built-in Provider Config 先声明固定 `family + planKind`；Team 的具体 Scope 和所有 Plan 的
+Secretariat Built-in Provider Config 先声明固定 `family + planKind`；Team 的具体 Scope 和所有 Plan 的
 `accessId` 可以缺省。Account Connection Resolver 使用这些字段与 Settings 选择、当前账号和权益查找连接；
 Account Built-in Provider Config 整体替换为同一 Plan 的完整 Access。Registry 要求 enabled Account
 Provider 的 `accessId` 非空，Team 还要求完整 Scope。

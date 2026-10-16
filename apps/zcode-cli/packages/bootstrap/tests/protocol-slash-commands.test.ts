@@ -12,8 +12,8 @@ describe("protocol slash command surface", () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-protocol-slash-"));
     const workspace = join(tempRoot, "workspace");
     const home = join(tempRoot, "home");
-    const projectCommands = join(workspace, ".zcode", "commands");
-    const userCommands = join(home, ".zcode", "commands");
+    const projectCommands = join(workspace, ".secretariat", "commands");
+    const userCommands = join(home, ".secretariat", "commands");
 
     try {
       await mkdir(projectCommands, { recursive: true });
@@ -32,7 +32,7 @@ describe("protocol slash command surface", () => {
       await writeCommand(userCommands, "workflow", "Shadowing workflow", "Should be hidden.");
 
       const commands = await listProtocolSlashCommands({
-        env: { ZCODE_ENV: "test" },
+        env: { SECRETARIAT_ENV: "test" },
         homeDirectory: home,
         skipUserConfig: true,
         workingDirectory: workspace,
@@ -75,7 +75,7 @@ describe("protocol slash command surface", () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-custom-command-prompt-"));
     const workspace = join(tempRoot, "workspace");
     const home = join(tempRoot, "home");
-    const userCommands = join(home, ".zcode", "commands");
+    const userCommands = join(home, ".secretariat", "commands");
 
     try {
       await mkdir(workspace, { recursive: true });
@@ -85,7 +85,7 @@ describe("protocol slash command surface", () => {
       await writeCommand(userCommands, "model", "Reserved model", "Should not expand.");
 
       const options = {
-        env: { ZCODE_ENV: "test" },
+        env: { SECRETARIAT_ENV: "test" },
         homeDirectory: home,
         skipUserConfig: true,
         workingDirectory: workspace,
@@ -114,13 +114,13 @@ describe("protocol slash command surface", () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-builtin-workflow-"));
     const workspace = join(tempRoot, "workspace");
     const home = join(tempRoot, "home");
-    const userCommands = join(home, ".zcode", "commands");
+    const userCommands = join(home, ".secretariat", "commands");
     try {
       await mkdir(workspace, { recursive: true });
       await mkdir(userCommands, { recursive: true });
       await writeCommand(userCommands, "workflow", "Shadowing workflow", "Should not expand.");
       const options = {
-        env: { ZCODE_ENV: "test" },
+        env: { SECRETARIAT_ENV: "test" },
         homeDirectory: home,
         skipUserConfig: true,
         workingDirectory: workspace,
@@ -164,7 +164,7 @@ describe("protocol slash command surface", () => {
       expect(prompt).toContain("built-in /init command");
       expect(prompt).toContain("AGENTS.md");
       expect(prompt).toContain(join(workspace, "AGENTS.md"));
-      expect(prompt).toContain(join(workspace, ".zcode", "AGENTS.md"));
+      expect(prompt).toContain(join(workspace, ".secretariat", "AGENTS.md"));
       expect(prompt).toContain(join(workspace, ".agents", "AGENTS.md"));
       expect(prompt).toContain("they already have an instructions file");
       expect(prompt).not.toContain("Do not create CLAUDE.md or AGNENTS.md");
@@ -229,7 +229,7 @@ describe("protocol slash command surface", () => {
       );
 
       const prompt = await resolveZCodeCustomCommandPrompt("/ralph-loop build demo", {
-        env: { ZCODE_ENV: "test" },
+        env: { SECRETARIAT_ENV: "test" },
         executionPort,
         projectConfigPath: configPath,
         sessionId,
@@ -249,9 +249,9 @@ describe("protocol slash command surface", () => {
         CLAUDE_PLUGIN_ROOT: pluginRoot,
         CLAUDE_PROJECT_DIR: workspace,
         CLAUDE_SESSION_ID: sessionId,
-        ZCODE_PLUGIN_ROOT: pluginRoot,
-        ZCODE_PROJECT_DIR: workspace,
-        ZCODE_SESSION_ID: sessionId,
+        SECRETARIAT_PLUGIN_ROOT: pluginRoot,
+        SECRETARIAT_PROJECT_DIR: workspace,
+        SECRETARIAT_SESSION_ID: sessionId,
       });
     } finally {
       await rm(tempRoot, { force: true, recursive: true });
@@ -262,7 +262,7 @@ describe("protocol slash command surface", () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-command-shell-missing-context-"));
     const workspace = join(tempRoot, "workspace");
     const home = join(tempRoot, "home");
-    const userCommands = join(home, ".zcode", "commands");
+    const userCommands = join(home, ".secretariat", "commands");
     let executionCalled = false;
     const executionPort: ExecutionPort = {
       async run() {
@@ -287,7 +287,7 @@ describe("protocol slash command surface", () => {
       );
 
       const options = {
-        env: { ZCODE_ENV: "test" },
+        env: { SECRETARIAT_ENV: "test" },
         executionPort,
         homeDirectory: home,
         skipUserConfig: true,

@@ -24,7 +24,7 @@ Model
 
 通用 `RuntimeConfigPatch` 也已经退出旧模型字段。旧 CLI 文件中的 `provider`、`model` 和
 `modelCatalog` 只由显式命名的迁移投影读取；普通文件配置、环境变量配置与 Config Merger 不再生成、
-合并或公开模型事实。旧 `ZCODE_MODEL` / `ZCODE_BASE_URL` 因而不会形成一条隐藏的运行配置路径。
+合并或公开模型事实。旧 `SECRETARIAT_MODEL` / `SECRETARIAT_BASE_URL` 因而不会形成一条隐藏的运行配置路径。
 
 普通 CLI 文件的运行配置 Schema 也不再声明 `provider`、`model`、`modelCatalog` 或 `small_model`。
 这些字段即使残留或格式错误，也不会让同文件中的 MCP、权限、网络等正式配置整体加载失败；只有
@@ -238,7 +238,7 @@ Protocol Entry 使用相同的必填 Registry 依赖。Bootstrap Session Persist
 `TurnExecutionModelSource` 内部转换，不再进入公共 Adapter Factory。
 
 通用 `RuntimeConfig` 与 `ConfigPort` 随后删除了 `model`、`modelCatalog` 及对应 Config Key。
-旧文件和 `ZCODE_MODEL` 的兼容解析目前仍保留为带弃用标记的迁移输入，但 Config Factory 不会再把
+旧文件和 `SECRETARIAT_MODEL` 的兼容解析目前仍保留为带弃用标记的迁移输入，但 Config Factory 不会再把
 这些字段投影到运行配置；`hasModel` 来源元数据也已删除。正式 App 初始化只能从 Process Registry
 和显式 Session/Submission Selection 取得模型。
 
@@ -264,7 +264,7 @@ Bootstrap 全量测试还暴露了与本轮无关的既有债务：Session Persi
 0 behind。
 
 裸 App Factory 收口后，Bootstrap Registry、Runtime Config、Session、MCP、Hook、Workflow、
-Telemetry 与 Overlay 针对性回归 12 个文件、160 条通过；ZCode Protocol 专项 109 条通过。根目录
+Telemetry 与 Overlay 针对性回归 12 个文件、160 条通过；Secretariat Protocol 专项 109 条通过。根目录
 typecheck、Bootstrap 独立 typecheck、Prompt Trajectory typecheck 与根 lint 通过，lint 仍为
 0 error、36 条基线 warning。Compact E2E dry-run 与 Memory evidence 测试通过；当前 Node 22 无法
 直接加载最新 staging 中引用根 `@zcode/shared` 源码的 Bootstrap build，实际 Compact fake suite
@@ -290,7 +290,7 @@ Personal Config；历史物理格式只由一次性迁移器及其专门测试�
 
 最终分支验证再次通过根 `pnpm typecheck` 与 `pnpm lint`；Lint 为 0 error、33 条当前 `staging` 基线
 warning。Provider、Provider Node 与 M2 结构门禁 19 个文件、96 条测试通过；Shared Protocol 与旧物理迁移
-边界 3 个文件、53 条测试通过。旧 Store Schema 与迁移函数同时退出 ZCode Protocol 再导出，只保留在
+边界 3 个文件、53 条测试通过。旧 Store Schema 与迁移函数同时退出 Secretariat Protocol 再导出，只保留在
 Shared Provider 迁移类型和 Services 一次性 Reader 中。分支相对最新 `origin/staging` 为 0 behind。
 
 旧 Provider Store 最终收敛为纯读取适配器，并改名为 `legacyModelProviderStoreReader`。生产调用只剩
@@ -319,7 +319,7 @@ Mapper、Core Invocation Context 和 Adapter Request Auth 只保留实际生效�
 最后的 Entry 覆盖审计把 `@zcode/provider`、`@zcode/provider-node`、Prompt CLI 与 TUI 也纳入同一结构
 门禁。扩展扫描确认这些入口没有旧 Provider Snapshot、Workspace Catalog 或 Runtime Overlay 回退。
 Workspace 交互状态的实现术语统一为 Model Preferences；一个零调用者的 legacy reasoning 迁移函数也已
-删除。M2 门禁、Runtime Model Metadata 与 ZCode Protocol 定向回归共 151 条通过，Bootstrap 独立
+删除。M2 门禁、Runtime Model Metadata 与 Secretariat Protocol 定向回归共 151 条通过，Bootstrap 独立
 typecheck 与根 typecheck 通过。
 
 设置页排序的最后一份 Builtin Provider ID 硬编码也已删除。Provider 的初始与最终顺序只来自有序
@@ -355,8 +355,8 @@ M2 的正式 Entry 和内部 Harness 已经具备单一事实源和强制 Regist
 上线前的最后一轮类型审计进一步固定了旧 `RuntimeModelConfig` 的允许位置：它只能服务旧 CLI 文件的
 一次性导入，以及 M4 尚未重构的 execution-scoped Turn Overlay。跨包结构测试枚举这些文件，普通
 Session、Registry、Settings、Selection 与 ModelFactory 一旦重新引用该类型会直接失败。旧
-`ZCODE_MODEL`、`ZCODE_BASE_URL` 与 `ZCODE_API_KEY` 也不会进入普通 Runtime Config；其中
-`ZCODE_API_KEY` 的剩余读取仅属于旧 CLI Provider 的一次性导入。
+`SECRETARIAT_MODEL`、`SECRETARIAT_BASE_URL` 与 `SECRETARIAT_API_KEY` 也不会进入普通 Runtime Config；其中
+`SECRETARIAT_API_KEY` 的剩余读取仅属于旧 CLI Provider 的一次性导入。
 
 Execution-scoped Turn Overlay 与进程 Registry 出现相同 `providerId/modelId` 时，本次 Turn 的 Overlay
 拥有执行优先级。ModelFactory、Session Facade 的模型元数据以及 transient 模型切换必须共同遵守这一

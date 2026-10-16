@@ -22,7 +22,7 @@ pnpm test
 <zcode-cua>\build\Release\ax_native.node
 ```
 
-每次修改 `zcode-cua` source 后都要再次执行 `pnpm rebuild:native`（改动 native addon 时）和 `pnpm build`。不需要重新打包 ZCode 产品。
+每次修改 `zcode-cua` source 后都要再次执行 `pnpm rebuild:native`（改动 native addon 时）和 `pnpm build`。不需要重新打包 Secretariat 产品。
 
 若 Windows Smart App Control 处于强制模式，新编译且未由 Trusted Root Program CA
 签名的 `ax_native.node` 会被 Code Integrity 拒绝加载；成功编译不等于当前机器可执行。
@@ -32,23 +32,23 @@ unavailable。不要为源码验收自动关闭系统安全策略；使用具备
 
 ## 启动桌面开发环境
 
-官方 `zcode-cua` plugin 必须已启用。随后在 ZCode source 根目录运行：
+官方 `zcode-cua` plugin 必须已启用。随后在 Secretariat source 根目录运行：
 
 ```powershell
 $zcodeRoot = 'D:\path\to\z-code'
 Set-Location $zcodeRoot
-$env:ZCODE_CUA_DEV_MODE='1'
-$env:ZCODE_CUA_DEV_ROOT=$zcodeCuaRoot
+$env:SECRETARIAT_CUA_DEV_MODE='1'
+$env:SECRETARIAT_CUA_DEV_ROOT=$zcodeCuaRoot
 pnpm dev:desktop:prod
 ```
 
-`ZCODE_CUA_DEV_MODE=1` 是现有的 one-knob bundle：它同时启用内部开发 feature。不要把它替换或拆分为新的环境变量。`ZCODE_CUA_DEV_ROOT` 只用于解析 source 构建产物，且只允许 desktop-local Windows Host 使用。
+`SECRETARIAT_CUA_DEV_MODE=1` 是现有的 one-knob bundle：它同时启用内部开发 feature。不要把它替换或拆分为新的环境变量。`SECRETARIAT_CUA_DEV_ROOT` 只用于解析 source 构建产物，且只允许 desktop-local Windows Host 使用。
 
-`ZCODE_CUA_DEV_ROOT` 必须直接指向物理 source root：根目录不能是 symlink/junction，
+`SECRETARIAT_CUA_DEV_ROOT` 必须直接指向物理 source root：根目录不能是 symlink/junction，
 `package.json`、契约 entry 和 nativeAddon 也必须是非链接普通文件，且 `realpath` 必须位于
 该 root 内。准入失败时不会回退安装包资源；请修正目录布局，不要用链接绕过隔离。
 
-若不设置 `ZCODE_CUA_DEV_ROOT`，`pnpm dev:desktop:prod` 会缺省绑定本仓库已安装的 producer
+若不设置 `SECRETARIAT_CUA_DEV_ROOT`，`pnpm dev:desktop:prod` 会缺省绑定本仓库已安装的 producer
 （`<repo>\node_modules\@zcode\zcode-cua`，即 `pnpm-workspace.yaml` catalog pin 的那一版，与
 产品 staging 同源），对应 `scripts/dev-desktop-cua-env.mjs`。这只是缺省值：本手册要验证自己
 的 producer 改动时，按上面显式设置该变量即可，显式取值永远优先。dev 下 Electron 的
@@ -58,7 +58,7 @@ pnpm dev:desktop:prod
 预期进程和通信链路如下：
 
 ```text
-ZCode desktop Host Process
+Secretariat desktop Host Process
   └─ Node/Electron child: package.json 声明的 entry
        ├─ package.json 声明的 nativeAddon
        └─ \\.\pipe\zcode-cua-<random>
@@ -67,10 +67,10 @@ official zcode-cua plugin ── authenticated broker RPC ──┘
 ```
 
 broker token 鉴权已被 node_repl 重构整体删除：连接门改为 native peer-identity（code-signature /
-`parentProcessPid`），Helper 环境不再注入任何 broker token。`ZCODE_CUA_PERMISSION_BROKER_TOKEN`
+`parentProcessPid`），Helper 环境不再注入任何 broker token。`SECRETARIAT_CUA_PERMISSION_BROKER_TOKEN`
 现在只作为**必须被剥离的敌意输入**存在（见 `windowsCuaDevRuntime.test.ts` 的 `must-not-be-forwarded`
 与 cli 侧 `zcode-cua-plugin-host-authority` 测试），不再是凭据来源；源码中已无任何注入方。不要把它
-与 browser-use 的 `ZCODE_NODE_REPL_BROWSER_BROKER_TOKEN` 混为一谈，后者属于 node_repl browser
+与 browser-use 的 `SECRETARIAT_NODE_REPL_BROWSER_BROKER_TOKEN` 混为一谈，后者属于 node_repl browser
 broker，是另一条链路。正式凭据只剩 socket + `pluginAuthority` 二元组，由 Host 通过
 `buildCuaProductHelperAgentEnv()` 交给官方 plugin，不接受用户编写的 plugin 配置覆盖。
 `pluginAuthority` 是当前唯一的敏感凭据，不得出现在 child argv、进程标题、日志、错误文本、
@@ -82,25 +82,25 @@ telemetry 或可复制 UI 文本中。
 
 ```powershell
 Set-Location $zcodeRoot
-$env:ZCODE_CUA_DEV_MODE='1'
-$env:ZCODE_CUA_DEV_ROOT=$zcodeCuaRoot
+$env:SECRETARIAT_CUA_DEV_MODE='1'
+$env:SECRETARIAT_CUA_DEV_ROOT=$zcodeCuaRoot
 pnpm exec vitest run packages/services/test/windowsCuaDevHelper.integration.test.ts
 ```
 
-`ZCODE_CUA_DEV_MODE=1` 在这里和启动桌面开发环境时同样必需：它是启用内部开发 runtime/feature
-的 one-knob bundle（见上文），不能只设 `ZCODE_CUA_DEV_ROOT`。
+`SECRETARIAT_CUA_DEV_MODE=1` 在这里和启动桌面开发环境时同样必需：它是启用内部开发 runtime/feature
+的 one-knob bundle（见上文），不能只设 `SECRETARIAT_CUA_DEV_ROOT`。
 
 broker 的连接门是 native peer-identity（`getPeerCredentials` / code-signature /
 `parentProcessPid`），Windows 侧的 peer 校验尚未落地。**自 producer `37a0c9ef` 起该门在
 Windows 上被临时放开**（producer 侧常量 `WINDOWS_PEER_IDENTITY_GATE_TEMPORARILY_OPEN`，
-否则打包版结构上拿不到 dev 豁免——`app.isPackaged` 注入的 `ZCODE_RUNTIME_ENV=production`
+否则打包版结构上拿不到 dev 豁免——`app.isPackaged` 注入的 `SECRETARIAT_RUNTIME_ENV=production`
 让所有 localDev 判据恒为 false，Helper 必然启动失败）。因此现在 broker 不再因缺 opt-in 而
 报 `refusing to start an unauthenticated broker`，而是带一行 stderr 告警
 （`peer identity verification temporarily disabled`）以无鉴权状态启动：Windows 上任何本机
 进程都能连这条 named pipe。M5 的原生 peer 原语落地后该常量回收，门自动重新闭合，上述拒绝
 启动的行为也随之恢复。
 
-该测试仅在四项都满足时运行：Windows、已设置 `ZCODE_CUA_DEV_ROOT`、生产者契约有效、
+该测试仅在四项都满足时运行：Windows、已设置 `SECRETARIAT_CUA_DEV_ROOT`、生产者契约有效、
 契约声明的 entry/nativeAddon 存在。它验证真实 child、随机 named pipe、health/`broker_info`、
 只读应用列举、官方 plugin 环境二元组、`pluginAuthority` 不泄露，以及 `stop()` 后 child 退出。对外 MCP
 tool 名为 `list_apps`；source broker 的实际只读 RPC 名为 `list_applications`，测试按该既有
@@ -114,23 +114,23 @@ tool 名为 `list_apps`；source broker 的实际只读 RPC 名为 `list_applica
 ## 验证 packaged resources
 
 产品资源验收与 source override 是两条独立路径。构建产品时必须移除
-`ZCODE_CUA_DEV_ROOT`，并为 `--dir` 命令显式传入仓库配置文件：
+`SECRETARIAT_CUA_DEV_ROOT`，并为 `--dir` 命令显式传入仓库配置文件：
 
 ```powershell
 Set-Location $zcodeRoot
-Remove-Item Env:ZCODE_CUA_DEV_ROOT -ErrorAction SilentlyContinue
-$env:ZCODE_CUA_HELPER_RUNTIME_PACKAGE_DIR=$zcodeCuaRoot
-$env:ZCODE_SKIP_REMOTE_ASSETS='1'
-$env:ZCODE_TARGET_OS='win32'
-$env:ZCODE_TARGET_ARCH='x64'
+Remove-Item Env:SECRETARIAT_CUA_DEV_ROOT -ErrorAction SilentlyContinue
+$env:SECRETARIAT_CUA_HELPER_RUNTIME_PACKAGE_DIR=$zcodeCuaRoot
+$env:SECRETARIAT_SKIP_REMOTE_ASSETS='1'
+$env:SECRETARIAT_TARGET_OS='win32'
+$env:SECRETARIAT_TARGET_ARCH='x64'
 pnpm --filter @zcode/desktop build
 pnpm --filter @zcode/desktop exec electron-builder `
   --config electron-builder.config.js --win --x64 --dir
-Remove-Item Env:ZCODE_CUA_HELPER_RUNTIME_PACKAGE_DIR
+Remove-Item Env:SECRETARIAT_CUA_HELPER_RUNTIME_PACKAGE_DIR
 ```
 
-`ZCODE_CUA_HELPER_RUNTIME_PACKAGE_DIR` 只选择构建期 producer，不会开启安装包的 source
-runtime override；运行期仍只认 `ZCODE_CUA_DEV_ROOT`。本地 producer commit 尚未 push 时必须使用
+`SECRETARIAT_CUA_HELPER_RUNTIME_PACKAGE_DIR` 只选择构建期 producer，不会开启安装包的 source
+runtime override；运行期仍只认 `SECRETARIAT_CUA_DEV_ROOT`。本地 producer commit 尚未 push 时必须使用
 前者完成 staging，同时保持 workspace/lockfile 指向可远端获取的上游 commit。
 
 Windows 原生文件在 electron-builder 复制 `extraResources` 时完成签名，因此 staging
@@ -145,12 +145,12 @@ win32/arch，再基于最终已签名字节刷新 hash 并严格复验。目标�
 真实生命周期验收使用两个显式变量，避免测试意外读取开发目录或当前进程：
 
 ```powershell
-$env:ZCODE_CUA_PRODUCT_RESOURCES_PATH = `
+$env:SECRETARIAT_CUA_PRODUCT_RESOURCES_PATH = `
   (Join-Path $zcodeRoot 'packages\desktop\dist\win-unpacked\resources')
-$env:ZCODE_CUA_PRODUCT_EXECUTABLE = '<可运行的 Electron 41.0.3 x64 executable>'
+$env:SECRETARIAT_CUA_PRODUCT_EXECUTABLE = '<可运行的 Electron 41.0.3 x64 executable>'
 pnpm exec vitest run packages/services/test/windowsCuaProductHelper.integration.test.ts
-Remove-Item Env:ZCODE_CUA_PRODUCT_RESOURCES_PATH
-Remove-Item Env:ZCODE_CUA_PRODUCT_EXECUTABLE
+Remove-Item Env:SECRETARIAT_CUA_PRODUCT_RESOURCES_PATH
+Remove-Item Env:SECRETARIAT_CUA_PRODUCT_EXECUTABLE
 ```
 
 测试先用 resources path、当前架构和 Electron `41.0.3` 解析产品 manifest，只覆盖解析结果的
@@ -173,9 +173,9 @@ Windows 指针实机冒烟必须在已解锁的交互桌面上显式 opt in：
 Set-Location $zcodeCuaRoot
 pnpm rebuild:native
 pnpm build
-$env:ZCODE_CUA_WINDOWS_POINTER_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE='1'
 pnpm smoke:windows:pointer
-Remove-Item Env:ZCODE_CUA_WINDOWS_POINTER_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_POINTER_LIVE
 ```
 
 冒烟只接受一个 `active=true` 的 live 前台应用，使用其精确
@@ -190,9 +190,9 @@ Windows 原生文本剪贴板冒烟同样必须在已解锁的交互桌面上显
 Set-Location $zcodeCuaRoot
 pnpm rebuild:native
 pnpm build
-$env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE='1'
 pnpm smoke:windows:clipboard
-Remove-Item Env:ZCODE_CUA_WINDOWS_CLIPBOARD_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_CLIPBOARD_LIVE
 ```
 
 该脚本启动自己唯一可识别的 Helper，确认 `clipboard=true` 后读取原始文本、写入随机 marker、
@@ -207,9 +207,9 @@ Windows WGC 视觉冒烟也必须在已解锁的普通交互桌面上显式 opt 
 Set-Location $zcodeCuaRoot
 pnpm rebuild:native
 pnpm build
-$env:ZCODE_CUA_WINDOWS_SCREEN_CAPTURE_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_SCREEN_CAPTURE_LIVE='1'
 pnpm smoke:windows:screen-capture
-Remove-Item Env:ZCODE_CUA_WINDOWS_SCREEN_CAPTURE_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_SCREEN_CAPTURE_LIVE
 ```
 
 它只创建两个受控 WPF 窗口：绿色/洋红 checkerboard target 与不透明蓝色 occluder。
@@ -226,9 +226,9 @@ Windows canonical 30-tool 总验收在同一受控桌面上运行：
 Set-Location $zcodeCuaRoot
 pnpm rebuild:native
 pnpm build
-$env:ZCODE_CUA_WINDOWS_TOOL_SURFACE_LIVE='1'
+$env:SECRETARIAT_CUA_WINDOWS_TOOL_SURFACE_LIVE='1'
 pnpm smoke:windows:tool-surface
-Remove-Item Env:ZCODE_CUA_WINDOWS_TOOL_SURFACE_LIVE
+Remove-Item Env:SECRETARIAT_CUA_WINDOWS_TOOL_SURFACE_LIVE
 ```
 
 该脚本通过官方 `buildServer` + MCP client 直接调用 28 个非剪贴板工具，验证
@@ -263,7 +263,7 @@ posix ──> <private tmpdir>/broker.sock       ──> live transport + fs sec
 
 ## 日志、安全与限制
 
-开发时优先从 ZCode 服务日志与 `~/.zcode/cli/log`、`~/.zcode/cli/debug`、`~/.zcode/cli/rollout` 追踪 session/Helper 生命周期；Helper stderr 只用于本地诊断。复制或提交日志前必须检查并删除 broker token、随机 pipe 路径及其他连接凭据。
+开发时优先从 Secretariat 服务日志与 `~/.secretariat/cli/log`、`~/.secretariat/cli/debug`、`~/.secretariat/cli/rollout` 追踪 session/Helper 生命周期；Helper stderr 只用于本地诊断。复制或提交日志前必须检查并删除 broker token、随机 pipe 路径及其他连接凭据。
 
 Windows 锁屏、Session 0 或非交互用户桌面必须 fail closed：Helper 不能注入输入，也不能把不可交互状态伪装成可用。Windows pointer 操作要求目标 `app_ref` 的 PID 在派发瞬间仍是唯一前台应用；负坐标副屏使用 virtual desktop 映射；`left_mouse_up` 仅作为已按下鼠标键的清理操作，可在焦点变化后释放。Windows 原生文本剪贴板使用 `CF_UNICODETEXT` 与 N-API async worker，只有交互桌面预检和读写双导出同时成立才报告 `clipboard=true`；它不使用 PowerShell、外部命令或 Electron fallback。Windows 截图使用 WGC 与 N-API async worker：显示器按选中 bounds 捕获，窗口按 HWND/PID/完整 executable/bounds 在前后两次复核；最小化、锁屏、目标变化和更高完整性级别均固定失败关闭。当前 PNG 是 8-bit BGRA SDR，保留系统默认 capture border，不承诺 HDR/色彩管理保真。UIA worker 的进一步隔离尚未完成，不能用空白像素或其他 fallback 冒充成功。
 
@@ -301,11 +301,11 @@ Host authority 校验的官方 server 接受模型偶发生成的 `mcp__computer
 
 - Managed Host 注入 socket/token/authority 后，`__zcode-plugin-host` 成功初始化 `zcode-cua` MCP，列出 30 个工具；
 - `list_apps`、无 shell 的 `open_application(notepad.exe)`、无截图的 UIA `get_app_state` 成功；
-- 编辑器以 element target 点击，`type` 写入 `ZCode Windows CUA Phase 1` 后由刷新 UIA state 精确验证；
-- `Ctrl+A` 成功后只做只读重观察，未重放该动作；replacement `type` 写入 `ZCode Windows CUA Phase 1 Replacement`，再由刷新 UIA state 精确验证；
+- 编辑器以 element target 点击，`type` 写入 `Secretariat Windows CUA Phase 1` 后由刷新 UIA state 精确验证；
+- `Ctrl+A` 成功后只做只读重观察，未重放该动作；replacement `type` 写入 `Secretariat Windows CUA Phase 1 Replacement`，再由刷新 UIA state 精确验证；
 - 日志扫描未发现 token 或完整 pipe；Helper lifecycle 事件为低频 `info`/`warn`，未走 macOS Helper.app/TCC、SSH、WSL 或 Docker 路径。
 
-同一真实 `WindowsCuaHelperHost` 的恢复 smoke 也已通过：generation 1 child 经 exact PID/parent/executable/entry 校验后被结束，旧 pipe 拒绝连接；同一 Host 随后产生 generation 2，pipe 与 token 均轮换，`pluginAuthority` 保持完全相同；最终 `stop()` 后 child 退出。source ZCode 关闭后，main、Host、Helper 和 official plugin-host 均无孤儿，关闭前 pipe 在关闭后拒绝连接。
+同一真实 `WindowsCuaHelperHost` 的恢复 smoke 也已通过：generation 1 child 经 exact PID/parent/executable/entry 校验后被结束，旧 pipe 拒绝连接；同一 Host 随后产生 generation 2，pipe 与 token 均轮换，`pluginAuthority` 保持完全相同；最终 `stop()` 后 child 退出。source Secretariat 关闭后，main、Host、Helper 和 official plugin-host 均无孤儿，关闭前 pipe 在关闭后拒绝连接。
 
 provider-driven task 仍未完成：等待退避窗口后的首次 bounded retry 仍被限流；此后继续退避约 45 分钟，又从当前 source desktop 启动一个新 task `sess_049c964a-c225-4e7f-8147-dcdd53a24c4f`，只发送一次完整 Notepad 指令。对应 model I/O 包含 official `mcp__computer-use__*` tool surface，但 `tool_use=0`、`tool_result=0`；模型“已工作 1 秒”后仍在首个 tool call 前返回 `The service is currently rate limited. Please retry later.`。没有第二次发送，Notepad 未启动，也没有 capture/replay 可替代。源码应用随后通过正常 app-quit 链路等待 Host cleanup 并退出，没有本轮 Helper、plugin-host、watcher 或 Notepad 孤儿。因此不得把 direct official-plugin smoke 冒充为模型任务成功，状态保持 `BLOCKED/NEEDS_CONTEXT`。
 
@@ -332,7 +332,7 @@ access denied；同一环境的前台应用为 `LockApp`。脚本没有写入 ma
 
 剪贴板实现完成后的最新门禁中，zcode-cua 的原生重建、typecheck、lint、build 和全量
 test 均为 exit 0；剪贴板相关 focused 为 8 files / 139 tests，全量为 115 passed /
-6 skipped files、2016 passed / 67 skipped / 18 todo tests。ZCode source Helper 真子进程
+6 skipped files、2016 passed / 67 skipped / 18 todo tests。Secretariat source Helper 真子进程
 集成为 1 file / 2 tests，CUA 服务回归为 38 files / 788 passed / 35 skipped / 2 todo，
 官方插件构建及凭据边界为 6 tests，主仓 typecheck/lint 均为 exit 0。最新
 `pnpm test:unit:affected` 仍为 exit 1：13 files / 17 tests failed，940 files /
@@ -371,7 +371,7 @@ timer；两个 WPF fixture 均保留 UTF-8 BOM 回归断言。最小化信号只
 最新源码门禁为：zcode-cua Windows focused 16 files / 158 tests，全量 122 passed /
 6 skipped files、2105 passed / 67 skipped / 18 todo tests，native rebuild、build、
 typecheck、lint 均 exit 0；screen、pointer、clipboard、30-tool surface 四套实机 smoke
-全部 exit 0，剪贴板文本和光标均恢复，无 Helper/fixture 孤儿。ZCode focused integration
+全部 exit 0，剪贴板文本和光标均恢复，无 Helper/fixture 孤儿。Secretariat focused integration
 为 4 files / 175 passed / 1 skipped，`pnpm --filter @zcode/zcode-cua-plugin test`
 共 6 tests，主仓 typecheck/lint 均 exit 0。裸跑 plugin 的 `node --test` 不是有效门禁，
 因为它缺少 package `build` 前置；必须使用上述 package test 命令。

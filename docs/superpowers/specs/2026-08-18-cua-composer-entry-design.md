@@ -2,7 +2,7 @@
 
 - 日期：2026-08-18
 - 状态：设计已确认，待实现
-- 上游 PRD：《ZCode CUA 输入框常驻按钮&免费体验 PRD v0.2》（飞书 wiki EEE7wZ06Ti7Gx5kGWU8cthX9nOg）
+- 上游 PRD：《Secretariat CUA 输入框常驻按钮&免费体验 PRD v0.2》（飞书 wiki EEE7wZ06Ti7Gx5kGWU8cthX9nOg）
 - 分支：`feat/cua-composer-entry`
 - 后续变更：见文末「2026-09-11 变更：电脑控制默认关闭」——该变更删掉了本文多处描述的
   「未启用」（`plugin-disabled`）UI 态，读下文的状态表与 ASCII 图时请一并参照。
@@ -111,7 +111,7 @@ mac 权限行与授权按钮、错误详情、以及「在输入框显示电脑�
 
 | 内部态                | 判定条件                                                                                                                                                                                                                                                                                                                                                    |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `starting`            | `togglingPluginId === ZCODE_CUA_OFFICIAL_PLUGIN_ID`（优先级最高，压过下面所有态）                                                                                                                                                                                                                                                                           |
+| `starting`            | `togglingPluginId === SECRETARIAT_CUA_OFFICIAL_PLUGIN_ID`（优先级最高，压过下面所有态）                                                                                                                                                                                                                                                                           |
 | `error`               | ①`pluginManagementStore.error` 非空且本次操作目标是 zcode-cua（归属由 store 的 `lastFailedPluginId` 记录：带 pluginId 的操作失败写该 id，marketplace/validate/load 等无插件目标的失败写 null——CR-01，防止共享 error 把无关失败误映射为按钮错误态）；或 ②mac 下插件已启用但 Helper 状态 `!isCuaPermissionStatusAvailable(status)`（Helper 启动失败／不健康） |
 | ~~`plugin-disabled`~~ | ~~`cuaPlugin?.enabled !== true`~~ ——2026-09-11 删除：未启用不再是 UI 态，而是被插件门挡在渲染之外                                                                                                                                                                                                                                                            |
 | `permission-required` | mac + 插件已启用 + Helper 状态可用 + `!isCuaPermissionTccGranted(status)`                                                                                                                                                                                                                                                                                   |
@@ -257,11 +257,11 @@ busy），只有纯函数才能把这个矩阵完整测出来，而不必为每�
 | message id                                       | 中文                                                                 | English                                                                                                  |
 | ------------------------------------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `chat.toolbar.computerUse.label`                 | 电脑操作                                                             | Computer Use                                                                                             |
-| ~~`…tooltip.disabled`~~                          | ~~体验电脑操作 · 让 ZCode 直接操作你的电脑~~（2026-09-11 删除）      | ~~Try Computer Use — let ZCode operate your computer~~                                                   |
+| ~~`…tooltip.disabled`~~                          | ~~体验电脑操作 · 让 Secretariat 直接操作你的电脑~~（2026-09-11 删除）      | ~~Try Computer Use — let Secretariat operate your computer~~                                                   |
 | `…tooltip.starting`                              | 正在启用电脑操作插件…                                                | Enabling Computer Use plugin…                                                                            |
-| `…tooltip.ready`                                 | 电脑操作已就绪 · 直接描述你想让 ZCode 做的事                         | Computer Use ready — just describe what you want ZCode to do                                             |
+| `…tooltip.ready`                                 | 电脑操作已就绪 · 直接描述你想让 Secretariat 做的事                         | Computer Use ready — just describe what you want Secretariat to do                                             |
 | `…tooltip.permissionRequired`                    | 缺少 macOS 权限，点击完成授权                                        | Missing macOS permissions — click to grant                                                               |
-| `…tooltip.error`                                 | 电脑操作启用失败 · 重启 ZCode 应用后重试，或让 ZCode 排查日志        | Computer Use enablement failed. Please restart ZCode app and retry, or ask ZCode to investigate the logs |
+| `…tooltip.error`                                 | 电脑操作启用失败 · 重启 Secretariat 应用后重试，或让 Secretariat 排查日志        | Computer Use enablement failed. Please restart Secretariat app and retry, or ask Secretariat to investigate the logs |
 | `…tooltip.sessionBusy`                           | 会话进行中，暂不能切换电脑操作；任务结束后可再试                     | A conversation is running. Computer Use can't be toggled right now — try again after it finishes.        |
 | `settings.computerUse.composerEntry.label`       | 在输入框显示电脑操作按钮                                             | Show Computer Use button in the composer                                                                 |
 | `settings.computerUse.composerEntry.description` | 关闭后输入框不再显示电脑操作按钮，也不会自动恢复；可随时在此重新开启 | When off, the composer button is hidden and stays hidden until you turn this back on.                    |

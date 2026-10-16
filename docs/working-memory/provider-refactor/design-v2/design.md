@@ -31,7 +31,7 @@ Provider 和 Model 的配置分别解决不同问题，最后在同一个模型�
 Provider Config 路径                              Model Config 路径
 ====================                              =================
 
-Provider Templates + Account Providers            ZCode Built-in Model Config Rules
+Provider Templates + Account Providers            Secretariat Built-in Model Config Rules
                 |                                                  |
                 v                                                  +
       Account Provider Config                      Personal Model Config Rules
@@ -80,7 +80,7 @@ effectiveProviders = resolveProviderTemplates(
 );
 ```
 
-- ZCode Built-in 提供普通 Provider Template 与 Account Provider 静态基线；
+- Secretariat Built-in 提供普通 Provider Template 与 Account Provider 静态基线；
 - Account 只投影账号连接与套餐造成的动态约束；
 - Personal 最后生效，表达用户显式配置；
 - `undefined` 表示本层不覆盖，`null` 表示本层显式清除，具体值表示显式覆盖；
@@ -214,7 +214,7 @@ interface ProviderConfig {
 | `logo`             | 展示资源 key，未知 key 回退通用图标                              |
 | `access`           | 调用所需访问材料的静态取得方式                                   |
 | `api`              | 最终 API Schema、Base URL 和静态 Header                          |
-| `builtinModelIds`  | ZCode 或 Account 层拥有的模型成员                                |
+| `builtinModelIds`  | Secretariat 或 Account 层拥有的模型成员                                |
 | `personalModelIds` | Personal 层拥有的模型成员                                        |
 | `modelOrder`       | 用户对最终成员集合表达的总顺序意图                               |
 | `visibility`       | Provider 是否进入普通设置/选择投影；不影响内部精确 Registry 查找 |
@@ -327,7 +327,7 @@ Patch；Adapter 只在 AI SDK 生成基础 Body 后、请求安全校验前应�
 
 Resolver 负责：
 
-1. 只允许 Account Overlay 作用于 ZCode Built-in Provider；
+1. 只允许 Account Overlay 作用于 Secretariat Built-in Provider；
 2. 计算 `Built-in -> Account -> Personal` 的 Effective Provider；
 3. 组合 Effective Model Rules；
 4. 解析最终模型成员、来源和顺序；
@@ -525,7 +525,7 @@ Guide 携带选择时仍通过现有 Factory 重新解析并创建 Model，保�
 
 每个真正执行模型的 Environment 拥有自己的：
 
-- ZCode Built-in Config Source；
+- Secretariat Built-in Config Source；
 - Personal Config Repository；
 - Account Provider Source；
 - Resolver、Registry 和 ModelFactory。
@@ -539,7 +539,7 @@ Local、SSH、WSL、Docker 或 Server 由各自 Host/Worker 读取本环境配�
 - Source watcher 只通知“事实可能变化”；Registry Service 重新读取完整 Config 与 Account 快照后一次性解析发布。
 - 刷新期间继续服务上一份完整 Registry；失败不发布半成品，后续事件必须能够自愈重试。
 - Built-in 远端发布使用两层结构：版本/刷新元数据外壳 + 纯 Provider/Model Config 内容。
-- Built-in 活跃缓存按 ZCode Endpoint 隔离，避免不同 Environment 复用错误配置。
+- Built-in 活跃缓存按 Secretariat Endpoint 隔离，避免不同 Environment 复用错误配置。
 - 设置写入完成后，执行入口必须观察到对应 Environment 的新 Registry；连接测试应通过正式 Host
   Registry/ModelFactory 创建模型，不能在 Renderer 临时拼装另一个 Model。
 
@@ -547,11 +547,11 @@ Local、SSH、WSL、Docker 或 Server 由各自 Host/Worker 读取本环境配�
 
 领域名称固定为：
 
-- ZCode Built-in Provider Config；
+- Secretariat Built-in Provider Config；
 - Account Provider Config；
 - Personal Provider Config；
 - Effective Provider Config；
-- ZCode Built-in Model Config Rules；
+- Secretariat Built-in Model Config Rules；
 - Personal Model Config Rules；
 - Effective Model Config Rules；
 - Effective Model Config。
@@ -617,8 +617,8 @@ runtime/provider/
 
 ## 10. 核心不变量
 
-1. Provider 静态事实只有 ZCode Built-in、Account Overlay 和 Personal Overlay 三层来源。
-2. Model 静态事实只有 ZCode Built-in Rules 与 Personal Rules；Personal 在后，精确 Personal 最后。
+1. Provider 静态事实只有 Secretariat Built-in、Account Overlay 和 Personal Overlay 三层来源。
+2. Model 静态事实只有 Secretariat Built-in Rules 与 Personal Rules；Personal 在后，精确 Personal 最后。
 3. Effective Model Config 必须在 Effective Provider 的 API 上下文中解析。
 4. Settings 与 Registry 来自同一次 Resolver 解析；Settings 不从 Registry 反推不完整配置。
 5. Registry 只含完整可执行项，但 hidden Provider 仍可被内部精确执行。

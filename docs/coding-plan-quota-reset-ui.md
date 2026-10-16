@@ -2,7 +2,7 @@
 
 ## 背景与结论
 
-客户端已具备“重置机会、手动重置、自动/运营重置完成提示”的 UI。本次接入 ZCode Server 最新重置接口，使 Personal Coding Plan 与 Team Plan 都以服务端状态为权威来源。
+客户端已具备“重置机会、手动重置、自动/运营重置完成提示”的 UI。本次接入 Secretariat Server 最新重置接口，使 Personal Coding Plan 与 Team Plan 都以服务端状态为权威来源。
 
 后端文档：`coding_plan_reset_mechanism_design.md`（2026-08-11 版本）。
 
@@ -45,7 +45,7 @@ Desktop renderer / Web remote renderer
               | 读取 zcode JWT + 当前 Coding Plan credential
               | 构造 Personal/Team scope headers
               v
-       ZCode Server /api/v1/coding-plan/reset
+       Secretariat Server /api/v1/coding-plan/reset
               |
               | status / opportunity / use / history-read
               v

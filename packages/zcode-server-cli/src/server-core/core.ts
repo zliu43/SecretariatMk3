@@ -3,11 +3,11 @@ import {
   disposeServiceResourcesAndWait,
   materializeZCodeBuiltinProviderConfig,
   getAppConfigDir,
-  ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
+  SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV,
   createTopicResourcePeers,
 } from "@zcode/services/node";
 import { IZCodeAgentService } from "@zcode/services";
-import { ZCODE_VERSION } from "@zcode/shared";
+import { SECRETARIAT_VERSION } from "@zcode/shared";
 import { createCoreHttpServer } from "./http.js";
 import { installParentDisconnectHandler } from "./parentDisconnect.js";
 import { resolveCoreServerId } from "./serverIdentity.js";
@@ -25,7 +25,7 @@ export async function runServerCore(generation: number): Promise<void> {
   });
   const topicResourcePeers = createTopicResourcePeers();
   const explicitZCodeBuiltinProviderConfigFilePath =
-    process.env[ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
+    process.env[SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]?.trim();
   const zcodeBuiltinProviderConfigFilePath = explicitZCodeBuiltinProviderConfigFilePath
     ? explicitZCodeBuiltinProviderConfigFilePath
     : typeof __ZCODE_BUILTIN_PROVIDER_CONFIG_JSON__ === "string"
@@ -36,7 +36,7 @@ export async function runServerCore(generation: number): Promise<void> {
       : undefined;
   if (!zcodeBuiltinProviderConfigFilePath) {
     throw new Error(
-      `当前构建未嵌入 ZCode Built-in Provider Config，且未设置 ${ZCODE_BUILTIN_PROVIDER_CONFIG_FILE_ENV}`,
+      `当前构建未嵌入 Secretariat Built-in Provider Config，且未设置 ${SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV}`,
     );
   }
   const services = createLocalServices({
@@ -66,7 +66,7 @@ export async function runServerCore(generation: number): Promise<void> {
     type: "ready",
     host: http.host,
     port: http.port,
-    version: ZCODE_VERSION,
+    version: SECRETARIAT_VERSION,
     generation,
   });
   let shutdownStarted = false;

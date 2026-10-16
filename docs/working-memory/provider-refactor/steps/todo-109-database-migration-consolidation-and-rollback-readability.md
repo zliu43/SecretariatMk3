@@ -31,7 +31,7 @@
 
 ### 2.1 Agent 会话库
 
-默认路径 `~/.zcode/cli/db/db.sqlite`，以实际配置解析路径为准。已有 0001–0018 migration 及 `schema_migration` 记录；这些 SQL 与执行器相对固定旧基线没有差异。执行器使用 IMMEDIATE 事务、checksum、成功后记录与错误回滚。表结构没变化不代表 JSON 内容没变化。
+默认路径 `~/.secretariat/cli/db/db.sqlite`，以实际配置解析路径为准。已有 0001–0018 migration 及 `schema_migration` 记录；这些 SQL 与执行器相对固定旧基线没有差异。执行器使用 IMMEDIATE 事务、checksum、成功后记录与错误回滚。表结构没变化不代表 JSON 内容没变化。
 
 内存执行确认 18 张业务表，另加迁移记录表。下列每一行都必须产出“迁移/保持不变/明确待裁决”的结论及证据；表名列表不是完成声明。
 
@@ -63,7 +63,7 @@
 
 ### 2.2 App 任务库及其他库
 
-默认 `~/.zcode/v2/tasks-index.sqlite`。TaskIndexRepo、AutomationRepo、OffPeakTaskRepo 共用该库，不能误认为三个独立数据库或各维护一套迁移版本。
+默认 `~/.secretariat/v2/tasks-index.sqlite`。TaskIndexRepo、AutomationRepo、OffPeakTaskRepo 共用该库，不能误认为三个独立数据库或各维护一套迁移版本。
 
 | 表/范围                                                      | 已知情况与审计要求                                                                   |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------ |

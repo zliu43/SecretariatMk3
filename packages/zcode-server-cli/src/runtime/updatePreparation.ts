@@ -56,12 +56,12 @@ function createPreparedReleaseDiscarder(input: {
 }
 
 export async function prepareOnlineUpdate(layout: ServerLayout): Promise<UpdatePreparation> {
-  const catalogUrl = process.env.ZCODE_SERVER_RELEASE_MANIFEST_URL?.trim();
+  const catalogUrl = process.env.SECRETARIAT_SERVER_RELEASE_MANIFEST_URL?.trim();
   if (!catalogUrl) {
     const pending = await new ReleaseManager(layout).readPending();
     if (!pending) {
       throw new Error(
-        "ZCode Server release source is not configured and no offline pending release is available",
+        "Secretariat Server release source is not configured and no offline pending release is available",
       );
     }
     return { status: "prepared-offline", version: pending.version };

@@ -1,6 +1,6 @@
-import { ZCODE_OFFICIAL_PLUGIN_MARKETPLACE, type SkillRoot } from "@zcode/contracts";
+import { SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE, type SkillRoot } from "@zcode/contracts";
 
-const VISUALIZE_PLUGIN_ID = `visualize@${ZCODE_OFFICIAL_PLUGIN_MARKETPLACE}`;
+const VISUALIZE_PLUGIN_ID = `visualize@${SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE}`;
 
 export function filterVisualizeSkillRoots(
   roots: readonly SkillRoot[],

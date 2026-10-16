@@ -21,8 +21,8 @@ import type {
 import {
   HookEventName as HookEventNameValue,
   HookMatcherConfigSchema,
-  ZCODE_INLINE_PLUGIN_MARKETPLACE,
-  ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+  SECRETARIAT_INLINE_PLUGIN_MARKETPLACE,
+  SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE,
 } from "@zcode/contracts";
 import {
   directoryExists,
@@ -102,7 +102,7 @@ export {
   type PluginUpdateStatus,
 } from "./version-compare.js";
 
-const ZCODE_MANIFEST_PATH = join(".zcode-plugin", "plugin.json");
+const SECRETARIAT_MANIFEST_PATH = join(".zcode-plugin", "plugin.json");
 const CLAUDE_MANIFEST_PATH = join(".claude-plugin", "plugin.json");
 const CODEX_MANIFEST_PATH = join(".codex-plugin", "plugin.json");
 const DEFAULT_VERSION = "0.0.0";
@@ -244,7 +244,7 @@ export class NodePluginAdapter implements PluginPort {
     for (const rootPath of request.config.dirs) {
       candidates.push({
         defaultEnabled: true,
-        marketplace: ZCODE_INLINE_PLUGIN_MARKETPLACE,
+        marketplace: SECRETARIAT_INLINE_PLUGIN_MARKETPLACE,
         rootPath: resolve(rootPath),
         source: "inline",
       });
@@ -252,7 +252,7 @@ export class NodePluginAdapter implements PluginPort {
     for (const rootPath of request.officialPluginRoots ?? []) {
       candidates.push({
         defaultEnabled: false,
-        marketplace: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+        marketplace: SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE,
         rootPath: resolve(rootPath),
         source: "official",
       });
@@ -260,7 +260,7 @@ export class NodePluginAdapter implements PluginPort {
     candidates.push(
       ...scanOfficialCache(request.storageRoot, diagnostics, options).map((rootPath) => ({
         defaultEnabled: false,
-        marketplace: ZCODE_OFFICIAL_PLUGIN_MARKETPLACE,
+        marketplace: SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE,
         rootPath,
         source: "official" as const,
       })),
@@ -380,7 +380,7 @@ function warnUnsupportedComponents(loaded: LoadedPlugin, diagnostics: PluginDiag
     if (key in loaded.manifest) {
       diagnostics.push({
         code: "plugin_unsupported_component",
-        message: `Plugin component is diagnostic-only in this ZCode runtime: ${key}`,
+        message: `Plugin component is diagnostic-only in this Secretariat runtime: ${key}`,
         path: loaded.manifestPath,
         pluginId: loaded.id,
         severity: "warning",
@@ -523,7 +523,7 @@ function parsePluginHookEvents(input: {
     if (!SUPPORTED_HOOK_EVENTS.has(eventName)) {
       input.diagnostics.push({
         code: "plugin_hook_unsupported_event",
-        message: `Plugin hook event is not supported by this ZCode runtime: ${eventName}`,
+        message: `Plugin hook event is not supported by this Secretariat runtime: ${eventName}`,
         path: input.sourcePath,
         pluginId: input.loaded.id,
         severity: "warning",
@@ -789,7 +789,7 @@ function materializeCommandMetadataRoot(
     if (markdown === undefined) continue;
 
     // 市场清单支持 commands object mapping 和 inline content。
-    // ZCode 的 custom command loader 只扫描 markdown 根目录，因此把低风险命令内容
+    // Secretariat 的 custom command loader 只扫描 markdown 根目录，因此把低风险命令内容
     // materialize 到插件 data 目录；生成路径不在 plugin root 外暴露，也不执行命令本身。
     writeFileSync(
       join(generatedRoot, `${name}.md`),
@@ -871,7 +871,7 @@ function scanOfficialCache(
     return bundledRoots;
   }
 
-  const cacheRoot = join(storageRoot, "cache", ZCODE_OFFICIAL_PLUGIN_MARKETPLACE);
+  const cacheRoot = join(storageRoot, "cache", SECRETARIAT_OFFICIAL_PLUGIN_MARKETPLACE);
   try {
     const roots: string[] = [];
     for (const pluginEntry of readdirSync(cacheRoot, { withFileTypes: true })) {
@@ -933,7 +933,7 @@ function loadPlugin(
 }
 
 function findManifest(rootPath: string): string | null {
-  const zcodePath = join(rootPath, ZCODE_MANIFEST_PATH);
+  const zcodePath = join(rootPath, SECRETARIAT_MANIFEST_PATH);
   if (fileExists(zcodePath)) {
     return zcodePath;
   }

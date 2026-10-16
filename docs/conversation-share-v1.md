@@ -27,7 +27,7 @@ Desktop UI
 
 Web preview
   -> https://zcode.z.ai/cn/share/<share_code>
-  -> zcode://share/import?code=<share_code>
+  -> secretariat://share/import?code=<share_code>
   -> Desktop continuation
   -> 当前本地 workspace 新 task/session + shared_context + 全部产物
 ```
@@ -89,9 +89,9 @@ Preview not_found → 现有 Loader
 和 `/cn/share/mock-not-found` fixture。两者都只启动 Vite，
 不启动 Desktop、relay 或独立 Agent。跨版本兼容另有两个 fixture：
 `/cn/share/mock-partial-unsupported`（认不出的行被跳过，顶部出软提示）和
-`/cn/share/mock-outdated-client`（载荷版本高于本 build，显示「需要更新 ZCode」而不是「格式无效」）。
+`/cn/share/mock-outdated-client`（载荷版本高于本 build，显示「需要更新 Secretariat」而不是「格式无效」）。
 
-Desktop Host 的分享运行时始终使用真实 Share API，API 地址由 `ZCODE_ENV` 解析；不再提供运行时
+Desktop Host 的分享运行时始终使用真实 Share API，API 地址由 `SECRETARIAT_ENV` 解析；不再提供运行时
 Mock 开关。`ConversationShareMockApiClient` 仅用于服务单测和协议 fixture，不能生成可跨进程访问的分享链接。
 
 公开页正文展示复用 `packages/ui` 的只读 presentation 层：通过
@@ -107,13 +107,13 @@ Share 自己承接页面级纵向滚动，不改变全局 `body/#root { overflow
 滚动之间保持独立。`MessageResponse` 的公开模式由一次性的 `TooltipProvider`、只读外链 handler 和
 citation 清理组成：本地 citation 不泄漏路径，无法匹配公开 artifact 时不渲染协议 directive。
 
-公开分享页顶部固定栏始终保持单行 64px 高度。`ZCode` 品牌、分享标题和继续 CTA 使用同一条连续
+公开分享页顶部固定栏始终保持单行 64px 高度。`Secretariat` 品牌、分享标题和继续 CTA 使用同一条连续
 几何轨道；完整 CTA 无法为标题保留最小可见宽度时，切换为保留可访问名称的图标 CTA，再让标题
 通过 CSS ellipsis 收缩。完整标题仍保留在可访问名称/`title` 中。`public_readonly` 始终不显示
 CTA；该响应式策略只影响 Web landing page 的展示，不改变 Deep Link、权限或 Desktop/remote 行为。
 
-当分享可继续导入时，正文时间线末尾还显示一个与顶部 CTA 样式和行为一致的“去 ZCode 继续”按钮，
-按钮在正文内容栏内水平居中并复用同一个 `zcode://share/import` deep link。点击顶部或底部任一入口
+当分享可继续导入时，正文时间线末尾还显示一个与顶部 CTA 样式和行为一致的“去 Secretariat 继续”按钮，
+按钮在正文内容栏内水平居中并复用同一个 `secretariat://share/import` deep link。点击顶部或底部任一入口
 都进入相同的自动打开提示流程；`public_readonly` 仍不显示任何继续入口。底部按钮属于正文流，
 不能遮挡最后一条分享内容，也不改变分享内容的只读语义。
 
@@ -149,11 +149,11 @@ Assistant 结果物卡片。`preview.artifacts` 是结果物和 `userInput.attac
 3. **rows 只能 additive。** 新字段必须 `optional`；**永不删字段、永不收窄 enum、永不改字段
    语义**——删字段和收窄枚举同样会让对端丢内容，方向只是反过来。
 4. **新增 row kind 或 enum 取值 = 老客户端会跳过该行**（`decodeConversationShareRows` 逐行降级，
-   UI 出「部分内容需要更新 ZCode 查看」软提示）。加之前先问：这行被跳过后，分享是否仍然自洽？
+   UI 出「部分内容需要更新 Secretariat 查看」软提示）。加之前先问：这行被跳过后，分享是否仍然自洽？
    需要「不可跳过」的语义变化，才谈得上第 5 条。
 5. **`schema_version` 只在 rows 出现不可跳过的破坏性变化时才 bump**，且 bump 前先确认存量
    客户端与已部署落地页镜像的版本占比——bump 一次就等于让它们同时看不了新分享。版本高于
-   本端认知时走 `unsupported_schema_version`（「请升级 ZCode」），不得混进 `invalid_contract`
+   本端认知时走 `unsupported_schema_version`（「请升级 Secretariat」），不得混进 `invalid_contract`
    （「分享格式无效」）。
 6. **`projectRow`（`conversationSharePublicProjection.ts`）的穷尽 switch 是故意的编译期闸门，
    不要给它加 `default`。** 新增 row kind 必须让构建失败，强制开发者按第 4 条做决定，而不是
@@ -210,7 +210,7 @@ CSP 的两个硬约束（改动前先读，否则会静默打断线上页面）�
 - `script-src` 必须带 `'wasm-unsafe-eval'`：shiki 代码高亮默认走 oniguruma wasm
   （`packages/ui/src/lib/shikiHighlighter.ts` 的 `createHighlighter`），只给 `'self'` 会让分享页
   所有代码高亮失效。它只放开 wasm 编译，`eval` / `new Function` 仍然被挡住（已实测）。
-- `connect-src` 保持 `https:`：API origin 是 vite 构建期按 `ZCODE_ENV` 注入的
+- `connect-src` 保持 `https:`：API origin 是 vite 构建期按 `SECRETARIAT_ENV` 注入的
   （`packages/web-share/vite.config.ts`），写死具体 origin 会让 test/production 各自需要一份 conf。
 
 artifact 只经 `window.open` 打开、不做 `<img src>`，因此不受 `img-src` 收紧影响。
@@ -264,7 +264,7 @@ PDF、Office、Markdown/HTML、视频和音频都可以成为预览候选，但 
 
 `userInput.attachments` 通过当前 Agent connection scope 按 `rowId + entityId + attachmentIndex`
 授权读取，不允许 Renderer 直接把附件路径作为读取目标。长文本粘贴保持现有
-`~/.zcode/tmp/paste-attachments/<date>/<uuid>.txt` 路径处理，不在发送时重新内联正文；分享时
+`~/.secretariat/tmp/paste-attachments/<date>/<uuid>.txt` 路径处理，不在发送时重新内联正文；分享时
 复用同一读取链路。文件已被清理、读取失败或字节发生变化时，只跳过该附件并在发布成功态展示
 `input_attachment_unavailable` warning，不把失效路径写入公开 projection。可用附件统一改写为
 `zcode-artifact://share/<artifact_id>`，不额外插入 `artifact` Row，直接通过 manifest 闭合。
@@ -300,7 +300,7 @@ closed
 - **延后确认**：权限不足、远端断开或 stat 超时等无法证明文件不存在的情况。选择阶段只提示“发布时会再次确认”，
   发布阶段以实际读取结果为准。
 
-  分类依据必须是协议侧的稳定 fault 码（`ZCODE_ATTACHMENT_FAULT_CODES`），不能匹配错误文本。
+  分类依据必须是协议侧的稳定 fault 码（`SECRETARIAT_ATTACHMENT_FAULT_CODES`），不能匹配错误文本。
   `conversationAttachmentStat` 是 metadata-only 探测，其 `totalBytes` 上界（`attachmentStatMaxBytes`）
   与搬运字节的读取通道上界（`attachmentPreviewMaxBytes`）是两个独立边界：stat 必须能表达超出传输能力的
   真实文件大小，否则“已知容量超限”这一确定阻断会退化成“延后确认”，发布时静默丢掉附件。
@@ -496,7 +496,7 @@ reopen tab 恢复；该操作只改变 `view`，不清空选择、标题、权�
 
 ## 导入与继续工作
 
-Web CTA 使用 `zcode://share/import?code=<share_code>`，deep link 只能携带 share code。main process
+Web CTA 使用 `secretariat://share/import?code=<share_code>`，deep link 只能携带 share code。main process
 只解析、缓存和投递 intent；Renderer 不按本地登录态前置拦截，统一调用 Host import service，
 由 continuation API 返回最终访问判定。share deep link 的目标窗口解析与其他 deep link 一致，
 必须走调用方注入的 `resolveApplicationWindow`（排除 CUA indicator 等辅助窗口）；窗口未就绪时

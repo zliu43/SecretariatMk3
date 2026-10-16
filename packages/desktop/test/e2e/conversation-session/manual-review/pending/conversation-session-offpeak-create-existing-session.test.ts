@@ -330,7 +330,7 @@ async function readTestIdValue(currentTestId: string): Promise<string> {
 
 function resolveArtifactPath(fileName: string) {
   return resolve(
-    process.env.ZCODE_E2E_ARTIFACT_DIR?.trim() ||
+    process.env.SECRETARIAT_E2E_ARTIFACT_DIR?.trim() ||
       process.env.CODEX_E2E_ARTIFACT_DIR?.trim() ||
       join(process.cwd(), ".e2e-artifacts", CASE_NAME),
     fileName,

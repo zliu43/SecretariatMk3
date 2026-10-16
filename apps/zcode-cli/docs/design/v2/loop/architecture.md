@@ -2,7 +2,7 @@
 
 ## 文档定位
 
-本文档定义 ZCode CLI 的核心 agent loop 设计，作为 `architecture.md` 的子模块设计。Agent loop 是整个系统的核心引擎，其他模块（tool、provider、permission 等）都是为其服务的组件。
+本文档定义 Secretariat CLI 的核心 agent loop 设计，作为 `architecture.md` 的子模块设计。Agent loop 是整个系统的核心引擎，其他模块（tool、provider、permission 等）都是为其服务的组件。
 
 ---
 
@@ -44,11 +44,11 @@
 
 ---
 
-## 二、ZCode Agent Loop 设计
+## 二、Secretariat Agent Loop 设计
 
 ### 2.1 核心循环
 
-ZCode 采用 **Event-first Agent Loop**：
+Secretariat 采用 **Event-first Agent Loop**：
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

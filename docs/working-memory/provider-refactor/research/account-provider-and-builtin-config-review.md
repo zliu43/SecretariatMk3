@@ -63,7 +63,7 @@ Account Overlay 继续约束对应 Built-in Account Provider：
 
 - `enabled` 表达当前账号下该 Provider 是否可用；
 - Start Plan 返回的模型集合可以约束该 Provider 的模型成员；
-- Account 返回的模型集合不改写 ZCode Built-in Model Rules；
+- Account 返回的模型集合不改写 Secretariat Built-in Model Rules；
 - Personal Provider Config 和 Personal Model Rules 仍最后覆盖其允许覆盖的配置叶子。
 
 因此 Account 页面问题不改变本文后续 Built-in Provider Config 的写作规则。
@@ -386,7 +386,7 @@ replayable、workspace identity、队列或任务恢复。
 | ACCOUNT-PLAN-002 | Z.ai/BigModel Team Provider       | 成员顺序为 5.3、5.3 Flash、5.2、5-Turbo | accepted |
 | ACCOUNT-PLAN-003 | Start/Individual/Team 任一成员    | Effective input 支持 Image/Video        | accepted |
 | ACCOUNT-PLAN-004 | 普通 Account API + GLM-5.3        | 原生事实保持文本；不报错不视为视觉支持  | accepted |
-| ACCOUNT-PLAN-005 | 普通 Account API + GLM-5.3-Flash  | 原生 Image/Video；ZCode 图片端到端可用  | accepted |
+| ACCOUNT-PLAN-005 | 普通 Account API + GLM-5.3-Flash  | 原生 Image/Video；Secretariat 图片端到端可用  | accepted |
 | ACCOUNT-PLAN-006 | Team Plan + GLM-5.2/5.3 Flash     | 有语义截图均能被准确理解                | accepted |
 | ACCOUNT-PLAN-007 | 普通 Account API 携带图片         | 服务可容忍，但模型不消费视觉内容        | accepted |
 

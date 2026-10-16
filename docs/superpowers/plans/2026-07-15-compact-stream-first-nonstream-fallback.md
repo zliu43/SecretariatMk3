@@ -34,7 +34,7 @@
 ### Checklist
 
 - [x] 确认目标路径为 streaming-first，pre-commit terminal failure 后可转 non-stream。
-- [x] 确认 ZCode 变更前 compact 入口直接调用 `generateText()`。
+- [x] 确认 Secretariat 变更前 compact 入口直接调用 `generateText()`。
 - [x] 区分逻辑 compact attempt 与 provider 物理 SSE/HTTP request。
 - [x] 明确 cache-sharing fork 与 transport fallback 是两个独立概念，本次不实现前者。
 

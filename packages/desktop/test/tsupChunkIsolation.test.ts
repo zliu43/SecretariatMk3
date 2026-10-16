@@ -98,7 +98,7 @@ describe("desktop tsup chunk isolation", () => {
     expect(
       resolveDesktopTsupBundleSecurityOptions({
         NODE_ENV: "production",
-        ZCODE_E2E_COVERAGE: "1",
+        SECRETARIAT_E2E_COVERAGE: "1",
       }),
     ).toEqual({
       keepNames: false,
@@ -131,31 +131,31 @@ describe("desktop tsup chunk isolation", () => {
   it("正式安装包 Agent OTLP 配置应映射为 Main 使用的标准环境字段", () => {
     expect(
       resolveBuildPackagedAgentTelemetryEnv({
-        ZCODE_ENV: "production",
-        ZCODE_PACKAGED_AGENT_OTEL_ENDPOINT: "https://arms.example.com/otlp",
-        ZCODE_PACKAGED_AGENT_OTEL_HEADERS: "x-arms-license-key=write-only",
-        ZCODE_PACKAGED_AGENT_OTEL_SERVICE_NAME: "zcode-cli-agent",
+        SECRETARIAT_ENV: "production",
+        SECRETARIAT_PACKAGED_AGENT_OTEL_ENDPOINT: "https://arms.example.com/otlp",
+        SECRETARIAT_PACKAGED_AGENT_OTEL_HEADERS: "x-arms-license-key=write-only",
+        SECRETARIAT_PACKAGED_AGENT_OTEL_SERVICE_NAME: "zcode-cli-agent",
       }),
     ).toEqual({
       OTEL_EXPORTER_OTLP_ENDPOINT: "https://arms.example.com/otlp",
       OTEL_EXPORTER_OTLP_HEADERS: "x-arms-license-key=write-only",
       OTEL_SERVICE_NAME: "zcode-cli-agent",
-      ZCODE_TELEMETRY_RUNTIME_DISTRIBUTION: "packaged",
+      SECRETARIAT_TELEMETRY_RUNTIME_DISTRIBUTION: "packaged",
     });
   });
 
   it("正式安装包 Agent OTLP 配置不完整或生产环境使用 HTTP 时应阻止构建", () => {
     expect(() =>
       resolveBuildPackagedAgentTelemetryEnv({
-        ZCODE_ENV: "production",
-        ZCODE_PACKAGED_AGENT_OTEL_ENDPOINT: "https://arms.example.com/otlp",
+        SECRETARIAT_ENV: "production",
+        SECRETARIAT_PACKAGED_AGENT_OTEL_ENDPOINT: "https://arms.example.com/otlp",
       }),
     ).toThrow("must be configured together");
     expect(() =>
       resolveBuildPackagedAgentTelemetryEnv({
-        ZCODE_ENV: "production",
-        ZCODE_PACKAGED_AGENT_OTEL_ENDPOINT: "http://arms.example.com/otlp",
-        ZCODE_PACKAGED_AGENT_OTEL_HEADERS: "x-arms-license-key=write-only",
+        SECRETARIAT_ENV: "production",
+        SECRETARIAT_PACKAGED_AGENT_OTEL_ENDPOINT: "http://arms.example.com/otlp",
+        SECRETARIAT_PACKAGED_AGENT_OTEL_HEADERS: "x-arms-license-key=write-only",
       }),
     ).toThrow("must use HTTPS in production");
   });
@@ -177,7 +177,7 @@ describe("desktop tsup chunk isolation", () => {
   });
 
   it("安装包身份与后端环境作为两个编译期常量注入每个 bundle", () => {
-    // 打包后的应用不能依赖机器环境变量：ZCODE_PREVIEW_IDENTITY 在构建时折叠成 __ZCODE_PRODUCT_FLAVOR__。
+    // 打包后的应用不能依赖机器环境变量：SECRETARIAT_PREVIEW_IDENTITY 在构建时折叠成 __ZCODE_PRODUCT_FLAVOR__。
     for (const entry of ["main", "host", "preload"] as const) {
       const defines = getDefines(entry);
       expect(defines).toHaveProperty("__ZCODE_ENV__");

@@ -75,16 +75,16 @@ export interface ZCodeEndpointUrls {
 
 export interface RuntimeZCodeEndpointEnv {
   [key: string]: string | undefined;
-  ZCODE_ENV?: string;
-  ZCODE_BASE_URL?: string;
-  ZCODE_ENDPOINT_ORIGIN?: string;
-  ZCODE_TEST_BASE_URL?: string;
-  ZCODE_PRODUCTION_BASE_URL?: string;
+  SECRETARIAT_ENV?: string;
+  SECRETARIAT_BASE_URL?: string;
+  SECRETARIAT_ENDPOINT_ORIGIN?: string;
+  SECRETARIAT_TEST_BASE_URL?: string;
+  SECRETARIAT_PRODUCTION_BASE_URL?: string;
 }
 
 export interface RuntimeBigModelApiEnv {
   [key: string]: string | undefined;
-  ZCODE_ENV?: string;
+  SECRETARIAT_ENV?: string;
   BIGMODEL_API_BASE_URL?: string;
   BIGMODEL_TEST_API_BASE_URL?: string;
   BIGMODEL_PRODUCTION_API_BASE_URL?: string;
@@ -92,7 +92,7 @@ export interface RuntimeBigModelApiEnv {
 
 export interface RuntimeZaiEndpointEnv {
   [key: string]: string | undefined;
-  ZCODE_ENV?: string;
+  SECRETARIAT_ENV?: string;
   ZAI_OAUTH_ORIGIN?: string;
   ZAI_TEST_OAUTH_ORIGIN?: string;
   ZAI_PRODUCTION_OAUTH_ORIGIN?: string;
@@ -138,12 +138,12 @@ function readRuntimeZCodeEnvScopedValue(
 export function normalizeZCodeEndpointOrigin(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    throw new Error("ZCode endpoint origin is empty");
+    throw new Error("Secretariat endpoint origin is empty");
   }
 
   const parsed = new URL(trimmed);
   if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-    throw new Error("ZCode endpoint origin must use http or https");
+    throw new Error("Secretariat endpoint origin must use http or https");
   }
   return parsed.origin;
 }
@@ -197,8 +197,8 @@ export function resolveZCodeEndpointOrigin(options?: {
 }
 
 export function resolveRuntimeZCodeEnv(env: RuntimeZCodeEndpointEnv = {}): ZCodeEnv {
-  // 独立 CLI / 服务测试未注入 ZCODE_ENV 时默认生产域；桌面测试包会显式下发 ZCODE_ENV=test。
-  return env.ZCODE_ENV?.trim().toLowerCase() === "test" ? "test" : "production";
+  // 独立 CLI / 服务测试未注入 SECRETARIAT_ENV 时默认生产域；桌面测试包会显式下发 SECRETARIAT_ENV=test。
+  return env.SECRETARIAT_ENV?.trim().toLowerCase() === "test" ? "test" : "production";
 }
 
 export function resolveRuntimeZCodeEndpointOrigin(
@@ -208,14 +208,14 @@ export function resolveRuntimeZCodeEndpointOrigin(
   const zcodeEnv = resolveRuntimeZCodeEnv(env);
   const scopedBaseOrigin =
     zcodeEnv === "production"
-      ? readRuntimeEnvValue(env, "ZCODE_PRODUCTION_BASE_URL")
-      : readRuntimeEnvValue(env, "ZCODE_TEST_BASE_URL");
+      ? readRuntimeEnvValue(env, "SECRETARIAT_PRODUCTION_BASE_URL")
+      : readRuntimeEnvValue(env, "SECRETARIAT_TEST_BASE_URL");
 
   return resolveZCodeEndpointOrigin({
     env: zcodeEnv,
     envBaseOrigin:
-      readRuntimeEnvValue(env, "ZCODE_BASE_URL") ??
-      readRuntimeEnvValue(env, "ZCODE_ENDPOINT_ORIGIN") ??
+      readRuntimeEnvValue(env, "SECRETARIAT_BASE_URL") ??
+      readRuntimeEnvValue(env, "SECRETARIAT_ENDPOINT_ORIGIN") ??
       scopedBaseOrigin,
     overrideOrigin: options?.overrideOrigin,
   });
@@ -270,7 +270,7 @@ export function buildBigModelApiUrl(env: RuntimeBigModelApiEnv = {}, path: strin
 }
 
 export function buildBigModelCodingPlanPersonalManageUrl(env: RuntimeBigModelApiEnv = {}): string {
-  // 修复原因：BigModel Coding Plan 管理页要跟随 ZCODE_ENV；
+  // 修复原因：BigModel Coding Plan 管理页要跟随 SECRETARIAT_ENV；
   // 测试环境如果继续写死 bigmodel.cn，会把测试账号带到生产套餐页。
   return buildBigModelApiUrl(env, "/coding-plan/personal/overview");
 }

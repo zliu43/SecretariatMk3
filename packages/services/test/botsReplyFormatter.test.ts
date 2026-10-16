@@ -200,26 +200,26 @@ describe("bot reply formatter", () => {
   it("uses edit kind labels in permission request titles", () => {
     const text = formatBotPermissionRequestSummary(
       {
-        title: "Edit /Users/dev/ZCodeProject/Gomoku/index.html",
+        title: "Edit /Users/dev/SecretariatProject/Gomoku/index.html",
         kind: "edit",
-        raw: { rawInput: { file_path: "/Users/dev/ZCodeProject/Gomoku/index.html" } },
+        raw: { rawInput: { file_path: "/Users/dev/SecretariatProject/Gomoku/index.html" } },
       },
       { locale: "en-US" },
     );
 
     expect(text).toBe(
-      "Permission required:\nEditing /Users/dev/ZCodeProject/Gomoku/index.html\n`/Users/dev/ZCodeProject/Gomoku/index.html`",
+      "Permission required:\nEditing /Users/dev/SecretariatProject/Gomoku/index.html\n`/Users/dev/SecretariatProject/Gomoku/index.html`",
     );
   });
 
   it("specializes edit permission kind labels from file changes", () => {
     const text = formatBotPermissionRequestSummary(
       {
-        title: "Edit /Users/dev/ZCodeProject/Gomoku/index.html",
+        title: "Edit /Users/dev/SecretariatProject/Gomoku/index.html",
         kind: "edit",
         raw: {
           changes: {
-            "/Users/dev/ZCodeProject/Gomoku/index.html": {
+            "/Users/dev/SecretariatProject/Gomoku/index.html": {
               type: "add",
               content: "<html></html>",
             },
@@ -230,18 +230,18 @@ describe("bot reply formatter", () => {
     );
 
     expect(text).toBe(
-      "Permission required:\nWriting /Users/dev/ZCodeProject/Gomoku/index.html\n`/Users/dev/ZCodeProject/Gomoku/index.html`",
+      "Permission required:\nWriting /Users/dev/SecretariatProject/Gomoku/index.html\n`/Users/dev/SecretariatProject/Gomoku/index.html`",
     );
   });
 
   it("uses editing for update file change permission labels", () => {
     const text = formatBotPermissionRequestSummary(
       {
-        title: "Edit /Users/dev/ZCodeProject/Gomoku/index.html",
+        title: "Edit /Users/dev/SecretariatProject/Gomoku/index.html",
         kind: "edit",
         raw: {
           changes: {
-            "/Users/dev/ZCodeProject/Gomoku/index.html": {
+            "/Users/dev/SecretariatProject/Gomoku/index.html": {
               type: "update",
               content: "<html></html>",
             },
@@ -252,7 +252,7 @@ describe("bot reply formatter", () => {
     );
 
     expect(text).toBe(
-      "Permission required:\nEditing /Users/dev/ZCodeProject/Gomoku/index.html\n`/Users/dev/ZCodeProject/Gomoku/index.html`",
+      "Permission required:\nEditing /Users/dev/SecretariatProject/Gomoku/index.html\n`/Users/dev/SecretariatProject/Gomoku/index.html`",
     );
   });
 

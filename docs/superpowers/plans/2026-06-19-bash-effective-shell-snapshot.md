@@ -9,7 +9,7 @@
 
 **Architecture:** Introduce a session-scoped Effective Bash Shell descriptor that is resolved once at session create/resume and reused by context assembly, Bash execution, and Explore subagents. Runtime shell changes update the execution descriptor immediately and append a provider-visible mid-conversation system notice instead of rewriting the initial `# Environment` system context.
 
-**Tech Stack:** TypeScript, Vitest, `@zcode/contracts`, `@zcode/core`, `@zcode/adapters`, ZCode Protocol session runtime.
+**Tech Stack:** TypeScript, Vitest, `@zcode/contracts`, `@zcode/core`, `@zcode/adapters`, Secretariat Protocol session runtime.
 
 ## Global Constraints
 
@@ -111,7 +111,7 @@ export interface ExecutionShellSelection {
   id?: string;
   /** Human-readable diagnostic label. This can include more detail than display.name. */
   label?: string;
-  /** Executable path when ZCode resolved a concrete shell. Omitted for legacy shell fallback. */
+  /** Executable path when Secretariat resolved a concrete shell. Omitted for legacy shell fallback. */
   path?: string;
   /** Shell syntax and cwd capture wrapper semantics. */
   dialect: ExecutionShellDialect | "legacy-shell";
@@ -134,7 +134,7 @@ Then update the comment above `ExecutionCommand.shellOverride` so it reads:
 
 ```ts
 /**
- * ZCode runtime-provided Bash shell selection. Current consumers must only use
+ * Secretariat runtime-provided Bash shell selection. Current consumers must only use
  * this when shellProfile === "posix-bash"; generic shell execution must ignore it.
  */
 shellOverride?: ExecutionShellSelection;

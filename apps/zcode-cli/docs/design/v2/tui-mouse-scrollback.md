@@ -23,7 +23,7 @@ selection must remain available across the whole TUI by default.
 
 ## Non-Goals
 
-- Do not add a new `ZCODE_` environment variable or user configuration surface.
+- Do not add a new `SECRETARIAT_` environment variable or user configuration surface.
 - Do not change runtime session, provider, tool, permission, or event schemas.
 - Do not make terminal emulator scrollback the source of truth. The TUI
   transcript projection remains the scrollable surface.
@@ -58,11 +58,11 @@ The transcript viewport uses a published scroll-capable Ink fork
 component. This fork adds renderer-level support for `overflowY="scroll"`,
 `scrollTop`, native scrollbar drawing, and scroll geometry helpers. That keeps
 scroll clipping and scrollbar rendering inside the terminal renderer instead of
-duplicating those responsibilities in ZCode's transcript component.
+duplicating those responsibilities in Secretariat's transcript component.
 
 Maintaining a custom forked Ink DOM with a local `ScrollBox` would not give this
 project a reusable package boundary. The published fork can be adopted directly
-as a dependency while keeping ZCode's controller as the owner of
+as a dependency while keeping Secretariat's controller as the owner of
 transcript-only scroll policy.
 
 If SGR mouse input is externally supplied, wheel input remains routed through

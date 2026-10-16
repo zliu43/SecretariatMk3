@@ -2,7 +2,7 @@
 
 ## 背景
 
-ZCode 官方内置 skill 通过官方插件随 CLI 打包。用户在输入框中主要通过两种入口发现它们：
+Secretariat 官方内置 skill 通过官方插件随 CLI 打包。用户在输入框中主要通过两种入口发现它们：
 
 - `/` 面板：slash command 面板会把 enabled skill 也作为候选，选中后插入 `$skill`。
 - `$` 面板：skill mention 面板直接展示 skill 候选。

@@ -65,8 +65,8 @@ export async function ensureSeaRuntimeTools(
   }
 
   const env = options.env ?? process.env;
-  const configuredStorageRoot = options.storageRoot ?? env.ZCODE_STORAGE_DIR?.trim();
-  const storageRoot = configuredStorageRoot || join(homedir(), ".zcode");
+  const configuredStorageRoot = options.storageRoot ?? env.SECRETARIAT_STORAGE_DIR?.trim();
+  const storageRoot = configuredStorageRoot || join(homedir(), ".secretariat");
   const runtimeEnv: CliEnv = {};
 
   for (const tool of manifest.tools) {

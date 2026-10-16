@@ -41,7 +41,7 @@ Bash tool 运行时有三种名字相近但职责不同的 snapshot：
 
 2. shell init snapshot
    - 由 `apps/zcode-cli/packages/adapters/src/exec/shell-init-snapshot.ts` 管理。
-   - POSIX/Git Bash 下，adapter 首次用 login shell 执行 snapshot creation script，source 用户 rc 文件，并把 functions、aliases、shell options、PATH 写入 ZCode storage 下的 `shell-snapshots/snapshot-${shell}-${timestamp}-${random}.sh`。
+   - POSIX/Git Bash 下，adapter 首次用 login shell 执行 snapshot creation script，source 用户 rc 文件，并把 functions、aliases、shell options、PATH 写入 Secretariat storage 下的 `shell-snapshots/snapshot-${shell}-${timestamp}-${random}.sh`。
    - functions/options/aliases 的导出策略：只在用户 rc 存在时导出，过滤单下划线补全函数，options/aliases 输出最多 1000 行，并在 Git Bash/MSYS/Cygwin 下过滤 `winpty` aliases。
    - snapshot creation script 使用 adapter 侧 host path 写文件；Git Bash path 转换只发生在后续真实命令 source snapshot 时。
    - 创建成功后，后续 Bash tool command 会先 source 这个 snapshot，再用非 login shell 执行真实命令，即 spawn args 从 `-c -l <command>` 变为 `-c <command>`。
@@ -55,12 +55,12 @@ Bash tool 运行时有三种名字相近但职责不同的 snapshot：
    - retention cleanup 默认删除 `shell-snapshots/` 顶层 mtime 超过 30 天的 `.sh` 文件。
    - CMD 和 legacy shell 不创建也不 source shell init snapshot。
 
-3. ZCode startup script snapshot
+3. Secretariat startup script snapshot
    - 由 `apps/zcode-cli/packages/adapters/src/exec/bash-startup-script.ts` 根据 execution request 的 `bashPrelude` 生成并物化；不再有 core 侧 `bash-startup.ts` descriptor。
-   - 这个脚本是 ZCode 内部执行基础设施，不是 provider-visible prompt content，也不改变 tool schema。
+   - 这个脚本是 Secretariat 内部执行基础设施，不是 provider-visible prompt content，也不改变 tool schema。
    - `rg` fallback 始终保留；`find` / `grep` 是否映射到 `bfs` / `ugrep`，由根 Session runtime 物化时固定的增强搜索启动偏好决定，默认启用。
 
-执行顺序是：先 source shell init snapshot，再 source ZCode startup script，最后执行模型命令和 cwd capture trailer。snapshot 文件 path 不作为 session state 持久化；cold resume 后由 adapter 基于恢复后的 shell selection lazy 创建新的随机 snapshot。旧文件不能直接作为 ready snapshot 被恢复。
+执行顺序是：先 source shell init snapshot，再 source Secretariat startup script，最后执行模型命令和 cwd capture trailer。snapshot 文件 path 不作为 session state 持久化；cold resume 后由 adapter 基于恢复后的 shell selection lazy 创建新的随机 snapshot。旧文件不能直接作为 ready snapshot 被恢复。
 
 ## Selection 结构
 
@@ -100,7 +100,7 @@ Windows:
 
 `apps/zcode-cli/packages/bootstrap/src/app/create-app.ts` 在统一用户执行边界 lazy 请求一次 Host 候选值，并在 app 生命周期内复用该结果。Host 候选无效或未显式选择时，再由 CLI 运行环境的 `resolveEffectiveBashShellSelection()` 自动解析。已有或持久化 selection 的 session 会忽略候选值；持久化 selection 的读取、可用性校验和 fallback 应用统一由 `AgentRuntime.resumeFromStore()` 负责。
 
-deferred draft 预热不冻结 shell；首次真实用户执行前才读取。desktop continuous、web-remote replayable、legacy/V4 prompt、goal external activity、expert workflow 和 script workflow 都必须经过同一 app/runtime admission。desktop-attached remote 通过 workspace-scoped Agent service 请求回到 desktop shared Host 的本地 `SettingService`；手机 `/remote` 复用该 Host。relay/main 不保存 shell 设置，远端 `~/.zcode/v2` 也不作为 desktop-attached workspace 的权威源。
+deferred draft 预热不冻结 shell；首次真实用户执行前才读取。desktop continuous、web-remote replayable、legacy/V4 prompt、goal external activity、expert workflow 和 script workflow 都必须经过同一 app/runtime admission。desktop-attached remote 通过 workspace-scoped Agent service 请求回到 desktop shared Host 的本地 `SettingService`；手机 `/remote` 复用该 Host。relay/main 不保存 shell 设置，远端 `~/.secretariat/v2` 也不作为 desktop-attached workspace 的权威源。
 
 旧 Host 返回 `-32601` 或 Agent 尚未连接 Host 返回 `-32020` 时，保持 CLI 自动解析；其他协议、resolver 或传输错误原样失败。这里不新增 per-send pull、设置广播、缓存同步或 Session 级 setting snapshot。
 

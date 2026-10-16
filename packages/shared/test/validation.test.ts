@@ -294,7 +294,7 @@ describe("hostResponseMessageSchema", () => {
     }
   });
 
-  it("rejects local host init without an ZCode Built-in Provider Config", () => {
+  it("rejects local host init without an Secretariat Built-in Provider Config", () => {
     expect(
       hostIncomingMessageSchema.safeParse({
         type: "init-local",
@@ -324,7 +324,7 @@ describe("hostResponseMessageSchema", () => {
     expect(parsed.success).toBe(false);
   });
 
-  it("accepts window Host connect payload with remote ZCode Agent asset dirs", () => {
+  it("accepts window Host connect payload with remote Secretariat Agent asset dirs", () => {
     const parsed = hostIncomingMessageSchema.safeParse({
       type: "connect-remote-workspace",
       requestId: "connect-docker-1",
@@ -637,7 +637,7 @@ describe("hostResponseMessageSchema", () => {
     expect(patch.computerUseComposerEntryHidden).toBe(false);
   });
 
-  it("defaults ZCode interaction behavior to queue and accepts guide patches", () => {
+  it("defaults Secretariat interaction behavior to queue and accepts guide patches", () => {
     const parsed = appSettingsSchema.parse({});
     const patch = appSettingsPatchSchema.parse({
       zcodeInteractionBehavior: "guide",
@@ -671,7 +671,7 @@ describe("hostResponseMessageSchema", () => {
     expect(patch.providerFamilyDomainUpdatedAt).toBe(456);
   });
 
-  it("normalizes legacy enabled agent CLI providers to ZCode Agent", () => {
+  it("normalizes legacy enabled agent CLI providers to Secretariat Agent", () => {
     const parsed = appSettingsSchema.parse({
       enabledBuiltinAgentCliProviders: ["claude", "codex", "gemini", "opencode"],
     });
@@ -813,7 +813,7 @@ describe("hostResponseMessageSchema", () => {
     expect(sessionEntry.target).not.toHaveProperty("resourcePackages");
   });
 
-  it("drops retired ZCode Agent proxy settings from legacy settings files", () => {
+  it("drops retired Secretariat Agent proxy settings from legacy settings files", () => {
     const parsed = appSettingsSchema.safeParse({
       recentProjects: [],
       locale: "zh-CN",

@@ -13,7 +13,7 @@
 当前正式事实链是：
 
 ```text
-ZCode Built-in Provider Config
+Secretariat Built-in Provider Config
               |
               v
 Account Overlay
@@ -59,7 +59,7 @@ legacy family mode / selectedKey
 - Samantha 工作区：独立 worktree
 - MacBook Pro 标准仓库：`/Users/dev/Desktop/projects/Z.AI/z-code`
 - 两端提交：`21c38683e1 test(ui): remove stale built-in model label assertion`
-- MacBook Pro 使用已有标准 bootstrap/build 结果；执行时设置 `ZCODE_E2E_SKIP_BUILD=1`、`ZCODE_E2E_SKIP_AGENT_BUILD=1`，没有修改系统配置。
+- MacBook Pro 使用已有标准 bootstrap/build 结果；执行时设置 `SECRETARIAT_E2E_SKIP_BUILD=1`、`SECRETARIAT_E2E_SKIP_AGENT_BUILD=1`，没有修改系统配置。
 
 ### 2.2 四轮原生 Desktop E2E
 
@@ -226,7 +226,7 @@ modelProviderFamilyModes + modelProviderFamilySelectedKeys
 
 ### R7. CPUW-03 的 Webview mock 假设也已过时
 
-`triggerCodingPlanWebviewPurchaseComplete()` 先读取可见 Webview origin，再把这个 origin 当作本地 upgrade mock server 调用“标记购买完成”。当前实际 Webview URL 是正式 ZCode Endpoint：
+`triggerCodingPlanWebviewPurchaseComplete()` 先读取可见 Webview origin，再把这个 origin 当作本地 upgrade mock server 调用“标记购买完成”。当前实际 Webview URL 是正式 Secretariat Endpoint：
 
 ```text
 https://zcode.z.ai/coding-plan...
@@ -236,7 +236,7 @@ https://zcode.z.ai/coding-plan...
 
 判断：当前失败点是 Webview E2E mock 接线和 Account 状态断言过时；尚未证明购买完成 bridge 或刷新逻辑失败。
 
-正确处理：mock 控制面地址必须来自 WDIO 启动的 upgrade mock，而不是从 Webview 可见 origin 反推；Webview 页面/导航可继续使用受信 ZCode Endpoint fixture。购买后通过正式 Provider Settings/Account entitlement 观察刷新结果。
+正确处理：mock 控制面地址必须来自 WDIO 启动的 upgrade mock，而不是从 Webview 可见 origin 反推；Webview 页面/导航可继续使用受信 Secretariat Endpoint fixture。购买后通过正式 Provider Settings/Account entitlement 观察刷新结果。
 
 ## 4. 37 条逐项结论
 

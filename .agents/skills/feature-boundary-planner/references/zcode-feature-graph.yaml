@@ -277,7 +277,7 @@ nodes:
 
   - id: "capability.agent-core-runtime"
     kind: "capability"
-    label: "ZCode CLI agent core runtime"
+    label: "Secretariat CLI agent core runtime"
     aliases:
       - "agent core"
       - "turn runtime"
@@ -383,7 +383,7 @@ nodes:
       - "model platform"
       - "model config"
       - "model catalog"
-      - "ZCode Built-in Model Config Rules"
+      - "Secretariat Built-in Model Config Rules"
       - "模型能力"
       - "模型平台"
       - "模型配置"
@@ -554,7 +554,7 @@ nodes:
 
   - id: "capability.app-usage"
     kind: "capability"
-    label: "App Usage analytics from ZCode CLI usage facts"
+    label: "App Usage analytics from Secretariat CLI usage facts"
     aliases:
       - "App Usage"
       - "usage stats"
@@ -628,16 +628,16 @@ nodes:
         file: "packages/desktop/src/main/rendererActionTraceBroker.ts"
     invariants:
       - "Only Electron Desktop Renderer creates ui_action spans; Web/mobile remain no-op."
-      - "Host, CLI, RPC and ZCode Protocol receive no trace changes."
+      - "Host, CLI, RPC and Secretariat Protocol receive no trace changes."
       - "Product /event/report remains unchanged and separate."
 
   - id: "capability.zcode-data-size-telemetry"
     kind: "capability"
-    label: "ZCode local data directory size telemetry"
+    label: "Secretariat local data directory size telemetry"
     aliases:
-      - "ZCode data size"
+      - "Secretariat data size"
       - "disk usage telemetry"
-      - "ZCode 数据目录占用"
+      - "Secretariat 数据目录占用"
       - "磁盘占用埋点"
     docs:
       - "docs/monitoring/zcode-data-size-arms-telemetry.md"
@@ -656,7 +656,7 @@ nodes:
     invariants:
       - "Measure only the local getZCodeDataRootDir logical byte size; never report paths, file names, workspace ids or remote targets."
       - "Directory traversal runs in a Worker and stays outside conversation continuous/replayable delivery."
-      - "A running ZCode task always blocks collection; successful reports are limited to one per device per 24 hours."
+      - "A running Secretariat task always blocks collection; successful reports are limited to one per device per 24 hours."
 
   - id: "capability.resource-manager"
     kind: "capability"
@@ -1420,7 +1420,7 @@ nodes:
     aliases:
       - "official MCP"
       - "Server MCP"
-      - "ZCode MCP quota"
+      - "Secretariat MCP quota"
       - "官方 MCP"
       - "官方 MCP 额度"
     docs:
@@ -1490,7 +1490,7 @@ nodes:
       - "provider"
       - "custom provider"
       - "provider registry"
-      - "ZCode Built-in Provider Config"
+      - "Secretariat Built-in Provider Config"
       - "Account Provider Config"
       - "Account Built-in Provider Config"
       - "Effective Built-in Provider Config"
@@ -1547,7 +1547,7 @@ nodes:
       - "Account Config is derived only for concrete Built-in Account Providers and does not inspect or constrain Personal-only Providers."
       - "Provider Config has no top-level enabled field. A Personal Provider exists in Settings when its Personal definition exists; an Account Provider has fixed Family placement, while zhipu-account access.entitled expresses account eligibility. Registry admission still requires complete Effective Provider Config and an enabled, complete Model."
       - "Every Account snapshot declares basedOnZCodeBuiltinRevision; Registry publishes only a matching Built-in/Account pair, retains the prior complete Registry while Account recomputes, and never blocks Personal-only updates on Account refresh."
-      - "ZCode Built-in Active/LKG and refresh control are physically isolated by normalized ZCode control-plane Endpoint under platform/appVersion; revisions and fallbacks never cross Endpoint directories."
+      - "Secretariat Built-in Active/LKG and refresh control are physically isolated by normalized Secretariat control-plane Endpoint under platform/appVersion; revisions and fallbacks never cross Endpoint directories."
       - "Provider startup requires a valid trusted Bundled baseline, not every auxiliary source: disposable Active/LKG and Configured Default failures fall back, invalid Personal config is preserved for recovery then replaced by an empty in-memory or persisted overlay, and first-load Account resolution failure publishes a matching entitled=false overlay. Only an invalid Bundled baseline or an internal Resolver/Registry invariant failure blocks startup."
       - "Personal Config cross-process observation uses one asynchronous content-revision polling loop rather than fs.watch; same-process saves publish immediately, other processes self-heal within one interval, and provider connectivity explicitly refreshes the Worker Registry before lookup without creating a Host-side Model path."
       - "Normal Built-in and Account Built-in assembly maintains builtinModelIds while Personal settings maintains modelIds; strict source schemas reject fields outside each source boundary before all inputs enter the shared Provider/Model overlay types."
@@ -1557,8 +1557,8 @@ nodes:
       - "At the inventory boundary, missing or null collections normalize to empty, Built-in membership wins a cross-source duplicate, and repeated ids within one array retain the first occurrence. Resolver ignores later duplicates deterministically and Settings normalizes Provider-owned arrays on save; no conflict DTO or suspended second identity is created."
       - "Provider modelOrder and Personal top-level providerOrder own user sorting. The shared owned-order algorithm yields unmentioned Built-in + requested valid members + unmentioned Personal; Family Providers remain outside the sortable standard segment. Settings, Registry, and Selection preserve that inventory and filter it without secondary sorting."
       - "Provider group is explicit at root declarations, immutable through Account/Personal overlays, and complete in Effective Provider, Registry, and Settings DTOs; it replaces an additional builtin boolean, and Renderer never infers grouping from ids, preset lists, or Personal map membership."
-      - "Effective Model Rules resolve against Effective Provider Config and are composed as ZCode Built-in rules + Personal Match rules + Personal provider-model rules; each group preserves internal order and Personal exact rules always apply last."
-      - "ZCode Built-in Model Rules use physical authoring order rather than a priority mechanism: complete baseline, Model Match, Model + API Match, Model + API + Endpoint Match, Provider-scoped Match for service facts that apply to all current/future members, then narrow Provider-Model Exact Rules; Resolver preserves that Built-in order without dynamic specificity sorting."
+      - "Effective Model Rules resolve against Effective Provider Config and are composed as Secretariat Built-in rules + Personal Match rules + Personal provider-model rules; each group preserves internal order and Personal exact rules always apply last."
+      - "Secretariat Built-in Model Rules use physical authoring order rather than a priority mechanism: complete baseline, Model Match, Model + API Match, Model + API + Endpoint Match, Provider-scoped Match for service facts that apply to all current/future members, then narrow Provider-Model Exact Rules; Resolver preserves that Built-in order without dynamic specificity sorting."
       - "Z.ai/BigModel Start, Individual, and Team Plan Providers expose Image/Video input for every member because the plan service performs visual-to-text processing before the model API; this is a Provider-scoped Built-in Model Rule and never changes the native capability of ordinary Account API models. Individual and Team static membership is ordered GLM-5.3, GLM-5.3-Flash, GLM-5.2, GLM-5-Turbo, while Start membership remains Account-returned."
       - "Both Built-in and Personal Model Rule sources may use structured provider-model rules for an exact providerId/modelId target or match rules for a target set. Built-in exact rules are release-owned; only Personal exact rules follow Settings rename/delete lifecycle. Match rules are never guessed, renamed, or deleted by Provider/Model lifecycle operations."
       - "The Provider Config chain uses zcodeBuiltin/zcode-builtin naming across domain APIs, source paths, process fields, environment variables, and packaged assets; the unshipped official naming has no alias, fallback, importer, or dual-read compatibility, while unrelated Official MCP/Plugin/CUA concepts retain their own terminology."
@@ -1566,8 +1566,8 @@ nodes:
       - "Account Connection owns current-account facts. Built-in Provider Config owns zhipu-account family/mode; Account Built-in Provider Config projects only entitled and account-specific model membership, while account identity, Coding Plan project keys, Team scope, JWT, and other dynamic credentials stay inside request-time Services."
       - "Start Plan, Individual Coding Plan, Team Coding Plan, and Off-Peak are separate fixed-kind Built-in Providers with enabled=true. Account Built-in overlay marks the compatible current connection entitled without rewriting Provider enabled, and Resolver admits only enabled, entitled, complete Providers to Registry."
       - "Welcome manual API-key setup locates the fixed zai-api or bigmodel-api Built-in Provider and saves only a sparse Personal Provider Overlay. It does not create a custom Provider, copy Built-in endpoint/schema/models, enter Account Request Auth, or mutate an existing explicit Family Connection Selection."
-      - "Off-Peak request auth combines ZCode JWT, the compatible Coding Plan project key, and the Off-Peak ticket through one Registry-backed host-private credential resolver. Desktop Host dispatch does not scan Provider Settings or independently infer the current account Provider."
-      - "Five strict input schemas enforce ZCode Built-in Provider, Account Provider, Personal Provider, ZCode Built-in Model Rule, and Personal Model Rule field ownership before common overlay and completeness validation. UI visibility remains a separate presentation decision."
+      - "Off-Peak request auth combines Secretariat JWT, the compatible Coding Plan project key, and the Off-Peak ticket through one Registry-backed host-private credential resolver. Desktop Host dispatch does not scan Provider Settings or independently infer the current account Provider."
+      - "Five strict input schemas enforce Secretariat Built-in Provider, Account Provider, Personal Provider, Secretariat Built-in Model Rule, and Personal Model Rule field ownership before common overlay and completeness validation. UI visibility remains a separate presentation decision."
       - "Provider Access owns challenge, requestSigning, and executionProtocol product protocols; Model Config and Runtime do not infer Captcha, V4 signing, or Off-Peak behavior from model/provider ids."
       - "A request-auth Provider receives dynamic credentials per request and fails before network I/O when they are absent."
       - "RuntimeModelFactoryInput cannot override Registry-owned context, properties, or provider options; execution-scoped MCS force is consumed where Provider messages are projected, including Full Compact, and never becomes Model Config or a ModelFactory capability input."
@@ -1580,7 +1580,7 @@ nodes:
 
   - id: "capability.provider-endpoint-routing"
     kind: "capability"
-    label: "ZCode CLI provider endpoint routing"
+    label: "Secretariat CLI provider endpoint routing"
     aliases:
       - "provider endpoint routing"
       - "proxy endpoint mapping"
@@ -2291,7 +2291,7 @@ nodes:
 
   - id: "service.zcode-task-list"
     kind: "service"
-    label: "ZCode task list service"
+    label: "Secretariat task list service"
     codeSeeds:
       - symbol: "IZCodeTaskService"
         file: "packages/services/src/session/zcodeTaskService.ts"
@@ -2637,7 +2637,7 @@ nodes:
     label: "Workspace and user Skill catalog discovery"
     aliases:
       - "Skills discovery"
-      - ".zcode/skills and .agents/skills"
+      - ".secretariat/skills and .agents/skills"
       - "技能目录发现"
       - "用户技能引用"
     docs:
@@ -2675,7 +2675,7 @@ nodes:
 
   - id: "persistence.skill-roots"
     kind: "persistence"
-    label: "Workspace and user .zcode/skills and .agents/skills roots"
+    label: "Workspace and user .secretariat/skills and .agents/skills roots"
     docs:
       - "docs/external-agent-skills-import.md"
     codeSeeds:
@@ -2817,7 +2817,7 @@ nodes:
       - symbol: "serializeOutput"
         file: "apps/zcode-cli/packages/core/src/tool/executor/result-serialization.ts"
     invariants:
-      - "Only zcode-cua owns pre/post state ids and mutation epochs; ZCode preserves or safely rejects their atomic projection."
+      - "Only zcode-cua owns pre/post state ids and mutation epochs; Secretariat preserves or safely rejects their atomic projection."
       - "A synced outcome and its post-state reach the model together; over-budget or malformed pairs become refresh_required."
 
   - id: "state.message-history-model-provenance"
@@ -3028,7 +3028,7 @@ nodes:
 
   - id: "service.provider-endpoint-routing"
     kind: "service"
-    label: "ZCode CLI provider endpoint routing service"
+    label: "Secretariat CLI provider endpoint routing service"
     codeSeeds:
       - symbol: "createProviderEndpointRoutingPort"
         file: "apps/zcode-cli/packages/adapters/src/model/endpoint-routing-edition/index.ts"
@@ -3216,7 +3216,7 @@ nodes:
 
   - id: "service.cli-agent-telemetry"
     kind: "service"
-    label: "ZCode CLI agent OTLP telemetry"
+    label: "Secretariat CLI agent OTLP telemetry"
     codeSeeds:
       - symbol: "AgentExecutionTelemetryRuntime"
         file: "apps/zcode-cli/packages/telemetry/src/agent-trace-runtime.ts"
@@ -3237,7 +3237,7 @@ nodes:
 
   - id: "service.cli-device-mid"
     kind: "service"
-    label: "ZCode CLI deviceMid ensure"
+    label: "Secretariat CLI deviceMid ensure"
     codeSeeds:
       - symbol: "ensureCliDeviceMid"
         file: "apps/zcode-cli/packages/adapters/src/device/cli-device-mid.ts"
@@ -3376,7 +3376,7 @@ nodes:
 
   - id: "service.cua-helper-build-release"
     kind: "service"
-    label: "Canonical ZCode Computer Use Helper build and release"
+    label: "Canonical Secretariat Computer Use Helper build and release"
     aliases:
       - "cua-helper-build"
       - "CUA Helper packaging"
@@ -3578,7 +3578,7 @@ nodes:
 
   - id: "persistence.usage-observability-db"
     kind: "persistence"
-    label: "ZCode CLI model, turn, and tool usage facts"
+    label: "Secretariat CLI model, turn, and tool usage facts"
     codeSeeds:
       - symbol: "queryAppUsage"
         file: "apps/zcode-cli/packages/adapters/src/storage/session-store/repositories/usage.ts"
@@ -3864,7 +3864,7 @@ nodes:
 
   - id: "capability.workspace-project-plugin-scope"
     kind: "capability"
-    label: "Claude-shaped User and Workspace Plugin scope with open ZCode config"
+    label: "Claude-shaped User and Workspace Plugin scope with open Secretariat config"
     aliases:
       - "Workspace-level Plugin"
       - "project Plugin scope"
@@ -3921,9 +3921,9 @@ nodes:
 
   - id: "persistence.workspace-plugin-project-config"
     kind: "persistence"
-    label: "Tracked workspace .zcode/config.json Plugin declaration and sensitive options"
+    label: "Tracked workspace .secretariat/config.json Plugin declaration and sensitive options"
     aliases:
-      - ".zcode/config.json plugins"
+      - ".secretariat/config.json plugins"
       - "project enabledPlugins"
     codeSeeds:
       - symbol: "loadProjectConfigs"
@@ -4117,7 +4117,7 @@ nodes:
 
   - id: "service.client-scenes"
     kind: "service"
-    label: "ZCode Client Scenes option source"
+    label: "Secretariat Client Scenes option source"
     aliases:
       - "clientScenesService"
       - "draft-suggestion scene"
@@ -4230,7 +4230,7 @@ nodes:
 
   - id: "boundary.zcode-cli-provider-transport"
     kind: "delivery-boundary"
-    label: "ZCode CLI default AI SDK provider transport"
+    label: "Secretariat CLI default AI SDK provider transport"
 
   - id: "boundary.cua-desktop-local"
     kind: "delivery-boundary"
@@ -4360,9 +4360,9 @@ nodes:
 
   - id: "capability.unified-zcode-lite-server"
     kind: "capability"
-    label: "Unified ZCode Lite and multi-server control"
+    label: "Unified Secretariat Lite and multi-server control"
     aliases:
-      - "ZCode Lite"
+      - "Secretariat Lite"
       - "multi-server"
       - "unified remote architecture"
       - "统一多端架构"
@@ -4649,7 +4649,7 @@ nodes:
 
   - id: "persistence.hooks-config-files"
     kind: "persistence"
-    label: "User and workspace .zcode Hook configuration files"
+    label: "User and workspace .secretariat Hook configuration files"
     docs:
       - "docs/hooks-runtime-contract.md"
 
@@ -4878,7 +4878,7 @@ nodes:
     codeSeeds:
       - symbol: "SubmitResultToolCallBlock"
         file: "packages/ui/src/ToolCallBlocks/renderers/submit-result.tsx"
-      - symbol: "ZCODE_KNOWN_TOOL_NAMES"
+      - symbol: "SECRETARIAT_KNOWN_TOOL_NAMES"
         file: "packages/shared/src/tool-identity.ts"
       - symbol: "SUBMIT_RESULT_TOOL_NAME"
         file: "apps/zcode-cli/packages/contracts/src/tools/submit-result.ts"
@@ -4901,7 +4901,7 @@ nodes:
       - "share conversation"
       - "conversation share"
       - "会话分享"
-      - "回到 ZCode 继续"
+      - "回到 Secretariat 继续"
     docs:
       - "docs/conversation-share-v1.md"
     codeSeeds:
@@ -4967,7 +4967,7 @@ nodes:
 
   - id: "service.zcode-agent-connection-scope"
     kind: "service"
-    label: "Host-trusted ZCode Agent attachment connection scope"
+    label: "Host-trusted Secretariat Agent attachment connection scope"
     codeSeeds:
       - symbol: "createZCodeAgentConnectionScope"
         file: "packages/services/src/zcode-agent/zcodeAgentConnectionScope.ts"
@@ -5943,12 +5943,12 @@ edges:
     to: "boundary.packaged-desktop-runtime"
     type: "uses-stable-root-in"
     rank: "must-inspect"
-    condition: "Packaged Stable and packaged Preview both use the stable profile and .zcode root; ZCODE_ENV does not select storage."
+    condition: "Packaged Stable and packaged Preview both use the stable profile and .secretariat root; SECRETARIAT_ENV does not select storage."
   - from: "persistence.desktop-user-data-root"
     to: "boundary.workspace-key"
     type: "must-not-rewrite-workspace-project-config"
     rank: "invariant-only"
-    condition: "Workspace .zcode files remain project content and are not renamed to .zcode-dev."
+    condition: "Workspace .secretariat files remain project content and are not renamed to .zcode-dev."
   - from: "capability.development-storage-isolation"
     to: "evidence.development-storage-isolation"
     type: "covered-by"
@@ -6122,7 +6122,7 @@ edges:
     to: "service.cua-helper-build-release"
     type: "packaged-by"
     rank: "must-inspect"
-    condition: "Stable builds assemble ZCode Computer Use.app; local development builds assemble ZCode Computer Use Dev.app. Both use the ZCode Computer Use executable and producer-owned identity constants."
+    condition: "Stable builds assemble Secretariat Computer Use.app; local development builds assemble Secretariat Computer Use Dev.app. Both use the Secretariat Computer Use executable and producer-owned identity constants."
   - from: "capability.build-release-engineering"
     to: "service.cua-helper-build-release"
     type: "produces-signed-runtime-through"
@@ -6506,7 +6506,7 @@ edges:
     to: "persistence.telemetry-device-mid"
     type: "reads-creates"
     rank: "must-inspect"
-    condition: "The actual local or remote Agent runtime uses its own ZCODE_DATA_BASE_DIR and shares the deviceMid field with Desktop/telemetry when colocated."
+    condition: "The actual local or remote Agent runtime uses its own SECRETARIAT_DATA_BASE_DIR and shares the deviceMid field with Desktop/telemetry when colocated."
   - from: "service.telemetry-core"
     to: "persistence.telemetry-device-mid"
     type: "shares-device-identity-with"
@@ -7157,7 +7157,7 @@ edges:
     to: "service.telemetry-core"
     type: "reports-through-existing-route"
     rank: "must-inspect"
-    condition: "Desktop uses the active ZCode business telemetry route; Web remains no-op and no reliable outbox is introduced."
+    condition: "Desktop uses the active Secretariat business telemetry route; Web remains no-op and no reliable outbox is introduced."
   - from: "state.off-peak-turn-attribution"
     to: "boundary.desktop-continuous"
     type: "must-not-change-delivery-semantics"
@@ -7303,7 +7303,7 @@ edges:
     to: "persistence.session-media-artifacts"
     type: "reads-exact-row-artifact-from"
     rank: "must-inspect"
-    condition: "The CLI authorizes row identity and attachment index. Desktop local preview prefers an artifact-derived .zcode media path, uses an authorized metadata-only local_ref only when no artifact exists, and Host registers the selected realpath with Main before renderer playback; arbitrary absolute paths in renderer URLs remain denied. Artifact path materialization failure still falls back only to chunked artifact bytes."
+    condition: "The CLI authorizes row identity and attachment index. Desktop local preview prefers an artifact-derived .secretariat media path, uses an authorized metadata-only local_ref only when no artifact exists, and Host registers the selected realpath with Main before renderer playback; arbitrary absolute paths in renderer URLs remain denied. Artifact path materialization failure still falls back only to chunked artifact bytes."
   - from: "surface.conversation-sent-media-preview"
     to: "boundary.web-remote-replayable"
     type: "must-not-change-recovery-semantics"
@@ -7501,12 +7501,12 @@ edges:
     to: "persistence.skill-roots"
     type: "reads-from"
     rank: "must-inspect"
-    condition: "At every workspace ancestor through the worktree root, .zcode/skills and .agents/skills are merged; the presence of one root must not suppress the other. User and Plugin roots retain their existing discovery contracts."
+    condition: "At every workspace ancestor through the worktree root, .secretariat/skills and .agents/skills are merged; the presence of one root must not suppress the other. User and Plugin roots retain their existing discovery contracts."
   - from: "capability.skill-catalog-discovery"
     to: "capability.agent-core-runtime"
     type: "must-match-discovery-roots-of"
     rank: "must-inspect"
-    condition: "Host/UI catalog discovery and Agent runtime discovery merge the same workspace .zcode/skills and .agents/skills roots so visible references match executable capabilities."
+    condition: "Host/UI catalog discovery and Agent runtime discovery merge the same workspace .secretariat/skills and .agents/skills roots so visible references match executable capabilities."
   - from: "capability.skill-catalog-discovery"
     to: "surface.customize-capability-settings"
     type: "renders-in"
@@ -7702,7 +7702,7 @@ edges:
     to: "persistence.workspace-plugin-project-config"
     type: "persists-shared-declaration-to"
     rank: "must-inspect"
-    condition: "Tracked .zcode/config.json owns project enabledPlugins, extraKnownMarketplaces and plaintext options/credentials/secrets; it never owns package bytes or Plugin data."
+    condition: "Tracked .secretariat/config.json owns project enabledPlugins, extraKnownMarketplaces and plaintext options/credentials/secrets; it never owns package bytes or Plugin data."
   - from: "persistence.workspace-plugin-project-config"
     to: "state.workspace-plugin-effective-config"
     type: "merges-into"
@@ -8229,7 +8229,7 @@ edges:
     to: "surface.workflow-actor-transcript"
     type: "renders-in"
     rank: "must-inspect"
-    condition: 'The actor transcript is a nested read-only SessionPane, so submit_result renders through the SAME ToolCallBlocks registry as the main conversation — one renderer fixes both surfaces; there is nothing pane-specific to special-case. Routing requires the literal snake_case name "submit_result" in ZCODE_KNOWN_TOOL_NAMES (family workflow) plus a toolName dispatch inside resolveRenderer''s workflow case (RespondToCoordinator precedent). Pure read-time projection: the payload lives entirely in input.result (output is only {status:"accepted"}), real models often submit it as a JSON-string (engine scheduler leniency mirrored read-side, one lenient JSON.parse max), and no display-union member is added — that union requires four-file lockstep and a missing member degrades silently.'
+    condition: 'The actor transcript is a nested read-only SessionPane, so submit_result renders through the SAME ToolCallBlocks registry as the main conversation — one renderer fixes both surfaces; there is nothing pane-specific to special-case. Routing requires the literal snake_case name "submit_result" in SECRETARIAT_KNOWN_TOOL_NAMES (family workflow) plus a toolName dispatch inside resolveRenderer''s workflow case (RespondToCoordinator precedent). Pure read-time projection: the payload lives entirely in input.result (output is only {status:"accepted"}), real models often submit it as a JSON-string (engine scheduler leniency mirrored read-side, one lenient JSON.parse max), and no display-union member is added — that union requires four-file lockstep and a missing member degrades silently.'
 
   - from: "capability.official-server-mcp"
     to: "capability.plan-entitlements"

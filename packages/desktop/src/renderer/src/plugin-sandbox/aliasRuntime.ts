@@ -46,7 +46,7 @@ export interface AliasAppLike {
   }): Promise<CallToolResult>;
   readServerResource(params: { uri: string }): Promise<ReadResourceResult>;
   listServerResources(params?: { cursor?: string }): Promise<ListResourcesResult>;
-  /** 规范方法（resources/templates/list、resources/subscribe…）与 ZCode 扩展方法走基类 request。 */
+  /** 规范方法（resources/templates/list、resources/subscribe…）与 Secretariat 扩展方法走基类 request。 */
   request(
     request: { method: string; params?: Record<string, unknown> },
     resultSchema: unknown,
@@ -70,7 +70,7 @@ export interface AliasAppLike {
   downloadFile(params: { contents: McpAppsDownloadFileItem[] }): Promise<{ isError?: boolean }>;
 }
 
-export const ZCODE_GLOBALS_EVENT = "zcode:globals";
+export const SECRETARIAT_GLOBALS_EVENT = "zcode:globals";
 
 export interface PluginSandboxAliasRuntime {
   zcode: ZcodeAliasApi;

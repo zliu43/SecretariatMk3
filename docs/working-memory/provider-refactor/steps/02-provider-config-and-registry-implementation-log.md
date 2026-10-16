@@ -68,7 +68,7 @@ ModelConfigRules 的 `providerMatch` 与 `modelMatch` 是完整匹配正则。�
 
 > 后续人类裁决已取代本项：Personal Config 保持原 `config.json` 路径，迁移前先备份；M2 最终完整 Schema 以 `schemaVersion: 1` 首次发布。见 [`Human in the Loop #10`](./02-provider-config-and-registry-human-in-the-loop.md#10-personal-config-保持原路径并以-schema-version-1-首次发布)。以下内容保留 Agent 当时自主决策的审计背景。
 
-Personal Provider 配置从旧 `~/.zcode/v2/config.json` 单向迁移到 `~/.zcode/v2/provider-config.json`。新文件只属于 Provider Config 领域，使用递增整数 `schemaVersion`，避免 Provider 格式升级迫使整个 Environment Config 共用版本。
+Personal Provider 配置从旧 `~/.secretariat/v2/config.json` 单向迁移到 `~/.secretariat/v2/provider-config.json`。新文件只属于 Provider Config 领域，使用递增整数 `schemaVersion`，避免 Provider 格式升级迫使整个 Environment Config 共用版本。
 
 迁移先原子写入并校验新文件，再切换为唯一权威；旧文件清理可以稍后完成，但不会继续参与读取。未来版本按相邻版本逐级迁移；程序遇到更高版本时拒绝覆盖，避免旧客户端破坏新配置。
 
@@ -243,7 +243,7 @@ Worker process
    ├─ Config Source / watcher
    └─ ProviderRegistryService
 
-each ZCode App / Session runtime
+each Secretariat App / Session runtime
 └─ ApiProviderModelRuntime
    ├─ 订阅进程 Registry
    ├─ 当前 App 的 AiSdkModelAdapter
@@ -450,7 +450,7 @@ Services 响应现有 Provider Runtime Headers 请求时，会把 Renderer 取�
 
 ## 38. Host 建立 Account Request Auth 自动应答边界
 
-ZCode Agent Service 可注入一个窄的 Account Request Auth Resolver。Resolver 按 Model 已固定的 `providerId + modelId + accountAccessId` 取得当前 attempt 的 API Key 和 Header。Personal Coding Plan 与 Team Plan 由 Host 直接应答，不再依赖 Renderer 或 session pane；Start Plan 仍等待 Renderer 产生一次性安全校验 Header，然后把它与 Resolver 返回的 JWT 合并为同一份 Request Auth Material。
+Secretariat Agent Service 可注入一个窄的 Account Request Auth Resolver。Resolver 按 Model 已固定的 `providerId + modelId + accountAccessId` 取得当前 attempt 的 API Key 和 Header。Personal Coding Plan 与 Team Plan 由 Host 直接应答，不再依赖 Renderer 或 session pane；Start Plan 仍等待 Renderer 产生一次性安全校验 Header，然后把它与 Resolver 返回的 JWT 合并为同一份 Request Auth Material。
 
 Worker 侧的 Runtime Auth Port 保持对所有 Model 可用，但 Adapter 只会在 Model 内部存在 `accountAccessId` 时调用它，因此普通 API Provider 不会多一次 Host 往返。当前完成的是通信、分流和合并边界；下一步把真实 Plan 鉴权解析器注入生产 Host。
 
@@ -472,7 +472,7 @@ Worker 的 AI SDK 执行投影现在同时包含 API 与 Account Provider。Acco
 
 ## 41. 本地 Host 下发的 Account Registry 去密
 
-当 ZCode Agent Service 同时拥有本地 Provider Registry Source 和 Account Request Auth Resolver 时，它会在 Host → Worker 边界移除 Account Provider 的 `apiKey` 与请求期 Header，只保留 provider/model 静态投影和 `accountAccessId`。去密后的 revision 根据这份静态内容重新计算；Token 和 Team Key 刷新不再导致 Worker 误以为 Registry 静态事实变化。
+当 Secretariat Agent Service 同时拥有本地 Provider Registry Source 和 Account Request Auth Resolver 时，它会在 Host → Worker 边界移除 Account Provider 的 `apiKey` 与请求期 Header，只保留 provider/model 静态投影和 `accountAccessId`。去密后的 revision 根据这份静态内容重新计算；Token 和 Team Key 刷新不再导致 Worker 误以为 Registry 静态事实变化。
 
 这个切换暂时只用于本地新 Runtime。desktop-attached SSH / WSL / Docker 目前没有本地 Provider Registry Source，仍保留旧快照兼容；它们在 M2.8 接入同样的 Registry 和 Request Auth 边界后再删除 Secret。
 
@@ -547,9 +547,9 @@ V4 草稿首发只需要判断当前是否至少存在一个可选择模型。�
 
 > 本节及下一节记录当时的物理路径实现。后续 [`Human in the Loop #10`](./02-provider-config-and-registry-human-in-the-loop.md#10-personal-config-保持原路径并以-schema-version-1-首次发布) 已裁决 Personal Config 保持原 `config.json` 路径、迁移前备份，并以最终 Schema Version 1 首次发布。
 
-普通 CLI bundle 在 `zcode.cjs` 旁携带仓库的 `config/provider/official.json`。SEA 构建把同一物理文件声明为 asset，启动时读取 asset 内容并按 SHA-256 物化到 `.zcode/v2/runtime-assets/provider/`；文件名包含完整内容哈希，因此新版本不会原地改写正在被其他进程读取的 Official 文件。两种打包方式最终都只向 `@zcode/provider-node` 注入文件路径。
+普通 CLI bundle 在 `zcode.cjs` 旁携带仓库的 `config/provider/official.json`。SEA 构建把同一物理文件声明为 asset，启动时读取 asset 内容并按 SHA-256 物化到 `.secretariat/v2/runtime-assets/provider/`；文件名包含完整内容哈希，因此新版本不会原地改写正在被其他进程读取的 Official 文件。两种打包方式最终都只向 `@zcode/provider-node` 注入文件路径。
 
-Personal Config 默认指向当前数据根下的 `.zcode/v2/provider-config.json`，与 Desktop 使用同一 Environment 文件。`ZCODE_DATA_BASE_DIR` 继续决定数据根；Desktop Worker、测试和远端部署显式注入的 Official / Personal 路径优先，不会被 CLI 默认值覆盖。Doctor、登录和插件管理等不创建 Core 的命令不准备 Provider asset。
+Personal Config 默认指向当前数据根下的 `.secretariat/v2/provider-config.json`，与 Desktop 使用同一 Environment 文件。`SECRETARIAT_DATA_BASE_DIR` 继续决定数据根；Desktop Worker、测试和远端部署显式注入的 Official / Personal 路径优先，不会被 CLI 默认值覆盖。Doctor、登录和插件管理等不创建 Core 的命令不准备 Provider asset。
 
 这个切片只完成事实源的物理装配。Standalone App 的默认 Model、`/model` 列表和 Session Selection 仍读取旧 Runtime Config；新 Registry 尚未收录的 Provider 仍由 M2.5 的 workspace compatibility source 执行。下一切片需要完成旧 CLI Personal Provider 的一次性差异导入，并把 Standalone 的模型查看与选择改为 Registry View，随后才能删除这条旧事实读取。
 
@@ -565,7 +565,7 @@ Desktop legacy provider list ──> current Provider/Model ──┐
 Standalone user provider JSON ─> current Provider/Model ──┘
 ```
 
-只有 Prompt CLI 与 TUI 显式开启 Standalone 导入。`app-server` / `agent-server` 等协议 Worker 继续只读取 Entry 注入的 Official、Personal 与 Account Access；它们不会探测本机 `~/.zcode/cli/config.json`。新 Personal 文件已存在时 Repository 不调用 importer，因此旧用户文件后续残留不会重新覆盖新事实。
+只有 Prompt CLI 与 TUI 显式开启 Standalone 导入。`app-server` / `agent-server` 等协议 Worker 继续只读取 Entry 注入的 Official、Personal 与 Account Access；它们不会探测本机 `~/.secretariat/cli/config.json`。新 Personal 文件已存在时 Repository 不调用 importer，因此旧用户文件后续残留不会重新覆盖新事实。
 
 实现把“已经展开的当前 Provider/Model 与 Official 求差异”下沉为 `@zcode/provider` 的纯投影。Desktop 历史列表和 Standalone 用户 JSON 各自只负责适配旧字段，差异计算、精确模型规则与版本化文档生成共用同一实现。
 
@@ -707,11 +707,11 @@ V4 草稿的 Renderer 前置门禁已经能够从 `ModelSelectionService` 取得
 
 门禁现在只订阅和读取 `ModelSelectionView`。读取异常仍然表示“门禁无法确认”，继续交给 Host 启动门禁做竞态兜底；空 View 才表示确定没有可选模型。该切片不改变错误展示、草稿持久化或远端 Workspace 行为。
 
-## 69. ZCode Agent 模型回显裁决改读 Selection View
+## 69. Secretariat Agent 模型回显裁决改读 Selection View
 
-`resolveModelSelectionForConfigOptions()` 的 ZCode Agent 分支需要判断当前回包或 App Recent 指向的 Provider 是否仍可选。它此前通过 Renderer 全局 `ModelProviderConfig[]` 快照完成判断，使同一选择语义继续依赖旧 Provider Service。
+`resolveModelSelectionForConfigOptions()` 的 Secretariat Agent 分支需要判断当前回包或 App Recent 指向的 Provider 是否仍可选。它此前通过 Renderer 全局 `ModelProviderConfig[]` 快照完成判断，使同一选择语义继续依赖旧 Provider Service。
 
-该分支现在只读取已经水合的 `ModelSelectionView`，并从其中建立 Provider ID 查询集合。View 未水合时仍保留用户的待提交选择；View 已确认 Provider 不存在时，不再用陈旧偏好覆盖 Agent 回包。非 ZCode Agent 的原有 supplier 裁决服务保持不变。
+该分支现在只读取已经水合的 `ModelSelectionView`，并从其中建立 Provider ID 查询集合。View 未水合时仍保留用户的待提交选择；View 已确认 Provider 不存在时，不再用陈旧偏好覆盖 Agent 回包。非 Secretariat Agent 的原有 supplier 裁决服务保持不变。
 
 ## 70. Provider 展示字段退出旧快照兜底
 
@@ -811,7 +811,7 @@ Personal Coding Plan 的复制 Key 属于请求凭据，不属于 Provider Confi
 
 ## 82. Workspace 模型偏好裁决改用 Model Selection View
 
-非 ZCode Agent 的 workspace 配置回显此前由 Renderer 把旧 `ModelProviderConfig[]` 传给 Host。Resolver 因而重新检查 `enabled`、`apiKey`、endpoint 和模型数组，形成了 Registry 之外的第二套可选性判断。
+非 Secretariat Agent 的 workspace 配置回显此前由 Renderer 把旧 `ModelProviderConfig[]` 传给 Host。Resolver 因而重新检查 `enabled`、`apiKey`、endpoint 和模型数组，形成了 Registry 之外的第二套可选性判断。
 
 现在 Renderer 对所有 Agent 类型都以进程级 `ModelSelectionView` 作为候选事实。Resolver 直接消费其中的 Provider View；Registry 已负责完整性、凭据、启用状态和模型有效性过滤，Resolver 只保留本职工作：读取 workspace 配置，比较 providerId 与规范化 baseURL，校验模型属于该 Provider，并按照原规则产生 ghost 或已匹配结果。
 
@@ -1135,7 +1135,7 @@ Bootstrap 的 `ProviderRegistryModelSource` 同时收窄为必须提供 `validat
 
 本轮增加两个只在 Host 进程内使用的窄通知。`ObservableSettingService.onDidUpdate` 在底层设置
 服务成功落盘后发布本次字段；组合根只关注账号域、Family 模式、Personal/Team 连接选择和
-ZCode endpoint。
+Secretariat endpoint。
 `ModelProviderServiceRuntime.onDidInvalidateAccountProviderFacts` 只发布登录预置、套餐入口、Coding
 Plan Key 与可用性变化。二者统一调用 `AccountProviderService.refresh()`，刷新错误仍由 Service 的
 错误事件记录并保留 last-known-good。
@@ -1964,7 +1964,7 @@ Team Plan Request Key Resolver
 
 新的 Account Request Auth Service 直接依赖该模块。旧 Registry Snapshot 在退出前也调用同一实现，因此
 迁移期不会形成两套 Team Plan Key 算法。模块不读取 Provider Config、不持有 Registry，也不缓存 Key；它只
-处理请求期账号鉴权。BigModel 对陈旧 ZCode JWT 的拒绝、旧 project-only 选择的组织恢复，以及 Z.ai 的业务域
+处理请求期账号鉴权。BigModel 对陈旧 Secretariat JWT 的拒绝、旧 project-only 选择的组织恢复，以及 Z.ai 的业务域
 Header 行为均保持原样。
 
 测试先建立独立模块边界，并分别覆盖 BigModel 与 Z.ai 从组织/项目取得 `apiKey.secret` 的完整流程；再移动
@@ -2272,7 +2272,7 @@ Account Request Auth
 ├─ 校验 accessId 属于当前登录账号
 ├─ Personal Coding Plan -> Account Credential Store
 ├─ Team Plan            -> Team Key Resolver
-└─ Start Plan           -> 当前 ZCode JWT
+└─ Start Plan           -> 当前 Secretariat JWT
         |
         v
 Usage API
@@ -2280,7 +2280,7 @@ Usage API
 
 `BigModelUsageQuotaProvider` 删除了对旧 `IModelProviderService` 的直接依赖，也不再负责创建 Team API Key。
 Team Key 的取得和缓存由 Account Request Auth 保持统一；Usage 只消费本次连接对应的请求材料。套餐重置
-同样先校验 `providerId + accessId` 的账号身份，再读取当前账号的 ZCode JWT 与对应 Provider Family 的
+同样先校验 `providerId + accessId` 的账号身份，再读取当前账号的 Secretariat JWT 与对应 Provider Family 的
 OAuth JWT。
 
 Shared Protocol 为 Coding Plan Usage 和 Reset 增加必填 `accessId`；Entitlement 与通用 Usage 请求在兼容
@@ -2462,7 +2462,7 @@ Provider Config 尚未正式发布，前几个切片中的 v1-v5 只是开发过
 未上线的历史固化成长期兼容负担。本轮把最终的 `access`、`api`、`models.apiAdapter` 结构定为首个正式
 `schemaVersion: 1`，删除内置的开发期逐版本迁移；未来真正发布 v2 时，再增加明确的 v1 到 v2 迁移。
 
-Personal Provider Config 继续使用现有 `~/.zcode/v2/config.json`，不创建第二份 `provider-config.json`。首次
+Personal Provider Config 继续使用现有 `~/.secretariat/v2/config.json`，不创建第二份 `provider-config.json`。首次
 读取没有 `schemaVersion` 的旧文件时，由 Entry 注入旧格式转换器，在同目录先写入内容一致且不覆盖已有文件的
 备份，再原子写入新 v1 文档：
 
@@ -2630,7 +2630,7 @@ CLI TypeScript 检查通过；CLI 检查前先重建 Shared Types 和 Bootstrap 
 
 继续审计旧 CLI Config 读取时发现，主 App 已由进程 Registry 创建 ModelFactory 和 Adapter，但 Expert Workflow
 与 Script Workflow 的 Child Runtime 仍会各自调用 `createModelAdapter()`。在 Registry 模式下，这些子 Runtime
-没有旧 `RuntimeModelConfig`，`createModelAdapter()` 因而会自行读取 `~/.zcode/cli/config.json`，把已经退出主链路
+没有旧 `RuntimeModelConfig`，`createModelAdapter()` 因而会自行读取 `~/.secretariat/cli/config.json`，把已经退出主链路
 的旧 Provider 与 Model 事实重新带回进程。
 
 本轮让两类 Workflow Child Runtime 直接复用主 App 已装配的 Adapter：
@@ -2767,7 +2767,7 @@ Selection Service；Bots 内部为独立旧式测试保留的 `ModelProviderServ
 ## 179. Standalone 登录改为 Account Config 与请求期鉴权
 
 Prompt CLI 与 TUI 的 Coding Plan 登录过去把 API Key、Provider 定义和默认模型一起写入旧
-`~/.zcode/cli/config.json`。这会让 Standalone Entry 即使已经启动进程 Registry，登录后仍重新制造一份旧
+`~/.secretariat/cli/config.json`。这会让 Standalone Entry 即使已经启动进程 Registry，登录后仍重新制造一份旧
 Provider 事实源。
 
 本轮将 Standalone 登录收敛为两类状态：
@@ -3021,7 +3021,7 @@ ModelSelection 由 Worker 自己的 Registry 解析；当前 Registry 不再包�
 
 `resolveWorkspaceModelSelection` 曾经混合读取 workspace 下的 GLM `config.json`、Renderer localStorage 偏好与旧
 Provider 列表，再通过 Provider ID、Base URL 和模型名判断是否展示 ghost supplier。当前生产调用已经统一为
-ZCode Agent，非 GLM 分支不可达；该 resolver 却无论传入 Claude、Codex 还是 Gemini 都固定读取 GLM 配置。
+Secretariat Agent，非 GLM 分支不可达；该 resolver 却无论传入 Claude、Codex 还是 Gemini 都固定读取 GLM 配置。
 把它迁入新的 Model Selection Service 会把旧 workspace 配置重新确立为 Provider 事实源。
 
 本轮删除 resolver、Parser、Repo、Helper、旧 Service API 和对应旧行为测试。Workspace reload 现在只有一条模型
@@ -3076,7 +3076,7 @@ Provider Service、官方版本安全校验状态机与日志 helper 共 161 条
 
 - Provider Config 已使用 `access.type`、`api.type` 与模型级 `apiAdapter`，规则使用
   `apiMatch` 表达模型/API 组合行为。
-- Personal Config 继续使用 `~/.zcode/v2/config.json`。首次读取旧格式时先创建内容哈希备份，
+- Personal Config 继续使用 `~/.secretariat/v2/config.json`。首次读取旧格式时先创建内容哈希备份，
   再由唯一导入入口写回正式文档；写入使用原子替换，备份或转换失败不会覆盖原文件。
 - 最终格式以 `schemaVersion: 1` 作为首次正式版本，开发阶段的 v1–v5 只保留在历史记录中，
   不作为长期公开迁移链路。
@@ -3100,7 +3100,7 @@ Registry Snapshot 主动推送给 Host/Worker；Runtime Model 同步协议和对
 
 `IModelProviderService.applyToProvider()` 曾用于把模型选择应用到旧 Agent Provider，并承担 ZAPI、Provider
 和 Model 存在性校验。当前本地执行已经由 Submission 携带 Selection、Worker 自己的 Registry 创建 Model；
-仓库生产代码没有剩余调用，旧入口也不再写入 `~/.zcode/cli/config.json`。
+仓库生产代码没有剩余调用，旧入口也不再写入 `~/.secretariat/cli/config.json`。
 
 本轮删除接口、实现和仅覆盖该兼容入口的测试。Provider 保存继续由 Settings Service 负责，Selection 校验由
 Model Selection Service/Registry 负责，连通性测试继续使用独立的 `testModelConnectivity()`。远端旧 Snapshot
@@ -3801,7 +3801,7 @@ Bootstrap、Adapters 与 Prompt Trajectory 针对性测试共 86 条通过，三
 继续沿旧 CLI Config 的消费链审计后，确认正式 App Runtime 已经只从 Process Registry、Session
 Selection 和显式 Turn Overlay 取得模型，但通用 `RuntimeConfig`、`ConfigPort` 和 Config 来源元数据
 仍保存 `model`、`modelCatalog` 与 `hasModel`。这些字段已经没有正式执行消费者，却会让后续代码误以为
-旧 CLI 文件或 `ZCODE_MODEL` 仍是可用的稳态事实源。
+旧 CLI 文件或 `SECRETARIAT_MODEL` 仍是可用的稳态事实源。
 
 本轮先增加失败测试，固定旧文件和环境变量模型字段不能进入 `createConfig().config`，随后删除
 `RuntimeConfig` 与 ConfigPort 中的模型字段、四个 Model Config Key 和来源 `hasModel` 元数据。
@@ -3840,7 +3840,7 @@ Importer 41 条、CLI Registry 生命周期 2 条、CWD 与输出格式 18 条�
 
 第 240 项已经让正式 `RuntimeConfig` 与 `ConfigPort` 退出模型事实，但 `RuntimeConfigPatch` 仍保留
 deprecated 的 `model` / `modelCatalog`，通用环境变量解析器和 Config Merger 也继续构造、合并这些
-字段。它们虽然会在后续边界被丢弃，却仍把 `ZCODE_MODEL`、`ZCODE_BASE_URL` 和旧文件 Schema 表现成
+字段。它们虽然会在后续边界被丢弃，却仍把 `SECRETARIAT_MODEL`、`SECRETARIAT_BASE_URL` 和旧文件 Schema 表现成
 有效的普通运行配置入口。
 
 本轮先修改测试，要求旧模型环境变量被通用 Config 忽略，并要求旧文件的模型兼容语义由专用迁移
@@ -3969,7 +3969,7 @@ OAuth Service 与 Logout Handler 78 条测试通过。该修复补齐 MR 审查 
 ## 250. 删除孤立的旧模型覆盖 Header
 
 继续运行 `knip`、无 scope `dep:refs` 和全仓字符串扫描后，确认
-`providers/codexModelOverride.ts` 只导出 `X-ZCode-Codex-Model-Override` 常量，引用、再导出和动态使用均为
+`providers/codexModelOverride.ts` 只导出 `X-Secretariat-Codex-Model-Override` 常量，引用、再导出和动态使用均为
 零。当前模型选择、Submission、Registry、Request Auth 与 Adapter 请求都不读取该 Header；它已经不是
 一项兼容行为，而是孤立的旧入口形状。
 
@@ -3989,7 +3989,7 @@ MCP 鉴权与远端路由行为。
 
 Server Core 正式构建通过 tsup 嵌入 Official Provider Config；运行时集成测试则用 `tsx` 直接启动源码，
 没有编译期常量，Core 会在发送 ready 前退出。Core 现在接受显式的
-`ZCODE_OFFICIAL_PROVIDER_CONFIG_FILE` 作为源码运行、开发和测试入口；未显式提供时，正式 bundle 仍
+`SECRETARIAT_OFFICIAL_PROVIDER_CONFIG_FILE` 作为源码运行、开发和测试入口；未显式提供时，正式 bundle 仍
 物化自身嵌入的 Official Config。两条路径都指向同一种版本化 Official 文档，没有回退旧 Provider Store
 或新增第二事实来源。
 
@@ -4219,7 +4219,7 @@ Services 的一次性迁移器和迁移测试。对应案例清单中的夹具�
 Desktop Provider Seed 与边界测试共 4 条通过，Desktop E2E TypeScript 检查通过，改动文件 Oxlint 为
 0 warning、0 error。Human in the Loop 16 项仍全部确认；该项只收紧测试事实源，没有新增产品语义。
 
-## 268. 旧 Store 迁移类型退出 ZCode Protocol 出口
+## 268. 旧 Store 迁移类型退出 Secretariat Protocol 出口
 
 符号级引用审计确认，`ModelProviderStoreFile` 迁移 Schema 和裸数组迁移函数仍由
 `packages/shared/src/zcode-protocol/index.ts` 再导出，但没有生产协议消费者。它们描述的是旧物理存储格式，
@@ -4476,8 +4476,8 @@ Adapters Config 与环境配置定向回归 63 条、Adapters typecheck 通过�
 
 ## 286. 固定旧 Runtime Model Config 的剩余边界
 
-上线前最后一轮类型审计确认，旧模型环境变量已经不会进入普通 Runtime Config：`ZCODE_MODEL` 与
-`ZCODE_BASE_URL` 没有运行时消费者，`ZCODE_API_KEY` 的剩余读取只服务旧 CLI Provider 的一次性导入。
+上线前最后一轮类型审计确认，旧模型环境变量已经不会进入普通 Runtime Config：`SECRETARIAT_MODEL` 与
+`SECRETARIAT_BASE_URL` 没有运行时消费者，`SECRETARIAT_API_KEY` 的剩余读取只服务旧 CLI Provider 的一次性导入。
 正常 Provider 执行仍以 Official、Personal 与 Account Config 聚合后的进程 Registry 为唯一事实源。
 
 `RuntimeModelConfig` 的剩余生产引用分为两组：Adapters 中的旧 CLI 文件解析，以及 M4 尚未重构的
@@ -4523,7 +4523,7 @@ M2 结构门禁、Registry、Facade、Adapter、Bootstrap、Services 与 UI 定�
 
 上线收尾继续反查三个容易在大迁移中被遗漏的边界。
 
-Personal Config 与旧 `~/.zcode/v2/config.json` 共用物理路径。旧文件没有 Provider Config
+Personal Config 与旧 `~/.secretariat/v2/config.json` 共用物理路径。旧文件没有 Provider Config
 `schemaVersion` 时，Repository 会先按内容哈希写入确定性备份，再调用唯一 Legacy Importer 生成正式
 v1 文档，并原子替换原路径；正式版本与未来版本不会进入旧导入链。备份失败不会覆盖原文件，重复启动
 不会重复迁移。Provider Node 与 Services 的迁移测试继续固定这组行为。

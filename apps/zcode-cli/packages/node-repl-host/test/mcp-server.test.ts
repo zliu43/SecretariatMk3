@@ -5,8 +5,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY,
-  ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY,
+  SECRETARIAT_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY,
+  SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY,
 } from "@zcode/contracts";
 import { CUA_APP_ASSOCIATIONS_META_KEY } from "@zcode/zcode-cua/host-display-contract";
 import {
@@ -68,8 +68,8 @@ describe("node_repl MCP server", () => {
 
   it("captures Computer Use credentials before the plugin host restores its environment", async () => {
     const capturedRuntime = captureComputerUseRuntimeFromEnvironment({
-      ZCODE_CUA_PERMISSION_BROKER_SOCKET: "/tmp/deferred-cua.sock",
-      ZCODE_CUA_PERMISSION_BROKER_TOKEN: "deferred-cua-token",
+      SECRETARIAT_CUA_PERMISSION_BROKER_SOCKET: "/tmp/deferred-cua.sock",
+      SECRETARIAT_CUA_PERMISSION_BROKER_TOKEN: "deferred-cua-token",
     });
     expect(capturedRuntime).toBeDefined();
 
@@ -319,7 +319,7 @@ describe("node_repl MCP server", () => {
 
   it("carries no copy of the Computer Use assets", () => {
     // 宿主与两个能力插件独立之后，CUA 的 SDK 与文档只有一份，属于 computer-use 插件；
-    // 宿主按 ZCODE_CUA_PLUGIN_ROOT 去取。2026-09-11 之前 browser-use 各存一份手工副本，
+    // 宿主按 SECRETARIAT_CUA_PLUGIN_ROOT 去取。2026-09-11 之前 browser-use 各存一份手工副本，
     // 其中文档那份悄悄停在重构前的 API，兜底路径会把它发给模型。
     for (const relative of [
       "../../browser-use-plugin/scripts/computer-use-client.mjs",
@@ -500,17 +500,17 @@ describe("node_repl MCP server", () => {
       mimeType: "image/png",
     });
     expect(screenshot._meta).toMatchObject({
-      [ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [0],
+      [SECRETARIAT_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [0],
     });
 
     const spoofed = toMcpRunResult({
       logs: "",
       images: [{ base64: "BAUG", mimeType: "image/png" }],
       responseMeta: {
-        [ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [1],
+        [SECRETARIAT_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [1],
       },
     });
-    expect(spoofed._meta).not.toHaveProperty(ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY);
+    expect(spoofed._meta).not.toHaveProperty(SECRETARIAT_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY);
   });
 
   it("projects the CUA app identity recorded by the bridge and drops the sandbox-forgeable key", () => {
@@ -529,7 +529,7 @@ describe("node_repl MCP server", () => {
     } as never);
 
     expect(trusted._meta).toMatchObject({
-      [ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY]: {
+      [SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY]: {
         appKey: "darwin:com.apple.notes",
         displayName: "Notes",
       },
@@ -547,7 +547,7 @@ describe("node_repl MCP server", () => {
         },
       },
     } as never);
-    expect(forgedOnly._meta ?? {}).not.toHaveProperty(ZCODE_MCP_NODE_REPL_CUA_APP_META_KEY);
+    expect(forgedOnly._meta ?? {}).not.toHaveProperty(SECRETARIAT_MCP_NODE_REPL_CUA_APP_META_KEY);
     expect(forgedOnly._meta ?? {}).not.toHaveProperty(CUA_APP_ASSOCIATIONS_META_KEY);
   });
 
@@ -563,7 +563,7 @@ describe("node_repl MCP server", () => {
     });
 
     expect(result._meta).toMatchObject({
-      [ZCODE_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [0, 2],
+      [SECRETARIAT_MCP_BROWSER_SCREENSHOT_CONTENT_INDICES_META_KEY]: [0, 2],
     });
     // 每个声明的下标都必须真的指向 content 里的 image block（越界或指到 text 都会让原图落盘错位）。
     for (const index of [0, 2]) {

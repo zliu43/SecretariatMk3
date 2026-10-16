@@ -26,7 +26,7 @@ defined in [the project credential spec](../../../../../docs/model-provider-proj
 
 ## Scope
 
-ZCode CLI login uses the ZCode/Z.AI CLI OAuth device flow and shares the same
+Secretariat CLI login uses the Secretariat/Z.AI CLI OAuth device flow and shares the same
 local credential store as the desktop Z Code product. The login boundary is a
 CLI/bootstrap/adapter concern. Core runtime does not open browsers, call OAuth
 HTTP endpoints, read environment variables directly, or write credential files.
@@ -45,13 +45,13 @@ This document is the v2 contract for:
 Sensitive login state is stored in:
 
 ```text
-~/.zcode/v2/credentials.json
+~/.secretariat/v2/credentials.json
 ```
 
 The base directory follows the Z Code desktop convention:
 
 1. Explicit data base dir passed by the caller.
-2. `ZCODE_DATA_BASE_DIR`.
+2. `SECRETARIAT_DATA_BASE_DIR`.
 3. `os.homedir()`.
 
 The file is a JSON object whose keys and decrypted values are strings. Values are
@@ -63,7 +63,7 @@ enc:v1:<iv>.<authTag>.<cipherText>
 
 Encryption uses AES-256-GCM. The key is `sha256(secret)`, where `secret` is:
 
-1. `ZCODE_CREDENTIAL_SECRET` when present.
+1. `SECRETARIAT_CREDENTIAL_SECRET` when present.
 2. `zcode-credential-fallback:${platform}:${homedir}:${username}`.
 
 Reads must keep backward compatibility with legacy plaintext values that do not
@@ -211,7 +211,7 @@ redact the key and render only `/login <provider>-coding-plan-api-key
 Setup uses `NodePersonalProviderConfigRepository` and
 `NodeModelSelectionConfigRepository.saveConfiguredDefault` to update the selected
 built-in account provider/model. The path is resolved from the explicit
-`personalProviderConfigPath`, then `ZCODE_PERSONAL_PROVIDER_CONFIG_FILE`, then
+`personalProviderConfigPath`, then `SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE`, then
 the shared personal provider configuration alongside the credential store.
 Existing personal providers are preserved, including the supported legacy config
 import on first write. OAuth tokens and account API keys are not written by
@@ -242,10 +242,10 @@ The browser opener is an adapter-level external I/O operation:
 
 If opening fails, login continues and prints the URL for manual opening.
 
-## ZCode app-server And Headless Behavior
+## Secretariat app-server And Headless Behavior
 
-ZCode app-server cannot complete an interactive browser flow inside protocol handlers unless
-the client provides an explicit UX. ZCode app-server should return guidance to run
+Secretariat app-server cannot complete an interactive browser flow inside protocol handlers unless
+the client provides an explicit UX. Secretariat app-server should return guidance to run
 `zcode login` locally.
 
 Headless `zcode login --no-browser` prints the URL and polls normally, which is
@@ -275,7 +275,7 @@ or use a future callback-paste fallback.
 Required coverage:
 
 - Credential encryption, decrypt, plaintext compatibility, ZAI logout active
-  provider behavior, and `ZCODE_DATA_BASE_DIR`.
+  provider behavior, and `SECRETARIAT_DATA_BASE_DIR`.
 - OAuth init/poll headers, envelope business errors, pending/ready/failed,
   and timeout.
 - Setup preserves personal providers and selects the built-in model. OAuth must

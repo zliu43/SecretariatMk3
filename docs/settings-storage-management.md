@@ -7,9 +7,9 @@
 
 ### 1.1 用户诉求
 
-打开分区后立即开始计算 ZCode 的磁盘占用，展示：
+打开分区后立即开始计算 Secretariat 的磁盘占用，展示：
 
-- 每块磁盘（卷）上 `.zcode` 占了多少空间；
+- 每块磁盘（卷）上 `.secretariat` 占了多少空间；
 - 每块磁盘里的数据按类别拆分（数据库、日志、轨迹……），每类可下钻看明细；
 - 可清理的类别（如模型调用轨迹）提供清理动作。
 
@@ -19,24 +19,24 @@ App 允许设置「数据存储路径」（`setting.json.dataBaseDir`），但**
 
 | 写入方 | 根目录解析 | 是否跟随「数据存储路径」 | 代码 |
 | --- | --- | --- | --- |
-| app services（host 进程） | `{dataBaseDir}/.zcode`，默认 `~/.zcode` | 是 | `packages/services/src/paths.ts` `getZCodeDataRootDir()` |
-| 「数据存储路径」切换时的迁移 | 只复制 `.zcode/v2`，且是复制不是移动 | — | `packages/services/src/paths.ts` `copyDataDirectory()` |
-| zcode-cli（agent 进程） | `~/.zcode/cli/config.json` 的 `storage.dir`，默认 `~/.zcode`；app **不下发** `ZCODE_STORAGE_DIR` | 否 | `apps/zcode-cli/packages/bootstrap/src/app/create-app.ts:184` |
-| 模型调用轨迹 model-io | 直接 `homedir()/.zcode/cli/{debug,rollout}` | 否（硬编码） | `apps/zcode-cli/packages/adapters/src/model/runner-debug.ts` `getModelIOBaseDir` |
-| hooks 信任库 / subagents / skills / commands | 读 `~/.zcode/cli/config.json` 的 `storage.dir` | 否 | `packages/services/src/hooks/hooksService.ts:153-173` 等 |
-| Computer Use Helper、日志导出对 cli 目录的引用 | `homedir()/.zcode/...` | 否（硬编码） | `packages/desktop/src/main/exportLogs.ts:34-48` |
+| app services（host 进程） | `{dataBaseDir}/.secretariat`，默认 `~/.secretariat` | 是 | `packages/services/src/paths.ts` `getZCodeDataRootDir()` |
+| 「数据存储路径」切换时的迁移 | 只复制 `.secretariat/v2`，且是复制不是移动 | — | `packages/services/src/paths.ts` `copyDataDirectory()` |
+| zcode-cli（agent 进程） | `~/.secretariat/cli/config.json` 的 `storage.dir`，默认 `~/.secretariat`；app **不下发** `SECRETARIAT_STORAGE_DIR` | 否 | `apps/zcode-cli/packages/bootstrap/src/app/create-app.ts:184` |
+| 模型调用轨迹 model-io | 直接 `homedir()/.secretariat/cli/{debug,rollout}` | 否（硬编码） | `apps/zcode-cli/packages/adapters/src/model/runner-debug.ts` `getModelIOBaseDir` |
+| hooks 信任库 / subagents / skills / commands | 读 `~/.secretariat/cli/config.json` 的 `storage.dir` | 否 | `packages/services/src/hooks/hooksService.ts:153-173` 等 |
+| Computer Use Helper、日志导出对 cli 目录的引用 | `homedir()/.secretariat/...` | 否（硬编码） | `packages/desktop/src/main/exportLogs.ts:34-48` |
 | `v2/setting.json` 本身 | 永远写在真实 HOME（bootstrap 文件） | 刻意不跟随 | `packages/services/src/setting/settingService.ts:36-46` |
-| GLM provider 的 workspace 配置目录 | `getDataBaseDir()/.zcode/cli/...`，与上面 CLI 读 `~/.zcode/cli` 两套口径并存 | 是 | `packages/services/src/paths.ts:295-299, 355-362` |
+| GLM provider 的 workspace 配置目录 | `getDataBaseDir()/.secretariat/cli/...`，与上面 CLI 读 `~/.secretariat/cli` 两套口径并存 | 是 | `packages/services/src/paths.ts:295-299, 355-362` |
 | 轨迹查看器读 model-io | 同时扫 `homedir()` 与 `dataBaseDir` 两处 | 两处都读 | `packages/services/src/zcode-agent/modelTrajectoryFileTail.ts:16-22` |
 
 结论：存储管理必须同时扫描两个根：
 
 ```text
-R1 = ~/.zcode                       （永远存在：cli/、agents/、computer-use/、旧 v2 副本……）
-R2 = {dataBaseDir}/.zcode           （仅在设置了数据存储路径且 ≠ HOME 时存在：v2/、workspace/、export-log/、feedback/……）
+R1 = ~/.secretariat                       （永远存在：cli/、agents/、computer-use/、旧 v2 副本……）
+R2 = {dataBaseDir}/.secretariat           （仅在设置了数据存储路径且 ≠ HOME 时存在：v2/、workspace/、export-log/、feedback/……）
 ```
 
-本期只**如实展示**两个根，不修复分裂本身；是否让 CLI 跟随 `dataBaseDir` 是独立设计决策（见 §8）。注意现有 E2E `conversation-session-configurable-data-directory.test.ts` 明确断言「切换后 `{custom}/.zcode/cli` 不存在、`~/.zcode/cli/db/db.sqlite` 仍在」，即这是当前有意保留的产品边界。
+本期只**如实展示**两个根，不修复分裂本身；是否让 CLI 跟随 `dataBaseDir` 是独立设计决策（见 §8）。注意现有 E2E `conversation-session-configurable-data-directory.test.ts` 明确断言「切换后 `{custom}/.secretariat/cli` 不存在、`~/.secretariat/cli/db/db.sqlite` 仍在」，即这是当前有意保留的产品边界。
 
 ### 1.3 真实机器目录普查（2026-09-10，开发机，总计 25 GB）
 
@@ -86,7 +86,7 @@ R2 = {dataBaseDir}/.zcode           （仅在设置了数据存储路径且 ≠ 
 
 - 不改变任何模块的写入路径，不修复「CLI 不跟随数据存储路径」（§8 单独立项）。
 - 不做自动定时清理、不做配额告警（可后续基于同一 catalog 扩展）。
-- 不清理 `.zcode` 之外的任何路径（例如 `~/.claude`、系统 TMPDIR）。
+- 不清理 `.secretariat` 之外的任何路径（例如 `~/.claude`、系统 TMPDIR）。
 - 手机 `/remote` 与 Web 端首期不显示该分区（§6.3）。
 
 ## 3. 分类目录（catalog）
@@ -105,7 +105,7 @@ R2 = {dataBaseDir}/.zcode           （仅在设置了数据存储路径且 ≠ 
 | `exports` | 导出与反馈包 | `export-log`, `export-log-stage`, `feedback` | 是 | 全部删除 |
 | `runtimes` | Agent 运行时与插件 | `agents/<runtime>/`, `bundled-agents`, `lite`, `computer-use`, `cli/plugins`（含 cache，2026-09-10 裁决不可删） | 否 | 由安装 / 更新流程管理 |
 | `config` | 配置、凭据与工作区 | `v2/*.json`, `v2/agent-config`, `v2/bots-runtime-locks`, `v2/certs`, `v2/acp-auth`, `v2/acp-config`, `v2/provider`, `cli/config.json`, `cli/models`, `cli/memories`, `cli/workflows`, `security`, `commands`, `skills`, `agents/*.md`, `workspace`, `mailbox`, `server`, `controller`, `launcher`, `dev-signing`, `cua-helper-dev-identity`, `perf-task-manifests`, `plugin-workspace` | 否 | — |
-| `other` | 其他 | 未命中的路径；启用自定义数据路径后 `~/.zcode/v2` 整个旧副本；`agent/`（旧版残留） | 否 | 下钻可见具体路径，便于后续补规则 |
+| `other` | 其他 | 未命中的路径；启用自定义数据路径后 `~/.secretariat/v2` 整个旧副本；`agent/`（旧版残留） | 否 | 下钻可见具体路径，便于后续补规则 |
 
 约束：
 
@@ -190,8 +190,8 @@ RPC 接线沿用 `ISettingService` 的既有模式：`packages/shared/src/channe
 Renderer <StorageSection>                 Host StorageService                       FS
   │ 进入分区                                      │                                      │
   ├─ startScan() ───────────────────────────────▶│ 新建 job(jobId, AbortController)      │
-  │                                              │ 解析根：R1=~/.zcode                    │
-  │                                              │        R2={dataBaseDir}/.zcode (可选)  │
+  │                                              │ 解析根：R1=~/.secretariat                    │
+  │                                              │        R2={dataBaseDir}/.secretariat (可选)  │
   │                                              │ 每根：stat dev → 向上找挂载点 → statfs ─▶│
   │                                              │ readdir(withFileTypes) 有界并发(8) ────▶│
   │◀─ onScanProgress(snapshot 节流 300ms) ────────┤ 逐条 lstat → catalog.classify → 累加   │
@@ -229,12 +229,12 @@ Renderer <StorageSection>                 Host StorageService                   
 │ 总占用 25.0 GB · 上次计算 12:03  [重新计算]                              │
 │ ┌ 磁盘 Macintosh HD ───────────┐  ┌ 类别（当前选中磁盘）────────────────┐ │
 │ │ ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇░░░░░░░ │  │ ▤ 备份             12.9 GB  [清理] › │ │
-│ │ ZCode 占用 25.0 GB / 剩余 6.9 GB│  │ ▤ 开发诊断抓包      3.2 GB  [清理] › │ │
+│ │ Secretariat 占用 25.0 GB / 剩余 6.9 GB│  │ ▤ 开发诊断抓包      3.2 GB  [清理] › │ │
 │ │ ● 备份             12.9 GB      │  │ ▤ 模型调用轨迹      1.4 GB  [清理] › │ │
 │ │ ● 开发诊断抓包      3.2 GB      │  │ ▤ Agent 运行时与插件 2.2 GB         › │ │
 │ │ ● 模型调用轨迹      1.4 GB      │  │ ▤ 会话与任务数据    1.8 GB         › │ │
 │ │ ● …                            │  │ ▤ 日志与崩溃报告    0.15 GB [清理] › │ │
-│ │ 根目录：~/.zcode (25.0 GB)      │  │ ▤ 数据库            0.8 GB         › │ │
+│ │ 根目录：~/.secretariat (25.0 GB)      │  │ ▤ 数据库            0.8 GB         › │ │
 │ └────────────────────────────────┘  │ ▤ 其他              …               › │ │
 │ ┌ 磁盘 /Volumes/Data ───────────┐  └──────────────────────────────────────┘ │
 │ │ …（仅当 R2 在另一块盘时出现）    │                                          │
@@ -271,7 +271,7 @@ E2E（`packages/desktop/test/e2e/settings/settings-storage-management.test.ts`�
 | Case | Setup | Action | Assertion |
 | --- | --- | --- | --- |
 | SM-01 scan | HOME 下 seed `cli/debug` 2 文件、`v2/logs` 昨日+今日、`backup/x` | 打开 设置 › 数据与统计 › 存储管理 | 出现扫描态；完成后总量 = fixture 总和；类别行与图例大小一致 |
-| SM-02 drill-down | 同上 | 点「模型调用轨迹」 | 明细列出 2 个文件与根目录 `~/.zcode`；面包屑可返回 |
+| SM-02 drill-down | 同上 | 点「模型调用轨迹」 | 明细列出 2 个文件与根目录 `~/.secretariat`；面包屑可返回 |
 | SM-03 clean safe | 同上 | 点轨迹行「清理」 | 无确认框；toast 释放大小；文件已删；行大小变 0 |
 | SM-04 clean confirm | 同上 | 点「备份」行「清理」→ 取消 / 确认 | 取消不删；确认后删除 |
 | SM-08 stop on leave | seed 大量小文件 | 扫描中切到其他分区再切回 | 切走后 host 收到 cancel（无进度事件）；切回重新开始且先显示上次结果 |
@@ -287,7 +287,7 @@ E2E（`packages/desktop/test/e2e/settings/settings-storage-management.test.ts`�
 | 1 | 分类粒度 | 「数据库」与旧「会话与任务数据」合并为 **会话记录与数据库**（不可清理）；`cli/artifacts`、`cli/agents`、`cli/sessions` 独立为 **工具输出与子代理产物**（需确认可清理，24h 保护）。核实结果见 §1.3.1：artifacts 不是用户附件，是工具结果留档 |
 | 2 | 命令输出与临时缓存是否可清理 | 可清理，`confirm` 并说明后果 |
 | 3 | 备份与迁移残留 | 可清理（`confirm`），类别改名为 **备份** |
-| 4 | 启用自定义路径后的 `~/.zcode/v2` 旧副本 | 归入 **其他**，不提供清理 |
+| 4 | 启用自定义路径后的 `~/.secretariat/v2` 旧副本 | 归入 **其他**，不提供清理 |
 | 5 | 端范围 | 只做桌面端 |
 | 6 | CLI 不跟随数据存储路径的根因 | 本次不修，只做管理（修了也仍有残留问题） |
 | 7 | 进度 | 实时刷新；切走即停、进来再算；异步 IO、性能优先（见 §5 性能约束） |

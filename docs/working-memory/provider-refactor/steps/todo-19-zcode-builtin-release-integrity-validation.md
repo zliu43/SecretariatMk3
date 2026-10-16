@@ -1,4 +1,4 @@
-# 19 ZCode Built-in Release 完整性发布门禁
+# 19 Secretariat Built-in Release 完整性发布门禁
 
 > 状态：已废弃（不再作为独立 Todo）
 >
@@ -16,7 +16,7 @@
 
 ## 0. 任务定位
 
-本 Todo 讨论 ZCode Built-in Provider Config 与 Model Config Rules 的业务完整性应由谁证明，以及发布流水线、
+本 Todo 讨论 Secretariat Built-in Provider Config 与 Model Config Rules 的业务完整性应由谁证明，以及发布流水线、
 共享校验实现和客户端运行时之间如何分工。
 
 当前裁决是：Todo 18 不新增客户端专用的 Built-in 业务完整性校验器，不注入假 API Key、假 Account

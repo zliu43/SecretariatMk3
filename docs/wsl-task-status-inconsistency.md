@@ -9,7 +9,7 @@ WSL 连接项目时，左侧任务栏与聊天区的任务运行状态持续不�
 - 症状①：任务列表在转圈（loading），聊天区任务已结束；
 - 症状②：任务列表没有转圈，聊天区任务仍在进行中。
 
-事发环境：ZCode 3.9.0（commit cb07e825，Windows 11，production），workspace `remote:wsl:default:/home/dev`。
+事发环境：Secretariat 3.9.0（commit cb07e825，Windows 11，production），workspace `remote:wsl:default:/home/dev`。
 证据材料：用户日志 bundle `zcode-logs-20260821-202010-wsl-status`（含 4 天桌面日志、Windows 侧 CLI 日志、tasks-index.sqlite）。
 
 ## 结论
@@ -205,7 +205,7 @@ CLI(WSL)              renderer sessionsIndexStore           任务列表      �
 ## 剩余风险与后续材料
 
 - 截图时刻端内状态不可回放（renderer 无日志），判级 probable；R-C 落地后可闭环。
-- 下次复现请让用户额外导出 WSL 内 `~/.zcode/cli/log`（当前 bundle 只含 Windows 侧 CLI 日志）。
+- 下次复现请让用户额外导出 WSL 内 `~/.secretariat/cli/log`（当前 bundle 只含 Windows 侧 CLI 日志）。
 - 远程两跳事件隐式透传可靠性未被 e2e 覆盖，独立跟进。
 
 ## 修复实施记录
@@ -278,7 +278,7 @@ R-C（生产 renderer 放行 `warn/error`）以及远程 lifecycle e2e 仍是独
 
 > Todo103：以下保留 staging T3 历史调查与裁决；本轮证据另记整合账本，不把历史验证当成本轮通过。
 
-## 第二次事故（2026-09-04，ZCode 3.11.1）：Settings 覆盖远程 workspace 顶掉侧栏 sessions-index 订阅（T3）
+## 第二次事故（2026-09-04，Secretariat 3.11.1）：Settings 覆盖远程 workspace 顶掉侧栏 sessions-index 订阅（T3）
 
 ### 症状与判级
 

@@ -11,7 +11,7 @@ JS heap 还是 native、哪张内存表在涨。现有 ARMS 资源遥测只有 R
 host / agent CLI 四类进程，必须先有运行时证据才能决定修哪一条。
 
 本功能只解决**本机定位**：每个进程按门控规则往自己已有的本地日志写一行「heap 细分 +
-领域计数器」。它不上报 ARMS、不改 ZCode Protocol schema、不新增 host→main 或 renderer→main
+领域计数器」。它不上报 ARMS、不改 Secretariat Protocol schema、不新增 host→main 或 renderer→main
 消息类型、不改任何业务逻辑。
 
 ## 产品合同
@@ -41,8 +41,8 @@ host / agent CLI 四类进程，必须先有运行时证据才能决定修哪一
       │ logger.logMemoryDiagnostics    │ host logger.info                + server 领域计数器
       │ (绕过生产门控, 走 window.zcode.log) │ (既有 [host-log] 转发)          │ CLI logger.info
       v                                v                                 v
- ~/.zcode/v2/logs/YYYY-MM-DD.log  ←── main 60s: memoryUsage + 按角色 working set + main 计数器
-                                                                ~/.zcode/cli/log/zcode-YYYY-MM-DD.jsonl
+ ~/.secretariat/v2/logs/YYYY-MM-DD.log  ←── main 60s: memoryUsage + 按角色 working set + main 计数器
+                                                                ~/.secretariat/cli/log/zcode-YYYY-MM-DD.jsonl
 ```
 
 - main / host / renderer 三类进程的行都落在 Desktop 主日志（host 经既有 `[host-log]` 转发，
@@ -112,11 +112,11 @@ CLI 侧写结构化日志：`event=zcode_protocol.process.memory_sample`，`modu
 
 ```bash
 # Desktop 主日志：按角色画 heapUsed 曲线
-grep '\[memory\] role=renderer' ~/.zcode/v2/logs/2026-09-03.log \
+grep '\[memory\] role=renderer' ~/.secretariat/v2/logs/2026-09-03.log \
   | sed -E 's/^\[([^]]+)\].*heapUsedKb=([0-9]+).*shiki\.tokensCache=([0-9]+).*/\1 \2 \3/'
 
 # CLI 日志
-grep memory_sample ~/.zcode/cli/log/zcode-2026-09-03.jsonl | jq -c '[.time, .context.heapUsedKb, .context.counters.eventRows]'
+grep memory_sample ~/.secretariat/cli/log/zcode-2026-09-03.jsonl | jq -c '[.time, .context.heapUsedKb, .context.counters.eventRows]'
 ```
 
 判读顺序：先看哪个 `role` 的 `heapUsedKb` 单调上升；再看同一行里哪个计数器同步上升；

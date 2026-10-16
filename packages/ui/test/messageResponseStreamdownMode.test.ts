@@ -259,7 +259,7 @@ describe("resolveMessageStreamdownMode", () => {
         createElement(
           MessageResponse,
           { onOpenExternalUrl: vi.fn() },
-          "[ZCode](https://zcode-ai.com)",
+          "[Secretariat](https://zcode-ai.com)",
         ),
       ),
     );

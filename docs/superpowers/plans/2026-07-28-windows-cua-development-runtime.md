@@ -4,7 +4,7 @@
 
 **Goal:** 在 Windows 本地桌面 Host 中按需启动 `C:\Users\dev\zcode-cua` 源码构建出的独立 Node Helper，让官方 `zcode-cua` plugin 获得随机 named pipe、token 和 authority，并在记事本完成 UIA 观察、点击和输入闭环。
 
-**Architecture:** 保留 macOS 现有 `Host -> Helper -> broker -> MCP plugin` 分层。Windows 新增源码开发专用 Helper 入口和 Host lifecycle adapter；Helper 使用 `process.execPath + ELECTRON_RUN_AS_NODE=1` 运行，自动加载源码树的 `build/Release/ax_native.node`。ZCode Host 只负责源码根校验、子进程生命周期、健康检查和凭据注入；UIA、输入与 Windows system surface 仍归 `zcode-cua`。本计划不增加 tool、不修改 tool schema、不接入 SSH/WSL/Docker，也不做 WGC、完整指针或产品打包。
+**Architecture:** 保留 macOS 现有 `Host -> Helper -> broker -> MCP plugin` 分层。Windows 新增源码开发专用 Helper 入口和 Host lifecycle adapter；Helper 使用 `process.execPath + ELECTRON_RUN_AS_NODE=1` 运行，自动加载源码树的 `build/Release/ax_native.node`。Secretariat Host 只负责源码根校验、子进程生命周期、健康检查和凭据注入；UIA、输入与 Windows system surface 仍归 `zcode-cua`。本计划不增加 tool、不修改 tool schema、不接入 SSH/WSL/Docker，也不做 WGC、完整指针或产品打包。
 
 **Tech Stack:** TypeScript 5/6、Node.js 24、Electron utility process、Vitest 4、Node `child_process.fork`、Windows named pipe、N-API/node-addon-api、C++/UI Automation、pnpm 10。
 
@@ -119,7 +119,7 @@ Expected: native rebuild exits `0`; the final command prints `True`.
 
 **Step 3: Repair the lint dependency**
 
-Add `oxlint` to `devDependencies` at the version used by ZCode (`^1.57.0`), run `pnpm install`, and verify:
+Add `oxlint` to `devDependencies` at the version used by Secretariat (`^1.57.0`), run `pnpm install`, and verify:
 
 ```powershell
 pnpm lint
@@ -291,7 +291,7 @@ Cover:
 1. only `win32` is accepted;
 2. `--socket` must be a Windows named pipe;
 3. `--parent-pid` must be a positive integer;
-4. token is required from `ZCODE_CUA_PERMISSION_BROKER_TOKEN`;
+4. token is required from `SECRETARIAT_CUA_PERMISSION_BROKER_TOKEN`;
 5. `--token` is rejected and token text never appears in errors/messages;
 6. native addon and system surface are injected into `runHelper`;
 7. ready is sent only after broker bind;
@@ -392,7 +392,7 @@ git commit -m "feat(windows): add source Computer Use Helper entry"
 
 ---
 
-### Task 4: Resolve and validate the ZCode Windows development runtime
+### Task 4: Resolve and validate the Secretariat Windows development runtime
 
 **Files:**
 
@@ -418,7 +418,7 @@ Update the tool change chain before implementation. Record that the existing 30 
 
 Cover:
 
-1. only `platform="win32"` accepts `ZCODE_CUA_DEV_ROOT`;
+1. only `platform="win32"` accepts `SECRETARIAT_CUA_DEV_ROOT`;
 2. empty, relative or nonexistent roots fail with a structured reason;
 3. `package.json.name` must equal `@zcode/zcode-cua`;
 4. `dist/windows-helper.js` and `build/Release/ax_native.node` must both be files;
@@ -453,7 +453,7 @@ export async function resolveWindowsCuaDevRuntime(
 ): Promise<WindowsCuaDevRuntime>;
 ```
 
-The default root comes only from `ZCODE_CUA_DEV_ROOT`. Do not search sibling directories or silently fall back to a macOS Helper path.
+The default root comes only from `SECRETARIAT_CUA_DEV_ROOT`. Do not search sibling directories or silently fall back to a macOS Helper path.
 
 **Step 4: Verify and commit**
 
@@ -490,7 +490,7 @@ Use an injected child-process adapter and health probe. Cover:
 1. concurrent `start()` calls share one fork;
 2. fork command is `runtime.command`, entry is `runtime.entryPath`, cwd is `runtime.root`;
 3. argv includes pipe and parent PID but never token;
-4. child env contains token, `ZCODE_CUA_HELPER_ADDON=runtime.addonPath` and `ELECTRON_RUN_AS_NODE=1`;
+4. child env contains token, `SECRETARIAT_CUA_HELPER_ADDON=runtime.addonPath` and `ELECTRON_RUN_AS_NODE=1`;
 5. only a valid v1 ready message for the minted pipe is accepted;
 6. health must pass before `start()` returns a handle;
 7. handle contains random pipe/token, Host-stable authority, entry path and child PID;
@@ -512,7 +512,7 @@ Expected: fail because the host does not exist.
 
 **Step 2: Define the minimal common Host contract**
 
-Use the existing `CuaProductHelperHost` resolver contract and add the two lifecycle capabilities ZCode owns:
+Use the existing `CuaProductHelperHost` resolver contract and add the two lifecycle capabilities Secretariat owns:
 
 ```ts
 export type ManagedCuaProductHelperHost = CuaProductHelperHost & {
@@ -559,7 +559,7 @@ git commit -m "feat(cua): manage Windows development Helper"
 
 ---
 
-### Task 6: Wire Windows admission and broker credentials into ZCode
+### Task 6: Wire Windows admission and broker credentials into Secretariat
 
 **Files:**
 
@@ -572,7 +572,7 @@ git commit -m "feat(cua): manage Windows development Helper"
 Add cases proving:
 
 1. macOS feature admission remains unchanged;
-2. Windows is admitted only when the internal CUA feature is enabled and `ZCODE_CUA_DEV_ROOT` is non-empty;
+2. Windows is admitted only when the internal CUA feature is enabled and `SECRETARIAT_CUA_DEV_ROOT` is non-empty;
 3. Linux remains disabled in this product Host path;
 4. `isDesktopAttachedRemote=true` prevents Windows Host creation;
 5. an injected resolver prevents duplicate Host creation;
@@ -649,7 +649,7 @@ The test runs only when all are true:
 
 ```text
 process.platform === "win32"
-ZCODE_CUA_DEV_ROOT is set
+SECRETARIAT_CUA_DEV_ROOT is set
 dist/windows-helper.js exists
 build/Release/ax_native.node exists
 ```
@@ -667,7 +667,7 @@ It must:
 Run:
 
 ```powershell
-$env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
+$env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
 pnpm exec vitest run packages/services/test/windowsCuaDevHelper.integration.test.ts
 ```
 
@@ -701,15 +701,15 @@ pnpm build
 pnpm test
 
 cd C:\Users\dev\z-code
-$env:ZCODE_CUA_DEV_MODE='1'
-$env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
+$env:SECRETARIAT_CUA_DEV_MODE='1'
+$env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
 pnpm dev:desktop:prod
 ```
 
 Also document:
 
 - official `zcode-cua` plugin must be enabled;
-- source changes require rebuilding `zcode-cua`, while ZCode product packaging is not required;
+- source changes require rebuilding `zcode-cua`, while Secretariat product packaging is not required;
 - expected process tree and named-pipe shape;
 - log locations and token-redaction rule;
 - Windows lock screen/Session 0 fail-closed behavior;
@@ -763,11 +763,11 @@ pnpm exec vitest run packages/services/test/windowsCuaDevRuntime.test.ts package
 
 Expected: every command exits `0`.
 
-**Step 2: Start ZCode source development**
+**Step 2: Start Secretariat source development**
 
 ```powershell
-$env:ZCODE_CUA_DEV_MODE='1'
-$env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
+$env:SECRETARIAT_CUA_DEV_MODE='1'
+$env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
 pnpm dev:desktop:prod
 ```
 
@@ -780,14 +780,14 @@ Confirm before invoking a CUA task:
 
 **Step 3: Execute the Notepad scenario**
 
-Use one ZCode task to:
+Use one Secretariat task to:
 
 1. call `list_apps`;
 2. open `notepad.exe` without shell;
 3. obtain the Notepad app/window and UIA state;
 4. select the editor by element target;
 5. click the editor;
-6. type `ZCode Windows CUA Phase 1`;
+6. type `Secretariat Windows CUA Phase 1`;
 7. re-observe and verify the text through UIA;
 8. press `Ctrl+A`, type replacement text, and verify again.
 
@@ -800,12 +800,12 @@ Acceptance:
 
 **Step 4: Exercise recovery and teardown**
 
-While ZCode remains open:
+While Secretariat remains open:
 
 1. end the Helper process;
 2. wait for liveness recovery;
 3. verify the next official CUA admission receives a new pipe/token and the same Host authority;
-4. close ZCode;
+4. close Secretariat;
 5. confirm no Windows Helper child remains and the old pipe cannot be connected.
 
 Expected: no orphan Helper and no stale credential reuse.
@@ -862,13 +862,13 @@ Do not tag, publish, push a release, build a signed package or close Phase 2/3 i
 ## Completion Criteria
 
 - `zcode-cua` builds `dist/windows-helper.js` and `build/Release/ax_native.node` on Windows.
-- ZCode local Host starts exactly one on-demand Windows Helper using `process.execPath`.
+- Secretariat local Host starts exactly one on-demand Windows Helper using `process.execPath`.
 - Helper receives token only through controlled env and publishes credentials only after health passes.
 - Official plugin obtains pipe/token/authority; attacker-authored or unbrokered CUA configs remain fail-closed.
 - Notepad UIA observe/click/type/re-observe succeeds without screenshots.
 - Helper restart rotates pipe/token; Host authority stays stable.
-- ZCode exit leaves no Helper child.
+- Secretariat exit leaves no Helper child.
 - macOS and Linux focused regression suites pass.
-- ZCode `pnpm typecheck` and `pnpm lint` pass.
+- Secretariat `pnpm typecheck` and `pnpm lint` pass.
 - `zcode-cua` typecheck, lint, full test and build pass on Windows.
 - WGC, scroll/drag/move/down/up, UIA worker isolation and product packaging remain explicitly deferred to separate Phase 2/3 plans.

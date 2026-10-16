@@ -332,7 +332,7 @@ describe("offPeakServerClient × offPeakMockGateway 契约联测", () => {
       expect(request.headers.get("bigmodel-organization")).toBe("org-team");
       expect(request.headers.get("bigmodel-project")).toBe("project-team");
       expect(request.headers.get("x-request-id")).toBeTruthy();
-      expect(request.headers.get("user-agent")).toMatch(/^ZCode\//);
+      expect(request.headers.get("user-agent")).toMatch(/^Secretariat\//);
       expect(request.headers.get("http-referer")).toBeTruthy();
     }
     const serializedWarnings = JSON.stringify(warnings);
@@ -422,9 +422,9 @@ describe("offPeakServerClient × offPeakMockGateway 契约联测", () => {
     }
   });
 
-  it("isOffPeakMockEnabled：仅 ZCODE_OFFPEAK_MOCK=1 开启", () => {
-    expect(isOffPeakMockEnabled({ ZCODE_OFFPEAK_MOCK: "1" } as NodeJS.ProcessEnv)).toBe(true);
-    expect(isOffPeakMockEnabled({ ZCODE_OFFPEAK_MOCK: "0" } as NodeJS.ProcessEnv)).toBe(false);
+  it("isOffPeakMockEnabled：仅 SECRETARIAT_OFFPEAK_MOCK=1 开启", () => {
+    expect(isOffPeakMockEnabled({ SECRETARIAT_OFFPEAK_MOCK: "1" } as NodeJS.ProcessEnv)).toBe(true);
+    expect(isOffPeakMockEnabled({ SECRETARIAT_OFFPEAK_MOCK: "0" } as NodeJS.ProcessEnv)).toBe(false);
     expect(isOffPeakMockEnabled({} as NodeJS.ProcessEnv)).toBe(false);
   });
 });

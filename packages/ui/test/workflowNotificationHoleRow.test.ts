@@ -27,7 +27,7 @@ const HOLE = {
   name: "决定分组",
   type: "Plan",
   prompt: "侦察结果如下，请补全这一段。",
-  draftPath: "/w/.zcode/workflow-drafts/flaky.dwf.ts",
+  draftPath: "/w/.secretariat/workflow-drafts/flaky.dwf.ts",
   line: 12,
   before: "探索",
   after: "执行",
@@ -106,7 +106,7 @@ describe("WorkflowNotificationToolRow — hole", () => {
     expect(html).toContain("留白位于「探索」之后、「执行」之前；");
     expect(html).not.toContain("补全须返回");
     expect(html).not.toContain("Plan");
-    expect(html).toContain("/w/.zcode/workflow-drafts/flaky.dwf.ts:L12");
+    expect(html).toContain("/w/.secretariat/workflow-drafts/flaky.dwf.ts:L12");
     expect(html).toContain('data-testid="workflow-hole-notification-waited"');
     expect(html).toContain("等待中 · 3 分钟前");
     // run 链接沿用既有词条 `chat.toolCall.workflow.openRunDetails`。

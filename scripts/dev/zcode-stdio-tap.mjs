@@ -29,7 +29,7 @@ function parseArgs(argv) {
   }
 
   let workspaceKey = "";
-  let logDir = process.env.ZCODE_STDIO_TAP_LOG_DIR?.trim() || "";
+  let logDir = process.env.SECRETARIAT_STDIO_TAP_LOG_DIR?.trim() || "";
 
   for (let index = 0; index < options.length; index += 1) {
     const option = options[index];
@@ -53,7 +53,7 @@ function parseArgs(argv) {
   return {
     command: commandAndArgs[0],
     args: commandAndArgs.slice(1),
-    logDir: logDir || join(homedir(), ".zcode", "v2", "dev", "stdio-traffic"),
+    logDir: logDir || join(homedir(), ".secretariat", "v2", "dev", "stdio-traffic"),
     workspaceKey,
   };
 }

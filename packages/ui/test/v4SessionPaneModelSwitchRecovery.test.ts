@@ -5,7 +5,7 @@ import type { ModelSelectionView } from "@zcode/services";
 import { useModelSelectionServiceView } from "@/hooks/useModelSelectionView.js";
 import {
   type ModelSelection,
-  ZCODE_AGENT_PROVIDER_NOT_READY_CODE,
+  SECRETARIAT_AGENT_PROVIDER_NOT_READY_CODE,
   type ZCodeWorkspaceStateSnapshot,
 } from "@zcode/shared";
 import type {
@@ -800,7 +800,7 @@ describe("SessionPane draft provider readiness", () => {
       discard: vi.fn(),
     };
     const providerNotReady = Object.assign(new Error("当前没有可用的模型供应商和模型"), {
-      code: ZCODE_AGENT_PROVIDER_NOT_READY_CODE,
+      code: SECRETARIAT_AGENT_PROVIDER_NOT_READY_CODE,
     });
     mocks.sendCommand.mockRejectedValue(providerNotReady);
 
@@ -850,7 +850,7 @@ describe("SessionPane send failure feedback", () => {
       await act(async () => flushMicrotasks());
 
       expect(captured.composerProps?.error).toMatchObject({
-        code: "ZCODE_RUNTIME_MODEL_UNAVAILABLE",
+        code: "SECRETARIAT_RUNTIME_MODEL_UNAVAILABLE",
         detail: expect.stringContaining("provider.notInRegistry"),
       });
       await act(async () => {

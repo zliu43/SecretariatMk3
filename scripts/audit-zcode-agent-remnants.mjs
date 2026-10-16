@@ -339,7 +339,7 @@ function assertLimits(report, options) {
 }
 
 function printTextReport(report, failures) {
-  console.log("ZCode Agent remnant audit");
+  console.log("Secretariat Agent remnant audit");
   console.log(`roots: ${report.roots.join(", ")}`);
   console.log(`files: ${report.totalFiles}, matches: ${report.totalMatches}`);
   console.log("");

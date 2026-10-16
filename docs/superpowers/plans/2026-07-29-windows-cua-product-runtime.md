@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ship the completed Windows CUA source runtime inside ZCode Windows x64/arm64 packages and start it without a local source checkout.
+**Goal:** Ship the completed Windows CUA source runtime inside Secretariat Windows x64/arm64 packages and start it without a local source checkout.
 
 **Architecture:** Stage the pinned `@zcode/zcode-cua` Windows entry, native addon, and minimal external dependencies into `bundled-tools/<triplet>/cua-helper`, then package it at `resources/tools/cua-helper`. A single asynchronous resolver admits either an explicit development root or the verified packaged manifest, while the existing named-pipe Helper host remains the only lifecycle implementation.
 
@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Product scope is Windows desktop-local only; do not modify SSH, WSL, Docker, remote workspace, mobile `/remote`, replayable delivery, owner, queue, snapshot, or workspace identity behavior.
-- Product resources live at `resources/tools/cua-helper`; source override remains `ZCODE_CUA_DEV_ROOT`.
+- Product resources live at `resources/tools/cua-helper`; source override remains `SECRETARIAT_CUA_DEV_ROOT`.
 - Runtime manifest schema is `1`, package name is `@zcode/zcode-cua`, Electron version is `41.0.3`, and target architectures are `x64` and `arm64`.
 - PE machine `0x8664` means x64 and `0xaa64` means arm64; mismatches fail the build.
 - Development override misconfiguration fails closed and never falls back to product resources.
@@ -86,7 +86,7 @@
 
   Commit: `feat(windows): publish CUA helper runtime artifacts`
 
-  Push `codex/windows-cua-pointer-foundation` so ZCode can pin the resulting exact commit.
+  Push `codex/windows-cua-pointer-foundation` so Secretariat can pin the resulting exact commit.
 
 ### Task 2: Deterministic Windows Helper staging
 
@@ -102,7 +102,7 @@
 
 **Interfaces:**
 
-- Consumes: pinned `@zcode/zcode-cua-helper-runtime` at the Task 1 commit, or explicit absolute `ZCODE_CUA_DEV_ROOT`.
+- Consumes: pinned `@zcode/zcode-cua-helper-runtime` at the Task 1 commit, or explicit absolute `SECRETARIAT_CUA_DEV_ROOT`.
 - Produces: `prepareWindowsCuaHelperAssets({ sourceRoot, outputRoot, targetPlatform, electronVersion })` and a schema-1 `runtime-manifest.json`.
 
 - [ ] **Step 1: Write RED tests for staging**
@@ -120,7 +120,7 @@
 
 - [ ] **Step 3: Implement asynchronous staging**
 
-  Resolve the source from non-empty absolute `ZCODE_CUA_DEV_ROOT`, otherwise from
+  Resolve the source from non-empty absolute `SECRETARIAT_CUA_DEV_ROOT`, otherwise from
   `@zcode/zcode-cua-helper-runtime`. Validate source identity/version/artifacts,
   parse the PE machine, copy entry/addon, stage the `express` dependency closure
   plus target Sharp packages into `node_modules`, hash entry/addon, and atomically
@@ -138,7 +138,7 @@
 
   ```text
   pnpm exec vitest run packages/desktop/test/windows-cua-helper-assets.test.ts
-  $env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'; pnpm --filter @zcode/desktop prepare:windows-cua-helper
+  $env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'; pnpm --filter @zcode/desktop prepare:windows-cua-helper
   ```
 
   Expected: tests pass and staged manifest reports win32/x64, Electron 41.0.3,
@@ -171,13 +171,13 @@
 
   Add packaged-root success and failures for missing resourcesPath, invalid manifest,
   schema/package/platform/arch/Electron mismatch, path traversal, missing file and
-  entry/addon hash mismatch. Assert a non-empty but broken `ZCODE_CUA_DEV_ROOT` never
+  entry/addon hash mismatch. Assert a non-empty but broken `SECRETARIAT_CUA_DEV_ROOT` never
   falls back. Keep the existing source cases.
 
 - [ ] **Step 2: Extend factory tests to RED**
 
   Change Windows admission expectation: internal feature enabled is sufficient even
-  without `ZCODE_CUA_DEV_ROOT`. Inject a packaged runtime into the factory and assert
+  without `SECRETARIAT_CUA_DEV_ROOT`. Inject a packaged runtime into the factory and assert
   no macOS host is constructed. Keep desktop-local/remote guards unchanged.
 
 - [ ] **Step 3: Implement the generalized resolver**
@@ -237,7 +237,7 @@
   Copy the staged tree to `tools/cua-helper`, copy its `node_modules` explicitly,
   add native signing extensions, and run manifest/hash/PE verification in afterPack.
   Local unsigned builds remain allowed; release signing still requires
-  `ZCODE_ENABLE_WINDOWS_SIGN=1`.
+  `SECRETARIAT_ENABLE_WINDOWS_SIGN=1`.
 
 - [ ] **Step 4: Verify Task 4**
 
@@ -283,8 +283,8 @@
   Run:
 
   ```text
-  $env:ZCODE_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
-  $env:ZCODE_SKIP_REMOTE_ASSETS='1'
+  $env:SECRETARIAT_CUA_DEV_ROOT='C:\Users\dev\zcode-cua'
+  $env:SECRETARIAT_SKIP_REMOTE_ASSETS='1'
   pnpm --filter @zcode/desktop build
   pnpm --filter @zcode/desktop exec electron-builder --win --x64 --dir
   ```
@@ -295,7 +295,7 @@
 - [ ] **Step 4: Run unattended product acceptance**
 
   Point the integration test at the unpacked `resources` directory and use the
-  unpacked ZCode executable as `process.execPath` injection. Then run the existing
+  unpacked Secretariat executable as `process.execPath` injection. Then run the existing
   Windows screen-capture, pointer, clipboard and 30-tool live smokes from
   `C:/Users/dev/zcode-cua`.
 

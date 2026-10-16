@@ -229,7 +229,7 @@ Conversation replay Case 还必须：
 | Output-token preflight smoke            |   2/2 | `desktop-e2e-20260901-135009-362`                                                                      |
 | Provider Template add/edit/restore/send |   1/1 | `desktop-e2e-20260901-140409-625`                                                                      |
 | selected-key migration                  |     — | `deleted-by-decision`                                                                                  |
-| SSH Remote Environment Provisioning     |     — | `blocked-environment`：MacBook Pro 未配置 `ZCODE_E2E_SSH_HOST/USERNAME/PASSWORD`，未将静态检查记作通过 |
+| SSH Remote Environment Provisioning     |     — | `blocked-environment`：MacBook Pro 未配置 `SECRETARIAT_E2E_SSH_HOST/USERNAME/PASSWORD`，未将静态检查记作通过 |
 
 上述运行都在 MacBook Pro 的独立干净 runtime clone 中使用同一提交和标准 `mise`/WDIO 链路完成，没有复用工作区旧 Electron 产物。
 

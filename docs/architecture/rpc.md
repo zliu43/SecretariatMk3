@@ -429,7 +429,7 @@ const app = ProxyChannel.toService<IAppService>(client.getChannel("app"));
 
 ### 多窗口管理
 
-> 通用 RPC 能力说明：ZCode 的每个 workspace window 各自拥有唯一 Window Host。base 与 remote-scoped
+> 通用 RPC 能力说明：Secretariat 的每个 workspace window 各自拥有唯一 Window Host。base 与 remote-scoped
 > MessagePort 都连接该 Host；SSH/WSL pool 和 Docker/Server dedicated connection 是 Host 内部资源，
 > 不再对应额外 Host 进程。channel/context 必须保持窗口、remoteSessionId、attachment 和 workspaceKey 隔离。
 
