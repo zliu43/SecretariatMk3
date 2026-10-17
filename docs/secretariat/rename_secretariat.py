@@ -41,12 +41,14 @@ GLOBAL_RULES = [
     # (those are spreads `...zcode`, member access `x).zcode`, `?.zcode`, `window\.zcode`).
     ("data-dir", re.compile(r"(?<![\w\-.)\]?])(?<!\w\\)\.zcode(?![\w-])"), ".secretariat"),
     # Word boundary, also right after a \n/\t/\r escape inside string literals.
-    ("env", re.compile(r"(?:(?<!\w)|(?<=\\[ntr]))ZCODE_"), "SECRETARIAT_"),
+    # ...and after compiler define flags (-DZCODE_X / /DZCODE_X for CMake and NSIS).
+    ("env", re.compile(r"(?:(?<!\w)|(?<=\\[ntr])|(?<=[-/]D))ZCODE_"), "SECRETARIAT_"),
     ("product", re.compile(r"\bZCodeProject\b"), "SecretariatProject"),
     # Not in HTTP header names (X-ZCode-*): those are wire identifiers read case-insensitively elsewhere.
     ("product", re.compile(r"(?<![Xx]-)(?:(?<!\w)|(?<=\\[ntr]))Z[Cc]ode\b"), "Secretariat"),
     # zcode://, zcode:/, zcode:oauth/... and regex-escaped zcode:\/\/
-    ("deeplink", re.compile(r"\bzcode:(?=\\?/|(?:oauth|payment|share|workspace)/)"), "secretariat:"),
+    # ...and URL-encoded zcode%3A%2F%2F...
+    ("deeplink", re.compile(r"\bzcode(?=:(?:\\?/|(?:oauth|payment|share|workspace)/)|%3[Aa])"), "secretariat"),
     ("appid", re.compile(r"\bdev\.zcode\.app\b"), "dev.secretariat.app"),
 ]
 
