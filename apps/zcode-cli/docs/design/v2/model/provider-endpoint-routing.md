@@ -146,7 +146,7 @@ ProviderEndpointRoutingPort.resolve
 - `Accept: application/json`
 - `HTTP-Referer`，跟随当前 runtime Secretariat endpoint origin
 - `User-Agent: Secretariat/<version>`
-- 有有效版本时发送 `X-Secretariat-App-Version`
+- 有有效版本时发送 `X-ZCode-App-Version`
 - `X-Title`，独立 CLI/TUI 为 `Z Code@cli`，桌面 stdio Agent 为 `Z Code@electron`
 - `X-Platform`、`X-Release-Channel`、`X-Client-Language`、`X-Client-Timezone`、
   `X-Os-Category` 与有效的 `X-Os-Version`

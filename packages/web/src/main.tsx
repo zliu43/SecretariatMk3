@@ -543,7 +543,7 @@ async function requestWebRemoteControlWorkspaceBridge(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Secretariat-Mobile-Connection-Id": proxy.mobileConnectionId,
+        "X-ZCode-Mobile-Connection-Id": proxy.mobileConnectionId,
       },
       body: JSON.stringify({
         workspaceKey,
@@ -583,7 +583,7 @@ async function updateWebRemoteControlMobileViewState(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Secretariat-Mobile-Connection-Id": proxy.mobileConnectionId,
+        "X-ZCode-Mobile-Connection-Id": proxy.mobileConnectionId,
       },
       body: JSON.stringify({
         activeWorkspaceKey: workspaceKey,

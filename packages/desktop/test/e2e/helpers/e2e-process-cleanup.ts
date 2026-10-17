@@ -191,7 +191,7 @@ function isE2EProcessAncestorCandidate(
     (includeChromeDriverAncestors &&
       /(?:^|\/)chromedriver(?:\.exe)?(?:\s|$)/u.test(normalizedCommand)) ||
     /(?:^|\/)electron(?:\.exe)?(?:\s|$)/u.test(normalizedCommand) ||
-    /(?:^|\/)zcode e2e(?:\.exe)?(?:\s|$)/u.test(normalizedCommand)
+    /(?:^|\/)secretariat e2e(?:\.exe)?(?:\s|$)/u.test(normalizedCommand)
   );
 }
 

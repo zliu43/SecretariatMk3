@@ -213,7 +213,7 @@ export const MARKDOWN_CONTINUE_CASES: readonly MarkdownContinueCaseDefinition[] 
   {
     id: "zcode-file-citation",
     partial: `::zcode-file-citation{path="${FIXTURE_DIR_RELATIVE}/cita`,
-    continuation: 'tion.txt" purpose="output"}\n\nZCODE_FILE_CITATION_DONE',
+    continuation: 'tion.txt" purpose="output"}\n\nSECRETARIAT_FILE_CITATION_DONE',
     finalAnchor: "SECRETARIAT_FILE_CITATION_DONE",
   },
 ];

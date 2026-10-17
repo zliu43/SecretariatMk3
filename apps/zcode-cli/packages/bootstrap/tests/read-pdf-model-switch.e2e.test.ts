@@ -35,7 +35,7 @@ const PDF_INCAPABLE_MODEL: ModelRef = {
   providerId: PROVIDER_ID,
   modelId: createModelId("pdf-incapable"),
 };
-const PDF_BYTES = Buffer.from("%PDF-1.4\nZCode PDF model switch fixture\n%%EOF\n", "ascii");
+const PDF_BYTES = Buffer.from("%PDF-1.4\nSecretariat PDF model switch fixture\n%%EOF\n", "ascii");
 const PDF_OMITTED_TEXT =
   "Media omitted from provider request because the selected model does not support PDF input.";
 

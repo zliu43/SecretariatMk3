@@ -17,10 +17,10 @@ describe("desktop deep link url helpers", () => {
     const { isOAuthCallbackUrl, isPaymentCallbackUrl } =
       await import("../src/main/desktopDeepLinkUrl.js");
 
-    expect(isOAuthCallbackUrl(new URL("zcode:/oauth/callback?code=1&state=s"))).toBe(true);
-    expect(isOAuthCallbackUrl(new URL("zcode:oauth/callback?code=1&state=s"))).toBe(true);
-    expect(isPaymentCallbackUrl(new URL("zcode:/payment/callback?status=return"))).toBe(true);
-    expect(isPaymentCallbackUrl(new URL("zcode:payment/callback?status=cancel"))).toBe(true);
+    expect(isOAuthCallbackUrl(new URL("secretariat:/oauth/callback?code=1&state=s"))).toBe(true);
+    expect(isOAuthCallbackUrl(new URL("secretariat:oauth/callback?code=1&state=s"))).toBe(true);
+    expect(isPaymentCallbackUrl(new URL("secretariat:/payment/callback?status=return"))).toBe(true);
+    expect(isPaymentCallbackUrl(new URL("secretariat:payment/callback?status=cancel"))).toBe(true);
   });
 
   it("recognizes payment callback urls separately from OAuth", async () => {

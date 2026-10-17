@@ -350,7 +350,7 @@ export class BigModelCodingPlanSubscriptionProvider {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
           ...requestVerificationClaimHeaders(request),
-          "X-Secretariat-App-Version": SECRETARIAT_VERSION,
+          "X-ZCode-App-Version": SECRETARIAT_VERSION,
           "X-Platform": resolveClientPlatformKey(),
         },
         body: JSON.stringify({ plan_id: request.planId }),

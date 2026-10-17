@@ -53,7 +53,7 @@ describe("createRuntimeAiSdkModelExecutionConfig", () => {
     expect(config).toMatchObject({
       defaultHeaders: {
         "User-Agent": "Secretariat/3.9.0",
-        "X-Secretariat-App-Version": "3.9.0",
+        "X-ZCode-App-Version": "3.9.0",
         "X-Title": "Z Code@electron",
       },
       endpointRoutingPort,
@@ -84,7 +84,7 @@ describe("buildCliZCodeSourceHeaders", () => {
     ).toMatchObject({
       "User-Agent": "Secretariat/3.9.0",
       "X-Title": "Z Code@cli",
-      "X-Secretariat-App-Version": "3.9.0",
+      "X-ZCode-App-Version": "3.9.0",
     });
   });
 });

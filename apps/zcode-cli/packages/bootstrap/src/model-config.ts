@@ -58,12 +58,12 @@ export function buildCliZCodeSourceHeaders(
   return {
     "HTTP-Referer": resolveRuntimeZCodeEndpointOrigin(env),
     "User-Agent": `Secretariat/${appVersion ?? "unknown"}`,
-    ...(appVersion ? { "X-Secretariat-App-Version": appVersion } : {}),
+    ...(appVersion ? { "X-ZCode-App-Version": appVersion } : {}),
     "X-Title": `Z Code@${sourceTitle}`,
     "X-Release-Channel": resolveRuntimeZCodeEnv(env),
     "X-Client-Language": locale ?? "unknown",
     "X-Client-Timezone": timezone ?? "unknown",
-    "X-Secretariat-Agent": "glm",
+    "X-ZCode-Agent": "glm",
     ...createRuntimePlatformHeaders(),
   };
 }

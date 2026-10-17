@@ -928,7 +928,7 @@ describe("createMcpAdapter", () => {
       type: "http",
       url: "https://mcp.example.test",
       headers: {
-        "X-Secretariat": "1",
+        "X-ZCode": "1",
       },
       oauth: {
         type: "client_credentials",
@@ -965,7 +965,7 @@ describe("createMcpAdapter", () => {
       };
     };
 
-    expect(httpOptions.requestInit?.headers).toEqual({ "X-Secretariat": "1" });
+    expect(httpOptions.requestInit?.headers).toEqual({ "X-ZCode": "1" });
     expect(httpOptions.authProvider?.clientInformation()).toEqual({
       client_id: "http-client",
       client_secret: "http-secret",
@@ -1582,7 +1582,7 @@ describe("createMcpAdapter", () => {
       type: "http",
       url: "https://mcp.example.test",
       headers: {
-        "X-Secretariat": "1",
+        "X-ZCode": "1",
       },
       oauth: {
         type: "client_credentials",
@@ -1619,7 +1619,7 @@ describe("createMcpAdapter", () => {
       };
     };
 
-    expect(httpOptions.requestInit?.headers).toEqual({ "X-Secretariat": "1" });
+    expect(httpOptions.requestInit?.headers).toEqual({ "X-ZCode": "1" });
     expect(httpOptions.authProvider?.clientInformation()).toEqual({
       client_id: "http-client",
       client_secret: "http-secret",

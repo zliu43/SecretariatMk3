@@ -393,7 +393,7 @@ import { z } from "zod";
 
 export const BROWSER_USE_MCP_SERVER_NAME = "browser_use";
 export const BROWSER_USE_MCP_TOOL_NAME = "browser";
-export const BROWSER_USE_MCP_TOKEN_HEADER = "X-Secretariat-Browser-MCP-Token";
+export const BROWSER_USE_MCP_TOKEN_HEADER = "X-ZCode-Browser-MCP-Token";
 export const BROWSER_USE_PARTITION_HINT_PREFIX = "zcode-browser-use:";
 
 export const browserUseActionSchema = z.enum([
@@ -496,7 +496,7 @@ const mcpServers = [
     name: "browser_use",
     type: "http" as const,
     url: "http://127.0.0.1:43210/mcp",
-    headers: [{ name: "X-Secretariat-Browser-MCP-Token", value: "secret" }],
+    headers: [{ name: "X-ZCode-Browser-MCP-Token", value: "secret" }],
   },
 ];
 ```
@@ -507,7 +507,7 @@ Assert runtime config contains:
 expect(runtimeConfig.mcp?.servers.browser_use).toMatchObject({
   type: "http",
   url: "http://127.0.0.1:43210/mcp",
-  headers: { "X-Secretariat-Browser-MCP-Token": "secret" },
+  headers: { "X-ZCode-Browser-MCP-Token": "secret" },
 });
 ```
 
@@ -745,7 +745,7 @@ Add timeout default `30_000ms` and `debug` logs only.
 Create `automationSurfaceMcpServer.ts` modeled after z-ai-pc's per-session server:
 
 - bind to `127.0.0.1` port `0`
-- require `X-Secretariat-Browser-MCP-Token`
+- require `X-ZCode-Browser-MCP-Token`
 - support `initialize`, `tools/list`, `tools/call`, `ping`
 - expose one tool: `{ name: "browser", title: "Browser Use" }`
 - timeout `30_000ms`
@@ -1155,7 +1155,7 @@ describe("browser_use MCP injection", () => {
           name: "browser_use",
           type: "http" as const,
           url: "http://127.0.0.1:4567/mcp",
-          headers: [{ name: "X-Secretariat-Browser-MCP-Token", value: "secret" }],
+          headers: [{ name: "X-ZCode-Browser-MCP-Token", value: "secret" }],
         }],
         instances: [],
       })),

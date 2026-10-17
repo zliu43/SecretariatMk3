@@ -59,7 +59,7 @@ function createMockCommandProvider(): {
           return createCommandResult(options);
         case "config --show-scope --show-origin --get user.name":
           return createCommandResult(options, {
-            stdout: "local\tfile:.git/config\tZCode Tester\n",
+            stdout: "local\tfile:.git/config\tSecretariat Tester\n",
           });
         case "config --show-scope --show-origin --get user.email":
           return createCommandResult(options, {

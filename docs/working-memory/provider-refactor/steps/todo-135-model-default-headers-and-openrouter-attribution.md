@@ -30,8 +30,8 @@
 
 | 类别 | 恢复的默认内容 |
 | --- | --- |
-| 客户端版本 | `User-Agent: Secretariat/<version>`、有效版本对应的 `X-Secretariat-App-Version` |
-| 产品来源 | `HTTP-Referer`、`X-Title: Z Code@electron/cli`、`X-Secretariat-Agent: glm` |
+| 客户端版本 | `User-Agent: Secretariat/<version>`、有效版本对应的 `X-ZCode-App-Version` |
+| 产品来源 | `HTTP-Referer`、`X-Title: Z Code@electron/cli`、`X-ZCode-Agent: glm` |
 | 环境 | `X-Release-Channel`、`X-Client-Language`、`X-Client-Timezone` |
 | 平台 | `X-Platform`、`X-Os-Category`、`X-Os-Version` |
 

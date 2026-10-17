@@ -51,7 +51,7 @@ UI 和 RPC 服务接口暂不扩展，`IFeedbackService` 继续向 UI 暴露现�
 
 请求头规则：
 
-- 反馈请求通过统一 `ApiClient` 发送，自动携带 Secretariat Server 通参，例如 `User-Agent`、`HTTP-Referer`、`X-Secretariat-App-Version`、`X-Platform`、`X-Release-Channel`、`X-Client-Language`、`X-Client-Timezone`、`X-Os-Category`、`X-Os-Version` 和 `x-request-id`。
+- 反馈请求通过统一 `ApiClient` 发送，自动携带 Secretariat Server 通参，例如 `User-Agent`、`HTTP-Referer`、`X-ZCode-App-Version`、`X-Platform`、`X-Release-Channel`、`X-Client-Language`、`X-Client-Timezone`、`X-Os-Category`、`X-Os-Version` 和 `x-request-id`。
 - 如果本地凭据存在 `zcodejwttoken`，请求发送 `Authorization: Bearer <token>`。
 - 所有反馈 API 请求发送 `X-Device-Mid: <telemetry deviceMid>`，用于匿名工单归属与详情访问。
 - `POST /feedback/ticket` 请求体同时发送 `device_mid`。

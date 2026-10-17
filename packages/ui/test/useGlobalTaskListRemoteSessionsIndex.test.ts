@@ -460,8 +460,8 @@ describe("useGlobalTaskList remote shard tasks-index 行 + sessions-index detail
         ],
       },
     });
-    const zcodeIdentity = "remote:ssh:zcode:/root";
-    const zcodeProjectIdentity = "remote:ssh:zcode:/root/demo-project";
+    const zcodeIdentity = "remote:ssh:secretariat:/root";
+    const zcodeProjectIdentity = "remote:ssh:secretariat:/root/demo-project";
     const zcode = createEndpointServices({
       workspaceId: "ws-zcode",
       sessions: [],

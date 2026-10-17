@@ -59,7 +59,7 @@ describe("Todo149 OpenCode Go 正式 SDK 请求", () => {
     const execution = new AiSdkModelExecution(
       {
         env: {},
-        defaultHeaders: { "User-Agent": "Secretariat/3.12.1", "X-Secretariat-App-Version": "3.12.1" },
+        defaultHeaders: { "User-Agent": "Secretariat/3.12.1", "X-ZCode-App-Version": "3.12.1" },
       },
       {
         transport: async (input, init) => {

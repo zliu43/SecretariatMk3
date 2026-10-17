@@ -272,7 +272,7 @@ GET banner -> Schema -> Service 资源授权 -> Controller -> MarketingBanner
 
 `style:null` 回归：修改前1条测试失败，修改后14条相关单测通过；使用 null 样式 fixture 的 macOS App E2E 3条通过（run `desktop-e2e-20260910104035687-p56768-d8445a96ab6405e9`）。类型/E2E类型/架构检查通过，Lint 0错误、46条已有警告；未新增其他平台实机验证。
 
-GET /api/v1/marketing/touch 返回 data.server_time、language、deliveries；每条按 resource_position 使用 banner 或 popup 字段，不使用 content 包装。POST /api/v1/marketing/touch/action 只发送 campaign_id、action_type(confirm/cancel)。两接口携带 X-Device-Mid、X-Client-Language、X-Secretariat-App-Version 和可选 Authorization。
+GET /api/v1/marketing/touch 返回 data.server_time、language、deliveries；每条按 resource_position 使用 banner 或 popup 字段，不使用 content 包装。POST /api/v1/marketing/touch/action 只发送 campaign_id、action_type(confirm/cancel)。两接口携带 X-Device-Mid、X-Client-Language、X-ZCode-App-Version 和可选 Authorization。
 
 Banner 为左下角图片或 ZIP 展示位。buttons 最多一个 close、一个非 close；close 复用右上角 X，常规动作绑定整图，无 banner.action。未知 layout/action、多个常规动作、image/bundle 以外的 Banner 独立拒绝，不影响另一资源位。Popup Hero 可空；支持 image/video/bundle，服务端暂无 lottie。文本使用 plaintext/html/markdown 的既有渲染能力（Banner 按钮空 format 按 plaintext；markdown 暂按原文），忽略远端 style。按钮文字提取安全纯文本用于标签。
 

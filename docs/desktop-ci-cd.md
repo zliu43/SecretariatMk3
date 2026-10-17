@@ -209,7 +209,7 @@ sockets are minted as random `broker-<hex>.sock` files; do not hard-code
   **`${SECRETARIAT_CI_SHARED_ROOT}/${TARGET_OUTPUT_DIR}`**  
   例如：`/Users/dev/shared/zcode/@electron/dev/my-branch/`。macOS 安装包只写入 **`macos-arm64/`**、**`macos-x64/`**；根目录只保留 remote assets 的 `manifest-*.json` 和 `components/`，由 macOS arm64 upload job 通过额外来源目录附带上传。
 - **Linux Docker**  
-  与常见 runner 配置 **`volumes = ["/Users/dev/shared/zcode:/output", ...]`** 对齐：容器内写入  
+  与常见 runner 配置 **`volumes = ["/Users/dev/shared/secretariat:/output", ...]`** 对齐：容器内写入  
   **`${SECRETARIAT_CI_LINUX_CONTAINER_OUT}/${TARGET_OUTPUT_DIR}`**（默认 **`SECRETARIAT_CI_LINUX_CONTAINER_OUT=/output`**），宿主机上即 **`/Users/dev/shared/zcode/${TARGET_OUTPUT_DIR}`**。  
   若挂载点不是 `/output`，可在 GitLab CI/CD 变量中覆盖 **`SECRETARIAT_CI_LINUX_CONTAINER_OUT`**，或仅用 **`LINUX_SHARED_OUTPUT_ROOT`** 覆盖收集根目录。x64/arm64 并行构建会先写入当前 job 工作区的 `.tmp/linux-<arch>-collect` 临时目录，再同步到 **`linux-x64/`**、**`linux-arm64/`** 架构隔离子目录，正式 upload 只读取对应子目录，避免两个架构统一命名后的 `latest.yml` 互相覆盖导致发布元数据或更新 feed 串架构。
 - **Windows**  

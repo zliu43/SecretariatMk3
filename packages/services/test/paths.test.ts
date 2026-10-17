@@ -96,7 +96,7 @@ describe("paths", () => {
     };
 
     expect(
-      validateDataBaseDirTarget("c:\\program files\\zcode", {
+      validateDataBaseDirTarget("c:\\program files\\secretariat", {
         platform: "win32",
         env,
       }),

@@ -93,7 +93,7 @@ describe("ConversationShareLandingPage", () => {
     expect(html).toContain("切换到深色主题");
     expect(html.match(/data-share-continue-link="true"/g)?.length).toBe(2);
     expect(html).toContain('data-share-continue-footer="true"');
-    expect(html.match(/href="zcode:\/\/share\/import\?code=share-1"/g)?.length).toBe(2);
+    expect(html.match(/href="secretariat:\/\/share\/import\?code=share-1"/g)?.length).toBe(2);
     expect(html.indexOf('data-share-continue-footer="true"')).toBeGreaterThan(
       html.indexOf("data-conversation-share-timeline"),
     );

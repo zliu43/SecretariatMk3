@@ -3969,7 +3969,7 @@ OAuth Service 与 Logout Handler 78 条测试通过。该修复补齐 MR 审查 
 ## 250. 删除孤立的旧模型覆盖 Header
 
 继续运行 `knip`、无 scope `dep:refs` 和全仓字符串扫描后，确认
-`providers/codexModelOverride.ts` 只导出 `X-Secretariat-Codex-Model-Override` 常量，引用、再导出和动态使用均为
+`providers/codexModelOverride.ts` 只导出 `X-ZCode-Codex-Model-Override` 常量，引用、再导出和动态使用均为
 零。当前模型选择、Submission、Registry、Request Auth 与 Adapter 请求都不读取该 Header；它已经不是
 一项兼容行为，而是孤立的旧入口形状。
 

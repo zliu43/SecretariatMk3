@@ -23,7 +23,7 @@ describe("buildZCodeSourceHeadersFromContext", () => {
       ...SECRETARIAT_SOURCE_HEADERS,
       "HTTP-Referer": "https://zcode.z.ai",
       "User-Agent": "Secretariat/2.14.0",
-      "X-Secretariat-App-Version": "2.14.0",
+      "X-ZCode-App-Version": "2.14.0",
       "X-Title": "Z Code@cli",
       "X-Platform": "darwin-arm64",
       "X-Release-Channel": "test",
@@ -53,6 +53,6 @@ describe("buildZCodeSourceHeadersFromContext", () => {
       "X-Title": "Z Code@electron",
     });
     expect(headers).not.toHaveProperty("X-Device-Mid");
-    expect(headers).not.toHaveProperty("X-Secretariat-App-Version");
+    expect(headers).not.toHaveProperty("X-ZCode-App-Version");
   });
 });

@@ -47,7 +47,7 @@ it("adds every public header and re-reads authorization on retry and logout", as
     "User-Agent": "Secretariat/1.2.3",
     "HTTP-Referer": "https://zcode.z.ai",
     "X-Title": "Z Code@electron",
-    "X-Secretariat-App-Version": "1.2.3",
+    "X-ZCode-App-Version": "1.2.3",
     "X-Platform": "darwin-arm64",
     "X-Release-Channel": "test",
     "X-Client-Language": "zh-CN",

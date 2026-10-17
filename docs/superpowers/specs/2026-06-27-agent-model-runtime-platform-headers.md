@@ -2,7 +2,7 @@
 
 ## 背景
 
-Agent 模型请求已经携带 `User-Agent`、`X-Secretariat-App-Version`、`X-Title`、`x-request-id`
+Agent 模型请求已经携带 `User-Agent`、`X-ZCode-App-Version`、`X-Title`、`x-request-id`
 和 `x-session-id` 等来源与请求归因 header。后端排查模型请求时，还需要知道发起请求的
 agent runtime 所在机器的操作系统、CPU 架构和系统版本，用来区分 macOS、Windows、Linux
 以及远程 workspace 上的运行环境。
@@ -16,7 +16,7 @@ agent runtime 所在机器的操作系统、CPU 架构和系统版本，用来�
 - header 语义表示真正发起模型请求的 agent runtime 机器。远程 SSH / WSL / Docker workspace
   由远端 zcode-cli runtime 生成 header，因此记录远端环境，不记录本机桌面或手机 `/remote`
   客户端环境。
-- 复用 app 侧已有的 header 名称，不新增 `X-Secretariat-OS` / `X-Secretariat-Arch` / `X-Secretariat-OS-Version`。
+- 复用 app 侧已有的 header 名称，不新增 `X-ZCode-OS` / `X-ZCode-Arch` / `X-ZCode-OS-Version`。
 - header 值只允许可打印 ASCII；无法生成安全值时省略对应可选 header，避免 HTTP fetch
   在发送前因非法 header value 失败。
 - 用户在 provider config 中显式配置同名 header 时继续覆盖默认环境 header。
@@ -31,7 +31,7 @@ agent runtime 所在机器的操作系统、CPU 架构和系统版本，用来�
 ## 设计
 
 运行环境 header 在 `apps/zcode-cli/packages/bootstrap/src/model-config.ts` 的 provider 默认
-header 生成阶段构造，和 `User-Agent`、`X-Secretariat-App-Version`、`X-Title`、`X-Secretariat-Agent`
+header 生成阶段构造，和 `User-Agent`、`X-ZCode-App-Version`、`X-Title`、`X-ZCode-Agent`
 保持同一层级。
 
 合并顺序保持现状：
