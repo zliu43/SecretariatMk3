@@ -40,10 +40,13 @@ GLOBAL_RULES = [
     # Path segment only: not after a word char, '-', '.', ')', ']', '?' or an escaped word
     # (those are spreads `...zcode`, member access `x).zcode`, `?.zcode`, `window\.zcode`).
     ("data-dir", re.compile(r"(?<![\w\-.)\]?])(?<!\w\\)\.zcode(?![\w-])"), ".secretariat"),
-    ("env", re.compile(r"\bZCODE_"), "SECRETARIAT_"),
+    # Word boundary, also right after a \n/\t/\r escape inside string literals.
+    ("env", re.compile(r"(?:(?<!\w)|(?<=\\[ntr]))ZCODE_"), "SECRETARIAT_"),
     ("product", re.compile(r"\bZCodeProject\b"), "SecretariatProject"),
-    ("product", re.compile(r"\bZ[Cc]ode\b"), "Secretariat"),
-    ("deeplink", re.compile(r"\bzcode://"), "secretariat://"),
+    # Not in HTTP header names (X-ZCode-*): those are wire identifiers read case-insensitively elsewhere.
+    ("product", re.compile(r"(?<![Xx]-)(?:(?<!\w)|(?<=\\[ntr]))Z[Cc]ode\b"), "Secretariat"),
+    # zcode://, zcode:/, zcode:oauth/... and regex-escaped zcode:\/\/
+    ("deeplink", re.compile(r"\bzcode:(?=\\?/|(?:oauth|payment|share|workspace)/)"), "secretariat:"),
     ("appid", re.compile(r"\bdev\.zcode\.app\b"), "dev.secretariat.app"),
 ]
 
@@ -55,6 +58,10 @@ FILE_RULES = [
      r"/\bzcode:(?:", r"/\bsecretariat:(?:", 1),
     ("packages/desktop/electron-builder.config.js",
      'schemes: ["zcode"]', 'schemes: ["secretariat"]', 1),
+    ("packages/desktop/test/e2e/helpers/e2e-process-cleanup.ts",
+     "zcode e2e(?:", "secretariat e2e(?:", 1),
+    ("packages/services/test/paths.test.ts",
+     '"c:\\\\program files\\\\zcode"', '"c:\\\\program files\\\\secretariat"', 1),
     ("apps/zcode-cli/packages/cli/package.json",
      '"zcode": "./dist/zcode.cjs"', '"secretariat": "./dist/zcode.cjs"', 1),
 ]
