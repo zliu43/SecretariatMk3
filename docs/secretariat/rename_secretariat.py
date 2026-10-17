@@ -48,7 +48,7 @@ GLOBAL_RULES = [
     ("product", re.compile(r"(?<![Xx]-)(?:(?<!\w)|(?<=\\[ntr]))Z[Cc]ode\b"), "Secretariat"),
     # zcode://, zcode:/, zcode:oauth/... and regex-escaped zcode:\/\/
     # ...and URL-encoded zcode%3A%2F%2F...
-    ("deeplink", re.compile(r"\bzcode(?=:(?:\\?/|(?:oauth|payment|share|workspace)/)|%3[Aa])"), "secretariat"),
+    ("deeplink", re.compile(r"\bzcode(?=:(?:\\?/|(?:oauth|payment|share|workspace)/)|%(?:25)*3[Aa])"), "secretariat"),
     ("appid", re.compile(r"\bdev\.zcode\.app\b"), "dev.secretariat.app"),
 ]
 

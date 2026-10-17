@@ -76,7 +76,7 @@ describe("desktop deep link url helpers", () => {
     expect(
       extractDeepLinkUrlFromArgs([
         "/opt/Secretariat/zcode",
-        "zcode%253A%252F%252Foauth%252Fcallback%253Fcode%253D1%2526state%253Ds",
+        "secretariat%253A%252F%252Foauth%252Fcallback%253Fcode%253D1%2526state%253Ds",
       ]),
     ).toBe("secretariat://oauth/callback?code=1&state=s");
     expect(
@@ -139,7 +139,7 @@ describe("desktop deep link url helpers", () => {
 
     const additionalData = createDeepLinkSingleInstanceData([
       "/opt/Secretariat/zcode",
-      "zcode%253A%252F%252Foauth%252Fcallback%253Fcode%253D1%2526state%253Ds",
+      "secretariat%253A%252F%252Foauth%252Fcallback%253Fcode%253D1%2526state%253Ds",
       "--open-workspace=C:\\Users\\demo\\Project A",
     ]);
 
