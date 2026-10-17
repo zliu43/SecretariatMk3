@@ -95,7 +95,7 @@ function compileFixture({
     `/DNSIS_INCLUDE_DIR=${resolve(nsisDir, "Include")}`,
     `/DELECTRON_BUILDER_NSIS_INCLUDE_DIR=${resolve(appBuilderLibDir, "templates/nsis/include")}`,
     `/DNSIS_PLUGIN_DIR=${resolve(nsisResourcesDir, "plugins/x86-unicode")}`,
-    `/DZCODE_INSTALLER_NSH=${installerNshPath}`,
+    `/DSECRETARIAT_INSTALLER_NSH=${installerNshPath}`,
     `/DFIXTURE_EXE=${process.env.ComSpec ?? "C:\\Windows\\System32\\cmd.exe"}`,
     `/DOUTPUT_FILE=${outputPath}`,
     `/DDEFAULT_LOG_PATH=${defaultLogPath}`,

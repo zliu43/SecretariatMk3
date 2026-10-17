@@ -70,7 +70,7 @@ describe("desktop deep link url helpers", () => {
     expect(
       extractDeepLinkUrlFromArgs([
         "/opt/Secretariat/zcode",
-        "zcode%3A%2F%2Foauth%2Fcallback%3Fcode%3D1%26state%3Ds",
+        "secretariat%3A%2F%2Foauth%2Fcallback%3Fcode%3D1%26state%3Ds",
       ]),
     ).toBe("secretariat://oauth/callback?code=1&state=s");
     expect(
