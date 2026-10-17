@@ -316,7 +316,7 @@ describe("ChatCodingPlanUsageRemainingPanel MCP 额度", () => {
                     type: "MCP_USAGE_LIMIT",
                     percentage: 25,
                     remaining: 75,
-                    nextResetTime: Date.UTC(2025, 7, 21),
+                    nextResetTime: new Date(2025, 7, 21, 12).getTime(),
                     usageDetails: [],
                   },
                 },
