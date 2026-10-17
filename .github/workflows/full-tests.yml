@@ -1,0 +1,36 @@
+name: Full unit tests
+
+# The whole unit suite, split across parallel runners. A single full run can crash Node near the end
+# (docs/secretariat/PROGRESS.md), so it is always sharded. Not a required check: it runs after merge,
+# nightly, and on demand, and a failure here should become an issue.
+on:
+  push:
+    branches: [secretariat]
+  schedule:
+    - cron: "17 9 * * *" # daily, 09:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: full-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests (shard ${{ matrix.shard }}/8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - name: Vitest shard
+        run: >-
+          pnpm exec vitest run
+          --exclude "packages/desktop/test/e2e/**/*.test.ts"
+          --shard=${{ matrix.shard }}/8

@@ -19,7 +19,9 @@ if (command === "context") {
   process.exit(0);
 }
 
-const changed = args.includes("--changed") ? await changedFilesFromGit(cwd) : null;
+const baseArg = args.find((arg) => arg.startsWith("--base="));
+const base = baseArg ? baseArg.slice("--base=".length) : undefined;
+const changed = args.includes("--changed") || base ? await changedFilesFromGit(cwd, base) : null;
 const result = await checkArchitecture({ cwd, changedFiles: changed });
 
 if (command === "baseline:update") {

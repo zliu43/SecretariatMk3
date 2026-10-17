@@ -322,9 +322,10 @@ export async function updateBaseline({ cwd = process.cwd(), violations }) {
   return entries;
 }
 
-export async function changedFilesFromGit(cwd = process.cwd()) {
+// base defaults to HEAD (uncommitted local edits); CI passes the PR base commit to check the whole PR.
+export async function changedFilesFromGit(cwd = process.cwd(), base = "HEAD") {
   const [diff, untracked] = await Promise.all([
-    gitFileNames(cwd, ["diff", "--name-only", "-z", "HEAD"]),
+    gitFileNames(cwd, ["diff", "--name-only", "-z", base]),
     gitFileNames(cwd, ["ls-files", "--others", "--exclude-standard", "-z"]),
   ]);
   return [...new Set([...diff, ...untracked])];
