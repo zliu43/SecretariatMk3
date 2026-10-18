@@ -139,6 +139,21 @@ test("changed files support Git output larger than 1 MiB for untracked and track
   });
 });
 
+test("changed files compare against an explicit base commit", async () => {
+  await fixture({ "base.ts": "before" }, async (cwd) => {
+    await initializeGit(cwd);
+    await git(cwd, "add", "base.ts");
+    await git(cwd, "-c", "core.hooksPath=", "commit", "-m", "base");
+    const { stdout } = await git(cwd, "rev-parse", "HEAD");
+    const base = stdout.trim();
+    await writeFile(join(cwd, "committed.ts"), "export {};\n");
+    await git(cwd, "add", "committed.ts");
+    await git(cwd, "-c", "core.hooksPath=", "commit", "-m", "pr change");
+    assert.deepEqual(await changedFilesFromGit(cwd), []);
+    assert.deepEqual(await changedFilesFromGit(cwd, base), ["committed.ts"]);
+  });
+});
+
 test("Git enumeration failures reject instead of reporting an empty changed set", async () => {
   await fixture({}, async (cwd) => {
     await assert.rejects(changedFilesFromGit(cwd), /git/i);

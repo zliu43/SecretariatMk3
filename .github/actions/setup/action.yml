@@ -1,0 +1,24 @@
+name: Set up workspace
+description: Install the Node and pnpm versions pinned in mise.toml / package.json, then install dependencies.
+
+runs:
+  using: composite
+  steps:
+    # mise.toml is the single source of truth for the Node version (see docs/secretariat/PROGRESS.md:
+    # Node 25 breaks jsdom tests), so read it instead of duplicating the pin here.
+    - name: Read pinned Node version
+      id: node
+      shell: bash
+      run: echo "version=$(sed -n 's/^node = "\(.*\)"/\1/p' mise.toml)" >> "$GITHUB_OUTPUT"
+
+    # Version comes from the packageManager field in package.json.
+    - uses: pnpm/action-setup@v4
+
+    - uses: actions/setup-node@v6
+      with:
+        node-version: ${{ steps.node.outputs.version }}
+        cache: pnpm
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile

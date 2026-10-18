@@ -1,0 +1,26 @@
+name: Bug
+description: Something that behaves wrong, including failing tests
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: Include error output, failing test names, or logs.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Commands, platform (macOS / Linux / CI), Node version, deployment (test / prod).
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes

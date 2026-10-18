@@ -1,0 +1,26 @@
+name: Task
+description: A piece of planned work (feature, removal, setup step)
+labels: [task]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What should be true when this is done, and why.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Done when
+      description: Checkable acceptance criteria. Use the targets from docs/secretariat/PLAN.md where they exist.
+      placeholder: |
+        - [ ] ...
+        - [ ] Tests cover the new behavior
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Pointers to code, specs, decisions, or dependencies on other issues.

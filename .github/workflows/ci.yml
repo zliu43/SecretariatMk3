@@ -1,0 +1,64 @@
+name: CI
+
+# Fast checks for every pull request. These are the required status checks on `secretariat`.
+# The full unit suite runs separately in full-tests.yml (after merge and nightly).
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint and architecture
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - run: pnpm lint
+      # The repo carries pre-existing violations from upstream, so only files this PR touches are checked
+      # (same scope as the pre-push hook).
+      - name: Architecture check (changed files)
+        run: pnpm architecture:check --base=${{ github.event.pull_request.base.sha || 'origin/secretariat' }}
+      - run: pnpm test:architecture
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      - run: pnpm typecheck
+
+  typecheck-cli:
+    name: Typecheck (agent CLI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+      # The CLI's own `typecheck` script expects turbo in its local bin; use the root workspace's turbo.
+      - run: pnpm exec turbo run typecheck --cwd apps/zcode-cli --output-logs=errors-only
+
+  affected-tests:
+    name: Affected unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - name: Unit tests affected by this PR
+        env:
+          SECRETARIAT_AFFECTED_TEST_BASE: ${{ github.event.pull_request.base.sha || 'origin/secretariat' }}
+        run: pnpm test:unit:affected
