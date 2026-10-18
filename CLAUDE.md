@@ -29,6 +29,16 @@ are in `AGENTS.md` (Chinese) and still apply:
 The full unit suite runs after every merge and nightly (`full-tests.yml`). If it fails, open a bug issue
 rather than ignoring it.
 
+## Branches and releases
+
+- `secretariat` is the working branch. All day-to-day PRs target it.
+- `main` holds stable releases only, every 2–4 weeks when a milestone (or a solid part of one) is done.
+  Never commit to `main` directly and never target it with feature PRs.
+- To release: check the latest `Full unit tests` run on `secretariat` is green (or its failures are
+  tracked and accepted), open a PR from `secretariat` into `main` titled `Release vX.Y.0`, merge it with
+  a merge commit, then tag the merge `vX.Y.0` and add a release note listing the closed issues.
+- A fix needed on a release goes to `secretariat` first, then into `main` with the next release.
+
 Mention `@claude` in an issue or PR comment to have the GitHub bot answer a question or implement a
 change; it works on a branch and opens a PR like anyone else.
 
