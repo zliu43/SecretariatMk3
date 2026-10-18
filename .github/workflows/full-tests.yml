@@ -29,6 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+      # Some tests import workspace packages through their built dist entry points.
+      - run: pnpm build:test-deps
       - name: Vitest shard
         run: >-
           pnpm exec vitest run
