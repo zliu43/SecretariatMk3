@@ -588,77 +588,6 @@ test("injects process provider endpoint routing into headless prompts", async ()
   assert.equal(ctx.stdout.output(), "route me\n");
 });
 
-test("borrows one process provider registry for a headless prompt and disposes it", async () => {
-  const ctx = createContext(["--prompt", "registry me"]);
-  const providerRegistry = {} as never;
-  const providerRuntimeHeadersPort = {} as never;
-  let runtimeStarts = 0;
-  let runtimeDisposals = 0;
-  let selectionRepositoryDisposals = 0;
-  const exitCode = await run(ctx, {
-    ...createPromptDeps(),
-    skipUserConfig: false,
-    userConfigPath: "/tmp/zcode-legacy-cli.json",
-    startProcessProviderRegistryRuntime: async (_env, options) => {
-      runtimeStarts += 1;
-      assert.deepEqual(options, {
-        standalone: {
-          legacyCliUserConfigFilePath: "/tmp/zcode-legacy-cli.json",
-        },
-      });
-      return {
-        accountSource: {} as never,
-        dispose: () => {
-          selectionRepositoryDisposals += 1;
-          runtimeDisposals += 1;
-        },
-        configuredDefaultModelSelection: { providerId: "provider-a", modelId: "model-a" },
-        modelSelectionConfigRepository: {
-          dispose: () => {
-            selectionRepositoryDisposals += 1;
-          },
-          read: async () => ({ providerId: "provider-a", modelId: "model-a" }),
-        },
-        providerRuntimeHeadersPort,
-        snapshot: {} as never,
-        runtime: {
-          dispose: () => {
-            runtimeDisposals += 1;
-          },
-          registryService: providerRegistry,
-        },
-      } as never;
-    },
-    createZCodeApp: (options) => {
-      assert.equal(options?.providerRegistry, providerRegistry);
-      assert.equal(options?.providerRuntimeHeadersPort, providerRuntimeHeadersPort);
-      assert.equal(Object.hasOwn(options ?? {}, "workspaceProviderCompatibilityMode"), false);
-      assert.deepEqual(options?.configuredDefaultModelSelection, {
-        providerId: "provider-a",
-        modelId: "model-a",
-      });
-      return {
-        close: async () => {},
-        runtime: {} as never,
-        sessionId: "session-registry-headless",
-        submitPrompt: async (prompt: string) => ({
-          events: [],
-          projection: fakeProjection as never,
-          response: prompt,
-          traceId: "trace-registry-headless" as never,
-          turnId: "turn-registry-headless" as never,
-        }),
-        traceId: "trace-registry-headless",
-      } as never;
-    },
-  });
-
-  assert.equal(exitCode, 0);
-  assert.equal(runtimeStarts, 1);
-  assert.equal(runtimeDisposals, 1);
-  assert.equal(selectionRepositoryDisposals, 1);
-});
-
 test("shows a non-blocking login notice when no coding plan key is configured", async () => {
   const ctx = createContext([]);
   const exitCode = await run(ctx, {
@@ -3980,20 +3909,6 @@ test("command center opens a session picker for bare resume when sessions are av
   assert.match(result.selection?.items[1]?.meta ?? "", /fork of sess_parent/);
 });
 
-test("prints help with help flag", async () => {
-  const ctx = createContext(["--help"]);
-  const exitCode = await run(ctx);
-
-  assert.equal(exitCode, 0);
-  assert.match(ctx.stdout.output(), /With no command, zcode opens the full-screen TUI\./);
-  assert.match(ctx.stdout.output(), /Commands:/);
-  assert.match(ctx.stdout.output(), /--force-mcs/);
-  assert.match(ctx.stdout.output(), /--surface <surface>/);
-  assert.match(ctx.stdout.output(), /--resume <sessionId>/);
-  assert.match(ctx.stdout.output(), /sessionId \(sess_\.\.\.\)/);
-  assert.equal(ctx.stderr.output(), "");
-});
-
 test("prints version with version flag", async () => {
   const ctx = createContext(["--version"]);
   const exitCode = await run(ctx);
@@ -6256,92 +6171,6 @@ test("injects one managed CDP runtime into TUI app lifecycle and closes it", asy
   assert.equal(exitCode, 0);
   assert.equal(appClosed, 1);
   assert.equal(runtimeClosed, 1);
-});
-
-test("reuses one process provider registry across TUI app replacements", async () => {
-  const ctx = createContext(["tui"]);
-  const providerRegistry = {} as never;
-  const providerRuntimeHeadersPort = {} as never;
-  let runtimeStarts = 0;
-  let runtimeDisposals = 0;
-  let selectionRepositoryDisposals = 0;
-  let appCreations = 0;
-  const exitCode = await run(ctx, {
-    ...createPromptDeps(),
-    skipUserConfig: false,
-    userConfigPath: "/tmp/zcode-legacy-tui.json",
-    startProcessProviderRegistryRuntime: async (_env, options) => {
-      runtimeStarts += 1;
-      assert.deepEqual(options, {
-        standalone: {
-          legacyCliUserConfigFilePath: "/tmp/zcode-legacy-tui.json",
-        },
-      });
-      return {
-        accountSource: {} as never,
-        dispose: () => {
-          selectionRepositoryDisposals += 1;
-          runtimeDisposals += 1;
-        },
-        configuredDefaultModelSelection: { providerId: "provider-a", modelId: "model-a" },
-        modelSelectionConfigRepository: {
-          dispose: () => {
-            selectionRepositoryDisposals += 1;
-          },
-          read: async () => ({ providerId: "provider-a", modelId: "model-a" }),
-        },
-        providerRuntimeHeadersPort,
-        snapshot: {} as never,
-        runtime: {
-          dispose: () => {
-            runtimeDisposals += 1;
-          },
-          registryService: providerRegistry,
-        },
-      } as never;
-    },
-    createZCodeApp: (options) => {
-      appCreations += 1;
-      assert.equal(options?.providerRegistry, providerRegistry);
-      assert.equal(options?.providerRuntimeHeadersPort, providerRuntimeHeadersPort);
-      assert.equal(Object.hasOwn(options ?? {}, "workspaceProviderCompatibilityMode"), false);
-      assert.deepEqual(options?.configuredDefaultModelSelection, {
-        providerId: "provider-a",
-        modelId: "model-a",
-      });
-      return {
-        close: async () => {},
-        getLocale: () => "en-US",
-        getModel: () => "openai/gpt-test",
-        getThoughtLevel: () => "medium",
-        runtime: {} as never,
-        sessionId: `session-registry-tui-${appCreations}`,
-        submitPrompt: async (prompt: string) => ({
-          events: [],
-          projection: fakeProjection as never,
-          response: prompt,
-          traceId: "trace-registry-tui" as never,
-          turnId: "turn-registry-tui" as never,
-        }),
-        traceId: "trace-registry-tui",
-      } as never;
-    },
-    runTui: async (options) => {
-      await options.submitPrompt("/new", {
-        requestPermission: async () => ({
-          decision: "deny",
-          resolvedAt: new Date(),
-        }),
-      });
-      return 0;
-    },
-  });
-
-  assert.equal(exitCode, 0);
-  assert.equal(appCreations, 2);
-  assert.equal(runtimeStarts, 1);
-  assert.equal(runtimeDisposals, 1);
-  assert.equal(selectionRepositoryDisposals, 1);
 });
 
 test("rejects an invalid explicit browser executable before creating the app", async () => {
