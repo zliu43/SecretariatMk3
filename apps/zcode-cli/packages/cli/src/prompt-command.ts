@@ -8,6 +8,7 @@ import {
   formatSlashCommandHelp,
   parseSlashCommand,
 } from "./command-center.js";
+import { enforceDeploymentGuard } from "./deployment-command.js";
 import { loadCliDotenv } from "./env.js";
 import { createCliHeadlessBrowserRuntime } from "./headless-browser.js";
 import {
@@ -181,6 +182,7 @@ export const runPrompt = async (
         cause: dotenvResult.error,
       });
     }
+    if (!(await enforceDeploymentGuard(ctx, env, false, deps.deploymentGuard))) return 1;
 
     const sessionId = await resolveResumeSession(resumeRequest, workingDirectory, env, deps);
     const bootstrapModule = deps.createZCodeApp ? undefined : await loadBootstrapModule();
