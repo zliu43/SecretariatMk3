@@ -17,6 +17,10 @@ import {
   NodePersonalProviderConfigRepository,
   type PersonalProviderConfigRecoveryEvent,
 } from "./personal-provider-config-repository.js";
+import {
+  GatewayOverlayPersonalRepository,
+  type GatewayProviderSettings,
+} from "./gateway-provider.js";
 
 export interface NodeProviderConfigRuntimeOptions {
   readonly zcodeBuiltinFilePath: string;
@@ -31,6 +35,8 @@ export interface NodeProviderConfigRuntimeOptions {
   readonly onPersonalConfigPollingError?: (error: unknown) => void;
   readonly personalFilePath: string;
   readonly personalPollingIntervalMs?: number | false;
+  /** Hosted mode: adds the Secretariat gateway as the default provider (gateway-provider.ts). */
+  readonly gateway?: GatewayProviderSettings | null;
   readonly importLegacy?: (
     zcodeBuiltin: ProviderConfigLayerSnapshot,
   ) => Promise<ProviderConfigLayerUpdate | null>;
@@ -44,6 +50,8 @@ export class NodeProviderConfigRuntime {
     | NodeZCodeBuiltinProviderConfigSource
     | EndpointScopedZCodeBuiltinSource;
   readonly #personalRepository: NodePersonalProviderConfigRepository;
+  /** What the rest of the process sees: the file-backed repository, plus the gateway in hosted mode. */
+  readonly #personalView: import("@zcode/provider").PersonalProviderConfigRepository;
   readonly #remoteSynchronizer?: ZCodeBuiltinRemoteSynchronizer;
   readonly #onRemoteRefreshError?: (error: unknown) => void;
   #startPromise: Promise<void> | null = null;
@@ -83,9 +91,12 @@ export class NodeProviderConfigRuntime {
           }
         : {}),
     });
+    this.#personalView = options.gateway
+      ? new GatewayOverlayPersonalRepository(this.#personalRepository, options.gateway)
+      : this.#personalRepository;
     this.configService = new ProviderConfigService({
       zcodeBuiltinSource: this.#zcodeBuiltinSource,
-      personalRepository: this.#personalRepository,
+      personalRepository: this.#personalView,
     });
   }
 
@@ -96,7 +107,7 @@ export class NodeProviderConfigRuntime {
   }
 
   get personalRepository(): import("@zcode/provider").PersonalProviderConfigRepository {
-    return this.#personalRepository;
+    return this.#personalView;
   }
 
   /** Environment 同一周期检查中恢复未对齐依赖，不被下载 TTL 或失败挡住。 */

@@ -11,6 +11,7 @@ import {
   createNodeProviderRuntimePathEnv,
   NodeModelSelectionConfigRepository,
   PERSONAL_PROVIDER_CONFIG_FILE_NAME,
+  resolveGatewayProviderSettings,
 } from "@zcode/provider-node";
 import { getAppConfigDir as resolveAppConfigDir } from "./paths.js";
 import {
@@ -1379,6 +1380,8 @@ export function createLocalServices(options: {
   const providerConfigLog = createServiceLogger("provider-config");
   const providerConfigRuntime = createProviderConfigRuntime({
     zcodeBuiltinFilePath: options.zcodeBuiltinProviderConfigFilePath,
+    // Hosted mode: the gateway from SECRETARIAT_GATEWAY_URL/TOKEN becomes the default provider.
+    gateway: resolveGatewayProviderSettings(process.env),
     onPersonalConfigRecovery: (event) => {
       providerConfigLog.warn(
         undefined,

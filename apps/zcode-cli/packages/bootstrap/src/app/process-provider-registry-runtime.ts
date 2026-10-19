@@ -10,6 +10,7 @@ import {
   NodeModelSelectionConfigRepository,
   NodeProviderRegistryRuntime,
   resolveNodeProviderRuntimePaths,
+  resolveGatewayProviderSettings,
   SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE_ENV,
   type ZCodeBuiltinRefreshEvent,
 } from "@zcode/provider-node";
@@ -54,6 +55,8 @@ export async function startProcessProviderRegistryRuntime(
     : undefined;
   const runtime = new NodeProviderRegistryRuntime({
     ...paths,
+    // Hosted mode: the gateway from SECRETARIAT_GATEWAY_URL/TOKEN becomes the default provider.
+    gateway: resolveGatewayProviderSettings(env),
     ...(bundledFile
       ? {
           zcodeBuiltinFilePath: bundledFile,
