@@ -5269,12 +5269,12 @@ test("rejects interactive goal replacement prompts in headless mode", async () =
   assert.equal(ctx.stdout.output(), "");
 });
 
-test("defaults headless prompts to yolo mode", async () => {
+test("defaults headless prompts to build mode", async () => {
   const ctx = createContext(["--prompt", "hello default mode"]);
   const exitCode = await run(ctx, {
     ...createPromptDeps(),
     createZCodeApp: (options) => {
-      assert.equal(options?.runtimeConfig?.mode, "yolo");
+      assert.equal(options?.runtimeConfig?.mode, "build");
       assert.equal(options?.runtimeConfig?.presentationSurface, "terminal");
       return {
         sessionId: "session-test",
@@ -5294,6 +5294,33 @@ test("defaults headless prompts to yolo mode", async () => {
   assert.equal(exitCode, 0);
   assert.equal(ctx.stdout.output(), "hello default mode\n");
 });
+
+for (const explicitMode of ["build", "edit", "plan", "yolo", "guarded"] as const) {
+  test(`headless prompts keep an explicit --mode ${explicitMode}`, async () => {
+    const ctx = createContext(["--prompt", "hello explicit mode", "--mode", explicitMode]);
+    const exitCode = await run(ctx, {
+      ...createPromptDeps(),
+      createZCodeApp: (options) => {
+        assert.equal(options?.runtimeConfig?.mode, explicitMode);
+        return {
+          sessionId: "session-test",
+          traceId: "trace-test",
+          runtime: {} as never,
+          submitPrompt: async (prompt: string) => ({
+            events: [],
+            projection: fakeProjection as never,
+            response: prompt,
+            traceId: "trace-test" as never,
+            turnId: "turn-test" as never,
+          }),
+        } as never;
+      },
+    });
+
+    assert.equal(exitCode, 0);
+    assert.equal(ctx.stdout.output(), "hello explicit mode\n");
+  });
+}
 
 test("passes the Desktop presentation surface into headless runtime config", async () => {
   const ctx = createContext(["--surface", "desktop", "--prompt", "hello desktop"]);

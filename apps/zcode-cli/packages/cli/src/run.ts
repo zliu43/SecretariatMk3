@@ -44,7 +44,9 @@ declare const __CLI_VERSION__: string | undefined;
 const version = typeof __CLI_VERSION__ === "string" ? __CLI_VERSION__ : "0.0.0";
 
 const EMPTY_TARGET_ERROR = "--target requires non-empty text.";
-const DEFAULT_HEADLESS_PROMPT_MODE: CliPermissionMode = "yolo";
+// Headless has no approver, so side-effecting tools are denied unless --mode widens it; full
+// access must be explicit because Secretariat runs act on real accounts.
+const DEFAULT_HEADLESS_PROMPT_MODE: CliPermissionMode = "build";
 const FORCE_MCS_SCOPE_ERROR = "--force-mcs can only be used with --prompt, --target, or tui.";
 const TARGET_REPLACE_REQUIRES_TARGET_ERROR = "--target-replace requires --target.";
 const TARGET_CONFLICTS_WITH_PROMPT_ERROR =
