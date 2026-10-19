@@ -121,6 +121,37 @@ check "logs rejects a bad --since" 1 "Invalid --since" -- \
 check "logs --audit with no audit log yet" 0 "No logs in" -- \
   sec node "$cli" logs --audit
 
+echo
+echo "== Hosted mode through a mock gateway (#46)"
+gw_out="$(mktemp)"
+gw_log="$(mktemp)"
+node "$repo_root/scripts/secretariat/mock-gateway.mjs" --token e2e-gateway-token >"$gw_out" 2>"$gw_log" &
+gw_pid=$!
+trap 'kill "$gw_pid" 2>/dev/null; rm -rf "$base" "$out_file" "$gw_out" "$gw_log"' EXIT
+for _ in $(seq 1 50); do grep -q '^listening ' "$gw_out" && break; sleep 0.1; done
+gw_url="$(sed -n 's/^listening //p' "$gw_out")"
+hosted() {
+  sec SECRETARIAT_DEPLOYMENT=test SECRETARIAT_GATEWAY_URL="$gw_url" \
+    SECRETARIAT_GATEWAY_TOKEN=e2e-gateway-token "$@"
+}
+check "half-configured gateway is refused" 1 "must be set together" -- \
+  sec SECRETARIAT_DEPLOYMENT=test SECRETARIAT_GATEWAY_URL="$gw_url" node "$cli" -p "hello"
+check "the gateway token must be registered like any credential" 1 "SECRETARIAT_GATEWAY_TOKEN is not registered" -- \
+  hosted node "$cli" -p "hello"
+check "register the gateway token" 0 "Registered SECRETARIAT_GATEWAY_TOKEN" -- \
+  hosted node "$cli" deployment register
+check "-p answers through the gateway" 0 "^OK$" -- \
+  hosted node "$cli" -p "Reply with OK"
+assert "the gateway saw an authenticated Messages request" \
+  bash -c "grep -q '\"path\":\"/v1/messages\".*\"authOk\":true' '$gw_log'"
+check "SECRETARIAT_MODEL picks the gateway model" 0 "^OK$" -- \
+  hosted SECRETARIAT_MODEL=anthropic/claude-opus-5 node "$cli" -p "Reply with OK"
+assert "…the gateway received that model" \
+  bash -c "tail -1 '$gw_log' | grep -q '\"model\":\"anthropic/claude-opus-5\"'"
+assert "the gateway token is never written to the provider config" \
+  bash -c "! grep -rq 'e2e-gateway-token' '$base/.secretariat/v2' '$base/.secretariat/cli' 2>/dev/null"
+kill "$gw_pid" 2>/dev/null
+
 if [[ "$with_model" -eq 1 ]]; then
   echo
   echo "== Real model (needs a model configured in the data directory below)"

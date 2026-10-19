@@ -38,6 +38,14 @@ export function resolveInitialModelSelection(input: {
         selection: freezeSelection(input.configuredDefault),
       };
     }
+    // A default that names a model but no reasoning level (e.g. from SECRETARIAT_MODEL) is completed
+    // like a fresh pick, instead of being dropped for the registry's first model.
+    if (!input.configuredDefault.options?.reasoningLevel) {
+      const completed = completeNewModelSelection(input.registry, input.configuredDefault);
+      if (completed && isSelectable(input.registry, completed)) {
+        return { source: "configured-default", selection: freezeSelection(completed) };
+      }
+    }
   }
 
   // 仅用于全新草稿的 Host 初始推荐；历史未绑定状态不能进入这个初始化分支。

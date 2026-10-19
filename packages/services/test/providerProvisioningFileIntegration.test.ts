@@ -138,7 +138,11 @@ describe("Todo104 分发同文件原子边界", () => {
       return;
     }
     expect(recommendation).toMatchObject({
-      source: kind === "valid" ? "configured-default" : "registry-fallback",
+      // A default naming a model without a reasoning level is completed, not dropped (#46).
+      source:
+        kind === "valid" || kind === "missing-reasoning"
+          ? "configured-default"
+          : "registry-fallback",
       selection: { providerId: "fixture", modelId: "model-a", options: { reasoningLevel: "high" } },
     });
   });

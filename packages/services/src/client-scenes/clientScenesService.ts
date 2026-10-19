@@ -1,15 +1,11 @@
-import type { ApiClient } from "@zcode/shared";
-import { readApiJson } from "../providers/api/apiJson.js";
-import { SECRETARIAT_CLIENT_SCENES_URL } from "../providers/api/apiEndpoints.js";
-import type { ClientScenesResponse, IClientScenesService } from "./clientScenes.js";
+import type { IClientScenesService } from "./clientScenes.js";
 
-export function createClientScenesService(dependencies: {
-  apiClient: ApiClient;
-}): IClientScenesService {
+/**
+ * Home-page suggestion scenes used to come from the upstream vendor's server. That service is removed
+ * (#46), so there are no remote scenes; the UI falls back to its built-in suggestions.
+ */
+export function createClientScenesService(): IClientScenesService {
   return {
-    list: () =>
-      readApiJson<ClientScenesResponse>(dependencies.apiClient, SECRETARIAT_CLIENT_SCENES_URL, {
-        method: "GET",
-      }),
+    list: async () => ({ code: 0, msg: "", data: [] }),
   };
 }

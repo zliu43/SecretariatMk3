@@ -19,6 +19,7 @@ export interface ProviderConfigRuntimeOptions {
   readonly onPersonalConfigPollingError?: (error: unknown) => void;
   readonly personalFilePath?: string;
   readonly personalPollingIntervalMs?: number | false;
+  readonly gateway?: NodeProviderConfigRuntimeOptions["gateway"];
   readonly readLegacyProviders?: () => Promise<readonly ModelProviderConfig[]>;
   readonly watch?: boolean;
 }
@@ -37,6 +38,7 @@ export class ProviderConfigRuntime {
       zcodeBuiltinActiveFilePath: options.zcodeBuiltinActiveFilePath,
       zcodeBuiltinRemote: options.zcodeBuiltinRemote,
       zcodeBuiltinEnvironment: options.zcodeBuiltinEnvironment,
+      gateway: options.gateway,
       onZCodeBuiltinRefreshError: options.onZCodeBuiltinRefreshError,
       onPersonalConfigRecovery: options.onPersonalConfigRecovery,
       onPersonalConfigPollingError: options.onPersonalConfigPollingError,

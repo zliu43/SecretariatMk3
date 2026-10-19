@@ -364,33 +364,29 @@ describe("createLocalServices remote authority", () => {
     }
   });
 
-  it("复用 Host 注入的网络 transport 并由 ServiceCollection 释放", async () => {
+  it("releases the Host-injected network transport with the services; scenes stay local", async () => {
     const home = makeTempHome();
     process.env.HOME = home;
     const transport = {
-      fetch: vi.fn<typeof fetch>(
-        async () =>
-          new Response(JSON.stringify({ code: 0, msg: "ok", data: [] }), {
-            status: 200,
-            headers: { "content-type": "application/json" },
-          }),
-      ),
+      fetch: vi.fn<typeof fetch>(async () => new Response("{}", { status: 200 })),
       dispose: vi.fn(),
       disposeAndWait: vi.fn(async () => {}),
     };
     const [{ createLocalServices, disposeServiceResources }, { IClientScenesService }] =
       await Promise.all([import("../src/node.js"), import("../src/index.js")]);
     const services = createLocalServices({
+      zcodeBuiltinProviderConfigFilePath: writeZCodeBuiltinProviderConfig(home),
       hostApiNetworkTransport: transport,
       serviceAuthorityMode: "desktop-attached-remote",
     });
 
     try {
+      // Client scenes no longer come from the upstream vendor's server (#46).
       await expect(services.get(IClientScenesService).list()).resolves.toMatchObject({
         code: 0,
         data: [],
       });
-      expect(transport.fetch).toHaveBeenCalledOnce();
+      expect(transport.fetch).not.toHaveBeenCalled();
     } finally {
       disposeServiceResources(services);
     }
