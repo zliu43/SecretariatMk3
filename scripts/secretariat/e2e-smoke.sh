@@ -107,9 +107,12 @@ marker="e2e-marker-$RANDOM-$RANDOM"
 # No model is configured here, so the run itself fails after the guard passes; it still writes agent
 # logs, which is what the next checks need.
 sec SECRETARIAT_DEPLOYMENT=test node "$cli" -p "please summarise $marker" >"$out_file" 2>&1
-assert "the guard let the registered-environment run through" bash -c "! grep -q 'Environment guard' '$out_file'"
+# Proves the run got past the guard into the runtime: the agent wrote log lines for it.
+assert "the run got past the guard and wrote agent logs" \
+  bash -c "compgen -G '$base/.secretariat/cli/log/*.jsonl' >/dev/null && [[ -s \$(ls '$base/.secretariat/cli/log/'*.jsonl | head -1) ]]"
 check "logs --service agent shows recent agent lines" 0 '"level":"(info|warn|error)"' -- \
   sec node "$cli" logs --service agent --since 10m
+# Runs only after the previous check proved the log directory has content, so it can't pass vacuously.
 assert "the prompt text is not in any log file" bash -c "! grep -rq '$marker' '$base/.secretariat/cli/log'"
 check "logs-only flags are rejected on other commands" 1 "can only be used with \`logs\`" -- \
   sec node "$cli" version --limit 5
@@ -124,11 +127,16 @@ if [[ "$with_model" -eq 1 ]]; then
   model_base="${SECRETARIAT_E2E_DATA_BASE_DIR:-$HOME/.secretariat-dev-home}"
   echo "Data directory: $model_base/.secretariat"
   model_marker="e2e-model-$RANDOM-$RANDOM"
-  check "-p answers with the configured model (build mode)" 0 "." -- \
+  check "-p answers with the configured model (build mode)" 0 "\\bOK\\b" -- \
     env SECRETARIAT_DATA_BASE_DIR="$model_base" SECRETARIAT_DEPLOYMENT=test \
     node "$cli" -p "Reply with the single word OK. ($model_marker)"
-  assert "the prompt text is not in the agent log" \
-    bash -c "! grep -rq '$model_marker' '$HOME/.secretariat/cli/log' '$model_base/.secretariat/cli/log' 2>/dev/null"
+  if grep -q "not registered" "$out_file"; then
+    echo "      hint: register your shell's keys for $model_base first (see docs/secretariat/e2e-checklist.md)"
+  fi
+  # Read the agent log through the CLI (it knows where the agent writes) and require content first.
+  env SECRETARIAT_DATA_BASE_DIR="$model_base" node "$cli" logs --service agent --since 10m >"$out_file" 2>&1
+  assert "the model run wrote agent log lines" test -s "$out_file"
+  assert "the prompt text is not in the agent log" bash -c "! grep -q '$model_marker' '$out_file'"
 fi
 
 echo
