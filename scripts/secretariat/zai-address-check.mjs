@@ -7,8 +7,9 @@
 //
 // The baseline may only go down. Target: an empty baseline.
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(import.meta.dirname, "../..");
 const baselinePath = resolve(repoRoot, "config/zai-address-baseline.json");
@@ -30,7 +31,8 @@ const ALLOWED_PATHS = [
   /^docs\//,
   /^specs\//,
   /^apps\/zcode-cli\/docs\//,
-  /(^|\/)(test|tests|__tests__|e2e|fixtures?)\//,
+  // Test directories, but not inside a `src/` tree (shipped code stays checked).
+  /^(?!.*\/src\/)(.*\/)?(test|tests|__tests__|e2e|fixtures?)\//,
   /\.(test|spec)\.[cm]?[jt]sx?$/,
   /\.node-test\.[cm]?[jt]s$/,
   /(^|\/)migrations\//,
@@ -113,4 +115,8 @@ function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main();
+// Compare real paths, so spaces, URL-encoding or symlinks can't make the check silently not run.
+const invokedDirectly =
+  process.argv[1] !== undefined &&
+  realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+if (invokedDirectly) main();

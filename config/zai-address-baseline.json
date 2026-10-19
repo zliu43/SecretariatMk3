@@ -1,11 +1,9 @@
 {
   "comment": "Z.ai addresses still to remove (#1). May only go down; see scripts/secretariat/zai-address-check.mjs.",
-  "total": 354,
+  "total": 352,
   "files": {
     ".agents/skills/feature-boundary-planner/references/zcode-feature-graph.yaml": 3,
-    ".env.development": 1,
     ".env.example": 1,
-    ".env.production": 1,
     "apps/zcode-cli/packages/adapters/src/auth/cli-oauth.ts": 1,
     "apps/zcode-cli/packages/adapters/src/auth/coding-plan-api-key.ts": 1,
     "apps/zcode-cli/packages/adapters/src/model/official-coding-plan-gateway.ts": 2,

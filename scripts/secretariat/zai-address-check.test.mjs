@@ -22,7 +22,26 @@ test("allows attribution, docs, tests and migrations; checks shipped code", () =
     "config/provider/zcode-builtin.json",
     ".env.production",
     "apps/zcode-cli/packages/pdf-plugin/skills/pdf/briefs/report.md",
+    "packages/x/src/test/helper.ts",
+    "packages/x/src/fixtures/data.json",
   ]) {
     assert.equal(isAllowedPath(path), false, path);
   }
 });
+
+test("runs the check when invoked through a path with spaces or a symlink", async () => {
+  const { mkdtemp, symlink, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { execFileSync } = await import("node:child_process");
+  const dir = await mkdtemp(join(tmpdir(), "zai check "));
+  try {
+    const link = join(dir, "check link.mjs");
+    await symlink(new URL("./zai-address-check.mjs", import.meta.url).pathname, link);
+    const output = execFileSync(process.execPath, [link], { encoding: "utf8" });
+    assert.match(output, /Z\.ai addresses: \d+ in \d+ files/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
