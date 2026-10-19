@@ -779,6 +779,31 @@ describe("browserDataManager", () => {
       Buffer.from("binary\0META:https://chat.z.ai", "latin1"),
     );
 
+    const { cp: realCp, readdir: realReaddir, mkdtemp: realMkdtemp, stat: realStat } =
+      await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
+    const debugRoot = await realMkdtemp(join(tmpdir(), "debug-ls-"));
+    await realCp(join(profilePath, "Local Storage"), join(debugRoot, "Local Storage"), {
+      recursive: true,
+      force: true,
+    });
+    const describeDir = async (dir: string) =>
+      (await realReaddir(dir, { withFileTypes: true })).map((d) => ({
+        name: d.name,
+        isFile: d.isFile(),
+        isDir: d.isDirectory(),
+        isLink: d.isSymbolicLink(),
+      }));
+    const debug = {
+      tmpdir: tmpdir(),
+      source: await describeDir(levelDbPath),
+      copied: await describeDir(join(debugRoot, "Local Storage", "leveldb")).catch((e) => String(e)),
+      copiedSize: await realStat(join(debugRoot, "Local Storage", "leveldb", "000001.ldb"))
+        .then((st) => st.size)
+        .catch((e) => String(e)),
+      discoveredSource: await discoverChromeLocalStorageOrigins(join(profilePath, "Local Storage")),
+      discoveredCopy: await discoverChromeLocalStorageOrigins(join(debugRoot, "Local Storage")),
+    };
+
     const result = await importChromeLocalStorage({
       profilePath,
       platform: "aix",
@@ -786,10 +811,9 @@ describe("browserDataManager", () => {
       targetSession: {} as Electron.Session,
     });
 
-    expect(result).toMatchObject({
-      originsImported: 0,
-      originsFailed: 1,
-      error: "chrome_executable_not_found",
+    expect({ result, debug }).toMatchObject({
+      result: { originsImported: 0, originsFailed: 1, error: "chrome_executable_not_found" },
+      debug: { tmpdir: "SHOW-ME" },
     });
   });
 
