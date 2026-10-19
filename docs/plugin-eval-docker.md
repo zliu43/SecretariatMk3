@@ -180,7 +180,7 @@ eval-results/
 - **官方 MCP 在 headless 不可用（待 CLI 侧补齐）**：金融十件套和 document-skills 的 `image_search` 声明的是
   `zcode_official` 鉴权 MCP，当前只有桌面 host 拉起的 agent 会注入信任源注册表与身份头，独立 CLI 全部 fail closed。
   结果是这些插件在容器里只有 skill 文本能力，没有行情/企业数据工具。示例任务 `finance-close-recap-mcp` 因此标 `xfail`。
-- **模型会绕过限制**：headless 默认 yolo 权限。一次冒烟里模型在拿不到 MCP 工具时，自行用 Bash 解密了容器内的
+- **模型会绕过限制**：(Secretariat: headless now defaults to `build`; evals that need full access must pass `--mode yolo` explicitly.)一次冒烟里模型在拿不到 MCP 工具时，自行用 Bash 解密了容器内的
   `credentials.json` 并手动 curl 数据接口。评测容器必须视为可读到全部注入凭据的环境：只注入评测账号、用完即弃、
   不要复用生产账号；判分时用 `mcpToolsInvoked` 而不是最终答案来判断插件能力是否真的被使用。
 - **`SECRETARIAT_BASE_URL` 必须显式设置**：插件 manifest 里的 MCP 地址写作 `${SECRETARIAT_BASE_URL}/api/v1/mcp/...`，
