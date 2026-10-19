@@ -1,6 +1,6 @@
 # Secretariat Mk3 — Base, Task Catalog & Benchmarks
 
-_v3, 2026-10-15. Adds test-environment structure; Google account type decided._
+_v4, 2026-10-19. Adds the gateway and tool hub (§2), the Z.ai removal plan, and the product-ready seams. v3 (2026-10-15) added the test environment._
 
 ## 1. Base: ZCode (zai-org/ZCode)
 
@@ -17,7 +17,7 @@ _v3, 2026-10-15. Adds test-environment structure; Google account type decided._
 | Need | Where it lives in ZCode |
 |---|---|
 | Agent loop, tools, sub-agents, compaction | `apps/zcode-cli/packages/core`, `adapters` |
-| **OpenRouter** | Built-in `openrouter` provider template (`config/provider/zcode-builtin.json`), speaks Anthropic Messages API; OpenRouter-specific reasoning mapping already fixed (`docs/openrouter-reasoning-request-contract.md`) |
+| **OpenRouter** (behind our gateway) | Anthropic Messages provider type with a custom base URL (`config/provider/zcode-builtin.json`); OpenRouter-specific reasoning mapping already fixed (`docs/openrouter-reasoning-request-contract.md`) |
 | Model-agnostic adapters | Anthropic, OpenAI-compatible, OpenAI Responses adapters behind one provider config |
 | Headless runs | `zcode -p "…"`, `--target <objective>`, `app-server` / `agent-server` modes |
 | Container starting point | `docs/web-app-docker-image.md` (node:24-bookworm-slim, server + agent app-server, `/data` volume) |
@@ -35,16 +35,67 @@ _v3, 2026-10-15. Adds test-environment structure; Google account type decided._
 3. **Lightweight headless container** — the existing image bundles the web UI; we want agent + server + bots only.
 4. **Google Workspace integration** — MCP server + OAuth scopes for the agent's own account.
 5. **Claude Code bridge** — a terminal adapter (see §2).
-6. **De-coupling from Z.ai** — login/coding-plan gating, CDN plugin catalog, telemetry. Rip out (hard fork).
+6. **De-coupling from Z.ai** — accounts/billing, hosted services and remote config. Rip out (hard fork); plan in §2.
 7. **Language** — specs and comments are mostly Chinese.
-8. **Web search** — ZCode's `WebSearch` uses the provider's built-in `web_search` tool and is only shown for Anthropic-type providers on allowlisted domains (z.ai, bigmodel.cn, deepseek.com; `docs/websearch-provider-domain-allowlist.md`). OpenRouter isn't on the list, so the tool is hidden. `WebFetch` (with an egress guard) and browser-use work regardless. **Decided: Brave Search** via the official MCP server `@brave/brave-search-mcp-server` (stdio, `BRAVE_API_KEY` passed as a runtime secret). Tools: `brave_web_search`, `brave_news_search`, `brave_local_search`, `brave_image_search`, `brave_video_search`, `brave_summarizer`. Tier T0 (read). In the container, preinstall the package rather than calling `npx` at runtime. M1 gate: search returns results through OpenRouter on ≥ 2 model families.
+8. **Web search** — ZCode's `WebSearch` uses the provider's built-in `web_search` tool and is only shown for Anthropic-type providers on allowlisted domains (z.ai, bigmodel.cn, deepseek.com; `docs/websearch-provider-domain-allowlist.md`). OpenRouter isn't on the list, so the tool is hidden. `WebFetch` (with an egress guard) and browser-use work regardless. **Decided: Brave Search**, served as T0 tools by our tool hub (§2), which calls the Brave Search API with a key only the hub holds. Start with web and news search; add local, image, video and summarizer when needed. M1 gate: search returns results through OpenRouter on ≥ 2 model families.
+9. **Gateway** — new service between the agent and OpenRouter: auth, usage limits, metering (§2).
+10. **Tool hub** — new MCP server that hosts every integration (search, Google, Slack/Discord as tools) and enforces tiers server-side (§2).
 
 ## 2. Architecture decisions
 
 ### Model: OpenRouter, model-agnostic by design
-- One provider (OpenRouter), model chosen per **role** in config: `planner`, `triage` (cheap/fast), `writer` (drafts in the agent's own disclosed voice), `coder-dispatch`.
+- One provider: OpenRouter, reached directly with a local key or through the gateway (direct vs hosted mode, below). All other built-in provider templates are removed. Model chosen per **role** in config: `planner`, `triage` (cheap/fast), `writer` (drafts in the agent's own disclosed voice), `coder-dispatch`.
 - Model-agnostic is a property we **measure**, not assume: the eval suite runs against ≥ 3 model families and we publish the gap (see §5).
 - Fallback chain per role (e.g. primary → secondary on 5xx/rate limit) via OpenRouter's routing, not custom code.
+
+### Gateway and tool hub
+
+The agent runs in one of two modes, chosen by configuration:
+
+- **Direct mode** (works today; kept as the fallback): the agent holds the OpenRouter, Brave and integration keys itself and uses ZCode's own provider, MCP and bots configuration. Simple, no extra services, fine for one user on their own machine or server.
+- **Hosted mode** (the target): keys live in two services we run, and the agent holds only a Secretariat token. Setting `SECRETARIAT_GATEWAY_URL` switches models to the gateway; setting the hub URL switches tools to the hub.
+
+Direct mode is removed only after hosted mode has been built and verified end to end (decision 20).
+
+```
+ Desktop app ─┐                          ┌─> Gateway ──────> OpenRouter
+ Slack/Discord┼─> Agent server ──────────┤   auth, limits, metering, audit
+ (channels)   │   (ZCode runtime,        │
+ CLI ─────────┘    one per user)         └─> Tool hub (MCP) ─> Brave, Google, Slack/Discord APIs
+                                             tiers, approvals, audit; keys live here only
+```
+
+**Gateway** (`packages/gateway`)
+- Exposes the Anthropic Messages API (what OpenRouter speaks), so on the agent side it is one provider entry: base URL = gateway, key = Secretariat token. Streams responses through unchanged.
+- Authenticates a per-user token on every request (revocation takes effect immediately) and enforces a simple per-user budget (USD per day and per month) from the usage data in each response. Guarding against overshoot (pre-flight worst-case checks, concurrency caps, streams that end without usage data) is out of scope for now.
+- Meters every call (user, model, tokens, cost, latency) through the shared logging infrastructure, for the cost report (O6).
+- Runs locally on the Mac in development and next to the agent on the server.
+
+**Tool hub** (`packages/tool-hub`)
+- One MCP server (streamable HTTP) that hosts every integration as a module: Brave first (M0), Google Workspace (M1), Slack/Discord as tools (M1/M3). The agent is configured once ("connect to the hub") instead of once per integration.
+- Every tool declares its tier (T0–T4). The hub is where tier caps, approvals and the halt flag are enforced (M2), so a misbehaving or injected agent can't bypass them. The hub never trusts an "approved" or "yolo" claim from the agent: approvals are requested and answered out of band (below), and yolo is set per session by the operator through the hub's own CLI/config, expiring when the task ends.
+- Integration credentials live only in the hub (in hosted mode), so the hub runs the fail-closed credential identity check (O9) for them at startup.
+- Authenticates with the same per-user token as the gateway, checked on every call, so revoking the token cuts off models and tools at once.
+
+**Approvals.** For a T2+ call the hub asks the user out of band and receives the answer over its own connection to the platform (for example a Slack button click). The agent only sees pending → approved/denied, so it can't forge an approval. In hosted mode the hub sends the request through the single Slack/Discord app it runs (decision 21).
+
+**Chat channels** (decision 21). One Slack/Discord app. In hosted mode the hub runs the connection and holds the tokens; the agent server's bots framework keeps a single provider (sessions, formatting, cards) whose connection goes through the hub. Acting in Slack/Discord as a tool (posting to channels, reading threads) is a hub tool. In direct mode the provider connects with a local token and the agent's shell and HTTP tools are sandboxed away from the Slack/Discord APIs. Whatever the agent server holds, a prompt-injected agent can reach, which is why tokens move to the hub in hosted mode.
+
+**Logging** (#51). One logging foundation for the agent server, gateway and hub, built before the gateway and hub: structured JSON lines per service under `/data/logs/`, rotated; a correlation ID per request passed from the agent to the gateway and hub; redaction enforced by the logger API (allow-listed fields only), so prompts, responses, message bodies, tool arguments/results and secrets are never written; and a separate append-only audit log for tool calls, approvals, tier overrides and halt/resume. Builds on ZCode's `createServiceLogger`.
+
+**Claude Code.** The terminal adapter (M4) runs Claude Code with the subscription token (`CLAUDE_CODE_OAUTH_TOKEN`). Its OpenRouter fallback uses the gateway in hosted mode and the local key in direct mode.
+
+**Built for, not with.** The seams are product-ready: per-user tokens, budgets keyed by user, provider keys out of the agent in hosted mode, one agent container per user sharing a gateway and hub. What is *not* built: sign-up, billing, an admin UI or more than one real user. For now users and tokens are a config file with one entry.
+
+### Removing Z.ai (M0, #1)
+
+| Layer | What | Replacement |
+|---|---|---|
+| Accounts and billing | Z.ai/BigModel OAuth login, GLM Coding Plan / start plan, usage and quota stats, highspeed cards, marketing touches, and their settings/onboarding screens | None: the gateway token is the only credential. Model settings shrink to "gateway URL + token". |
+| Hosted services | Remote client config (`zcode.z.ai/api/v1/client/configs`, which also refreshes the provider list), CDN plugin catalog and icons, official MCP credentials, conversation sharing, feedback upload, phone remote-control relay, help links | Bundled provider config only (one gateway provider); bundled + GitHub plugin marketplaces; tool hub instead of official MCP; local feedback logs only; phone access via Slack. Sharing, phone remote control and the Android/iOS apps are dropped. |
+| Telemetry, error monitoring, auto-update | Endpoints injected only at build time (`scripts/build-time-config.mjs`), empty by default | Leave off; CI guards against reintroduction. |
+
+Enforcement: a CI check fails on any `z.ai` / `bigmodel.cn` / `chatglm.cn` address outside an allow-list (NOTICE, old DB migrations, test data), with a baseline that may only go down; `packages/shared/src/zcodeEndpoint.ts` (the single source of those URLs) fails closed. The 1-hour network audit (#2) then confirms it at runtime. Desktop app: remove non-functional UI, otherwise change as little as possible.
 
 ### Claude Code interface: terminal adapter first
 - **Phase 1 (default):** generic terminal adapter. Spawn `claude -p --output-format stream-json` (or any CLI agent) in a target repo, stream events, capture final result + diff, enforce timeout and budget. The adapter interface is `run(agentCmd, repo, prompt, limits) → {status, summary, diff, cost}`, so Codex CLI, Aider, or ZCode itself can plug into the same slot. That keeps the setup model-agnostic.
@@ -64,12 +115,14 @@ Every tool call is classified into a tier. Each tier has a default policy, overr
 Modes (session- or task-scoped, the CLI `--dangerously-skip-permissions` analog):
 - `--tier-cap=N` — auto-approve up to tier N (default 1).
 - `--yolo` / `--dangerously-skip-permissions` — auto-approve T0–T4 for this session/task. Requires explicit invocation, expires when the task ends, shows a banner in every channel reply, and is still **fully audit-logged**. Not settable from a chat channel by default (only CLI/config), to stop a hijacked Slack DM from escalating.
-- Approvals flow over the chat channel (button in Slack/Discord, reply in WhatsApp) with a timeout → deny.
+- Approvals are requested and collected by the tool hub out of band (button in Slack/Discord, reply in WhatsApp), with a timeout → deny; in hosted mode the hub sends them through the Slack/Discord app it runs (decision 21). See §2, Gateway and tool hub.
 - Maps onto ZCode's existing `guarded` (≈ tier-cap) and `yolo` modes where possible, not a parallel system.
+- Enforced in the tool hub for integration tools (outbound actions all go through it); the agent-side modes cover local actions (files, shell).
 - Note: ZCode's headless `-p/--prompt` mode **defaults to `yolo`**. The tier engine must override this default before any headless/scheduled run touches real accounts.
 
 ### Deployment: lightweight container
 - New `Dockerfile.headless`: `node:24-bookworm-slim` (or distroless), CLI bundle + server + bots only; no web UI, no Electron, no Playwright. Multi-arch (arm64 + amd64).
+- Gateway and tool hub are separate services in the same compose file (`restart: unless-stopped`), so later several agent containers can share them. Provider keys go only to their env.
 - Optional `-browser` image variant adds Chromium for browser-use tasks.
 - State on one volume (`/data`): sessions, memory, bot state, audit log, halt flag. Secrets via `--env-file`, never baked in.
 - Channel transports that need **no inbound port**: Slack Socket Mode, Discord Gateway, both outbound WebSockets. WhatsApp is the exception (needs a public webhook on the server).
@@ -83,7 +136,7 @@ Killing the process isn't enough: the container auto-restarts, scheduled jobs ar
 | `/pause` | Block all outbound actions (T2+); keep reading; new drafts queue for review | CLI + every chat channel |
 | `/halt` | Pause all Cron/off-peak jobs; cancel running sessions and child processes (Claude Code); deny all pending approvals; revoke `--yolo` and tier-cap overrides; drop to T0; bots answer only `/status` and `/resume` | CLI + every chat channel |
 | `/resume` | Lift pause/halt | CLI, or chat with approval (so a hijacked chat account can't undo a halt) |
-| Hard kill (manual runbook) | `docker stop` + revoke Google/Slack/Discord/WhatsApp/OpenRouter/Brave tokens | Operator |
+| Hard kill (manual runbook) | Hosted mode: revoke the user's gateway token (cuts off models and hub tools at once). Direct mode: revoke the OpenRouter and Brave keys. Then `docker stop` and revoke Google/Slack/Discord/WhatsApp credentials | Operator |
 
 The halt flag lives on the `/data` volume and is checked at startup, before the scheduler, bots or sessions start, and before every tool call that's T2+.
 
@@ -164,9 +217,14 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 
 **M0 — Foundation**
 - Fork builds; `pnpm typecheck`, `pnpm lint`, CLI tests pass.
-- `zcode -p "hello"` works via OpenRouter key, no Z.ai login.
-- `Dockerfile.headless` builds for arm64 and amd64; image ≤ 500 MB; idle RSS ≤ 300 MB; cold start ≤ 10 s.
+- `secretariat -p "hello"` works in direct mode (local OpenRouter key) and in hosted mode (gateway token only); no Z.ai login.
+- Gateway: token auth, per-user daily/monthly budget enforced (test: over-budget request rejected), every call metered and logged.
+- Tool hub: Brave search callable as a T0 MCP tool from the agent; in hosted mode the Brave key is present only in the hub's environment.
+- CI Z.ai address check at 0; only the gateway provider remains in the bundled config.
+- `Dockerfile.headless` builds for arm64 and amd64; image ≤ 500 MB; idle RSS ≤ 300 MB; cold start ≤ 10 s (agent image; gateway and hub measured separately).
 - Network audit: zero calls to Z.ai/BigModel endpoints in a 1-hour session.
+- Headless `-p` no longer defaults to `yolo`; full access needs an explicit flag.
+- Logging infrastructure (#51) in place; agent, gateway and hub logs contain no prompt, response, tool-argument or tool-result bodies (test).
 - Container auto-restarts within 30 s after kill; state survives restart.
 - `/pause` and `/halt` from CLI: halt state persists across `docker restart`; no scheduled job fires, no outbound action executes, and no orphaned child process remains (tested with a running Claude Code session).
 - Environment guard (O9): starting with `SECRETARIAT_DEPLOYMENT=test` and a prod credential fails closed.
@@ -221,8 +279,8 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 ## 6. Test environment and evaluation harness
 
 ### Principles
-1. **Two environments, same code**: `test` and `prod`, selected by `SECRETARIAT_DEPLOYMENT`. Each has its own env file (`.env.test`, `.env.prod`, both gitignored), its own `/data` volume, and its own accounts. Nothing is shared except Brave and the Claude Code subscription token.
-2. **Fail closed**: at startup the agent checks every credential's identity (Google account email, Slack team ID, Discord guild IDs, WhatsApp phone-number ID) against an allowlist for the declared environment and refuses to start on any mismatch (task O9).
+1. **Two environments, same code**: `test` and `prod`, selected by `SECRETARIAT_DEPLOYMENT`. Each has its own env file (`.env.test`, `.env.prod`, both gitignored), its own `/data` volume, its own keys or gateway token, and its own accounts. Nothing is shared except Brave and the Claude Code subscription token. In hosted mode provider keys sit in the gateway's and hub's env files and the agent's env file holds only its gateway token; in direct mode the agent's env file holds the keys.
+2. **Fail closed**: at startup each service checks its credentials' identities against an allowlist for the declared environment and refuses to start on any mismatch (task O9). The tool hub checks the integration credentials (Google account email, Slack team ID, Discord guild IDs, WhatsApp phone-number ID); the gateway checks its OpenRouter key belongs to the environment's account; the agent checks its gateway token and channel bot identity.
 3. **Fixtures are loaded, not sent**: most test data is injected directly (e.g. Gmail API `messages.import`, Calendar API inserts), so it's free, instant, back-datable and reproducible. Live "actor" accounts are only for end-to-end tests of real sending and receiving.
 4. **Reset → load → run → score**: every eval starts by wiping the test accounts back to a known state. The reset/loader scripts run **outside** the agent with their own credentials, so deletes never go through the agent's tier system.
 
@@ -256,12 +314,12 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 ## 7. Decisions
 
 ### Decided
-1. **Models**: OpenRouter for everything; model-agnostic by design, gap measured (§5).
+1. **Models**: OpenRouter is the only provider, used directly with a local key or through our gateway (§2); all other provider templates are removed. Model-agnostic by design, gap measured (§5).
 2. **Environments**: the Mac is local development and testing only. Deployment target is a dedicated server or a cloud VM (e.g. EC2), so the container image must be **multi-arch** (arm64 for the Mac/Graviton, amd64 for x86). Always-on and WhatsApp webhook hosting happen on the server, not the Mac.
-3. **Claude Code auth**: subscription token (`claude setup-token` → `CLAUDE_CODE_OAUTH_TOKEN`) primary; OpenRouter fallback (`ANTHROPIC_BASE_URL=https://openrouter.ai/api`, `ANTHROPIC_AUTH_TOKEN=<key>`, `ANTHROPIC_API_KEY=""`), switched by the terminal adapter on rate/plan-limit errors. Don't mount the Mac's `~/.claude` (macOS keeps the login in Keychain).
+3. **Claude Code auth**: subscription token (`claude setup-token` → `CLAUDE_CODE_OAUTH_TOKEN`) primary; OpenRouter fallback (`ANTHROPIC_BASE_URL` = the gateway with the gateway token in hosted mode, or `https://openrouter.ai/api` with the local key in direct mode; `ANTHROPIC_API_KEY=""`), switched by the terminal adapter on rate/plan-limit errors. Don't mount the Mac's `~/.claude` (macOS keeps the login in Keychain).
 4. **Web search**: Brave (§1 gap 8).
 5. **Fork strategy**: hard fork of ZCode v3.15.1. No upstream tracking, so core code can be changed freely, and Z.ai coupling can be ripped out rather than toggled off.
-6. **Fork scope**: keep the desktop (Electron) app and web UI. The desktop app is the preferred UI. On the deployed server, the Mac desktop app can attach through ZCode's existing SSH remote-workspace support (to verify in M0).
+6. **Fork scope**: keep the desktop (Electron) app and web UI. The desktop app is the preferred UI: remove non-functional parts (login, coding plan, sharing), otherwise minimal changes. Phone remote control, conversation sharing and the Android/iOS apps are dropped. On the deployed server, the Mac desktop app can attach through ZCode's existing SSH remote-workspace support (to verify in M0).
 7. **Secrets**: plaintext env files (chmod 600), injected with `--env-file`: `.env.test` and `.env.prod` (§6). ZCode's `.gitignore` and `.dockerignore` already exclude `.env` and `.env.*`; keep it that way.
 8. **Budget**: limited to the prepaid balances (~$15 across OpenRouter and Brave, both hard-capped). Implications: cheap models for triage and evals, small fixture sets first (50 emails before 200), a cost estimate before every eval run, the multi-model matrix run only at milestone gates.
 9. **To-dos and reminders**: use ZCode's built-in systems: `TodoWrite`/`TodoRead` for action items, `CronCreate` (one-shot or recurring) for reminders. ZCode todos are **session-scoped**, so the persistent list lives in a long-lived "Secretariat" session or workspace whose todo list is the master list. Other external systems integrate via hooks.
@@ -275,5 +333,16 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 
 17. **Rename (done 2026-10-15)**: identity + branding renamed ZCode → Secretariat via `docs/secretariat/rename_secretariat.py` (data dir `~/.secretariat`, `SECRETARIAT_*` env vars, app ID `dev.secretariat.app`, `secretariat://` links, `secretariat` CLI). Package names `@zcode/*`, file names and code identifiers unchanged; Z.ai code left for removal. ZCode's own backend-selector env var became `SECRETARIAT_ENV` (test/production Z.ai backend), so our test/prod guard uses `SECRETARIAT_DEPLOYMENT` instead.
 
+18. **Gateway and tool hub (2026-10-19)**: models and integrations can go through services we run (§2, hosted mode), so usage limits and tier enforcement live server-side and provider keys stay out of the agent. Overshoot protection for budgets is out of scope for now.
+19. **Product readiness**: an optional goal is opening this up to friends or as a product. Build *for* it (per-user tokens and budgets, one agent per user, shared gateway/hub), not *with* it (no sign-up, billing or admin UI until decided).
+
+20. **Direct mode stays until hosted mode is proven**: keeping keys locally is acceptable for now and a useful fallback. The gateway and hub are built and verified end to end before direct mode is removed.
+
+21. **Chat channel credentials (2026-10-19): option C, the hub owns chat in hosted mode.** One Slack/Discord app. The bots framework has a single Slack (and later Discord) provider (`BotProviderAdapter`) with a switchable connection underneath:
+    - **Hosted mode:** the connection talks to the hub. The hub holds the bot tokens, keeps the Socket Mode / Discord Gateway connections, forwards messages to the agent server, carries replies and card updates back, and sends and verifies approvals itself, so approvals can't be forged.
+    - **Direct mode:** the connection talks to Slack/Discord with a local token, with the agent's shell and HTTP tools sandboxed away from those APIs (option A).
+
+    Chosen over a token-injecting proxy (B) because approval clicks arriving over Socket Mode carry no signature the hub could verify, Discord sends its token inside the WebSocket, and a multi-user Slack app needs a central receiver anyway. Two bot identities (D) were rejected.
+
 ### Still open
-18. **Test accounts**: structure proposed in §6; the user is creating them.
+22. **Test accounts**: structure proposed in §6; the user is creating them.
