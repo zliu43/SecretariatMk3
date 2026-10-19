@@ -813,7 +813,13 @@ describe("browserDataManager", () => {
 
     expect({ result, debug }).toMatchObject({
       result: { originsImported: 0, originsFailed: 1, error: "chrome_executable_not_found" },
-      debug: { tmpdir: "SHOW-ME" },
+      debug: {
+        source: "SHOW",
+        copied: "SHOW",
+        copiedSize: "SHOW",
+        discoveredSource: "SHOW",
+        discoveredCopy: "SHOW",
+      },
     });
   });
 
