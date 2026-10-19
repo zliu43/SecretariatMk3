@@ -28,6 +28,13 @@ vi.mock("node:fs/promises", async () => {
   };
 });
 
+// Chrome lookup checks env vars, running processes and install paths, so on a machine with Chrome
+// installed (GitHub's Ubuntu runners) it finds one. Tests of the "no Chrome" path pin that here.
+vi.mock("../src/main/chromeProfileDiscovery.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/main/chromeProfileDiscovery.js")>();
+  return { ...actual, resolveChromeExecutablePath: vi.fn(actual.resolveChromeExecutablePath) };
+});
+
 vi.mock("electron", () => ({
   session: {
     fromPartition: vi.fn(),
@@ -51,6 +58,7 @@ import {
   importChromeLocalStorage,
 } from "../src/main/chromeLocalStorageManager.js";
 import { WindowsChromeAppBoundImportError } from "../src/main/windowsChromeAppBoundKey.js";
+import { resolveChromeExecutablePath } from "../src/main/chromeProfileDiscovery.js";
 
 const logger = {
   info: vi.fn(),
@@ -778,6 +786,7 @@ describe("browserDataManager", () => {
       join(levelDbPath, "000001.ldb"),
       Buffer.from("binary\0META:https://chat.z.ai", "latin1"),
     );
+    vi.mocked(resolveChromeExecutablePath).mockResolvedValueOnce(null);
 
     const result = await importChromeLocalStorage({
       profilePath,
