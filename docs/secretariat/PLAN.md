@@ -77,9 +77,9 @@ Direct mode is removed only after hosted mode has been built and verified end to
 - Integration credentials live only in the hub (in hosted mode), so the hub runs the fail-closed credential identity check (O9) for them at startup.
 - Authenticates with the same per-user token as the gateway, checked on every call, so revoking the token cuts off models and tools at once.
 
-**Approvals.** For a T2+ call the hub asks the user out of band and receives the answer from the platform's signed callback (for example a Slack button click). The agent only sees pending → approved/denied, so it can't forge an approval. Which chat identity sends the request depends on how chat channels are set up (decision 21, open).
+**Approvals.** For a T2+ call the hub asks the user out of band and receives the answer over its own connection to the platform (for example a Slack button click). The agent only sees pending → approved/denied, so it can't forge an approval. In hosted mode the hub sends the request through the single Slack/Discord app it runs (decision 21).
 
-**Chat channels (open, decision 21).** Whatever the agent server holds, a prompt-injected agent can reach, for example through its shell. If the Slack/Discord bot token for chatting with the user sits in the agent server, the agent could use it to post or read anywhere the bot can, outside the hub's tier checks. The options are in §7.
+**Chat channels** (decision 21). One Slack/Discord app. In hosted mode the hub runs the connection and holds the tokens; the agent server's bots framework keeps a single provider (sessions, formatting, cards) whose connection goes through the hub. Acting in Slack/Discord as a tool (posting to channels, reading threads) is a hub tool. In direct mode the provider connects with a local token and the agent's shell and HTTP tools are sandboxed away from the Slack/Discord APIs. Whatever the agent server holds, a prompt-injected agent can reach, which is why tokens move to the hub in hosted mode.
 
 **Logging** (#51). One logging foundation for the agent server, gateway and hub, built before the gateway and hub: structured JSON lines per service under `/data/logs/`, rotated; a correlation ID per request passed from the agent to the gateway and hub; redaction enforced by the logger API (allow-listed fields only), so prompts, responses, message bodies, tool arguments/results and secrets are never written; and a separate append-only audit log for tool calls, approvals, tier overrides and halt/resume. Builds on ZCode's `createServiceLogger`.
 
@@ -115,7 +115,7 @@ Every tool call is classified into a tier. Each tier has a default policy, overr
 Modes (session- or task-scoped, the CLI `--dangerously-skip-permissions` analog):
 - `--tier-cap=N` — auto-approve up to tier N (default 1).
 - `--yolo` / `--dangerously-skip-permissions` — auto-approve T0–T4 for this session/task. Requires explicit invocation, expires when the task ends, shows a banner in every channel reply, and is still **fully audit-logged**. Not settable from a chat channel by default (only CLI/config), to stop a hijacked Slack DM from escalating.
-- Approvals are requested and collected by the tool hub out of band (button in Slack/Discord, reply in WhatsApp), with a timeout → deny; which chat identity sends them is decision 21. See §2, Gateway and tool hub.
+- Approvals are requested and collected by the tool hub out of band (button in Slack/Discord, reply in WhatsApp), with a timeout → deny; in hosted mode the hub sends them through the Slack/Discord app it runs (decision 21). See §2, Gateway and tool hub.
 - Maps onto ZCode's existing `guarded` (≈ tier-cap) and `yolo` modes where possible, not a parallel system.
 - Enforced in the tool hub for integration tools (outbound actions all go through it); the agent-side modes cover local actions (files, shell).
 - Note: ZCode's headless `-p/--prompt` mode **defaults to `yolo`**. The tier engine must override this default before any headless/scheduled run touches real accounts.
@@ -338,10 +338,11 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 
 20. **Direct mode stays until hosted mode is proven**: keeping keys locally is acceptable for now and a useful fallback. The gateway and hub are built and verified end to end before direct mode is removed.
 
+21. **Chat channel credentials (2026-10-19): option C, the hub owns chat in hosted mode.** One Slack/Discord app. The bots framework has a single Slack (and later Discord) provider (`BotProviderAdapter`) with a switchable connection underneath:
+    - **Hosted mode:** the connection talks to the hub. The hub holds the bot tokens, keeps the Socket Mode / Discord Gateway connections, forwards messages to the agent server, carries replies and card updates back, and sends and verifies approvals itself, so approvals can't be forged.
+    - **Direct mode:** the connection talks to Slack/Discord with a local token, with the agent's shell and HTTP tools sandboxed away from those APIs (option A).
+
+    Chosen over a token-injecting proxy (B) because approval clicks arriving over Socket Mode carry no signature the hub could verify, Discord sends its token inside the WebSocket, and a multi-user Slack app needs a central receiver anyway. Two bot identities (D) were rejected.
+
 ### Still open
-21. **Chat channel credentials** (§2): how the chat bot's token is kept away from the agent. Options under consideration:
-    - **A. Single bot in the agent server, contained**: one Slack/Discord app; the token stays in the agent server, and the agent's shell and network access are sandboxed so it can't call the Slack/Discord APIs itself.
-    - **B. Credential-injecting egress proxy**: the agent server holds a placeholder token; outbound requests to Slack/Discord go through a proxy that swaps in the real token and only allows the API methods the channel needs.
-    - **C. Hub owns all chat traffic**: one Slack/Discord app, run by the hub. The hub receives messages and forwards them to the agent server (ZCode's existing webhook bot provider), and replies, approvals and tool actions all go back through the hub.
-    - **D. Two bot identities**: a DM-only chat bot in the agent server plus a separate tool bot in the hub.
 22. **Test accounts**: structure proposed in §6; the user is creating them.
