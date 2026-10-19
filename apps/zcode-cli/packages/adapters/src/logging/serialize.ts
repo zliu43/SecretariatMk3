@@ -15,6 +15,10 @@ export type SerializableLogEntry = Record<string, unknown>;
 export class DefaultLogRedactor implements LogRedactor {
   private readonly sensitiveKeyPattern =
     /(?:api[-_]?key|authorization|cookie|credential|password|secret|token)/i;
+  // Message and tool content (docs/secretariat/specs/logging.md). Exact key names only, so error
+  // `message`s are kept.
+  private readonly contentKeyPattern =
+    /^(?:prompt|content|text|body|input|output|arguments|args|result|response|messages|transcript|stdout|stderr)$/i;
 
   redact(value: unknown): unknown {
     return this.redactValue(value, new WeakSet(), 0);
@@ -39,7 +43,7 @@ export class DefaultLogRedactor implements LogRedactor {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).map(([key, entryValue]) => [
         key,
-        this.sensitiveKeyPattern.test(key)
+        this.sensitiveKeyPattern.test(key) || this.contentKeyPattern.test(key)
           ? "[Redacted]"
           : this.redactValue(entryValue, seen, depth + 1),
       ]),

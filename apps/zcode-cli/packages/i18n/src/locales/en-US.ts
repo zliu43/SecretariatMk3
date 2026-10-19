@@ -17,7 +17,9 @@ With no command, secretariat opens the full-screen TUI.
 Commands:
   app-server Run the Secretariat Protocol stdio app server
   commands   List custom slash commands (\`commands list\`)
+  deployment [status|register]  Show or register this environment's credentials (SECRETARIAT_DEPLOYMENT)
   doctor     Inspect runtime and packaging assumptions
+  logs       Show service or audit logs (\`logs [--service <name>] [--audit] [--since 2h] [--correlation-id <id>] [--limit <n>]\`)
   login [zai|bigmodel]  Sign in through browser authorization
   logout     Remove the shared Z.AI login credentials
   plugins    Manage plugins and marketplaces (\`plugins list|install|uninstall|enable|disable|update|validate|marketplace ...\`; alias: plugin)
