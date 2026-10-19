@@ -29,6 +29,9 @@ jobs:
       - name: Architecture check (changed files)
         run: pnpm architecture:check --base=${{ github.event.pull_request.base.sha || 'origin/secretariat' }}
       - run: pnpm test:architecture
+      # Z.ai addresses may only go down (#45; baseline in config/zai-address-baseline.json).
+      - name: Z.ai address check
+        run: node scripts/secretariat/zai-address-check.mjs && node --test scripts/secretariat/zai-address-check.test.mjs
 
   typecheck:
     name: Typecheck

@@ -70,5 +70,7 @@ Don't run the whole unit suite in one process; it can crash Node near the end. U
   writing bug-fix comments in Chinese. Leave existing Chinese text alone unless you're rewriting that
   code anyway.
 - Keep ZCode attribution in `NOTICE.md`. Package names stay `@zcode/*`.
+- Don't add Z.ai / BigModel / Zhipu addresses. CI fails if any file gains one
+  (`scripts/secretariat/zai-address-check.mjs`); after removing some, lower the baseline with `--update`.
 - Never add real account credentials, tokens or personal data to the repo, fixtures or logs. Test and
   prod are separated by `SECRETARIAT_DEPLOYMENT=test|prod`.
