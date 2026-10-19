@@ -58,6 +58,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup
+      # Some tests import workspace packages through their built dist entry points.
+      - run: pnpm build:test-deps
       - name: Unit tests affected by this PR
         env:
           SECRETARIAT_AFFECTED_TEST_BASE: ${{ github.event.pull_request.base.sha || 'origin/secretariat' }}

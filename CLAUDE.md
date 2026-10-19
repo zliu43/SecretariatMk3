@@ -54,6 +54,7 @@ Run from the repo root. Node must be the version pinned in `mise.toml` (24.14.0)
 | Typecheck (agent CLI) | `pnpm exec turbo run typecheck --cwd apps/zcode-cli`                                    |
 | Architecture check    | `pnpm architecture:check --changed` (local edits) or `--base=<ref>` (a branch)          |
 | Affected unit tests   | `pnpm test:unit:affected` (set `SECRETARIAT_AFFECTED_TEST_BASE=<ref>` to pick the base) |
+| Build test deps       | `pnpm build:test-deps` (once per fresh checkout; some tests import built packages)      |
 | One test file         | `pnpm exec vitest run <path>`                                                           |
 
 Don't run the whole unit suite in one process; it can crash Node near the end. Use

@@ -34,6 +34,7 @@
     "test:coverage": "vitest run --coverage --exclude \"packages/desktop/test/e2e/**/*.test.ts\"",
     "test:unit": "vitest run --exclude \"packages/desktop/test/e2e/**/*.test.ts\"",
     "test:unit:affected": "node scripts/run-affected-unit-tests.mjs",
+    "build:test-deps": "tsc -b packages/e2e-report && turbo run build --cwd apps/zcode-cli --filter=@zcode/adapters --output-logs=errors-only",
     "test:docker:web-app-gateway": "node scripts/test-web-app-gateway-reset.mjs",
     "verify:pre-push": "pnpm run lint && pnpm run architecture:check -- --changed && pnpm run test:unit:affected",
     "build": "pnpm -r build",
