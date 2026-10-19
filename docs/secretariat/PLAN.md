@@ -52,7 +52,7 @@ _v4, 2026-10-19. Adds the gateway and tool hub (§2), the Z.ai removal plan, and
 
 The agent runs in one of two modes, chosen by configuration:
 
-- **Direct mode** (works today; kept as the fallback): the agent holds the OpenRouter, Brave and integration keys itself and uses ZCode's own provider, MCP and bots configuration. Simple, no extra services, fine for one user on their own machine or server.
+- **Direct mode** (a convenience, not a supported feature): the agent holds keys itself and uses whatever ZCode's own provider, MCP and bots configuration already offers. It gets no new work of its own (no dedicated settings UI, env-var plumbing or containment); new features are built for hosted mode only.
 - **Hosted mode** (the target): keys live in two services we run, and the agent holds only a Secretariat token. Setting `SECRETARIAT_GATEWAY_URL` switches models to the gateway; setting the hub URL switches tools to the hub.
 
 Direct mode is removed only after hosted mode has been built and verified end to end (decision 20).
@@ -79,7 +79,7 @@ Direct mode is removed only after hosted mode has been built and verified end to
 
 **Approvals.** For a T2+ call the hub asks the user out of band and receives the answer over its own connection to the platform (for example a Slack button click). The agent only sees pending → approved/denied, so it can't forge an approval. In hosted mode the hub sends the request through the single Slack/Discord app it runs (decision 21).
 
-**Chat channels** (decision 21). One Slack/Discord app. In hosted mode the hub runs the connection and holds the tokens; the agent server's bots framework keeps a single provider (sessions, formatting, cards) whose connection goes through the hub. Acting in Slack/Discord as a tool (posting to channels, reading threads) is a hub tool. In direct mode the provider connects with a local token and the agent's shell and HTTP tools are sandboxed away from the Slack/Discord APIs. Whatever the agent server holds, a prompt-injected agent can reach, which is why tokens move to the hub in hosted mode.
+**Chat channels** (decision 21). One Slack/Discord app. In hosted mode the hub runs the connection and holds the tokens; the agent server's bots framework keeps a single provider (sessions, formatting, cards) whose connection goes through the hub. Acting in Slack/Discord as a tool (posting to channels, reading threads) is a hub tool. Direct mode gets no chat-specific work: it is whatever the provider can do with a local token. Whatever the agent server holds, a prompt-injected agent can reach, which is why tokens move to the hub in hosted mode.
 
 **Logging** (#51). One logging foundation for the agent server, gateway and hub, built before the gateway and hub: structured JSON lines per service under `/data/logs/`, rotated; a correlation ID per request passed from the agent to the gateway and hub; redaction enforced by the logger API (allow-listed fields only), so prompts, responses, message bodies, tool arguments/results and secrets are never written; and a separate append-only audit log for tool calls, approvals, tier overrides and halt/resume. Builds on ZCode's `createServiceLogger`.
 
@@ -336,11 +336,11 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 18. **Gateway and tool hub (2026-10-19)**: models and integrations can go through services we run (§2, hosted mode), so usage limits and tier enforcement live server-side and provider keys stay out of the agent. Overshoot protection for budgets is out of scope for now.
 19. **Product readiness**: an optional goal is opening this up to friends or as a product. Build *for* it (per-user tokens and budgets, one agent per user, shared gateway/hub), not *with* it (no sign-up, billing or admin UI until decided).
 
-20. **Direct mode stays until hosted mode is proven**: keeping keys locally is acceptable for now and a useful fallback. The gateway and hub are built and verified end to end before direct mode is removed.
+20. **Direct mode stays until hosted mode is proven**: keeping keys locally is acceptable for now as a convenience, not a supported feature, so it gets no new work of its own. The gateway and hub are built and verified end to end before direct mode is removed.
 
 21. **Chat channel credentials (2026-10-19): option C, the hub owns chat in hosted mode.** One Slack/Discord app. The bots framework has a single Slack (and later Discord) provider (`BotProviderAdapter`) with a switchable connection underneath:
     - **Hosted mode:** the connection talks to the hub. The hub holds the bot tokens, keeps the Socket Mode / Discord Gateway connections, forwards messages to the agent server, carries replies and card updates back, and sends and verifies approvals itself, so approvals can't be forged.
-    - **Direct mode:** the connection talks to Slack/Discord with a local token, with the agent's shell and HTTP tools sandboxed away from those APIs (option A).
+    - **Direct mode:** the connection talks to Slack/Discord with a local token. No extra containment is built for it (direct mode is a convenience; decision 20).
 
     Chosen over a token-injecting proxy (B) because approval clicks arriving over Socket Mode carry no signature the hub could verify, Discord sends its token inside the WebSocket, and a multi-user Slack app needs a central receiver anyway. Two bot identities (D) were rejected.
 
