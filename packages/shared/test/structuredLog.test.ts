@@ -73,6 +73,26 @@ describe("allow-list", () => {
     });
   });
 
+  it("only accepts identifier-shaped strings, not sentences or messages", () => {
+    expect(
+      sanitizeLogFields({
+        reason: "user-requested",
+        code: "ECONNRESET",
+        route: "/v1/messages",
+        user: "u_123",
+        status: "connection reset by peer",
+        approvalId: "ap 1",
+      }),
+    ).toEqual({
+      reason: "user-requested",
+      code: "ECONNRESET",
+      route: "/v1/messages",
+      user: "u_123",
+      status: "[omitted]",
+      approvalId: "[omitted]",
+    });
+  });
+
   it("never lets fields overwrite the line's own keys", () => {
     expect(sanitizeLogFields({ event: "x", service: "y", level: "z", ts: 1 })).toEqual({});
   });
@@ -125,6 +145,22 @@ describe("structured logger", () => {
   });
 });
 
+describe("write failures", () => {
+  it("never break diagnostic logging", async () => {
+    const blocked = join(dir, "file");
+    await writeFile(blocked, "");
+    const logger = createStructuredLogger({ dir: join(blocked, "logs"), name: "hub", now });
+    await expect(logger.error("x")).resolves.toBeUndefined();
+  });
+
+  it("make audit appends reject so callers can fail closed", async () => {
+    const blocked = join(dir, "file");
+    await writeFile(blocked, "");
+    const audit = createAuditLog({ dir: join(blocked, "audit"), now });
+    await expect(audit.append({ event: "halt", user: "u1" })).rejects.toThrow();
+  });
+});
+
 describe("audit log", () => {
   it("appends events with the same allow-list", async () => {
     const audit = createAuditLog({ dir, now });
@@ -153,6 +189,12 @@ describe("retention", () => {
     const removed = await cleanupStructuredLogs({ dir, retentionDays: 14, now: now() });
     expect(removed).toEqual(["2026-09-01.jsonl"]);
     expect((await readdir(dir)).sort()).toEqual(["2026-10-10.jsonl", "notes.txt"]);
+  });
+
+  it("refuses to clean up the audit log", async () => {
+    await expect(cleanupStructuredLogs({ dir: join(dir, "logs", "audit") })).rejects.toThrow(
+      /never cleaned up/,
+    );
   });
 });
 

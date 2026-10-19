@@ -102,6 +102,25 @@ test("filters by --since, --correlation-id and --limit", async () => {
   });
 });
 
+test("--since reads agent-style `timestamp` lines and drops lines without a time", async () => {
+  const base = await mkdtemp(join(tmpdir(), "cli-logs-agent-"));
+  try {
+    await writeFile(
+      join(base, "zcode-2026-10-19.jsonl"),
+      [
+        JSON.stringify({ timestamp: "2026-10-19T08:00:00.000Z", event: "early" }),
+        JSON.stringify({ timestamp: "2026-10-19T11:45:00.000Z", event: "late" }),
+        JSON.stringify({ event: "untimed" }),
+      ].join("\n"),
+    );
+    const ctx = createContext();
+    await runLogsCommand(ctx, { SECRETARIAT_LOG_DIR: base }, [], { since: "1h" }, now);
+    assert.deepEqual(events(ctx.stdout.output()), ["late"]);
+  } finally {
+    await rm(base, { recursive: true, force: true });
+  }
+});
+
 test("reads the audit log with --audit", async () => {
   await withLogs(async (env) => {
     const ctx = createContext();
@@ -130,4 +149,10 @@ test("`secretariat logs` parses its flags without the environment guard", async 
     assert.equal(await run(ctx, { env }), 0);
     assert.deepEqual(events(ctx.stdout.output()), ["recent"]);
   });
+});
+
+test("logs-only flags are rejected on other commands", async () => {
+  const ctx = createContext(["version", "--limit", "5"]);
+  assert.equal(await run(ctx, { env: {} }), 1);
+  assert.match(ctx.stderr.output(), /--limit can only be used with `logs`/);
 });

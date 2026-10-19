@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomBytes } from "node:crypto";
 import { appendFile, mkdir, readdir, rm } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { resolveSecretariatDataDir } from "./deploymentGuard.js";
 
 // Spec: docs/secretariat/specs/logging.md
@@ -10,6 +10,8 @@ export const CORRELATION_ID_HEADER = "x-secretariat-correlation-id";
 export const STRUCTURED_LOG_RETENTION_DAYS = 14;
 export const OMITTED_FIELD = "[omitted]";
 const MAX_IDENTIFIER_LENGTH = 200;
+/** Identifier shape: no whitespace, so sentences, subjects and error messages don't pass. */
+const IDENTIFIER_VALUE = /^[\w.:@/+-]+$/;
 
 /** String fields are only written under these identifier-like keys (plus `id` / `…Id`). */
 const IDENTIFIER_KEYS = new Set([
@@ -65,7 +67,8 @@ export function sanitizeLogFields(fields: LogFields): Record<string, unknown> {
     } else if (
       typeof value === "string" &&
       isIdentifierKey(key) &&
-      value.length <= MAX_IDENTIFIER_LENGTH
+      value.length <= MAX_IDENTIFIER_LENGTH &&
+      IDENTIFIER_VALUE.test(value)
     ) {
       sanitized[key] = value;
     } else {
@@ -99,6 +102,7 @@ async function appendLine(
   event: string,
   fields: LogFields,
   correlationId: string | undefined,
+  failure: "ignore" | "throw" = "ignore",
 ): Promise<void> {
   const now = (options.now ?? (() => new Date()))();
   const line = {
@@ -116,8 +120,9 @@ async function appendLine(
       `${JSON.stringify(line)}\n`,
       { encoding: "utf-8", mode: 0o600 },
     );
-  } catch {
-    // Logging must never break the request path.
+  } catch (error) {
+    // Diagnostic logging must never break the request path; the audit log must not fail silently.
+    if (failure === "throw") throw error;
   }
 }
 
@@ -182,7 +187,10 @@ export type AuditEvent =
   | { event: "halt" | "pause" | "resume"; user: string; reason?: string };
 
 export interface AuditLog {
-  /** Appends one event; there is no API to change or remove past events. */
+  /**
+   * Appends one event; there is no API to change or remove past events. Rejects when the event
+   * couldn't be written, so callers can fail closed instead of acting unrecorded.
+   */
   append(event: AuditEvent): Promise<void>;
 }
 
@@ -195,17 +203,21 @@ export function createAuditLog(options: { dir: string; now?: () => Date }): Audi
         event,
         fields,
         currentCorrelationId(),
+        "throw",
       );
     },
   };
 }
 
-/** Deletes `<date>.jsonl` files older than the retention period. Never call it on the audit log. */
+/** Deletes `<date>.jsonl` files older than the retention period. Refuses the audit log directory. */
 export async function cleanupStructuredLogs(options: {
   dir: string;
   retentionDays?: number;
   now?: Date;
 }): Promise<string[]> {
+  if (basename(options.dir) === "audit") {
+    throw new Error("The audit log is never cleaned up.");
+  }
   const retentionDays = options.retentionDays ?? STRUCTURED_LOG_RETENTION_DAYS;
   const cutoff = new Date(options.now ?? new Date());
   cutoff.setDate(cutoff.getDate() - retentionDays);

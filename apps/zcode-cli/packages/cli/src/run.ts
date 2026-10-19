@@ -496,6 +496,14 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
     return 1;
   }
 
+  const logsOnlyFlags = ["service", "audit", "since", "correlation-id", "limit"].filter(
+    (flag) => parsed.values[flag as keyof typeof parsed.values] !== undefined,
+  );
+  if (logsOnlyFlags.length > 0 && commandName(parsed.positionals) !== "logs") {
+    ctx.stderr.write(`--${logsOnlyFlags[0]} can only be used with \`logs\`.\n`);
+    return 1;
+  }
+
   let workingDirectory: string;
   try {
     workingDirectory = resolveCliCwd({

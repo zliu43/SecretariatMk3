@@ -56,7 +56,9 @@ allow-listed fields.** A field passes if its value is:
 - a number, a boolean or null; or
 - a string under one of the identifier-like keys (`id` or ending in `Id`, `model`, `provider`, `tool`,
   `tier`, `status`, `outcome`, `code`, `reason`, `method`, `route`, `deployment`, `user`, `kind`), at
-  most 200 characters.
+  most 200 characters, made of letters, digits and `_ . : @ / + -` only (no spaces), so a sentence,
+  subject line or error message can't pass as an identifier. `user` is an internal user ID, not an
+  email address.
 
 Any other field is written as `"[omitted]"` (so it's visible that something was dropped, not what).
 Objects and arrays are omitted. There is no way to log a free-form string, so prompts, responses,
@@ -81,7 +83,8 @@ rely on free-form context.
 ## Audit log
 
 Append-only: the API only appends; nothing rewrites or rotates the file except a new day starting a new
-file. Events:
+file. A failed write rejects, so callers (the hub) can fail closed rather than act unrecorded. The
+cleanup helper refuses the audit directory. Events:
 
 | `event`                                  | Fields                                                                                     |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------ |
