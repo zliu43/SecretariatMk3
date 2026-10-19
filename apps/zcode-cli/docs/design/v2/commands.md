@@ -90,7 +90,8 @@ CLI process identity 测试覆盖：
 Headless `--prompt` 测试覆盖：
 
 - `--prompt` without `--mode` passes `build` as the runtime permission mode.
-- `--prompt --mode build|edit|plan|yolo` 保留显式覆盖，不被 headless 默认值改写。
+- `--prompt --mode build|edit|plan|yolo|guarded` keeps the explicit mode; the headless default never overrides it.
+- What `build` denies headless is covered where it is decided: `packages/core/tests/permission-service.test.ts` (`build` asks for side-effecting tools, `mode.build.sideEffect`), `packages/core/tests/permission-broker.test.ts` (the default broker denies), and `packages/cli/tests/headless-workflow.test.ts` (the headless broker keeps every tool except CreateWorkflow/AmendWorkflow at deny).
 
 CLI Browser Use 测试覆盖：
 

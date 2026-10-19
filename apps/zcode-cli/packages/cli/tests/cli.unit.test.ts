@@ -5380,30 +5380,32 @@ test("defaults headless prompts to build mode", async () => {
   assert.equal(ctx.stdout.output(), "hello default mode\n");
 });
 
-test("headless prompts get full access only with an explicit --mode yolo", async () => {
-  const ctx = createContext(["--prompt", "hello yolo", "--mode", "yolo"]);
-  const exitCode = await run(ctx, {
-    ...createPromptDeps(),
-    createZCodeApp: (options) => {
-      assert.equal(options?.runtimeConfig?.mode, "yolo");
-      return {
-        sessionId: "session-test",
-        traceId: "trace-test",
-        runtime: {} as never,
-        submitPrompt: async (prompt: string) => ({
-          events: [],
-          projection: fakeProjection as never,
-          response: prompt,
-          traceId: "trace-test" as never,
-          turnId: "turn-test" as never,
-        }),
-      } as never;
-    },
-  });
+for (const explicitMode of ["build", "edit", "plan", "yolo", "guarded"] as const) {
+  test(`headless prompts keep an explicit --mode ${explicitMode}`, async () => {
+    const ctx = createContext(["--prompt", "hello explicit mode", "--mode", explicitMode]);
+    const exitCode = await run(ctx, {
+      ...createPromptDeps(),
+      createZCodeApp: (options) => {
+        assert.equal(options?.runtimeConfig?.mode, explicitMode);
+        return {
+          sessionId: "session-test",
+          traceId: "trace-test",
+          runtime: {} as never,
+          submitPrompt: async (prompt: string) => ({
+            events: [],
+            projection: fakeProjection as never,
+            response: prompt,
+            traceId: "trace-test" as never,
+            turnId: "turn-test" as never,
+          }),
+        } as never;
+      },
+    });
 
-  assert.equal(exitCode, 0);
-  assert.equal(ctx.stdout.output(), "hello yolo\n");
-});
+    assert.equal(exitCode, 0);
+    assert.equal(ctx.stdout.output(), "hello explicit mode\n");
+  });
+}
 
 test("passes the Desktop presentation surface into headless runtime config", async () => {
   const ctx = createContext(["--surface", "desktop", "--prompt", "hello desktop"]);
