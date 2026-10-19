@@ -91,7 +91,7 @@ export function createRemoteConnectionServiceCollection(params: {
           credentialService: params.credentialService,
         }),
       )
-      .register(IClientScenesService, createClientScenesService({ apiClient: params.apiClient }))
+      .register(IClientScenesService, createClientScenesService())
       .register(IClientConfigService, params.clientConfigService)
       .register(ISkillsService, params.connectionServices.skillsService)
       .register(ISkillSyncService, params.connectionServices.skillSyncService)

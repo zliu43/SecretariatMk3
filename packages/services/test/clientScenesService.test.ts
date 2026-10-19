@@ -1,70 +1,22 @@
-import { describe, expect, it, vi } from "vitest";
-import type { ApiClient } from "@zcode/shared";
-import { SECRETARIAT_CLIENT_SCENES_URL } from "../src/providers/api/apiEndpoints.js";
+import { describe, expect, it } from "vitest";
+import { createClientConfigService } from "../src/client-config/clientConfigService.js";
 import { createClientScenesService } from "../src/client-scenes/clientScenesService.js";
 
-describe("ClientScenesService", () => {
-  it("通过统一 ApiClient 读取 client scenes envelope", async () => {
-    const request = vi.fn(
-      async () =>
-        new Response(
-          JSON.stringify({
-            code: 0,
-            msg: "",
-            data: [
-              {
-                namespace: "zcode",
-                scene: "ai-slides",
-                options: {
-                  template: {
-                    id: "template",
-                    type: "template",
-                    contents: { en: "Template", cn: "模板" },
-                    prompts: { en: "Create slides", cn: "制作幻灯片" },
-                    items: [
-                      {
-                        id: "business",
-                        type: "template",
-                        contents: { en: "Business", cn: "商务" },
-                        descs: { en: "Business deck", cn: "商务演示" },
-                        labels: { en: "Recommended", cn: "推荐" },
-                        on_finish: "open_presentation",
-                        img: null,
-                        imgs: { cn: "https://example.com/cn.png" },
-                        share_urls: {},
-                      },
-                    ],
-                    refer: "",
-                    cascades: {},
-                  },
-                },
-                created_at: 1,
-                updated_at: 2,
-              },
-            ],
-          }),
-          { status: 200 },
-        ),
-    );
-    const service = createClientScenesService({
-      apiClient: { request } as ApiClient,
+// The upstream vendor's client-config and client-scenes endpoints are removed (#46): both services
+// answer locally and never touch the network.
+describe("client config and scenes without a remote service", () => {
+  it("returns local defaults for client config", async () => {
+    await expect(createClientConfigService().getSnapshot()).resolves.toEqual({
+      pluginStoreOrder: null,
+      zsrcUrl: null,
     });
+  });
 
-    await expect(service.list()).resolves.toEqual({
+  it("returns no remote scenes", async () => {
+    await expect(createClientScenesService().list()).resolves.toEqual({
       code: 0,
       msg: "",
-      data: [
-        expect.objectContaining({
-          namespace: "zcode",
-          scene: "ai-slides",
-          created_at: 1,
-          updated_at: 2,
-        }),
-      ],
-    });
-    expect(request).toHaveBeenCalledOnce();
-    expect(request).toHaveBeenCalledWith(SECRETARIAT_CLIENT_SCENES_URL, {
-      method: "GET",
+      data: [],
     });
   });
 });

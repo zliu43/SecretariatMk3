@@ -41,7 +41,7 @@ afterEach(async () => {
 });
 
 describe("process provider registry runtime", () => {
-  it("Standalone 长生命周期下载 URL Release 后跟进 Registry；Managed Worker 不下载", async () => {
+  it("Standalone never fetches a remote Built-in release (#46)", async () => {
     const root = await temporaryDirectory();
     const builtin = JSON.parse(
       await readFile(
@@ -53,61 +53,32 @@ describe("process provider registry runtime", () => {
     const active = join(root, "active.json");
     await writeFile(bundled, JSON.stringify(builtin));
     await writeFile(active, JSON.stringify(builtin));
-    builtin.revision += 1;
-    let releaseDownload!: () => void;
-    const wait = new Promise<void>((resolve) => {
-      releaseDownload = resolve;
-    });
-    const request = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
-      expect(init?.headers).toBeUndefined();
-      if (String(url).includes("/api/v1/client/configs?"))
-        return new Response(
-          JSON.stringify({
-            code: 0,
-            data: { configs: { builtin_provider_config_json: "https://cdn.example.com/new.json" } },
-          }),
-        );
-      await wait;
-      return new Response(JSON.stringify(builtin));
-    });
+    const request = vi.fn(async () => new Response("{}"));
     const credentialStore = createSharedZCodeCredentialStore({
       env: { SECRETARIAT_DATA_BASE_DIR: root },
     });
-    const env = {
-      [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: active,
-      [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
-      SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE: bundled,
-    };
-    const runtime = await startProcessProviderRegistryRuntime(env, {
-      standalone: {
-        credentialStore,
-        request,
-        legacyCliUserConfigFilePath: join(root, "absent.json"),
+    const runtime = await startProcessProviderRegistryRuntime(
+      {
+        [SECRETARIAT_BUILTIN_PROVIDER_CONFIG_FILE_ENV]: active,
+        [SECRETARIAT_PERSONAL_PROVIDER_CONFIG_FILE_ENV]: join(root, "personal.json"),
+        SECRETARIAT_BUILTIN_PROVIDER_BUNDLED_CONFIG_FILE: bundled,
       },
-    });
-    const old = runtime.runtime.registryService.getSnapshot()!;
+      {
+        standalone: {
+          credentialStore,
+          request,
+          legacyCliUserConfigFilePath: join(root, "absent.json"),
+        },
+      },
+    );
     try {
-      await vi.waitFor(() => expect(request).toHaveBeenCalledTimes(2));
-      expect(runtime.runtime.registryService.getSnapshot()).toBe(old);
-      releaseDownload();
-      await vi.waitFor(() =>
-        expect(runtime.runtime.registryService.getSnapshot()!.config.zcodeBuiltinRevision).toMatch(
-          `zcode-builtin:${builtin.revision}:`,
-        ),
+      expect(runtime.runtime.registryService.getSnapshot()!.config.zcodeBuiltinRevision).toMatch(
+        `zcode-builtin:${builtin.revision}:`,
       );
-      const next = runtime.runtime.registryService.getSnapshot()!;
-      expect(next.account.basedOnZCodeBuiltinRevision).toBe(next.config.zcodeBuiltinRevision);
-      expect(JSON.parse(await readFile(active, "utf8")).revision).toBe(builtin.revision);
-      expect(JSON.parse(await readFile(bundled, "utf8")).revision).toBe(builtin.revision - 1);
-      const worker = await startProcessProviderRegistryRuntime(env);
-      try {
-        expect(worker.snapshot.config.zcodeBuiltinRevision).toBe(next.config.zcodeBuiltinRevision);
-        expect(request).toHaveBeenCalledTimes(2);
-      } finally {
-        worker.dispose();
-      }
+      // Give a would-be background refresh time to start.
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      expect(request).not.toHaveBeenCalled();
     } finally {
-      releaseDownload();
       runtime.dispose();
     }
   });
