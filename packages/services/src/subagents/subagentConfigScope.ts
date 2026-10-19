@@ -14,6 +14,21 @@ export interface SubagentConfigLoadContext {
   waitForStableFile(path: string): Promise<boolean>;
 }
 
+/**
+ * Same file or directory, not just the same inode number: Linux reuses a freed inode immediately, so
+ * a directory removed and recreated in quick succession keeps its `ino` (macOS doesn't). Birth time
+ * tells them apart where the filesystem records it (0 elsewhere, which leaves the ino check).
+ */
+type FilesystemIdentity = {
+  dev: number | bigint;
+  ino: number | bigint;
+  birthtimeMs: number | bigint;
+};
+
+function isSameFilesystemObject(a: FilesystemIdentity, b: FilesystemIdentity): boolean {
+  return a.dev === b.dev && a.ino === b.ino && a.birthtimeMs === b.birthtimeMs;
+}
+
 async function waitForStableFile(path: string, signal: AbortSignal): Promise<boolean> {
   let previous: Awaited<ReturnType<typeof stat>> | undefined;
   let stableSince = performance.now();
@@ -29,8 +44,7 @@ async function waitForStableFile(path: string, signal: AbortSignal): Promise<boo
       current.size !== previous.size ||
       current.mtimeMs !== previous.mtimeMs ||
       current.ctimeMs !== previous.ctimeMs ||
-      current.ino !== previous.ino ||
-      current.dev !== previous.dev
+      !isSameFilesystemObject(current, previous)
     )
       stableSince = performance.now();
     else if (performance.now() - stableSince >= WRITE_STABILITY_MS) return true;
@@ -197,8 +211,8 @@ export function createSubagentConfigScope<T>(options: {
           watcher &&
           anchor === nextAnchor &&
           !force &&
-          anchorStats?.dev === stats.dev &&
-          anchorStats.ino === stats.ino
+          anchorStats !== undefined &&
+          isSameFilesystemObject(anchorStats, stats)
         )
           continue;
         const previous = watcher;
