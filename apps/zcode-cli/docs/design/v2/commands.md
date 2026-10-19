@@ -40,7 +40,7 @@ TUI 的 slash command 候选列表见 [`tui-slash-command-suggestions.md`](./tui
 进程级 CLI 命令：
 
 - 全局 `--cwd <path>`: 指定本次 CLI command 的有效工作目录。该目录会作为 session `workingDirectory`、dotenv 查找起点、skill discovery 目录、`--continue`/`/resume` 最近 session 查询目录以及 `doctor` 的报告目录。相对路径必须按 CLI 启动时的当前目录解析为绝对路径；空路径、不存在路径、不可访问路径或非目录路径必须在 CLI 入口边界返回明确错误，并且不得创建 app/session、不得发送模型请求。实现不得调用 `process.chdir()`，避免污染 TUI、Secretariat app-server、多 session 和后台任务所在的 Node.js 进程。`--cwd` 是 CLI 参数覆盖，不新增 `SECRETARIAT_*` 环境变量；若后续要增加环境变量形式，必须先补充用途、优先级、错误行为和测试覆盖。
-- 全局 `--prompt <text>`: 作为脚本友好的单轮 headless 入口。未显式传入 `--mode` 时，CLI 必须以 `yolo` permission mode 创建 runtime，避免无交互 broker 的 headless prompt 在常见写文件、执行命令路径上停在审批流；显式 `--mode build|edit|plan|yolo` 仍然优先于该默认值。该默认只属于 `--prompt` 入口，不改变无参数 TUI、`zcode tui`、Secretariat app-server session 或单独 `--target` 的初始化 mode。
+- Global `--prompt <text>`: the script-friendly single-turn headless entry. Without an explicit `--mode`, the CLI creates the runtime in `build` mode, the same default as every other entry (Secretariat: an agent that can act on real accounts must not get full access by default). Headless has no interactive approver, so the default deny broker refuses anything `build` would ask about: read-only and low-risk session-local tools run; file writes, shell commands with side effects and other side-effecting tools are denied with the reason in the tool result. Full access requires an explicit `--mode yolo`; an explicit `--mode build|edit|plan|yolo|guarded` always wins.
 - 全局 `--browser-use=headless`: 为 `--prompt`、`--target` 和 TUI 显式启用 CLI managed CDP Browser Use。CLI 在首次 backend discovery 时启动 native headless Chromium，只有完成 CDP handshake 后才返回 `type: "cdp"` descriptor。该参数不使用 `agent-browser`，不改变 browser-use plugin/node_repl 模型入口；plugin 禁用时不得启动 Chromium。`zcode app-server` 使用该参数必须 fail closed，避免 Desktop/Web Remote shared-host 链路获得第二个 browser runtime。
 - 全局 `--browser-executable <absolute-path>`: 指定 `--browser-use=headless` 使用的 Chrome/Chromium 可执行文件；不能单独使用。省略时只查找本机已安装 browser 和 Playwright cache，P0 不联网下载。路径或可执行性错误必须发生在 app/session 创建前；实现使用跨平台 path/fs API 和参数数组 spawn，不经 shell，不默认添加 `--no-sandbox`。
 - 全局 `--workflow-mode <disabled|onDemand|alwaysOn>`: 决定本进程 TUI 与 headless（`--prompt`、`--target`）会话的动态工作流面，语义同服务端 `dynamicWorkflow.mode`（`docs/dynamic-workflow/launch.md`「The standalone CLI: `--workflow-mode`」）。**缺省为 `disabled`**。取值用 shared 的 `normalizeDynamicWorkflowMode`（精确拼写、忽略首尾空白），非法值在 CLI 入口报错并列出三个取值，退出码 1，不创建 app/session。`app-server`/`agent-server` 由 Host 决定 mode，带该参数即报作用域错误；`login`、`plugins`、`skills`、`doctor` 等不建会话的子命令同样报错。入口把 mode 一次性折成两个显式 runtime 字段 `dynamicWorkflowEnabled = mode !== "disabled"`、`dynamicWorkflowToolsOnDemand = mode === "onDemand"`，写进本进程创建的每个 app（含 `/new`、`/resume`、fork）；mode 不落盘，resume 到不同 mode 静默切换。不新增环境变量或配置键。
@@ -89,7 +89,7 @@ CLI process identity 测试覆盖：
 
 Headless `--prompt` 测试覆盖：
 
-- `--prompt` 未传 `--mode` 时传给 runtime 的 permission mode 是 `yolo`。
+- `--prompt` without `--mode` passes `build` as the runtime permission mode.
 - `--prompt --mode build|edit|plan|yolo` 保留显式覆盖，不被 headless 默认值改写。
 
 CLI Browser Use 测试覆盖：

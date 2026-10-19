@@ -41,7 +41,7 @@ export const zhCN: ZCodeCopy = {
     "Bash(git *)" 也会移除整个 Bash，不支持按命令内容匹配。
   --force-mcs      对 Anthropic provider 强制启用 mid-conversation system 投影
   --locale <locale>  UI 语言：en-US、zh-CN 或 auto
-  --mode <mode>    prompt 权限模式：build、edit、plan、yolo 或 guarded（--prompt 默认 yolo）
+  --mode <mode>    prompt 权限模式：build、edit、plan、yolo 或 guarded（默认 build；yolo 需显式指定）
   --resume <sessionId>  按 sessionId 恢复持久化 session（sess_...）
   --target <text>  在 headless 模式运行或设置 session goal
   --target-replace 替换 --target 已存在的 goal

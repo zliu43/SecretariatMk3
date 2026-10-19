@@ -41,7 +41,7 @@ Options:
     "Bash(git *)" removes all of Bash; command patterns are not matched.
   --force-mcs      Force mid-conversation system projection for Anthropic providers
   --locale <locale>  UI locale: en-US, zh-CN, or auto
-  --mode <mode>    Permission mode for prompts: build, edit, plan, yolo, or guarded (default: yolo for --prompt)
+  --mode <mode>    Permission mode for prompts: build, edit, plan, yolo, or guarded (default: build; yolo must be explicit)
   --resume <sessionId>  Resume a persisted session by sessionId (sess_...)
   --target <text>  Run or set the session goal in headless mode
   --target-replace Replace any existing session goal set by --target
