@@ -1,4 +1,13 @@
-import { createLocalServices, createTopicResourcePeers, getAppConfigDir } from "@zcode/services/node";
+import {
+  checkDeploymentGuard,
+  DeploymentGuardError,
+  resolveSecretariatDataDir,
+} from "@zcode/shared/node";
+import {
+  createLocalServices,
+  createTopicResourcePeers,
+  getAppConfigDir,
+} from "@zcode/services/node";
 import {
   materializeBundledZCodeBuiltinProviderConfig,
   readBundledZCodeBuiltinProviderConfig,
@@ -6,12 +15,25 @@ import {
 import { createHttpServer } from "./http.js";
 
 async function main(): Promise<void> {
+  // Environment guard (docs/secretariat/specs/environment-guard.md): before anything starts.
+  try {
+    await checkDeploymentGuard({
+      env: process.env,
+      dataDir: resolveSecretariatDataDir(process.env),
+      interactive: false,
+    });
+  } catch (error) {
+    if (!(error instanceof DeploymentGuardError)) throw error;
+    console.error(`[zcode-server:http] Environment guard: ${error.message}`);
+    process.exit(1);
+  }
   const zcodeBuiltinProviderConfigFilePath = await materializeBundledZCodeBuiltinProviderConfig({
     environmentConfigRoot: getAppConfigDir(),
     content: readBundledZCodeBuiltinProviderConfig(),
   });
   const port = Number(process.env["PORT"]) || 3030;
-  const host = process.env["SECRETARIAT_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
+  const host =
+    process.env["SECRETARIAT_SERVER_HOST"]?.trim() || process.env["HOST"]?.trim() || undefined;
   const staticRoot = process.env["SECRETARIAT_WEB_STATIC_ROOT"]?.trim() || undefined;
   const authToken = process.env["SECRETARIAT_SERVER_AUTH_TOKEN"]?.trim() || undefined;
   const topicResourcePeers = createTopicResourcePeers();

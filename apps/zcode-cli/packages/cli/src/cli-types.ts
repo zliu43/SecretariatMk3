@@ -1,4 +1,5 @@
 import type { TuiReadClipboardImage, TuiWriteClipboardText } from "@zcode/tui";
+import type { CliDeploymentGuard } from "./deployment-command.js";
 import type { UiLocale } from "@zcode/i18n";
 import type { Logger } from "@zcode/contracts";
 import type {
@@ -87,6 +88,8 @@ export interface RunDependencies extends PluginsCommandOverrides {
     options: ConfigureCodingPlanApiKeyOptions,
   ) => ReturnType<typeof configureCodingPlanApiKey>;
   loadDotenv?: (options?: LoadCliDotenvOptions) => DotenvLoadResult;
+  /** Environment guard (docs/secretariat/specs/environment-guard.md); tests replace it. */
+  deploymentGuard?: CliDeploymentGuard;
   prepareZCodeTelemetryEnv?: typeof prepareZCodeTelemetryEnv;
   projectConfigPath?: string;
   listSessions?: (options: ListZCodeSessionsOptions) => ReturnType<typeof listZCodeSessions>;

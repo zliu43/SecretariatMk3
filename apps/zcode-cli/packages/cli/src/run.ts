@@ -25,6 +25,7 @@ import { runPrompt } from "./prompt-command.js";
 import { runPluginsCommand, type PluginsCommandFlags } from "./plugins-command.js";
 import { runSkillsCommand } from "./skills-command.js";
 import { runTuiCommand } from "./tui-command.js";
+import { enforceDeploymentGuard, runDeploymentCommand } from "./deployment-command.js";
 import {
   DEFAULT_CLI_WORKFLOW_MODE,
   normalizeWorkflowModeOption,
@@ -273,6 +274,8 @@ const runZCodeProtocolCommand = async (
         cause: dotenvResult.error,
       });
     }
+
+    if (!(await enforceDeploymentGuard(ctx, env, false, deps.deploymentGuard))) return 1;
 
     const runProtocolAgent =
       deps.runZCodeProtocolAgent ?? (await loadBootstrapModule()).runZCodeProtocolAgent;
@@ -566,6 +569,8 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
         presentationSurface,
         parsed.values["prepare-storage"] === true,
       );
+    case "deployment":
+      return await runDeploymentCommand(ctx, env, parsed.positionals.slice(1));
     case "doctor":
       return runDoctor(ctx, options, workingDirectory);
     case "login":

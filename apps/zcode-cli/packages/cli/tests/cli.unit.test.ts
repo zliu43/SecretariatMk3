@@ -27,6 +27,7 @@ import {
 } from "@zcode/shared";
 import type { RunContext } from "@zcode/shared-types";
 import type { TuiOptions } from "@zcode/tui";
+import { allowDeploymentGuard } from "./support/deployment-guard.js";
 import { run } from "../src/run.js";
 import { createTuiSubmitPrompt } from "../src/tui-prompt-handler.js";
 import {
@@ -4754,6 +4755,7 @@ test("loads dotenv before creating the prompt app", async () => {
       } as never;
     },
     env,
+    deploymentGuard: allowDeploymentGuard,
     loadDotenv: (options) => {
       if (options?.env) {
         options.env.SECRETARIAT_API_KEY = "loaded-at-runtime";
@@ -5924,6 +5926,7 @@ test("loads dotenv for app-server only in development runtime", async () => {
     env: {
       [SECRETARIAT_RUNTIME_ENV_KEY]: "development",
     },
+    deploymentGuard: allowDeploymentGuard,
     loadDotenv: (options) => {
       dotenvCalls += 1;
       assert.equal(options?.cwd, "/workspace");

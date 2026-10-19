@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { allowDeploymentGuard } from "./support/deployment-guard.js";
 import test from "node:test";
 import type { ZCodeAppOptions } from "@zcode/bootstrap";
 import type { RunContext } from "@zcode/shared-types";
@@ -43,6 +44,7 @@ function harness(argv: string[]) {
   const deps: RunDependencies = {
     skipUserConfig: true,
     env: {},
+    deploymentGuard: allowDeploymentGuard,
     loadDotenv: () => ({ keys: [], loaded: false }),
     resolveLatestSession: async () => ({ id: "sess_latest" }) as never,
     resolveWorkspaceGitBranch: async () => undefined,

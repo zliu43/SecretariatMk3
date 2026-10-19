@@ -27,3 +27,20 @@ export {
   type NodeSelfResourceSampler,
   type NodeSelfResourceSamplerOptions,
 } from "./node/nodeSelfResourceTelemetry.js";
+export {
+  checkDeploymentGuard,
+  DEPLOYMENT_RECORD_FILE_NAME,
+  DeploymentGuardError,
+  fingerprintCredential,
+  GUARDED_CREDENTIAL_ENV_KEYS,
+  readDeploymentStatus,
+  registerDeploymentCredentials,
+  resolveSecretariatDataDir,
+  SECRETARIAT_DEPLOYMENT_ENV,
+  type DeploymentGuardErrorCode,
+  type DeploymentGuardOptions,
+  type DeploymentGuardResult,
+  type DeploymentRegisterResult,
+  type DeploymentStatus,
+  type SecretariatDeployment,
+} from "./node/deploymentGuard.js";

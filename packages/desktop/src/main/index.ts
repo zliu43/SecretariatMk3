@@ -137,6 +137,7 @@ import {
   updateZCodeStdioTapDevMenuState,
 } from "./desktopApplicationMenu.js";
 import { applyAppIcon } from "./desktopWindowChrome.js";
+import { runDesktopDeploymentGuard } from "./desktopDeploymentGuard.js";
 import { resolveWindowsAppUserModelIdForFlavor } from "../../scripts/desktop-product-identity.mjs";
 import type { DesktopWindowSize } from "./desktopWindowSize.js";
 import { maybeWarnArchitectureMismatch } from "./desktopArchitectureGuard.js";
@@ -2157,6 +2158,18 @@ app.whenReady().then(async () => {
     reconcileKeepAwakeBlocker();
   } catch {
     // 读取失败不影响启动，使用默认 homedir
+  }
+  // Environment guard (docs/secretariat/specs/environment-guard.md): after the data directory is
+  // known, before any host or agent process starts.
+  const deployment = await runDesktopDeploymentGuard({
+    env: process.env,
+    dataBaseDir: getDataBaseDir(),
+    showError: (title, message) => dialog.showErrorBox(title, message),
+    log: (message) => logger.info(message),
+  });
+  if (!deployment) {
+    app.exit(1);
+    return;
   }
 
   // scheduler 也会打开 tasks-index；等 Host 完成统一准备，避免在启动页出现前抢先迁移。

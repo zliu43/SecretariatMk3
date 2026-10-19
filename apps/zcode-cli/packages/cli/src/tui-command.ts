@@ -2,6 +2,8 @@ import type { RunContext, GlobalOptions } from "@zcode/shared-types";
 import { resolveZCodeRuntimeEnv, type DynamicWorkflowMode } from "@zcode/shared";
 import { createNodeClipboardImageReader } from "./clipboard-image.js";
 import { createNodeClipboardTextWriter } from "./clipboard-text.js";
+import { enforceDeploymentGuard } from "./deployment-command.js";
+import { loadCliDotenv } from "./env.js";
 import { listSlashCommandSuggestions } from "./command-center.js";
 import { registerCliShutdownHandlers } from "./shutdown.js";
 import { listCustomCommandsForTui, loadInitialTuiSessionMetadata } from "./tui-command-data.js";
@@ -30,6 +32,10 @@ export const runTuiCommand = async (
     const runTui = deps.runTui ?? (await loadTuiRuntime()).runTui;
     const workspaceDirectory = (deps.cwd ?? process.cwd)();
     const env = deps.env ?? process.env;
+    // Load .env before the guard so credentials from it are checked; dotenv never overrides, so the
+    // prompt runtime's own load later is a no-op for these keys.
+    (deps.loadDotenv ?? loadCliDotenv)({ cwd: workspaceDirectory, env });
+    if (!(await enforceDeploymentGuard(ctx, env, true, deps.deploymentGuard))) return 1;
     const developerMode = resolveZCodeRuntimeEnv(env) === "development";
     const startupLocale = resolveTuiStartupLocale({
       deps,
