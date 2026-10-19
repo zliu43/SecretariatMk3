@@ -52,7 +52,7 @@ _v4, 2026-10-19. Adds the gateway and tool hub (§2), the Z.ai removal plan, and
 
 The agent runs in one of two modes, chosen by configuration:
 
-- **Direct mode** (a convenience, not a supported feature): the agent holds keys itself and uses whatever ZCode's own provider, MCP and bots configuration already offers. It gets no new work of its own (no dedicated settings UI, env-var plumbing or containment); new features are built for hosted mode only.
+- **Direct mode** (a convenience, not a supported feature): the agent holds keys itself and uses whatever ZCode's own provider, MCP and bots configuration already offers. It gets no new work of its own (no dedicated settings UI, env-var plumbing or containment); new features are built for hosted mode only. Because nothing contains it, don't use direct mode with real chat tokens or T2+ tools.
 - **Hosted mode** (the target): keys live in two services we run, and the agent holds only a Secretariat token. Setting `SECRETARIAT_GATEWAY_URL` switches models to the gateway; setting the hub URL switches tools to the hub.
 
 Direct mode is removed only after hosted mode has been built and verified end to end (decision 20).
@@ -217,7 +217,7 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 
 **M0 — Foundation**
 - Fork builds; `pnpm typecheck`, `pnpm lint`, CLI tests pass.
-- `secretariat -p "hello"` works in direct mode (local OpenRouter key) and in hosted mode (gateway token only); no Z.ai login.
+- `secretariat -p "hello"` works in hosted mode (gateway token only); no Z.ai login. Direct mode keeps working as ZCode already offers it, but is not a gate.
 - Gateway: token auth, per-user daily/monthly budget enforced (test: over-budget request rejected), every call metered and logged.
 - Tool hub: Brave search callable as a T0 MCP tool from the agent; in hosted mode the Brave key is present only in the hub's environment.
 - CI Z.ai address check at 0; only the gateway provider remains in the bundled config.
