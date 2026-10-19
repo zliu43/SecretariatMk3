@@ -94,6 +94,21 @@ describe("data directory binding", () => {
     );
   });
 
+  it("lets only one of two concurrent first runs bind a fresh directory", async () => {
+    const results = await Promise.allSettled(
+      (["test", "prod"] as const).map((deployment) =>
+        checkDeploymentGuard({
+          env: { SECRETARIAT_DEPLOYMENT: deployment },
+          dataDir,
+          interactive: false,
+        }),
+      ),
+    );
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    const rejected = results.find((result) => result.status === "rejected");
+    expect((rejected as PromiseRejectedResult).reason.code).toBe("record.mismatch");
+  });
+
   it("refuses a corrupt record and leaves it untouched", async () => {
     await mkdir(dataDir, { recursive: true });
     await writeFile(join(dataDir, "deployment.json"), "{ not json");

@@ -36,7 +36,12 @@ The data directory is `$SECRETARIAT_DATA_BASE_DIR/.secretariat` (home directory 
 }
 ```
 
-- Missing file: the guard creates it with the declared environment and no credentials.
+- Missing file: the guard creates it with the declared environment and no credentials. Creation is
+  exclusive, so two processes starting together on a fresh directory can't both bind it.
+- Each process checks the data directory it actually stores data in. The desktop app's custom data
+  directory setting isn't passed to the agents it starts (they use `SECRETARIAT_DATA_BASE_DIR` or the
+  home directory), so the two directories can differ; each is bound separately, and both to the
+  environment the desktop passes down.
 - `deployment` differs from the declared environment: refuse to start.
 - Unreadable or invalid file: refuse to start. The guard never overwrites it.
 
@@ -51,7 +56,9 @@ the gateway and tool hub check their own credentials when they exist (PLAN.md §
   recorded under the same name in `deployment.json`. Unregistered or changed: refuse to start.
 - Fingerprints are stored only in the data directory, never in the repo, and secrets are never stored.
 
-`secretariat deployment register` records the fingerprints of the guarded variables that are set. It
+`secretariat deployment register` records the fingerprints of the guarded variables that are set,
+after loading the same `.env` files the guarded entries load. Registering is the operator's assertion
+that these credentials belong to the declared environment; the guard can't verify that itself. It
 requires `SECRETARIAT_DEPLOYMENT` to be set explicitly (no interactive default) and refuses if the data
 directory belongs to the other environment. Entries for variables that aren't set are kept.
 `secretariat deployment status` prints the declared environment, the data directory's environment and

@@ -570,6 +570,8 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
         parsed.values["prepare-storage"] === true,
       );
     case "deployment":
+      // Same .env the guarded entries load, so register/status see the credentials they will check.
+      (deps.loadDotenv ?? loadCliDotenv)({ cwd: workingDirectory, env });
       return await runDeploymentCommand(ctx, env, parsed.positionals.slice(1));
     case "doctor":
       return runDoctor(ctx, options, workingDirectory);

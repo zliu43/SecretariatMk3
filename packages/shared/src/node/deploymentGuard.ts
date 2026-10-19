@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { atomicWritePrivateTextFile } from "./privateFilePersistence.js";
 
 // Spec: docs/secretariat/specs/environment-guard.md
@@ -114,6 +114,24 @@ async function readRecord(recordPath: string): Promise<DeploymentRecord | undefi
   );
 }
 
+/** First-run binding: create only if absent, so two processes can't both bind a fresh directory. */
+async function createRecordExclusively(
+  recordPath: string,
+  record: DeploymentRecord,
+): Promise<boolean> {
+  await mkdir(dirname(recordPath), { recursive: true });
+  try {
+    await writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`, {
+      flag: "wx",
+      mode: 0o600,
+    });
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "EEXIST") return false;
+    throw error;
+  }
+}
+
 async function writeRecord(recordPath: string, record: DeploymentRecord): Promise<void> {
   await atomicWritePrivateTextFile(recordPath, `${JSON.stringify(record, null, 2)}\n`);
 }
@@ -148,9 +166,14 @@ export async function checkDeploymentGuard(
   let record = await readRecord(recordPath);
   let recordCreated = false;
   if (!record) {
-    record = { version: 1, deployment, credentials: {} };
-    await writeRecord(recordPath, record);
-    recordCreated = true;
+    recordCreated = await createRecordExclusively(recordPath, {
+      version: 1,
+      deployment,
+      credentials: {},
+    });
+    // Another process may have bound the directory first; its record decides.
+    record = await readRecord(recordPath);
+    if (!record) throw new DeploymentGuardError("record.unreadable", `Cannot read ${recordPath}.`);
   }
   assertRecordMatches(record, deployment, recordPath);
 

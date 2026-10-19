@@ -106,6 +106,28 @@ test("deployment register and status use fingerprints only", async () => {
   }
 });
 
+test("deployment register sees credentials from .env", async () => {
+  const base = await mkdtemp(join(tmpdir(), "cli-deployment-"));
+  try {
+    const env: Record<string, string | undefined> = {
+      SECRETARIAT_DATA_BASE_DIR: base,
+      SECRETARIAT_DEPLOYMENT: "test",
+    };
+    const ctx = createContext(["deployment", "register"]);
+    const exitCode = await run(ctx, {
+      env,
+      loadDotenv: (options) => {
+        if (options?.env) options.env.OPENROUTER_API_KEY = "sk-or-from-dotenv";
+        return { keys: ["OPENROUTER_API_KEY"], loaded: true, path: "/workspace/.env" };
+      },
+    });
+    assert.equal(exitCode, 0);
+    assert.match(ctx.stdout.output(), /Registered OPENROUTER_API_KEY/);
+  } finally {
+    await rm(base, { recursive: true, force: true });
+  }
+});
+
 test("deployment register requires an explicit environment", async () => {
   const base = await mkdtemp(join(tmpdir(), "cli-deployment-"));
   try {
