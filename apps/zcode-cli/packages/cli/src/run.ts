@@ -26,6 +26,7 @@ import { runPluginsCommand, type PluginsCommandFlags } from "./plugins-command.j
 import { runSkillsCommand } from "./skills-command.js";
 import { runTuiCommand } from "./tui-command.js";
 import { enforceDeploymentGuard, runDeploymentCommand } from "./deployment-command.js";
+import { runLogsCommand } from "./logs-command.js";
 import {
   DEFAULT_CLI_WORKFLOW_MODE,
   normalizeWorkflowModeOption,
@@ -495,6 +496,14 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
     return 1;
   }
 
+  const logsOnlyFlags = ["service", "audit", "since", "correlation-id", "limit"].filter(
+    (flag) => parsed.values[flag as keyof typeof parsed.values] !== undefined,
+  );
+  if (logsOnlyFlags.length > 0 && commandName(parsed.positionals) !== "logs") {
+    ctx.stderr.write(`--${logsOnlyFlags[0]} can only be used with \`logs\`.\n`);
+    return 1;
+  }
+
   let workingDirectory: string;
   try {
     workingDirectory = resolveCliCwd({
@@ -577,6 +586,14 @@ export const run = async (ctx: RunContext, deps: RunDependencies = {}): Promise<
       return await runDeploymentCommand(ctx, env, parsed.positionals.slice(1));
     case "doctor":
       return runDoctor(ctx, options, workingDirectory);
+    case "logs":
+      return await runLogsCommand(ctx, env, parsed.positionals.slice(1), {
+        service: parsed.values.service as string | undefined,
+        audit: parsed.values.audit === true,
+        since: parsed.values.since as string | undefined,
+        correlationId: parsed.values["correlation-id"] as string | undefined,
+        limit: parsed.values.limit as string | undefined,
+      });
     case "login":
       return await runLoginCommand(
         ctx,

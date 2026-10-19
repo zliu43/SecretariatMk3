@@ -104,6 +104,23 @@ export const parseGlobalArgs = (argv: string[]) =>
         multiple: true,
         type: "string",
       },
+      // `secretariat logs` flags (docs/secretariat/specs/logging.md); registered globally for the
+      // strict parser, like the plugins flags above.
+      service: {
+        type: "string",
+      },
+      audit: {
+        type: "boolean",
+      },
+      since: {
+        type: "string",
+      },
+      "correlation-id": {
+        type: "string",
+      },
+      limit: {
+        type: "string",
+      },
     },
     strict: true,
   });

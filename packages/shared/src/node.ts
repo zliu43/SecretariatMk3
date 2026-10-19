@@ -44,3 +44,22 @@ export {
   type DeploymentStatus,
   type SecretariatDeployment,
 } from "./node/deploymentGuard.js";
+export {
+  cleanupStructuredLogs,
+  CORRELATION_ID_HEADER,
+  createAuditLog,
+  createStructuredLogger,
+  currentCorrelationId,
+  formatLocalLogDate,
+  newCorrelationId,
+  OMITTED_FIELD,
+  runWithCorrelationId,
+  sanitizeLogFields,
+  STRUCTURED_LOG_RETENTION_DAYS,
+  structuredLogDir,
+  type AuditEvent,
+  type AuditLog,
+  type LogFields,
+  type LogLevelName,
+  type StructuredLogger,
+} from "./node/structuredLog.js";

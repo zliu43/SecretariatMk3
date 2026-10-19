@@ -17,7 +17,9 @@ export const zhCN: ZCodeCopy = {
 命令:
   app-server 运行 Secretariat Protocol stdio app server
   commands   列出自定义 slash commands（\`commands list\`）
+  deployment [status|register]  查看或登记当前环境的凭据（SECRETARIAT_DEPLOYMENT）
   doctor     检查运行时和打包假设
+  logs       查看服务日志或审计日志（\`logs [--service <name>] [--audit] [--since 2h] [--correlation-id <id>] [--limit <n>]\`）
   login [zai|bigmodel]  通过浏览器授权登录
   logout     删除共享的 Z.AI 登录凭据
   plugins    管理插件与市场（\`plugins list|install|uninstall|enable|disable|update|validate|marketplace ...\`；别名 plugin）

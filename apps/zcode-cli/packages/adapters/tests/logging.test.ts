@@ -66,6 +66,38 @@ describe("Node logging adapter", () => {
     }
   });
 
+  it("redacts message and tool content but keeps error messages and numbers", async () => {
+    const logDir = await mkdtemp(join(tmpdir(), "zcode-log-"));
+
+    try {
+      const logger = createNodeLoggerFactory({ logDir, minLevel: LogLevel.Debug }).createLogger("test");
+      logger.error("tool failed", new Error("connection reset"), {
+        prompt: "forward the invoice to bob",
+        nested: { arguments: { to: "bob@example.com" }, result: "ok", durationMs: 12 },
+        stdout: "secret output",
+      });
+
+      const [file] = await readdir(logDir);
+      const content = await readFile(join(logDir, file!), "utf8");
+      const entry = JSON.parse(content.trim()) as {
+        context: { prompt: string; stdout: string; nested: Record<string, unknown> };
+        error: { message: string };
+      };
+
+      expect(entry.context.prompt).toBe("[Redacted]");
+      expect(entry.context.stdout).toBe("[Redacted]");
+      expect(entry.context.nested).toEqual({
+        arguments: "[Redacted]",
+        result: "[Redacted]",
+        durationMs: 12,
+      });
+      expect(entry.error.message).toBe("connection reset");
+      expect(content).not.toMatch(/invoice|bob@example.com|secret output/);
+    } finally {
+      await rm(logDir, { recursive: true, force: true });
+    }
+  });
+
   it("does not throw when the log sink cannot be written", async () => {
     const tempRoot = await mkdtemp(join(tmpdir(), "zcode-log-fail-"));
     const fileAsDirectory = join(tempRoot, "not-a-directory");
