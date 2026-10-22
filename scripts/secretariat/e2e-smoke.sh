@@ -144,10 +144,12 @@ check "-p answers through the gateway" 0 "^OK$" -- \
   hosted node "$cli" -p "Reply with OK"
 assert "the gateway saw an authenticated Messages request" \
   bash -c "grep -q '\"path\":\"/v1/messages\".*\"authOk\":true' '$gw_log'"
+assert "…for the default model, GLM 5.3 Flash" \
+  bash -c "tail -1 '$gw_log' | grep -q '\"model\":\"z-ai/glm-5.3-flash\"'"
 check "SECRETARIAT_MODEL picks the gateway model" 0 "^OK$" -- \
-  hosted SECRETARIAT_MODEL=anthropic/claude-opus-5 node "$cli" -p "Reply with OK"
+  hosted SECRETARIAT_MODEL=openai/gpt-6.1-sol node "$cli" -p "Reply with OK"
 assert "…the gateway received that model" \
-  bash -c "tail -1 '$gw_log' | grep -q '\"model\":\"anthropic/claude-opus-5\"'"
+  bash -c "tail -1 '$gw_log' | grep -q '\"model\":\"openai/gpt-6.1-sol\"'"
 assert "the gateway token is never written to the provider config" \
   bash -c "! grep -rq 'e2e-gateway-token' '$base/.secretariat/v2' '$base/.secretariat/cli' 2>/dev/null"
 kill "$gw_pid" 2>/dev/null

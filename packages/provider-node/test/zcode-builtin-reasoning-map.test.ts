@@ -116,7 +116,7 @@ describe("Todo95 专用 Map 合法请求等价", () => {
     const newModelMatchers = new Set([
       // OpenRouter 的无预算 enabled 修复由 openrouter-reasoning-contract.test.ts 独立验收。
       ".*(?:glm-|deepseek-|kimi-k2|qwen|mimo-).*",
-      ".*gpt-6-astra(?:[.\\-:/\\[].*)?",
+      ".*gpt-6(?:-astra|\\.1-sol)(?:[.\\-:/\\[].*)?",
       ".*claude-(?:fable|mythos)-5[.-]1(?:[.\\-:/\\[].*)?",
       ".*deepseek-flash(?:[.\\-:/\\[].*)?",
       "deepseek-flash",
