@@ -246,9 +246,9 @@ describe("Todo113 第二轮：原厂、聚合、快照必须有独立正确配�
           `${t.templateId}/${id}`,
         ).toHaveLength(1);
     }
-    for (const t of ["openai", "openrouter"])
-      for (const id of ["gpt-5.4", "gpt-5.4-pro", "gpt-5.4-mini", "gpt-5.4-nano"])
-        expect(ids(t)).toContain(t === "openrouter" ? `openai/${id}` : id);
+    // Secretariat lists only its own lineup under OpenRouter (#46); see openrouter-reasoning-contract.
+    for (const id of ["gpt-5.4", "gpt-5.4-pro", "gpt-5.4-mini", "gpt-5.4-nano"])
+      expect(ids("openai")).toContain(id);
     for (const t of ["qwen-alibaba-model-studio-cn", "qwen-alibaba-model-studio-intl"])
       for (const id of [
         "qwen3.7-max",
@@ -260,8 +260,6 @@ describe("Todo113 第二轮：原厂、聚合、快照必须有独立正确配�
         expect(ids(t)).toContain(id);
     expect(ids("qwen-alibaba-model-studio-intl")).toContain("qwen3.8-omni-flash");
     expect(ids("moonshot-kimi")).toContain("kimi-k2.7-code-highspeed");
-    expect(ids("openrouter")).toContain("deepseek/deepseek-v4.1-flash");
-    expect(ids("openrouter")).toContain("qwen/qwen3.8-max-0902");
     for (const [t, removed] of [
       ["deepseek", ["deepseek-v4-flash"]],
       ["xiaomi-mimo", ["mimo-v2-pro", "mimo-v2-omni", "mimo-v2-flash"]],
@@ -288,8 +286,6 @@ describe("Todo113 第二轮：原厂、聚合、快照必须有独立正确配�
       }
     }
     expect(ids("deepseek")).toContain("deepseek-v4-pro");
-    expect(ids("openrouter")).toContain("moonshotai/kimi-k2.5");
-    expect(ids("openrouter")).toContain("deepseek/deepseek-v4-flash");
     expect(resolve("mimo-v2-flash").properties?.contextWindow).toBe(262144);
   });
 });

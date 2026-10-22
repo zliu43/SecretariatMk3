@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": 31,
+  "revision": 32,
   "config": {
     "providerConfigRules": {
       "templateRules": [
@@ -418,65 +418,8 @@
               "baseUrl": "https://openrouter.ai/api"
             },
             "builtinModelIds": [
-              "anthropic/claude-fable-5.1",
-              "openai/gpt-6-astra",
-              "openai/gpt-5.6-sol",
-              "anthropic/claude-opus-5",
-              "deepseek/deepseek-v4-pro",
-              "moonshotai/kimi-k3",
-              "z-ai/glm-5.3",
-              "qwen/qwen3.8-max",
-              "minimax/minimax-m3",
-              "xiaomi/mimo-v2.5-pro",
-              "x-ai/grok-4.6",
-              "deepseek/deepseek-v4.1-flash",
-              "qwen/qwen3.8-max-0902",
-              "openai/gpt-5.6-terra",
-              "openai/gpt-5.6-luna",
-              "openai/gpt-5.6",
-              "openai/gpt-5.4",
-              "openai/gpt-5.4-pro",
-              "openai/gpt-5.4-mini",
-              "openai/gpt-5.4-nano",
-              "openai/gpt-5.3-codex",
-              "anthropic/claude-sonnet-5",
-              "anthropic/claude-haiku-4.5",
-              "anthropic/claude-opus-4.8",
-              "anthropic/claude-opus-4.7",
-              "anthropic/claude-opus-4.6",
-              "anthropic/claude-opus-4.5",
-              "anthropic/claude-sonnet-4.6",
-              "anthropic/claude-sonnet-4.5",
-              "deepseek/deepseek-v4-flash",
-              "moonshotai/kimi-k2.7-code",
-              "moonshotai/kimi-k2.6",
-              "moonshotai/kimi-k2.5",
               "z-ai/glm-5.3-flash",
-              "z-ai/glm-5.2",
-              "z-ai/glm-5.1",
-              "z-ai/glm-5v-turbo",
-              "z-ai/glm-5",
-              "z-ai/glm-5-turbo",
-              "z-ai/glm-4.7",
-              "z-ai/glm-4.7-flash",
-              "z-ai/glm-4.6",
-              "z-ai/glm-4.6v",
-              "z-ai/glm-4.5-air",
-              "z-ai/glm-4.5",
-              "qwen/qwen3.8-flash",
-              "qwen/qwen3.7-max",
-              "qwen/qwen3.7-plus",
-              "qwen/qwen3.7-flash",
-              "qwen/qwen3.6-plus",
-              "qwen/qwen3.6-flash",
-              "qwen/qwen3.5-plus-20260420",
-              "qwen/qwen3-vl-plus",
-              "qwen/qwen3-vl-flash",
-              "minimax/minimax-m2.7",
-              "minimax/minimax-m2.5",
-              "xiaomi/mimo-v2.5",
-              "x-ai/grok-build-0.1",
-              "x-ai/grok-4.3"
+              "openai/gpt-6.1-sol"
             ],
             "logo": {
               "type": "builtin",
@@ -1467,7 +1410,7 @@
           }
         },
         {
-          "modelMatch": ".*gpt-6-astra(?:[.\\-:/\\[].*)?",
+          "modelMatch": ".*gpt-6(?:-astra|\\.1-sol)(?:[.\\-:/\\[].*)?",
           "config": {
             "properties": {
               "contextWindow": 1050000,
@@ -3188,7 +3131,7 @@
           }
         },
         {
-          "modelMatch": ".*gpt-6-astra(?:[.\\-:/\\[].*)?",
+          "modelMatch": ".*gpt-6(?:-astra|\\.1-sol)(?:[.\\-:/\\[].*)?",
           "apiTypeMatch": "openai-responses",
           "config": {
             "optionSpecs": {
@@ -4339,7 +4282,7 @@
           }
         },
         {
-          "modelMatch": ".*gpt-6-astra(?:[.\\-:/\\[].*)?",
+          "modelMatch": ".*gpt-6(?:-astra|\\.1-sol)(?:[.\\-:/\\[].*)?",
           "apiTypeMatch": "anthropic-messages",
           "baseUrlMatch": "https://openrouter\\.ai/api(?:/v1)?/?",
           "config": {
@@ -4994,7 +4937,7 @@
           "templateId": "openrouter",
           "modelId": "openai/gpt-5.6-sol",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -5022,7 +4965,7 @@
           "templateId": "openrouter",
           "modelId": "anthropic/claude-opus-5",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -5043,7 +4986,7 @@
           "templateId": "openrouter",
           "modelId": "deepseek/deepseek-v4-pro",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -5057,7 +5000,7 @@
           "templateId": "openrouter",
           "modelId": "moonshotai/kimi-k3",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -5071,14 +5014,21 @@
           "templateId": "openrouter",
           "modelId": "z-ai/glm-5.3",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
           "templateId": "openrouter",
           "modelId": "z-ai/glm-5.3-flash",
           "config": {
-            "enabled": false
+            "enabled": true
+          }
+        },
+        {
+          "templateId": "openrouter",
+          "modelId": "openai/gpt-6.1-sol",
+          "config": {
+            "enabled": true
           }
         },
         {
@@ -5092,7 +5042,7 @@
           "templateId": "openrouter",
           "modelId": "qwen/qwen3.8-max",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -5106,14 +5056,14 @@
           "templateId": "openrouter",
           "modelId": "minimax/minimax-m3",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
           "templateId": "openrouter",
           "modelId": "xiaomi/mimo-v2.5-pro",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -5127,7 +5077,7 @@
           "templateId": "openrouter",
           "modelId": "x-ai/grok-4.6",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
@@ -6002,14 +5952,14 @@
           "templateId": "openrouter",
           "modelId": "openai/gpt-6-astra",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {
           "templateId": "openrouter",
           "modelId": "anthropic/claude-fable-5.1",
           "config": {
-            "enabled": true
+            "enabled": false
           }
         },
         {

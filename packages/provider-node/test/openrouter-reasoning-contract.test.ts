@@ -52,7 +52,8 @@ describe("OpenRouter Messages 推理请求契约", () => {
   );
 
   it("所有模板成员的所有档位不再生成缺预算的 enabled", () => {
-    expect(modelIds.length).toBeGreaterThan(50);
+    // Secretariat lineup (#46): GLM 5.3 Flash is the default, GPT 6.1 Sol the deep-work model.
+    expect(modelIds).toEqual(["z-ai/glm-5.3-flash", "openai/gpt-6.1-sol"]);
     for (const id of modelIds) {
       const config = resolve(id);
       for (const level of config.optionSpecs!.reasoningLevel!.values!) {
@@ -108,6 +109,10 @@ describe("OpenRouter Messages 推理请求契约", () => {
       output_config: { effort: "low" },
     });
     expect(body(resolve("openai/gpt-6-astra"), "high")).not.toHaveProperty("thinking");
+    expect(body(resolve("openai/gpt-6.1-sol"), "high")).toMatchObject({
+      output_config: { effort: "high" },
+    });
+    expect(body(resolve("openai/gpt-6.1-sol"), "high")).not.toHaveProperty("thinking");
   });
 
   it("不改变官方站点、相似域名、其他协议及 Personal Map", () => {

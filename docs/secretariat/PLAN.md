@@ -344,5 +344,7 @@ _Availability caveat: the agent can't see the user's personal calendar. Scheduli
 
     Chosen over a token-injecting proxy (B) because approval clicks arriving over Socket Mode carry no signature the hub could verify, Discord sends its token inside the WebSocket, and a multi-user Slack app needs a central receiver anyway. Two bot identities (D) were rejected.
 
+22. **Models (2026-10-22)**: two OpenRouter models only. GLM 5.3 Flash (`z-ai/glm-5.3-flash`) is the default for the conversation and background calls; GPT 6.1 Sol (`openai/gpt-6.1-sol`) runs the `deep-research` and `coder` subagents. Delegation uses the existing subagent mechanism (the main model picks a subagent by its description); no per-role model routing is built. Details: `specs/models.md`.
+
 ### Still open
-22. **Test accounts**: structure proposed in §6; the user is creating them.
+23. **Test accounts**: structure proposed in §6; the user is creating them.

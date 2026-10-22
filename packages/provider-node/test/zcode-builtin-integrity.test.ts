@@ -384,9 +384,7 @@ describe("Secretariat Built-in Provider Config 完整性", () => {
       const openrouter = snapshot.providerTemplates?.get("openrouter")?.config;
       expect(openrouter?.api?.type).toBe("anthropic-messages");
       expect(openrouter?.api?.baseUrl).toBe("https://openrouter.ai/api");
-      expect(openrouter?.builtinModelIds).toEqual(
-        expect.arrayContaining(["openai/gpt-5.6-sol", "anthropic/claude-opus-5", "z-ai/glm-5.3"]),
-      );
+      expect(openrouter?.builtinModelIds).toEqual(["z-ai/glm-5.3-flash", "openai/gpt-6.1-sol"]);
       for (const templateId of [
         "opencode-zen-responses",
         "opencode-zen-messages",

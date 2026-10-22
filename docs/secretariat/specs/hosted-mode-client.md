@@ -19,6 +19,7 @@ agent uses its normal provider config (direct mode).
 - The gateway appears as a provider `secretariat-gateway` on the OpenRouter template, so it has
   OpenRouter's model list and model rules; the gateway passes model IDs through to OpenRouter.
 - It is listed first and becomes the default selection when `SECRETARIAT_MODEL` is set.
+- Which models it offers, and how the default and subagent models are chosen: `models.md`.
 - It lives only in memory. Edits to the personal provider config are written without it, so the
   token never reaches `provider_config.json`, and a user's own default selection is kept.
 - Applies to the headless CLI and to the desktop services alike (both read the environment).

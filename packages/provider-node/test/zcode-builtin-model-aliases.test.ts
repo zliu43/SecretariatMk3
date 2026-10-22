@@ -169,16 +169,10 @@ describe("发布模型规则的前后缀与覆盖顺序", () => {
       }
       expect([...enabledVendors].sort()).toEqual(
         [
-          "anthropic",
-          "deepseek",
-          "minimax",
-          "moonshotai",
+          // Secretariat lineup under OpenRouter (#46).
           "openai",
-          "qwen",
-          "x-ai",
-          "xiaomi",
           "z-ai",
-        ].sort(),
+        ],
       );
     } finally {
       source.dispose();
